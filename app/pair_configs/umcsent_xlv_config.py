@@ -37,12 +37,14 @@ _R_YOY6 = _R_YOY6["correlation"].iloc[0] if len(_R_YOY6) else float("nan")
 _LEAD_CCF = _CCF[_CCF["lag"].astype(float) > 0]
 _CCF_PEAK = _LEAD_CCF.loc[_LEAD_CCF["ccf"].astype(float).idxmax()] if len(_LEAD_CCF) else None
 _CCF_SIG_LAGS = list(_LEAD_CCF.loc[_LEAD_CCF["significant"].astype(bool), "lag"])
+_LAG_CCF = _CCF[_CCF["lag"].astype(float) < 0]
+_CCF_SIG_REV = [abs(x) for x in _LAG_CCF.loc[_LAG_CCF["significant"].astype(bool), "lag"]]
 _G_FWD = _D.get("granger_min_p_umcsent_to_xlv")
 _G_REV = _D.get("granger_min_p_xlv_to_umcsent")
 
 
 def _p(x) -> str:
-    return "n/a" if x is None else f"{x:.2f}"
+    return "n/a" if x is None else f"{x:.3f}"
 
 
 def _r71_caveat() -> str:
@@ -75,6 +77,16 @@ THRESHOLD_TEXT = P.definitions({
     "T4_zero": "zero", "-": "its trailing 60-month range",
 })
 SIDE = {"procyclical": "above", "countercyclical": "below"}
+SIGNAL_TEXT = P.definitions({
+    "S1_level": "consumer sentiment level", "S2_yoy": "year-over-year % change in consumer sentiment",
+    "S3_mom": "month-over-month % change in consumer sentiment", "S4_zscore": "36-month consumer sentiment z-score",
+    "S5_3m_ma": "3-month average of consumer sentiment", "S6_direction": "direction of the monthly sentiment change",
+    "S7_dev_ma": "consumer sentiment minus its 3-month average",
+})
+
+
+def _sig(prefix: str = "") -> str:
+    return SIGNAL_TEXT.get(W.value(prefix + "signal_code"), getattr(W, prefix + "signal_code"))
 
 
 def _low(text: str) -> str:
@@ -85,7 +97,7 @@ def _rule(prefix: str = "") -> str:
     """Plain-English rule of a track's winner, from its structured fields."""
     g = lambda n: getattr(W, prefix + n)  # noqa: E731
     fam = str(W.value(prefix + "strategy_family") or "")[:2]
-    sig = f"the {_low(g('signal_display'))} from {g('lead_word')} months earlier"
+    sig = f"the {_sig(prefix)} from {g('lead_word')} months earlier"
     thr = THRESHOLD_TEXT.get(g("threshold_code"), g("threshold_code"))
     side = SIDE.get(W.value(prefix + "direction"), g("direction"))
     if fam == "P2":
@@ -135,7 +147,7 @@ class StoryConfig:
 
     KPI_CAPTION = (
         f"Winner selected on training data ({W.is_start} to {W.is_end}) by {W.selection_objective}: "
-        f"{W.signal_display}, {W.threshold_code}, {W.strategy_family}, lead {W.lead_text}. Test-period Sharpe "
+        f"{_sig()}, {W.threshold_code}, {W.strategy_family}, lead {W.lead_text}. Test-period Sharpe "
         f"{W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold XLV ({W.oos_start} to {W.oos_end})."
     )
 
@@ -160,7 +172,7 @@ class StoryConfig:
 
 This result uses data as known at the time, covering {W.is_start} to {W.oos_end}: every month the rule reads consumer sentiment as it was published then, not today's revised values.
 
-The winning rule is a **{_low(W.signal_display)} rule**: {_RULE}. It was selected on the training period ({W.is_start} to {W.is_end}) by {W.selection_objective} (stable lead range {W.plateau_range}), out of {W.n_valid} valid combinations. In the test period ({W.oos_start} to {W.oos_end}) it records Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold XLV, with maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}. The test-period Sharpe difference is {W.sharpe_gap} (95% interval {W.ci_low} to {W.ci_high}).
+The winning rule is a **{_sig()} rule**: {_RULE}. It was selected on the training period ({W.is_start} to {W.is_end}) by {W.selection_objective} (stable lead range {W.plateau_range}), out of {W.n_valid} valid combinations. In the test period ({W.oos_start} to {W.oos_end}) it records Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold XLV, with maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}. The test-period Sharpe difference is {W.sharpe_gap} (95% interval {W.ci_low} to {W.ci_high}).
 
 On today's revised data (hindsight, for comparison only) the selected rule is to {_RULE_REVISED}; its test-period Sharpe is {W.comparison_oos_sharpe}.
 
@@ -194,7 +206,7 @@ The main limits are sample length (XLV starts in {_D.get('xlv_first_month', '[mi
 
     HISTORY_ZOOM_EPISODES = [
         {
-            "slug": "dot_com",
+            "slug": "dotcom",
             "title": "Dot-Com Bust (2000-2002)",
             "narrative": (
                 "Consumer sentiment deteriorated through 2001 as the economy contracted and unemployment rose, while "
@@ -221,7 +233,7 @@ The main limits are sample length (XLV starts in {_D.get('xlv_first_month', '[mi
             "caption": "COVID: sentiment collapsed in April 2020; XLV recovered quickly. NBER recession shading marks the official recession window.",
         },
         {
-            "slug": "rates_2022",
+            "slug": "inflation_2022",
             "title": "Fed Hiking Cycle (2022)",
             "narrative": (
                 "Sentiment reached multi-decade lows in mid-2022 on inflation and rising rates, while XLV held up "
@@ -289,6 +301,8 @@ GRANGER_BLOCK = dict(
         (f"Among the lags where UMCSENT leads, the cross-correlation peaks at lag {_CCF_PEAK['lag']} "
          f"({_CCF_PEAK['ccf']:.2f}); significant leading lags: "
          f"{', '.join(str(x) for x in _CCF_SIG_LAGS) if _CCF_SIG_LAGS else 'none'}. " if _CCF_PEAK is not None else "")
+        + ("Significant lags where XLV returns move first (months): "
+           f"{', '.join(str(x) for x in _CCF_SIG_REV) if _CCF_SIG_REV else 'none'}. ")
         + f"The smallest Granger p-value from UMCSENT to XLV is {_p(_G_FWD)}; from XLV to UMCSENT it is "
         f"{_p(_G_REV)}."
     ),
@@ -357,6 +371,62 @@ SIGNAL_DIST_BLOCK = dict(
 )
 
 
+_LP = P.col_dict(P.csv_file(_CORE / "local_projections.csv"), "horizon_months", "coef_umcsent_yoy")
+_LPP = P.col_dict(P.csv_file(_CORE / "local_projections.csv"), "horizon_months", "p_value")
+_QRC = P.col_dict(P.csv_file(_CORE / "quantile_regression.csv"), "quantile", "coef_umcsent_yoy")
+_QRP = P.col_dict(P.csv_file(_CORE / "quantile_regression.csv"), "quantile", "p_value")
+
+LOCAL_PROJECTIONS_BLOCK = dict(
+    chart_status="ready",
+    method_name="Local Projections",
+    method_theory=(
+        "Local projections regress XLV forward returns at several horizons on the year-over-year change in UMCSENT, "
+        "with VIX and the Treasury yield (DGS10) as controls and HAC standard errors that allow for overlapping "
+        "returns."
+    ),
+    question="How do XLV returns over the following months line up with the year-over-year change in sentiment?",
+    how_to_read=(
+        "Each bar is the change in the XLV forward return, in percentage points, per point of year-over-year "
+        "change in UMCSENT; whiskers are 95% intervals. Whiskers that cross zero mean no clear effect."
+    ),
+    chart_name="local_projections",
+    chart_caption="What this shows: the descriptive response of XLV forward returns across horizons, not the lagged trading rule.",
+    observation=(
+        "Slope p-values by horizon: " + "; ".join(f"{pv:.2f} at the {h}-month horizon" for h, pv in _LPP.items()) + "."
+    ),
+    interpretation=(
+        "The slopes are small relative to their uncertainty, so the sentiment trend explains little of XLV's "
+        "forward return variation."
+    ),
+    key_message="XLV's forward-return response to the sentiment trend is imprecisely estimated.",
+)
+
+QUANTILE_BLOCK = dict(
+    chart_status="ready",
+    method_name="Quantile Regression",
+    method_theory=(
+        "Quantile regression checks whether the sentiment trend relates differently to weak, typical and strong "
+        "XLV 3-month forward returns."
+    ),
+    question="Does the year-over-year change in UMCSENT matter more in the tails of XLV returns?",
+    how_to_read=(
+        "Compare the slope across return quantiles; whiskers are 95% intervals. A slope that changes sign or size "
+        "across quantiles points to state-dependence, but only if the intervals separate."
+    ),
+    chart_name="quantile_coef",
+    chart_caption="What this shows: the slope of the XLV 3-month forward return on the sentiment trend at each return quantile.",
+    observation=(
+        "Slope p-values by return quantile: " + "; ".join(f"{pv:.2f} at the {q:.2f} quantile" for q, pv in _QRP.items())
+        + ". No cross-quantile equality test was run."
+    ),
+    interpretation=(
+        "Read the per-quantile slopes as a description, not as evidence of tail asymmetry."
+    ),
+    key_message=("The quantile slopes are imprecise: an interval that excludes zero is isolated rather than a pattern, "
+                 "and slope equality across quantiles was not tested."),
+)
+
+
 EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: Consumer Sentiment and XLV",
     "overview": (
@@ -370,8 +440,8 @@ EVIDENCE_METHOD_BLOCKS = {
     ),
     "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, REGIME_BLOCK, SIGNAL_DIST_BLOCK],
     "level1_labels": ["Correlation", "Granger / CCF", "Regimes", "Distribution"],
-    "level2": [],
-    "level2_labels": [],
+    "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK],
+    "level2_labels": ["Local Projections", "Quantile Regression"],
     "tournament_intro": (
         f"The tournament tested {W.n_candidates} strategy combinations ({W.n_valid} valid on the training period) "
         f"across {P.length(_MAN['signals'])} UMCSENT transforms, fixed and rolling thresholds, long/cash, signal-strength "
@@ -389,7 +459,7 @@ EVIDENCE_METHOD_BLOCKS = {
 class StrategyConfig:
     PAGE_TITLE = "The Strategy: Translating UMCSENT Signals into XLV Positioning"
     PAGE_SUBTITLE = (
-        f"A searched XLV allocation rule: {_low(W.signal_display)}, {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)}, "
+        f"A searched XLV allocation rule: {_sig()}, {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)}, "
         f"lead {W.lead_text}, on consumer-sentiment data as known at the time."
     )
 
@@ -447,7 +517,7 @@ Test-period results on data as known at the time ({W.oos_start} to {W.oos_end}):
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = f"""
-First, at each month end the process takes UMCSENT as it was published on that date (the vintage visible when the next month's return window opens). Second, inside that vintage it computes the {_low(W.signal_display)} and its threshold. Third, it uses the reading from {W.lead_word} months earlier. Finally, the reading is set against {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)} and the position is held through the following month.
+First, at each month end the process takes UMCSENT as it was published on that date (the vintage visible when the next month's return window opens). Second, inside that vintage it computes the {_sig()} and its threshold. Third, it uses the reading from {W.lead_word} months earlier. Finally, the reading is set against {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)} and the position is held through the following month.
 
 OOS Sharpe means test-period (out-of-sample) risk-adjusted return. OOS Return is the annualized test-period return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of test-period months with positive strategy return.
 """
@@ -456,7 +526,7 @@ OOS Sharpe means test-period (out-of-sample) risk-adjusted return. OOS Return is
 This describes the backtested rule so it can be audited; it is not a trading recommendation.
 
 1. At month end, read UMCSENT as currently published.
-2. Compute the {_low(W.signal_display)} from that published series.
+2. Compute the {_sig()} from that published series.
 3. Take its value from {W.lead_word} months earlier and read it against {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)}.
 4. Set the position as the rule says: {_RULE}.
 5. Recheck monthly.
@@ -512,7 +582,7 @@ _INDICATOR_CONSTRUCTION_MD = (
     "year-over-year percent change, the month-over-month percent change, a 36-month rolling z-score, the 3-month "
     "average, the direction of the monthly change and the deviation from the 3-month average. On the "
     "as-known-at-the-time track every signal and rolling threshold is recomputed inside the vintage published when "
-    f"each month's return window opens. The winning signal is `{W.signal_code}` ({_low(W.signal_display)}), used "
+    f"each month's return window opens. The winning signal is `{W.signal_code}` ({_sig()}), used "
     f"with a lead of {W.lead_text} and {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)} as threshold."
 )
 
