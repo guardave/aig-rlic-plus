@@ -105,12 +105,12 @@ def test_max_oos_valid_replays_the_oos_selected_published_row(tmp_path, monkeypa
     rep = R.replay_legacy(m)
     assert rep["selection_method"] == "max_oos_valid" and rep["pass"]
     assert rep["published"]["key"] == tab.loc[w_oos, "key"]
-    assert rep["published"]["selection"].startswith("published (OOS-selected")
+    assert rep["published"]["selection"] == "published (selected on out-of-sample Sharpe, legacy method)"
     if res.selection and res.selection["winner"] != w_oos:      # the IS argmax would have named another row
         assert rep["published"]["key"] != tab.loc[res.selection["winner"], "key"]
     f = prose.previous_fields(rep["published"], "months")
     assert f["previous_rule"]["value"] == tab.loc[w_oos, "key"]
-    assert f["previous_selection"]["text"].startswith("published (OOS-selected")
+    assert f["previous_selection"]["text"] == "published (selected on out-of-sample Sharpe, legacy method)"
 
 
 def test_is_argmax_default_and_own_dropna_window(tmp_path, monkeypatch):
@@ -120,3 +120,28 @@ def test_is_argmax_default_and_own_dropna_window(tmp_path, monkeypatch):
     assert rep["published"]["key"] == tab.loc[res.selection["winner"], "key"]
     # own_dropna: every candidate is scored on all of its own pre-OOS rows, so is_n differs across signals
     assert tab.groupby("signal")["is_n"].max().nunique() > 1
+
+
+def test_published_strategy_labels_map_to_codes():
+    assert [R._strategy_code(s) for s in ("P1_long_cash", "P2_signal_strength", "P3_long_short", "P2", "long_cash")] \
+        == ["P1", "P2", "P3", "P2", "P1"]
+
+
+def test_max_oos_valid_with_long_strategy_labels_and_oos_based_valid_flags(tmp_path, monkeypatch):
+    """umcsent_xlv-like table: strategies written as P1_long_cash / P2_signal_strength / P3_long_short and the
+    legacy `valid` flag defined on OOS (OOS > 0, turnover < 24), not on the harness IS rule."""
+    import pandas as pd
+    m, tab, w_oos, res = _legacy_mod(tmp_path, monkeypatch, "max_oos_valid")
+    f = tmp_path / "results" / "toy_legacy_sel" / "tournament_results_20260101.csv"
+    pub = pd.read_csv(f)
+    pub["strategy"] = pub["strategy"].map({"P1": "P1_long_cash", "P2": "P2_signal_strength", "P3": "P3_long_short"})
+    pub["valid"] = pub["oos_sharpe"] > 0                         # OOS-based legacy flag
+    pub.to_csv(f, index=False)
+    w = int(pub[pub["valid"]]["oos_sharpe"].idxmax())
+    pd.DataFrame({"strategy_return": res.deployable_returns(w)}).to_csv(f.with_name("strategy_returns_20260101.csv"),
+                                                                       index=False)
+    rep = R.replay_legacy(m)
+    assert rep["same_candidate_rows_in_order"] and rep["pass"]
+    assert rep["published"]["key"] == tab.loc[w, "key"]
+    assert rep["published"]["selection"] == "published (selected on out-of-sample Sharpe, legacy method)"
+    assert "valid_flags_equal" in rep["documented_differences"]
