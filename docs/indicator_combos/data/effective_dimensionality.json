@@ -1,7 +1,247 @@
 {
- "generated": "2026-10-17",
+ "generated": "2026-10-17 (rev2)",
  "seed": 20261017,
  "end": "2026-09-30",
+ "block_months": 24,
+ "primary_estimand": "participation_ratio on strict_pit14 with 90% moving-block bootstrap interval",
+ "strict_pit14": {
+  "n_obs": 298,
+  "n_vars": 14,
+  "start": "2001-08-31",
+  "end": "2026-05-29",
+  "eigenvalues": [
+   4.862,
+   2.213,
+   1.62,
+   1.243,
+   1.091,
+   0.986,
+   0.485,
+   0.437,
+   0.326,
+   0.247,
+   0.185,
+   0.138,
+   0.107,
+   0.059
+  ],
+  "cum_share": [
+   0.347,
+   0.505,
+   0.621,
+   0.71,
+   0.788,
+   0.858,
+   0.893,
+   0.924,
+   0.947,
+   0.965,
+   0.978,
+   0.988,
+   0.996,
+   1.0
+  ],
+  "participation_ratio": 5.52,
+  "entropy_eff_rank": 7.81,
+  "meff_min1": 7.97,
+  "meff_li_ji_2005_published": 10.0,
+  "kaiser_gt1": 5,
+  "pcs_80pct": 6,
+  "pr_block_boot_90ci": [
+   3.75,
+   6.35
+  ],
+  "pa_stationary_block": 2,
+  "pa_phase_randomised": 1,
+  "null_pr_95pct_stationary_block": 10.2,
+  "n_draws": 2000,
+  "vars": [
+   "indpro",
+   "unrate",
+   "rsxfs",
+   "umcsent",
+   "houst",
+   "permit",
+   "nhs",
+   "m2",
+   "busloans",
+   "neworder",
+   "t10y3m",
+   "hy_ig",
+   "gold_copper",
+   "sox_spy"
+  ],
+  "clusters_rho0.5": [
+   [
+    "rsxfs",
+    "neworder",
+    "gold_copper"
+   ],
+   [
+    "houst",
+    "permit",
+    "nhs"
+   ],
+   [
+    "indpro",
+    "unrate"
+   ],
+   [
+    "t10y3m",
+    "hy_ig"
+   ],
+   [
+    "umcsent"
+   ],
+   [
+    "m2"
+   ],
+   [
+    "busloans"
+   ],
+   [
+    "sox_spy"
+   ]
+  ],
+  "clusters_rho0.7": [
+   [
+    "indpro",
+    "unrate"
+   ],
+   [
+    "rsxfs",
+    "neworder"
+   ],
+   [
+    "houst",
+    "permit"
+   ],
+   [
+    "umcsent"
+   ],
+   [
+    "nhs"
+   ],
+   [
+    "m2"
+   ],
+   [
+    "busloans"
+   ],
+   [
+    "t10y3m"
+   ],
+   [
+    "hy_ig"
+   ],
+   [
+    "gold_copper"
+   ],
+   [
+    "sox_spy"
+   ]
+  ]
+ },
+ "realtime_long10": {
+  "n_obs": 304,
+  "n_vars": 10,
+  "start": "2001-06-29",
+  "end": "2026-09-30",
+  "eigenvalues": [
+   4.064,
+   2.022,
+   1.11,
+   0.984,
+   0.697,
+   0.486,
+   0.282,
+   0.158,
+   0.123,
+   0.073
+  ],
+  "cum_share": [
+   0.406,
+   0.609,
+   0.72,
+   0.818,
+   0.888,
+   0.936,
+   0.965,
+   0.98,
+   0.993,
+   1.0
+  ],
+  "participation_ratio": 4.23,
+  "entropy_eff_rank": 5.76,
+  "meff_min1": 5.8,
+  "meff_li_ji_2005_published": 6.0,
+  "kaiser_gt1": 3,
+  "pcs_80pct": 4,
+  "pr_block_boot_90ci": [
+   3.05,
+   4.99
+  ],
+  "pa_stationary_block": 2,
+  "pa_phase_randomised": 2,
+  "null_pr_95pct_stationary_block": 7.86,
+  "n_draws": 2000
+ },
+ "realtime_all16": {
+  "n_obs": 160,
+  "n_vars": 16,
+  "start": "2013-06-28",
+  "end": "2026-09-30",
+  "eigenvalues": [
+   6.714,
+   3.105,
+   1.992,
+   1.11,
+   0.739,
+   0.582,
+   0.409,
+   0.347,
+   0.267,
+   0.235,
+   0.157,
+   0.124,
+   0.087,
+   0.054,
+   0.052,
+   0.026
+  ],
+  "cum_share": [
+   0.42,
+   0.614,
+   0.738,
+   0.808,
+   0.854,
+   0.89,
+   0.916,
+   0.937,
+   0.954,
+   0.969,
+   0.979,
+   0.986,
+   0.992,
+   0.995,
+   0.998,
+   1.0
+  ],
+  "participation_ratio": 4.18,
+  "entropy_eff_rank": 6.4,
+  "meff_min1": 7.08,
+  "meff_li_ji_2005_published": 9.0,
+  "kaiser_gt1": 4,
+  "pcs_80pct": 4,
+  "pr_block_boot_90ci": [
+   2.99,
+   5.08
+  ],
+  "pa_stationary_block": 2,
+  "pa_phase_randomised": 2,
+  "null_pr_95pct_stationary_block": 9.84,
+  "n_draws": 2000
+ },
  "revised_all29": {
   "n_obs": 107,
   "n_vars": 29,
@@ -69,14 +309,20 @@
    1.0,
    1.0
   ],
-  "pcs_80pct": 6,
-  "pcs_90pct": 9,
-  "kaiser_gt1": 6,
-  "parallel_analysis": 3,
   "participation_ratio": 4.77,
   "entropy_eff_rank": 7.92,
-  "meff_nyholt": 23.92,
-  "meff_li_ji": 13.0,
+  "meff_min1": 10.57,
+  "meff_li_ji_2005_published": 13.0,
+  "kaiser_gt1": 6,
+  "pcs_80pct": 6,
+  "pr_block_boot_90ci": [
+   3.41,
+   5.2
+  ],
+  "pa_stationary_block": 2,
+  "pa_phase_randomised": 2,
+  "null_pr_95pct_stationary_block": 11.01,
+  "n_draws": 2000,
   "clusters_rho0.7": [
    [
     "indpro",
@@ -241,14 +487,20 @@
    1.0,
    1.0
   ],
-  "pcs_80pct": 6,
-  "pcs_90pct": 10,
-  "kaiser_gt1": 6,
-  "parallel_analysis": 5,
   "participation_ratio": 5.59,
   "entropy_eff_rank": 9.11,
-  "meff_nyholt": 19.89,
-  "meff_li_ji": 13.0,
+  "meff_min1": 10.45,
+  "meff_li_ji_2005_published": 13.0,
+  "kaiser_gt1": 6,
+  "pcs_80pct": 6,
+  "pr_block_boot_90ci": [
+   3.91,
+   6.61
+  ],
+  "pa_stationary_block": 3,
+  "pa_phase_randomised": 2,
+  "null_pr_95pct_stationary_block": 14.15,
+  "n_draws": 2000,
   "clusters_rho0.7": [
    [
     "neworder",
@@ -356,6 +608,58 @@
    ]
   ]
  },
+ "strict_pit14_chg3m": {
+  "n_obs": 295,
+  "n_vars": 14,
+  "start": "2001-11-30",
+  "end": "2026-05-29",
+  "eigenvalues": [
+   4.535,
+   1.998,
+   1.384,
+   1.054,
+   0.924,
+   0.801,
+   0.656,
+   0.601,
+   0.563,
+   0.461,
+   0.378,
+   0.331,
+   0.194,
+   0.121
+  ],
+  "cum_share": [
+   0.324,
+   0.467,
+   0.565,
+   0.641,
+   0.707,
+   0.764,
+   0.811,
+   0.854,
+   0.894,
+   0.927,
+   0.954,
+   0.978,
+   0.991,
+   1.0
+  ],
+  "participation_ratio": 6.38,
+  "entropy_eff_rank": 9.17,
+  "meff_min1": 9.03,
+  "meff_li_ji_2005_published": 11.0,
+  "kaiser_gt1": 4,
+  "pcs_80pct": 7,
+  "pr_block_boot_90ci": [
+   4.93,
+   9.08
+  ],
+  "pa_stationary_block": 2,
+  "pa_phase_randomised": 2,
+  "null_pr_95pct_stationary_block": 12.55,
+  "n_draws": 2000
+ },
  "revised_core23_chg3m": {
   "n_obs": 293,
   "n_vars": 23,
@@ -411,309 +715,20 @@
    0.999,
    1.0
   ],
-  "pcs_80pct": 10,
-  "pcs_90pct": 14,
-  "kaiser_gt1": 7,
-  "parallel_analysis": 5,
   "participation_ratio": 8.58,
   "entropy_eff_rank": 13.25,
-  "meff_nyholt": 21.32,
-  "meff_li_ji": 16.0,
-  "clusters_rho0.5": [
-   [
-    "umcsent",
-    "umich_exp"
-   ],
-   [
-    "hy_oas",
-    "hy_ig"
-   ],
-   [
-    "indpro"
-   ],
-   [
-    "unrate"
-   ],
-   [
-    "rsxfs"
-   ],
-   [
-    "houst"
-   ],
-   [
-    "permit"
-   ],
-   [
-    "nhs"
-   ],
-   [
-    "m2"
-   ],
-   [
-    "busloans"
-   ],
-   [
-    "neworder"
-   ],
-   [
-    "amtmno"
-   ],
-   [
-    "import_px"
-   ],
-   [
-    "cc_delinq"
-   ],
-   [
-    "sloos"
-   ],
-   [
-    "ism_mfg"
-   ],
-   [
-    "nahb"
-   ],
-   [
-    "crude_inv"
-   ],
-   [
-    "t10y3m"
-   ],
-   [
-    "gold_copper"
-   ],
-   [
-    "sox_spy"
-   ]
-  ]
- },
- "revised_core23_pre2008": {
-  "n_obs": 77,
-  "n_vars": 23,
-  "start": "2001-08-31",
-  "end": "2007-12-31",
-  "eigenvalues": [
-   10.334,
-   6.169,
-   1.793,
-   1.067,
-   1.01,
-   0.565,
-   0.365,
-   0.302,
-   0.249,
-   0.201,
-   0.175,
-   0.157,
-   0.132,
-   0.102,
-   0.086,
-   0.069,
-   0.063,
-   0.053,
-   0.039,
-   0.031,
-   0.027,
-   0.01,
-   0.001
+  "meff_min1": 13.67,
+  "meff_li_ji_2005_published": 16.0,
+  "kaiser_gt1": 7,
+  "pcs_80pct": 10,
+  "pr_block_boot_90ci": [
+   6.63,
+   11.02
   ],
-  "cum_share": [
-   0.449,
-   0.718,
-   0.795,
-   0.842,
-   0.886,
-   0.91,
-   0.926,
-   0.939,
-   0.95,
-   0.959,
-   0.967,
-   0.973,
-   0.979,
-   0.984,
-   0.987,
-   0.99,
-   0.993,
-   0.995,
-   0.997,
-   0.998,
-   1.0,
-   1.0,
-   1.0
-  ],
-  "pcs_80pct": 4,
-  "pcs_90pct": 6,
-  "kaiser_gt1": 5,
-  "parallel_analysis": 2,
-  "participation_ratio": 3.5,
-  "entropy_eff_rank": 5.58,
-  "meff_nyholt": 17.44,
-  "meff_li_ji": 9.0
- },
- "revised_core23_post2008": {
-  "n_obs": 219,
-  "n_vars": 23,
-  "start": "2008-01-31",
-  "end": "2026-03-31",
-  "eigenvalues": [
-   8.468,
-   4.029,
-   2.377,
-   1.802,
-   1.523,
-   0.971,
-   0.731,
-   0.612,
-   0.451,
-   0.423,
-   0.307,
-   0.267,
-   0.229,
-   0.163,
-   0.146,
-   0.112,
-   0.1,
-   0.075,
-   0.068,
-   0.056,
-   0.047,
-   0.039,
-   0.003
-  ],
-  "cum_share": [
-   0.368,
-   0.543,
-   0.647,
-   0.725,
-   0.791,
-   0.833,
-   0.865,
-   0.892,
-   0.912,
-   0.93,
-   0.943,
-   0.955,
-   0.965,
-   0.972,
-   0.978,
-   0.983,
-   0.987,
-   0.991,
-   0.994,
-   0.996,
-   0.998,
-   1.0,
-   1.0
-  ],
-  "pcs_80pct": 6,
-  "pcs_90pct": 9,
-  "kaiser_gt1": 5,
-  "parallel_analysis": 5,
-  "participation_ratio": 5.2,
-  "entropy_eff_rank": 8.37,
-  "meff_nyholt": 19.58,
-  "meff_li_ji": 12.0
- },
- "realtime_long": {
-  "n_obs": 304,
-  "n_vars": 10,
-  "start": "2001-06-29",
-  "end": "2026-09-30",
-  "eigenvalues": [
-   4.064,
-   2.022,
-   1.11,
-   0.984,
-   0.697,
-   0.486,
-   0.282,
-   0.158,
-   0.123,
-   0.073
-  ],
-  "cum_share": [
-   0.406,
-   0.609,
-   0.72,
-   0.818,
-   0.888,
-   0.936,
-   0.965,
-   0.98,
-   0.993,
-   1.0
-  ],
-  "pcs_80pct": 4,
-  "pcs_90pct": 6,
-  "kaiser_gt1": 3,
-  "parallel_analysis": 2,
-  "participation_ratio": 4.23,
-  "entropy_eff_rank": 5.76,
-  "meff_nyholt": 8.63,
-  "meff_li_ji": 6.0,
-  "vars": [
-   "indpro",
-   "unrate",
-   "rsxfs",
-   "umcsent",
-   "houst",
-   "permit",
-   "nhs",
-   "m2",
-   "busloans",
-   "neworder"
-  ]
- },
- "realtime_all16": {
-  "n_obs": 160,
-  "n_vars": 16,
-  "start": "2013-06-28",
-  "end": "2026-09-30",
-  "eigenvalues": [
-   6.714,
-   3.105,
-   1.992,
-   1.11,
-   0.739,
-   0.582,
-   0.409,
-   0.347,
-   0.267,
-   0.235,
-   0.157,
-   0.124,
-   0.087,
-   0.054,
-   0.052,
-   0.026
-  ],
-  "cum_share": [
-   0.42,
-   0.614,
-   0.738,
-   0.808,
-   0.854,
-   0.89,
-   0.916,
-   0.937,
-   0.954,
-   0.969,
-   0.979,
-   0.986,
-   0.992,
-   0.995,
-   0.998,
-   1.0
-  ],
-  "pcs_80pct": 4,
-  "pcs_90pct": 7,
-  "kaiser_gt1": 4,
-  "parallel_analysis": 3,
-  "participation_ratio": 4.18,
-  "entropy_eff_rank": 6.4,
-  "meff_nyholt": 13.17,
-  "meff_li_ji": 9.0
+  "pa_stationary_block": 3,
+  "pa_phase_randomised": 3,
+  "null_pr_95pct_stationary_block": 19.32,
+  "n_draws": 2000
  },
  "realtime_vs_revised": {
   "indpro": {
@@ -797,7 +812,7 @@
    "mean_abs_diff": 0.008
   }
  },
- "top_abs_pairs": [
+ "top_abs_pairs_revised": [
   [
    "hy_oas",
    "hy_ig",

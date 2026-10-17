@@ -4,15 +4,27 @@ Builds a month-end panel of indicator readings AS KNOWN AT THE CLOSE of the last
 reports sample overlaps, release lags, correlations and an effective-dimensionality estimate.
 
 Two tracks (same transforms):
-  revised  : latest revised values, but a reading only enters once its first-release date has passed
-             (data/release_calendar/release_calendar.csv available_date). Long sample; carries revision lookahead.
+  revised  : "revised as-of": TODAY's revised values, each entering only once its first-release date has passed
+             (data/release_calendar/release_calendar.csv available_date). This is NOT point-in-time (the values
+             carry later revisions); it is used for sensitivity only.
   realtime : the ALFRED vintage visible at the close of t (scripts/_pit_align.vintage_asof); the transform is
              recomputed inside that vintage. Only for the 19 series with vintage files, from their first vintage.
-Market series (T10Y3M, HY/IG OAS, VIX/VIX3M, gold/copper, SOX/SPY) are unrevised; they are sampled at t
-(HY/IG OAS at t-1 business day, FRED posts next day). No-archive sources (ISM, NAHB, UMich expectations, USGS
+Market series (T10Y3M, HY/IG OAS, VIX/VIX3M, gold/copper, SOX/SPY) are unrevised; they are sampled at t, except
+T10Y3M (DGS10 - DTB3) and the HY/IG OAS, which take the previous business day's value (FRED posts next day;
+conservative). sox_spy is a ratio of SOX to SPY prices, so as a member it embeds SPY's own past price path. No-archive sources (ISM, NAHB, UMich expectations, USGS
 cement, EIA crude stocks) exist only on the revised track (snapshot 20261016T232733Z).
 
-No asset returns are read. Seed fixed for the parallel-analysis draws.
+Asset prices are loaded only where an indicator is built from them (SOX/SPY ratio); only the needed columns are
+read, and no return or forward-return column is loaded. All random draws are seeded (SEED).
+
+Dimensionality (pre-specified in COMBINATORICS.md section 3):
+  primary estimand : participation ratio PR = (sum lam)^2 / sum lam^2 of the Pearson correlation
+                     matrix of the STRICT-PIT panel (real-time ALFRED vintages + unrevised market series only),
+                     with a 90% moving-block bootstrap interval (rows resampled jointly, block 24 months, 2000 draws).
+  sensitivity      : parallel analysis under two serial-dependence-preserving nulls (independent per-column
+                     stationary bootstrap, mean block 24; independent per-column phase randomisation), 2000 draws
+                     each; entropy effective rank; M_eff = sum min(lam, 1); the published Li & Ji (2005) formula;
+                     hierarchical clusters at |rho| >= 0.5 / 0.7; the same statistics on the revised-as-of panels.
 
 Run from the repo root:  python docs/indicator_combos/scripts/pit_panel_inspect.py
 Outputs: docs/indicator_combos/data/*.csv|json
@@ -153,10 +165,11 @@ def realtime_panel(closes: pd.DatetimeIndex) -> pd.DataFrame:
 
 
 def market_panel(closes: pd.DatetimeIndex) -> pd.DataFrame:
-    hy = pd.read_parquet(REPO / "data/hy_ig_spy_daily_20000101_20260422.parquet")
-    gc = pd.read_parquet(REPO / "data/gold_copper_xli_daily_20260526.parquet")
-    vx = pd.read_parquet(REPO / "data/vix_vix3m_spy_daily_20260314.parquet")
-    sx = pd.read_parquet(REPO / "data/phlxsox_spy_monthly_latest.parquet")
+    hy = pd.read_parquet(REPO / "data/hy_ig_spy_daily_20000101_20260422.parquet",
+                         columns=["dgs10", "dtb3", "hy_oas", "ig_oas"])
+    gc = pd.read_parquet(REPO / "data/gold_copper_xli_daily_20260526.parquet", columns=["gold", "copper"])
+    vx = pd.read_parquet(REPO / "data/vix_vix3m_spy_daily_20260314.parquet", columns=["vix", "vix3m"])
+    sx = pd.read_parquet(REPO / "data/phlxsox_spy_monthly_latest.parquet", columns=["sox_spy_ratio"])
     d = pd.DataFrame(index=closes)
 
     def at(s, lag_days=0):
@@ -176,33 +189,85 @@ def market_panel(closes: pd.DatetimeIndex) -> pd.DataFrame:
     return d
 
 
-def eff_dim(X: pd.DataFrame, n_draws: int = 200) -> dict:
-    Z = (X - X.mean()) / X.std(ddof=1)
-    C = np.corrcoef(Z.values.T)
-    lam = np.sort(np.linalg.eigvalsh(C))[::-1]
-    M = len(lam)
-    share = np.cumsum(lam) / lam.sum()
+N_DRAWS = 2000
+BLOCK = 24  # months; YoY / 12m-difference readings overlap by construction, so blocks must exceed 12
+
+
+def _eig(A: np.ndarray) -> np.ndarray:
+    return np.sort(np.linalg.eigvalsh(np.corrcoef(A.T)))[::-1]
+
+
+def _pr(lam: np.ndarray) -> float:
+    return float(lam.sum() ** 2 / np.sum(lam ** 2))
+
+
+def _stationary_bootstrap(x: np.ndarray, rng, mean_block: int) -> np.ndarray:
+    """Politis-Romano stationary bootstrap of one series (circular), geometric block lengths."""
+    n = len(x)
+    out = np.empty(n)
+    i = rng.integers(n)
+    for t in range(n):
+        out[t] = x[i]
+        i = rng.integers(n) if rng.random() < 1 / mean_block else (i + 1) % n
+    return out
+
+
+def _phase_randomise(x: np.ndarray, rng) -> np.ndarray:
+    """Surrogate with the same periodogram (autocorrelation) and random Fourier phases."""
+    n = len(x)
+    f = np.fft.rfft(x - x.mean())
+    ph = rng.uniform(0, 2 * np.pi, len(f))
+    ph[0] = 0
+    if n % 2 == 0:
+        ph[-1] = 0
+    return np.fft.irfft(np.abs(f) * np.exp(1j * ph), n) + x.mean()
+
+
+def _pa(lam: np.ndarray, null: np.ndarray) -> int:
+    """Number of leading eigenvalues above the null's 95th percentile (stop at the first failure)."""
+    q = np.percentile(null, 95, axis=0)
+    below = np.where(lam <= q)[0]
+    return int(below[0]) if len(below) else len(lam)
+
+
+def eff_dim(X: pd.DataFrame, n_draws: int = N_DRAWS, full: bool = True) -> dict:
+    Z = ((X - X.mean()) / X.std(ddof=1)).values
+    n, M = Z.shape
+    lam = _eig(Z)
     p = lam / lam.sum()
-    rng = np.random.default_rng(SEED)
-    null = []
-    for _ in range(n_draws):  # Horn parallel analysis: each column independently permuted
-        P = np.column_stack([rng.permutation(Z.values[:, j]) for j in range(M)])
-        null.append(np.sort(np.linalg.eigvalsh(np.corrcoef(P.T)))[::-1])
-    null95 = np.percentile(np.array(null), 95, axis=0)
-    li_ji = float(np.sum((lam >= 1).astype(float) + (lam - np.floor(lam))))
-    return {
-        "n_obs": int(len(X)), "n_vars": M, "start": str(X.index.min().date()), "end": str(X.index.max().date()),
+    share = np.cumsum(lam) / lam.sum()
+    out = {
+        "n_obs": int(n), "n_vars": int(M), "start": str(X.index.min().date()), "end": str(X.index.max().date()),
         "eigenvalues": [round(float(x), 3) for x in lam],
         "cum_share": [round(float(x), 3) for x in share],
-        "pcs_80pct": int(np.searchsorted(share, 0.80) + 1),
-        "pcs_90pct": int(np.searchsorted(share, 0.90) + 1),
-        "kaiser_gt1": int(np.sum(lam > 1)),
-        "parallel_analysis": int(np.argmax(lam < null95)) if np.any(lam < null95) else M,
-        "participation_ratio": round(float(lam.sum() ** 2 / np.sum(lam ** 2)), 2),
+        "participation_ratio": round(_pr(lam), 2),
         "entropy_eff_rank": round(float(np.exp(-np.sum(p * np.log(p)))), 2),
-        "meff_nyholt": round(float(1 + (M - 1) * (1 - np.var(lam, ddof=1) / M)), 2),
-        "meff_li_ji": round(li_ji, 2),
+        "meff_min1": round(float(np.minimum(lam, 1).sum()), 2),
+        "meff_li_ji_2005_published": round(float(np.sum((lam >= 1) + (lam - np.floor(lam)))), 2),
+        "kaiser_gt1": int(np.sum(lam > 1)),
+        "pcs_80pct": int(np.searchsorted(share, 0.80) + 1),
     }
+    if not full:
+        return out
+    rng = np.random.default_rng(SEED)
+    # 90% moving-block bootstrap interval for PR (rows resampled jointly, keeps cross-correlation)
+    nb = int(np.ceil(n / BLOCK))
+    prs = []
+    for _ in range(n_draws):
+        starts = rng.integers(0, n - BLOCK + 1, nb)
+        idx = np.concatenate([np.arange(s, s + BLOCK) for s in starts])[:n]
+        prs.append(_pr(_eig(Z[idx])))
+    out["pr_block_boot_90ci"] = [round(float(np.percentile(prs, 5)), 2), round(float(np.percentile(prs, 95)), 2)]
+    # parallel analysis under serial-dependence-preserving nulls (columns made independent)
+    sb = np.array([_eig(np.column_stack([_stationary_bootstrap(Z[:, j], rng, BLOCK) for j in range(M)]))
+                   for _ in range(n_draws)])
+    pr_ = np.array([_eig(np.column_stack([_phase_randomise(Z[:, j], rng) for j in range(M)]))
+                    for _ in range(n_draws)])
+    out["pa_stationary_block"] = _pa(lam, sb)
+    out["pa_phase_randomised"] = _pa(lam, pr_)
+    out["null_pr_95pct_stationary_block"] = round(float(np.percentile([_pr(x) for x in sb], 5)), 2)
+    out["n_draws"] = n_draws
+    return out
 
 
 def clusters(X: pd.DataFrame, cut_rho: float) -> list[list[str]]:
@@ -219,6 +284,12 @@ def clusters(X: pd.DataFrame, cut_rho: float) -> list[list[str]]:
     return sorted(groups.values(), key=len, reverse=True)
 
 
+# Frozen before the 2026-10-17 revision; see COMBINATORICS.md section 3.1.
+STRICT_PIT = ["indpro", "unrate", "rsxfs", "umcsent", "houst", "permit", "nhs", "m2", "busloans", "neworder",
+              "t10y3m", "hy_ig", "gold_copper", "sox_spy"]
+CORE23_DROP = ("eci", "vix_ratio", "cass", "inv_sales", "cement", "ism_svc")
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     closes = month_closes()
@@ -229,7 +300,6 @@ def main():
     rev.to_csv(OUT / "panel_revised_asof_monthly.csv", float_format="%.5g")
     rt.to_csv(OUT / "panel_realtime_alfred_monthly.csv", float_format="%.5g")
 
-    # coverage: first month with a reading, per track
     cov = pd.DataFrame({
         "block": {k: v[5] for k, v in SPEC.items()},
         "freq": {k: v[2] for k, v in SPEC.items()},
@@ -246,29 +316,30 @@ def main():
         cov[col] = [meta.get(SPEC[k][4], {}).get(key) if SPEC[k][4] else None for k in cov.index]
     cov.to_csv(OUT / "coverage_and_lags.csv")
 
-    summary = {"generated": "2026-10-17", "seed": SEED, "end": str(END.date())}
-    # 1) broad set on the revised-as-of track, complete case
-    core = [c for c in rev if c not in ("eci", "vix_ratio", "cass", "inv_sales", "cement", "ism_svc")]
+    summary = {"generated": "2026-10-17 (rev2)", "seed": SEED, "end": str(END.date()), "block_months": BLOCK,
+               "primary_estimand": "participation_ratio on strict_pit14 with 90% moving-block bootstrap interval"}
+    # PRIMARY: strict point-in-time panel (real-time vintages + unrevised market series)
+    strict = rt[STRICT_PIT[:10]].join(rev[STRICT_PIT[10:]])
+    strict.to_csv(OUT / "panel_strict_pit14_monthly.csv", float_format="%.5g")
+    Xs = strict.dropna()
+    summary["strict_pit14"] = eff_dim(Xs)
+    summary["strict_pit14"]["vars"] = STRICT_PIT
+    summary["strict_pit14"]["clusters_rho0.5"] = clusters(Xs, 0.5)
+    summary["strict_pit14"]["clusters_rho0.7"] = clusters(Xs, 0.7)
+    Xs.corr(method="spearman").round(2).to_csv(OUT / "spearman_strict_pit14.csv")
+    # SENSITIVITY: real-time ALFRED only; revised-as-of panels (not point-in-time); 3-month changes
+    summary["realtime_long10"] = eff_dim(rt[STRICT_PIT[:10]].dropna())
+    summary["realtime_all16"] = eff_dim(rt.dropna())
+    core = [c for c in rev if c not in CORE23_DROP]
     for label, cols in {"revised_all29": list(rev.columns), "revised_core23": core}.items():
         X = rev[cols].dropna()
         summary[label] = eff_dim(X)
         summary[label]["clusters_rho0.7"] = clusters(X, 0.7)
         summary[label]["clusters_rho0.5"] = clusters(X, 0.5)
         X.corr(method="spearman").round(2).to_csv(OUT / f"spearman_{label}.csv")
-    # 2) 3-month changes of the same readings (signal-like, less persistence)
-    X3 = rev[core].diff(3).dropna()
-    summary["revised_core23_chg3m"] = eff_dim(X3)
-    summary["revised_core23_chg3m"]["clusters_rho0.5"] = clusters(X3, 0.5)
-    # 3) sub-period stability
-    Xc = rev[core].dropna()
-    for lab, sl in {"pre2008": slice(None, "2007-12-31"), "post2008": slice("2008-01-01", None)}.items():
-        summary[f"revised_core23_{lab}"] = eff_dim(Xc.loc[sl])
-    # 4) real-time ALFRED track: longest-history subset and full subset
-    rt_long = [c for c in rt if rt[c].first_valid_index() <= pd.Timestamp("2001-12-31")]
-    summary["realtime_long"] = eff_dim(rt[rt_long].dropna())
-    summary["realtime_long"]["vars"] = rt_long
-    summary["realtime_all16"] = eff_dim(rt.dropna())
-    # 5) revision gap: realtime vs revised correlation per series, common months
+    summary["strict_pit14_chg3m"] = eff_dim(strict.diff(3).dropna())
+    summary["revised_core23_chg3m"] = eff_dim(rev[core].diff(3).dropna())
+    # revision gap: realtime vs revised-as-of, per series, common months
     gap = {}
     for c in rt:
         j = pd.concat([rt[c], rev[c]], axis=1).dropna()
@@ -276,15 +347,15 @@ def main():
             gap[c] = {"n": int(len(j)), "corr_rt_vs_revised": round(float(j.corr().iloc[0, 1]), 3),
                       "mean_abs_diff": round(float((j.iloc[:, 0] - j.iloc[:, 1]).abs().mean()), 3)}
     summary["realtime_vs_revised"] = gap
-    # top correlated pairs (revised_all29, pairwise)
     R = rev.corr(method="spearman", min_periods=60)
     pairs = [(a, b, R.loc[a, b]) for i, a in enumerate(R) for b in R.columns[i + 1:] if pd.notna(R.loc[a, b])]
     pairs.sort(key=lambda x: -abs(x[2]))
-    summary["top_abs_pairs"] = [[a, b, round(float(r), 2)] for a, b, r in pairs[:25]]
+    summary["top_abs_pairs_revised"] = [[a, b, round(float(r), 2)] for a, b, r in pairs[:25]]
     R.round(2).to_csv(OUT / "spearman_revised_pairwise.csv")
     (OUT / "effective_dimensionality.json").write_text(json.dumps(summary, indent=1))
-    print(json.dumps({k: (v if not isinstance(v, dict) else {kk: vv for kk, vv in v.items() if kk not in
-                      ("eigenvalues", "cum_share")}) for k, v in summary.items()}, indent=1)[:9000])
+    for k, v in summary.items():
+        if isinstance(v, dict) and "n_obs" in v:
+            print(k, {kk: vv for kk, vv in v.items() if kk not in ("eigenvalues", "cum_share", "vars")})
 
 
 if __name__ == "__main__":
