@@ -551,3 +551,14 @@ def test_pit_asof_result_must_reach_positions_with_the_registry_series(tmp_path)
     assert "dead branch" in pp(pp_repo(tmp_path / "d2", bad["dead"], rec))[1]
     assert "release series INDPRO" in pp(pp_repo(tmp_path / "w2", bad["wrong_series"], rec))[1]
     assert pp(pp_repo(tmp_path / "ok", PIT_REAL, rec, delayed={"2019-09": "2020-01-09"}))[0] == "PASS"
+
+
+def test_pit_asof_release_assigned_in_two_branches_resolves(tmp_path):
+    """QA3 F-6: the same release series assigned in two branches is not 'unknown'; different series still FAIL."""
+    rec = {**PP_REC, "alignment": "pit_asof"}
+    two = PIT_REAL.replace("rel = load_release('XS', df.index)\n",
+                           "if cfg:\n    rel = load_release('XS', df.index)\nelse:\n    rel = load_release('XS', idx)\n")
+    assert pp(pp_repo(tmp_path / "same", two, rec))[0] == "PASS"
+    diff = two.replace("load_release('XS', idx)", "load_release('INDPRO', idx)")
+    st, why, _ = pp(pp_repo(tmp_path / "diff", diff, rec))
+    assert st == "FAIL" and "not statically known" in why

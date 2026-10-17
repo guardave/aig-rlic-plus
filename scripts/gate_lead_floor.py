@@ -59,6 +59,16 @@ No pair names are special-cased.
                   Structural checks (grid parse/consistency, registry grid, shift alignment, effective lag >= 1)
                   run in both modes.
 
+KNOWN LIMITATIONS (static AST check; documented, not chased - QA3 F-2 / F-3):
+  * A declared grid that is also iterated by a harmless diagnostic shift loop counts as "used", so a decoy grid
+    plus a traded loop built with a non-.shift form (np.roll, comprehension, functools.partial, index offsets,
+    `.shift(lead + 0)`) still passes. The check is fail-closed only when nothing iterates the declared grid.
+  * pit_asof: the pit_shift result is required to be read, not proven to feed the positions; a result read only
+    by print, an overwrite by a non-.shift operation (np.roll), or pit_shift on a constant while a plain
+    `.shift(k)` with `k = lead` is traded can still pass. The plain-shift detector matches `.shift(<loop var>)`.
+  These are adversarial constructions, not realistic accidents; the backstop is QA review of the pipeline code
+  and the reproducibility of the published tournament from the committed script.
+
 Usage:  python scripts/gate_lead_floor.py [--mode per-period|floor] [--json OUT.json] [--strict] [--repo DIR] [pair ...]
 Exit non-zero on any FAIL. NOT wired into pre-commit (fails on known debt).
 """
@@ -534,13 +544,12 @@ def check_pair(repo: Path, pair: str, rec: dict | None, mode: str = "per-period"
 def _release_series(tree, rel) -> str | None:
     """Which release series the pit_shift `release` argument comes from: load_release("SID", ...) -> "SID",
     rule_release(idx, 0|1) -> "rule:market_close" | "rule:next_business_day"; None when not statically known."""
-    node = rel
-    if isinstance(rel, ast.Name):  # follow the (last) assignment of that name
+    if isinstance(rel, ast.Name):  # every assignment of that name must resolve to the same series (QA3 F-6)
         assigns = [n for n in ast.walk(tree) if isinstance(n, ast.Assign)
                    and any(isinstance(t, ast.Name) and t.id == rel.id for t in n.targets)]
-        if len(assigns) != 1:
-            return None
-        node = assigns[0].value
+        got = {_release_series(tree, a.value) for a in assigns}
+        return got.pop() if len(got) == 1 else None
+    node = rel
     if not isinstance(node, ast.Call):
         return None
     f = node.func
