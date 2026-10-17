@@ -1,5 +1,5 @@
 """pkg12 D8: which vintage do the data panels hold? For each FRED-backed pair, find the ALFRED vintage whose values
-match the panel's raw column (rtol 2e-4), and the match rate against the vintage of 2026-10-16 and against first prints.
+match the panel's raw column (exact match first, QA2 L-3; loose rtol 2e-4 only as a fallback), and the match rate against the vintage of 2026-10-16 and against first prints.
 Usage: python _pws/lead-lesandro/pkg12_pit_release/src/vintage_id.py OUT.csv [DATA_DIR]"""
 import pandas as pd, numpy as np, glob, os, sys
 from pathlib import Path
@@ -41,16 +41,29 @@ if __name__=='__main__':
         pan=pd.read_parquet(f'{D}/{f}')[col].dropna()
         pan.index=pan.index.to_period('Q' if q else 'M')
         cands=sorted(d.realtime_start.unique())
-        best=(None,-1,0)
-        for v in cands[::-1][:400]:
-            s=asof(d,pd.Timestamp(v)); s.index=s.index.to_period('Q' if q else 'M')
+        freq='Q' if q else 'M'
+        def vint_at(v):
+            s=asof(d,pd.Timestamp(v)); s.index=s.index.to_period(freq)
             if tr=='yoy': s=(s/s.shift(12 if not q else 4)-1)*100
-            ov=pan.index.intersection(s.dropna().index)
+            return s
+        # QA2 L-3: report the EXACT match first. Tier 1: values equal (rtol 1e-9) on every overlapping period AND
+        # the vintage ends at the panel's last period (the panel's own state); earliest such vintage = the date
+        # the panel's values were first published together. Tier 2: exact on the overlap (vintage extends past
+        # the panel). Tier 3 (fallback): best share under the loose rtol 2e-4.
+        exact_full=exact_ovl=None; best=(None,-1,0)
+        for v in cands:
+            s=vint_at(v).dropna()
+            ov=pan.index.intersection(s.index)
             if len(ov)<12: continue
             a,b=pan.loc[ov].values,s.loc[ov].values
+            if exact_full is None and np.allclose(a,b,rtol=1e-9,atol=1e-9):
+                if s.index.max()==pan.index.max(): exact_full=pd.Timestamp(v).date()
+                elif exact_ovl is None: exact_ovl=pd.Timestamp(v).date()
             m=np.isclose(a,b,rtol=2e-4,atol=1e-6).mean()
-            if m>best[1]: best=(pd.Timestamp(v).date(),m,len(ov))
-            if m==1.0: break
+            if m>=best[1]: best=(pd.Timestamp(v).date(),m,len(ov))
+        if exact_full: basis,bv='exact, vintage ends at the panel\'s last period',exact_full
+        elif exact_ovl: basis,bv='exact on the overlap (vintage extends past the panel)',exact_ovl
+        else: basis,bv='best share under rtol 2e-4 (no exact match; ties resolved to the latest vintage)',best[0]
         # latest
         s=asof(d,pd.Timestamp('2026-10-16')); s.index=s.index.to_period('Q' if q else 'M')
         if tr=='yoy': s=(s/s.shift(12)-1)*100
@@ -61,6 +74,6 @@ if __name__=='__main__':
         ovf=pan.index.intersection(fr.index)
         if tr=='yoy': mf=np.nan
         else: mf=np.isclose(pan.loc[ovf].values,fr.loc[ovf].values,rtol=2e-4,atol=1e-6).mean()
-        out.append(dict(pair=p,series=sid,panel=f,panel_last=str(pan.index.max()),best_vintage=best[0],best_match=round(best[1],4),n=best[2],match_latest_20261016=round(ml,4),match_first_release=round(mf,4) if mf==mf else None))
+        out.append(dict(pair=p,series=sid,panel=f,panel_last=str(pan.index.max()),best_vintage=bv,match_basis=basis,best_match=round(best[1],4),n=best[2],match_latest_20261016=round(ml,4),match_first_release=round(mf,4) if mf==mf else None))
         print(out[-1],flush=True)
     pd.DataFrame(out).to_csv(sys.argv[1] if len(sys.argv)>1 else 'vintage_id.csv',index=False)
