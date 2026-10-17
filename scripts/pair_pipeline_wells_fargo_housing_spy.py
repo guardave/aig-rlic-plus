@@ -1659,8 +1659,8 @@ housing boom, the 2022 rate shock (HMI 83->31) and the 2023-25 high-rate regime.
                       "integer-granularity values: ties on rank/percentile thresholds handled deterministically",
                       "L0 would be lookahead-free (NAHB mid-month release for current month) but grid floors at L1 by fleet convention",
                       f"empirical lead-lag class: {leadlag}"]}
-    with open(os.path.join(RESULTS_DIR, "evidence_status.json"), "w") as f:
-        json.dump(ev, f, indent=2)
+    from evidence_status_util import write_evidence_status  # schema-1.2.0 shape (the app validates it)
+    write_evidence_status(os.path.join(RESULTS_DIR, "evidence_status.json"), ev)
 
     # timing
     with open(os.path.join(RESULTS_DIR, f"pipeline_timing_{DATE_TAG}.json"), "w") as f:

@@ -1,9 +1,8 @@
 {
-  "schema_version": "1.0.0",
   "pair_id": "t10y3m_spy",
+  "schema_version": "1.2.0",
   "status": "found_in_search",
-  "confidence": "medium",
-  "generated_at": "2026-06-19T14:53:21Z",
   "updated_at": "2026-06-19T14:53:21Z",
-  "notes": "Rates-pair winner selected from tournament search; no untouched final exam yet."
+  "owner": "evan",
+  "technical_note": "Rates-pair winner selected from tournament search; no untouched final exam yet. Producer confidence label: medium."
 }

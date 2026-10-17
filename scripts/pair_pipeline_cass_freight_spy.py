@@ -1437,8 +1437,8 @@ the diagnostic lead_correlation table, explicitly flagged non-tradable.
           "caveats": ["OOS <5yr -> winner is a found-in-search CANDIDATE (high-variance Sharpe)",
                       "NSA source -> non-YoY signals seasonally contaminated",
                       f"empirical lead-lag class: {leadlag}"]}
-    with open(os.path.join(RESULTS_DIR, "evidence_status.json"), "w") as f:
-        json.dump(ev, f, indent=2)
+    from evidence_status_util import write_evidence_status  # schema-1.2.0 shape (the app validates it)
+    write_evidence_status(os.path.join(RESULTS_DIR, "evidence_status.json"), ev)
 
     # timing
     with open(os.path.join(RESULTS_DIR, f"pipeline_timing_{DATE_TAG}.json"), "w") as f:

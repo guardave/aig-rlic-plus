@@ -142,7 +142,7 @@ def main() -> int:
         "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "signal_column": "umcsent_mom",
         "signal_code": "S3_mom",
-        "signal_display_name": "UMCSENT 3-month momentum",
+        "signal_display_name": "UMCSENT 1-month momentum",
         "target_symbol": "XLV",
         "threshold_code": "T3_zscore_1.0",
         "threshold_value": round(float(threshold_value), 6),
@@ -151,7 +151,7 @@ def main() -> int:
         "strategy_family": "P1_long_cash",
         "strategy_code": "P1",
         "strategy_display_name": "Long/Cash",
-        "strategy_description": "Long XLV when the 6-month-lagged UMCSENT 3-month momentum is above its rolling z-score +1.0 threshold; otherwise cash.",
+        "strategy_description": "Long XLV when the 6-month-lagged UMCSENT 1-month momentum is above its rolling z-score +1.0 threshold; otherwise cash.",
         "direction": "procyclical",
         "signal": "S3_mom",
         "threshold": "T3_zscore_1.0",
@@ -193,7 +193,7 @@ def main() -> int:
 
     interp = json.loads(INTERPRETATION.read_text())
     interp["key_finding"] = (
-        "UMCSENT 3-month momentum (S3_mom) with a rolling z-score > +1.0 trigger, "
+        "UMCSENT 1-month momentum (S3_mom) with a rolling z-score > +1.0 trigger, "
         "6-month lead, and P1 Long/Cash sizing delivers OOS Sharpe 1.16, "
         "7.95% annualized return, and max drawdown -0.70% for XLV."
     )
@@ -207,7 +207,7 @@ def main() -> int:
         "strat_ret",
         price_col="xlv",
         signal_col="umcsent_mom",
-        signal_display="6-month-lagged UMCSENT 3-month momentum",
+        signal_display="6-month-lagged UMCSENT 1-month momentum",
         commission_bps=5,
     )
 

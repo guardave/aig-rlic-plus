@@ -649,7 +649,8 @@ def write_scope_and_suggestions() -> None:
         "updated_at": NOW_ISO,
         "notes": "Rates-pair winner selected from tournament search; no untouched final exam yet.",
     }
-    (RESULTS_DIR / "evidence_status.json").write_text(json.dumps(evidence, indent=2) + "\n")
+    from evidence_status_util import write_evidence_status  # schema-1.2.0 shape (the app validates it)
+    write_evidence_status(RESULTS_DIR / "evidence_status.json", evidence)
 
 
 def update_interpretation_from_winner() -> None:

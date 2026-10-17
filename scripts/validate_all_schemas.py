@@ -2,13 +2,14 @@
 """META-CMP T1.1 — Schema gate across all registered pairs (GH #7).
 
 For every REGISTERED pair (discovered via app/components/pair_registry.py —
-the same discovery the portal uses), validate the four canonical results
+the same discovery the portal uses), validate the five canonical results
 JSONs against their sibling schemas in docs/schemas/:
 
     winner_summary.json          ← winner_summary.schema.json
     signal_scope.json            ← signal_scope.schema.json
     analyst_suggestions.json     ← analyst_suggestions.schema.json
     interpretation_metadata.json ← interpretation_metadata.schema.json
+    evidence_status.json         ← evidence_status.schema.json
 
 Semantics (per team-coordination.md §META-CMP):
     - File present but non-conformant  → FAIL (this gate's job)
@@ -52,6 +53,10 @@ CANONICAL_ARTIFACTS = [
     "signal_scope",
     "analyst_suggestions",
     "interpretation_metadata",
+    # Added after four pairs shipped a schema-invalid evidence_status.json (blocks/caveats or 1.0.0
+    # confidence/notes) that every gate passed while the app showed a yellow "could not be validated"
+    # banner - the consumer's validate_or_die rejects exactly what this now catches at pre-commit.
+    "evidence_status",
 ]
 
 _SCHEMAS_DIR = os.path.join(_REPO_ROOT, "docs", "schemas")

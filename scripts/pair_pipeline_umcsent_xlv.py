@@ -1442,7 +1442,7 @@ def main():
                 "generated_at": datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
                 "signal_column": signal_column,
                 "signal_code": best["signal"],
-                "signal_display_name": "UMCSENT 3-month momentum" if best["signal"] == "S3_mom" else best["signal"],
+                "signal_display_name": "UMCSENT 1-month momentum" if best["signal"] == "S3_mom" else best["signal"],
                 "target_symbol": "XLV",
                 "threshold_code": best["threshold"],
                 "threshold_value": round(float(threshold_value), 6) if threshold_value is not None else None,
@@ -1452,7 +1452,7 @@ def main():
                 "strategy_code": str(best["strategy"]).split("_")[0],
                 "strategy_display_name": strategy_display,
                 "strategy_description": (
-                    f"Long XLV when the {int(best['lead_months'])}-month-lagged UMCSENT 3-month momentum "
+                    f"Long XLV when the {int(best['lead_months'])}-month-lagged UMCSENT 1-month momentum "
                     f"is {threshold_rule} its rolling threshold; otherwise cash."
                 ),
                 "direction": EXPECTED_DIRECTION,

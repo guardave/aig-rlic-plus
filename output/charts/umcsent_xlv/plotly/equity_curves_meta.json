@@ -8,7 +8,7 @@
     "VIZ-O1",
     "VIZ-V5"
   ],
-  "caption": "Corrected winner uses UMCSENT 3-month momentum with a rolling z-score > 1.0 threshold and 6-month lead; OOS Sharpe 1.16, annual return 7.95%. Shaded bands mark NBER recessions.",
+  "caption": "Corrected winner uses UMCSENT 1-month momentum with a rolling z-score > 1.0 threshold and 6-month lead; OOS Sharpe 1.16, annual return 7.95%. Shaded bands mark NBER recessions.",
   "narrative_alignment_note": "Winner-specific chart rebuilt from corrected strategy_returns, not reconstructed from tournament code.",
   "disposition": "consumed",
   "source_artifacts": [

@@ -33,7 +33,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from components.rolling_threshold import latest_rolling_value, rolling_pct_spec
+from components.rolling_threshold import resolve_threshold
 
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -449,18 +449,13 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
     # default only fires when the key is absent, so we must catch the cast error
     # and emit an APP-SEV1 L2 fallback banner instead of crashing the page.
     _raw_threshold = winner.get("threshold_value", 0.5)
-    _spec = rolling_pct_spec(winner)
-    _lead_d = winner.get("lead_value") if str(winner.get("lead_unit", "")).startswith("day") else None
-    _lead_d = _lead_d if isinstance(_lead_d, int) and _lead_d > 0 else None
-    if _raw_threshold is None and _spec and _spec["window"]:
-        # Rolling-percentile winner whose summary carries no numeric threshold: use the LATEST value
-        # of its documented rolling boundary (recomputed from the signals parquet), not a default.
-        _sp = _latest_signals_file(pair_dir)
-        try:
-            _raw_threshold = latest_rolling_value(
-                pd.read_parquet(_sp)[winner["signal_column"]], _spec, _lead_d) if _sp else None
-        except Exception:
-            _raw_threshold = None
+    # Rolling-threshold winner whose summary carries no numeric value (daily T2_rp, indpro_spy
+    # T2_roll): use the LATEST value of its documented rolling boundary recomputed from the signals
+    # parquet (window + lead shift from the pair's artifacts), never a default.
+    _th = resolve_threshold(pair_id, winner)
+    _spec = _th["spec"]
+    if _raw_threshold is None and _th["value"] is not None:
+        _raw_threshold = _th["value"]
     _thr_unknown = False
     try:
         threshold = float(_raw_threshold)
@@ -501,10 +496,10 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
     # #244 re-open: when the winner uses a rolling-quantile threshold the number
     # above is the LATEST value of a moving boundary, not a permanent cutoff. The
     # cards illustrate crossings at that latest level; the live rule compares the
-    # signal to the 60-month rolling median at each date.
+    # signal to its rolling quantile (window from the pair's artifacts) at each date.
     _tc_low = str(winner.get("threshold_code", "")).lower()
     _is_rolling_tc = "roll" in _tc_low or _spec is not None
-    _roll_desc = _spec["label"] if _spec else "rolling 60-month median"
+    _roll_desc = _th["label"] or "rolling threshold (window not recorded)"
     _thr_note = (
         f"its **{_roll_desc}** (a moving boundary; no numeric latest value is recorded)"
         if _is_rolling_tc and _thr_unknown and _spec is not None
@@ -515,7 +510,11 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
     st.caption(
         f"What this shows: Strategy family **{strategy}** "
         f"({winner.get('strategy_display_name', '')}) · "
-        f"threshold loaded from `winner_summary.json` = {_thr_note} · "
+        + (f"threshold loaded from `winner_summary.json` = {_thr_note} · "
+           if _th["source"] != "derived" else
+           f"`winner_summary.json` records no numeric threshold; recomputed from the signals file "
+           f"using the documented rolling definition = {_thr_note} · ")
+        +
         f"direction: {direction.replace('_', ' ')}."
     )
     if _is_rolling_tc:
