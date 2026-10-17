@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus.local/schemas/track_summary.schema.json",
+  "x-owner": "evan",
+  "x-version": "1.0.0",
+  "title": "Track Summary",
+  "description": "Contract for `results/{pair_id}/track_summary.json` (Phase B two-track display; temp/_issues/twotrack_app_design.md section 12). Produced by scripts/harness/run.py; consumed by the Strategy page data-basis strip, cross-evaluation table, plateau lead chart, chance check and 'Compared with buy-and-hold' panel. The headline always comes from `main` (status_badge_source = main); `comparison` is the as-revised-today (hindsight) track.",
+  "type": "object",
+  "required": ["pair_id", "schema_version", "track_state", "track_policy", "main", "comparison", "cross_eval",
+               "status_badge_source"],
+  "additionalProperties": true,
+  "properties": {
+    "pair_id": {"type": "string", "minLength": 1},
+    "schema_version": {"type": "string"},
+    "generated_at": {"type": "string"},
+    "track_state": {
+      "type": "string",
+      "enum": ["both", "rt_insufficient", "single_market", "single_no_archive"],
+      "description": "both: MAIN (as known at the time) and COMPARISON (as revised today) each selected a winner; rt_insufficient: MAIN has too little real-time history (headline says not eligible, hindsight shown collapsed); single_market / single_no_archive: one track, disclosure line from the registry value_vintage."
+    },
+    "track_policy": {"type": "string", "enum": ["compute_twice", "single_revised_no_archive", "single_market"]},
+    "main": {"$ref": "#/$defs/track_block"},
+    "comparison": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/track_block"}]},
+    "cross_eval": {
+      "type": "object",
+      "description": "main_winner_on_revised / revised_winner_on_main: {is_sharpe, oos_sharpe, valid, is_eligible, window} or null; or not_scorable_reason."
+    },
+    "insufficient_reason": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "object", "required": ["min_required"],
+         "properties": {"rt_start": {"type": ["string", "null"]}, "n_is_rows": {"type": "integer"},
+                        "min_required": {"type": "integer"}}}
+      ]
+    },
+    "plateau": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "object", "required": ["leads", "winner_lead", "scores"],
+         "properties": {"leads": {"type": "array", "items": {"type": "integer"}, "minItems": 1},
+                        "winner_lead": {"type": "integer"}, "global_max_lead": {"type": ["integer", "null"]},
+                        "global_max_inside_plateau": {"type": ["boolean", "null"]},
+                        "scores": {"type": "array", "items": {"type": "object", "required": ["lead"]}}}}
+      ]
+    },
+    "null_tournament": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "object", "required": ["n_draws", "winner_percentile", "null_scores_hist", "method"],
+         "properties": {"n_draws": {"type": "integer", "minimum": 0},
+                        "winner_percentile": {"type": ["number", "null"]},
+                        "null_scores_hist": {"type": "object", "required": ["bins", "counts"]}}}
+      ]
+    },
+    "vs_buy_hold": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "object", "required": ["sharpe_diff", "ci_95", "p_diff_le_0", "block_length", "draws", "ann_return", "ann_vol", "max_dd"],
+         "properties": {"ci_95": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}}}
+      ]
+    },
+    "status_badge_source": {"const": "main"},
+    "pair_version": {"type": ["string", "null"], "enum": ["legacy", "rebuilt", null]}
+  },
+  "$defs": {
+    "track_block": {
+      "type": "object",
+      "required": ["track", "eligible"],
+      "properties": {
+        "track": {"type": "string", "enum": ["real_time", "revised", "market"]},
+        "eligible": {"type": "boolean"},
+        "window": {"type": "array", "items": {"type": ["string", "null"]}, "minItems": 2, "maxItems": 2},
+        "n_obs": {"type": "integer"},
+        "winner": {"type": "object", "required": ["signal", "threshold", "lead"]},
+        "is_sharpe": {"type": ["number", "null"]},
+        "oos_sharpe": {"type": ["number", "null"]},
+        "same_winner": {"type": "boolean"},
+        "sharpe_gap": {"type": "number"},
+        "recessions_covered": {"type": "array", "items": {"type": "string"}}
+      },
+      "if": {"properties": {"eligible": {"const": true}}},
+      "then": {"required": ["window", "n_obs", "winner", "is_sharpe", "oos_sharpe"]}
+    }
+  }
+}

@@ -2,27 +2,35 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://aig-rlic-plus.local/schemas/winner_summary.schema.json",
   "x-owner": "evan",
-  "x-version": "1.2.0",
+  "x-version": "1.3.0",
   "title": "Winner Summary",
   "description": "Canonical contract for `results/{pair_id}/winner_summary.json`. Produced by Econ Evan at tournament completion; consumed by AppDev Ace's Strategy page (probability engine panel, position adjustment panel, instructional trigger cards, execution panel) and by Research Ray for narrative cross-reference. Resolves ECON-H5 (producer mandate) and APP-WS1 (consumer pre-render contract) in a single artifact per META-CF. Companion to `tournament_winner.json` (META-TWJ) — winner_summary is the render-ready strategy descriptor; tournament_winner is the winner-vs-benchmark delta record.",
   "type": "object",
-  "required": [
-    "pair_id",
-    "generated_at",
-    "signal_column",
-    "signal_code",
-    "target_symbol",
-    "threshold_value",
-    "threshold_rule",
-    "strategy_family",
-    "direction",
-    "oos_sharpe",
-    "oos_ann_return",
-    "oos_max_drawdown",
-    "oos_n_trades",
-    "oos_period_start",
-    "oos_period_end",
-    "selection"
+  "required": ["pair_id", "generated_at"],
+  "allOf": [
+    {
+      "description": "v1.3.0 (Phase B two tracks): when the MAIN track (real-time values) has too little history to select a winner, `main_eligible` is false, the top-level winner fields are OMITTED and `status` says why. Every other file (no `main_eligible`, or true) must carry the full winner record as before, so 1.2.0 files validate unchanged.",
+      "if": {"required": ["main_eligible"], "properties": {"main_eligible": {"const": false}}},
+      "then": {"required": ["status", "tracks", "track_policy"]},
+      "else": {
+        "required": [
+          "signal_column",
+          "signal_code",
+          "target_symbol",
+          "threshold_value",
+          "threshold_rule",
+          "strategy_family",
+          "direction",
+          "oos_sharpe",
+          "oos_ann_return",
+          "oos_max_drawdown",
+          "oos_n_trades",
+          "oos_period_start",
+          "oos_period_end",
+          "selection"
+        ]
+      }
+    }
   ],
   "properties": {
     "pair_id": {
@@ -128,6 +136,45 @@
       "type": "string",
       "description": "Freeform producer notes (caveats, sample-period warnings, known limitations). Rendered verbatim by Ace in the Strategy-page 'Important Caveats' section when present."
     },
+    "schema_version": {
+      "type": "string",
+      "description": "Producer-declared schema version of this file (e.g. `1.3.0`)."
+    },
+    "track_policy": {
+      "type": "string",
+      "enum": ["compute_twice", "single_revised_no_archive", "single_market"],
+      "description": "v1.3.0. compute_twice: MAIN = real-time values (ALFRED vintages), COMPARISON = revised values (hindsight); single_revised_no_archive: one track on revised values (no vintage archive); single_market: one track on market data that is not revised."
+    },
+    "main_eligible": {
+      "type": "boolean",
+      "description": "v1.3.0. False when the MAIN track has fewer IS rows than the protocol minimum on its own sample; the top-level winner fields are then omitted (see allOf)."
+    },
+    "status": {
+      "type": ["object", "null"],
+      "description": "v1.3.0. Why MAIN is not eligible (`main_not_eligible`: {rt_start, n_is_rows, min_required}, `text`)."
+    },
+    "tracks": {
+      "type": "object",
+      "description": "v1.3.0. Full winner record per track. The top-level fields always describe `main`.",
+      "required": ["main"],
+      "properties": {
+        "main": {"$ref": "#/$defs/track_record"},
+        "comparison": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/track_record"}]}
+      }
+    },
+    "cross_eval": {
+      "type": "object",
+      "description": "v1.3.0. Like-for-like reading: the MAIN winner scored on the revised track (`main_winner_on_revised`) and the revised winner scored on MAIN (`revised_winner_on_main`), each with its own IS/OOS windows; `not_scorable_reason` for single-track pairs."
+    },
+    "winner_fields": {
+      "type": "object",
+      "description": "v1.3.0 structured winner fields: every number or fact page prose may state about the result, as {value, text}. Pair configs render prose from these (app/components/winner_fields.py); scripts/gate_structured_prose.py checks prose against them. Keys prefixed `comparison_` describe the hindsight track.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["value", "text"],
+        "properties": {"text": {"type": "string"}}
+      }
+    },
     "selection": {
       "type": "object",
       "description": "**ECON-T5 winner-selection provenance (added v1.2.0; REQUIRED as of the 2026-06-22 retro-apply wave).** Records WHY this combo is the winner: the objective maximised, the EXACT grid scanned at publish time, the tie-break step, the runner-up it beat, and the RAW tournament-row identity it resolves to. Makes winner selection auditable/reproducible from the published files alone and closes the alias-vs-rawcode gap (display fields like `signal_code`/`threshold_value` may use aliases that do not literally match tournament row codes — `selection.raw_*` records the literal codes). **This object is now REQUIRED:** the Phase-4 retro-apply wave (2026-06-22, fix260620_lead_horizon) backfilled all 12 active pairs from their immutable published `tournament_results_*.csv`, so every winner_summary.json carries it and `validate_or_die` enforces it at render time.",
@@ -140,9 +187,9 @@
       "properties": {
         "objective": {
           "type": "string",
-          "enum": ["max_oos_sharpe", "max_oos_sortino", "max_oos_calmar", "robustness_ridge", "max_is_sharpe"],
-          "description": "The single scalar maximised over the valid strategy population (ECON-T4: BENCHMARK excluded). Default/historical = `max_oos_sharpe` (all 12 audited pairs). `composite_*` documented objectives are admitted via a separately-versioned schema bump. `max_is_sharpe` (GH #251/#268): winner = argmax IN-SAMPLE Sharpe (dates < OOS start) among IS-valid rows; OOS metrics are evaluation-only.",
-          "pattern": "^(max_oos_sharpe|max_oos_sortino|max_oos_calmar|robustness_ridge|max_is_sharpe|composite_[a-z0-9_]+)$"
+          "enum": ["max_oos_sharpe", "max_oos_sortino", "max_oos_calmar", "robustness_ridge", "max_is_sharpe", "max_is_sharpe_lead_plateau_w3"],
+          "description": "The single scalar maximised over the valid strategy population (ECON-T4: BENCHMARK excluded). Default/historical = `max_oos_sharpe` (all 12 audited pairs). `composite_*` documented objectives are admitted via a separately-versioned schema bump. `max_is_sharpe` (GH #251/#268): winner = argmax IN-SAMPLE Sharpe (dates < OOS start) among IS-valid rows; OOS metrics are evaluation-only. `max_is_sharpe_lead_plateau_w3` (Phase B, D9 / R5.7): each window of 3 adjacent grid leads is scored by its minimum IS Sharpe; the best window is the plateau (`window_leads`, score `J`) and the winner is the highest raw IS Sharpe inside it; the raw IS argmax is kept as `raw_is_argmax`.",
+          "pattern": "^(max_oos_sharpe|max_oos_sortino|max_oos_calmar|robustness_ridge|max_is_sharpe|max_is_sharpe_lead_plateau_w3|composite_[a-z0-9_]+)$"
         },
         "objective_formula": {
           "type": "string",
@@ -209,6 +256,36 @@
           "description": "ECON-T5 §3 honest-finding clause. `null` ASSERTS the published winner == the raw max-`objective` row. Non-null (one paragraph) is MANDATORY when a non-raw-max objective deliberately overrode raw Sharpe: names the higher-raw-Sharpe row passed over, the preference criterion, and why it is sound."
         }
       }
+    }
+  },
+  "$defs": {
+    "track_record": {
+      "type": "object",
+      "description": "v1.3.0 per-track winner record (harness artifacts.track_record).",
+      "required": ["track", "eligible", "lead_unit", "n_candidates", "n_valid"],
+      "properties": {
+        "track": {"type": "string", "enum": ["real_time", "revised", "market"]},
+        "eligible": {"type": "boolean"},
+        "lead_unit": {"type": "string", "enum": ["months", "quarters", "days"]},
+        "n_candidates": {"type": "integer", "minimum": 0},
+        "n_valid": {"type": "integer", "minimum": 0},
+        "n_distinct": {"type": "integer", "minimum": 0}
+      },
+      "if": {"properties": {"eligible": {"const": true}}},
+      "then": {
+        "required": ["winner", "is_window", "oos_window", "objective", "plateau", "raw_argmax", "bh_oos", "bh_is"],
+        "properties": {
+          "winner": {
+            "type": "object",
+            "required": ["signal", "threshold", "strategy", "direction", "lead", "is_sharpe", "oos_sharpe"],
+            "properties": {"lead": {"type": "integer", "minimum": 0}}
+          },
+          "plateau": {"type": "object", "required": ["leads", "score", "winner_lead"]},
+          "vs_buy_hold": {"type": "object", "required": ["sharpe_diff", "ci_95", "p_diff_le_0", "block_length", "draws"]},
+          "null_tournament": {"type": "object", "required": ["n_draws", "p_is", "selection_stat_percentile", "r71_pass"]}
+        }
+      },
+      "else": {"required": ["insufficient_reason"]}
     }
   }
 }

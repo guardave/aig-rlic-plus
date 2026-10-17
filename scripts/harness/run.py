@@ -280,12 +280,9 @@ def winner_summary(mod, tag: str, out: dict, extra: dict) -> dict:
             },
         })
     else:
-        ws.update({k: None for k in ("signal_column", "signal_code", "threshold_value", "threshold_rule",
-                                     "strategy_family", "direction", "oos_sharpe", "oos_ann_return",
-                                     "oos_max_drawdown", "oos_n_trades", "oos_period_start", "oos_period_end")})
+        # winner fields are omitted (schema 1.3.0 allOf): the headline must say "not eligible", never fall back
         ws["status"] = {"main_not_eligible": main["insufficient_reason"] if main else None,
                         "text": "Not enough real-time history for the training window."}
-        ws["selection"] = None
     ws["tracks"] = {"main": main, "comparison": comp}
     ws["cross_eval"] = out["cross_eval"]
     wf = prose.build(main) if main else {}
