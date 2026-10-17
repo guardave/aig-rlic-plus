@@ -1510,7 +1510,13 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         )
     else:
         _threshold_phrase = f"{winner.get('threshold_value', 'its threshold')}"
+    _p2_range = (str(winner.get("strategy_code") or winner.get("strategy_family", "")).startswith("P2")
+                 and winner.get("threshold_value") is None)
     signal_rule = getattr(config, "SIGNAL_RULE_MD", None) or (
+        f"**Rule in plain English:** monitor {winner.get('signal_column', 'the indicator signal')}. "
+        f"Size the position in proportion to where the signal sits in its own trailing range "
+        f"({_direction} direction; no threshold). Lead time: {_lead_label}."
+        if _p2_range else
         f"**Rule in plain English:** monitor {winner.get('signal_column', 'the indicator signal')}. "
         f"When the signal crosses {_threshold_phrase} "
         f"({winner.get('threshold_rule', 'the comparison rule')}), apply the "
@@ -2058,8 +2064,9 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
     win_txt = ""
     if win_idx is not None:
         w_rank = int(rank_of[win_idx]) if win_idx in rank_of.index else None
-        win_txt = " ★ marks the published winner" + (
-            f" (it ranks #{w_rank} on this column)."
+        # QA_VERIFY_B1: "published" was ambiguous next to a correction banner naming an earlier published rule
+        win_txt = " ★ marks the winner this page reports (the rule in the headline)" + (
+            f"; it ranks #{w_rank} on this column."
             if w_rank not in (None, 1) and objective_known else ".")
     st.caption(
         f"**{((tdf['signal'] != 'BENCHMARK').sum() if 'signal' in tdf.columns else len(tdf)):,} combinations tested** | "

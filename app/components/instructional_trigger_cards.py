@@ -328,8 +328,44 @@ def _card_specs_for_strategy(
             ]
         return cards
 
+    if strategy == "P2" and threshold is None:
+        # QA_VERIFY_B1 F2: harness P2 sizes the position on the signal's place in its own trailing range;
+        # it has no threshold, and the direction decides which end of the range is fully invested.
+        more, less = ("lower", "higher") if is_counter else ("higher", "lower")
+        return [
+            dict(title="MORE EXPOSURE", sparkline_direction="up" if not is_counter else "down",
+                 action_text=(f"The {more} **{signal_display}** sits in its trailing range, the larger the "
+                              f"{target_symbol} position; at the {'bottom' if is_counter else 'top'} of the "
+                              f"range the position is 100% {target_symbol}."),
+                 key_suffix="more"),
+            dict(title="PARTIAL", sparkline_direction="flat",
+                 action_text=(f"In the middle of its trailing range the position is partial, in proportion "
+                              f"to where **{signal_display}** sits; there is no threshold to cross."),
+                 key_suffix="partial"),
+            dict(title="LESS EXPOSURE", sparkline_direction="down" if not is_counter else "up",
+                 action_text=(f"The {less} **{signal_display}** sits in its trailing range, the smaller the "
+                              f"position; at the {'top' if is_counter else 'bottom'} of the range it is 0% "
+                              f"(cash)."),
+                 key_suffix="less"),
+        ]
+
     if strategy == "P2":
-        # Signal Strength — continuous scaling
+        # Signal Strength — continuous scaling (legacy pairs with a recorded level)
+        if not is_counter:
+            return [
+                dict(title="BUY", sparkline_direction="up",
+                     action_text=(f"When **{signal_display}** rises above **{threshold:g}** → scale "
+                                  f"{target_symbol} exposure **up** in proportion to the signal."),
+                     key_suffix="buy"),
+                dict(title="HOLD", sparkline_direction="flat",
+                     action_text=(f"When **{signal_display}** lingers near **{threshold:g}** → exposure stays "
+                                  f"partial; the signal-strength rule prevents whipsaw."),
+                     key_suffix="hold"),
+                dict(title="REDUCE", sparkline_direction="down",
+                     action_text=(f"When **{signal_display}** falls below **{threshold:g}** → scale "
+                                  f"{target_symbol} exposure **down** in proportion to the signal."),
+                     key_suffix="reduce"),
+            ]
         return [
             dict(
                 title="REDUCE",
@@ -484,18 +520,14 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
     if _raw_threshold is None and _th["value"] is not None:
         _raw_threshold = _th["value"]
     _thr_unknown = False
+    _p2_range = strategy == "P2" and winner.get("threshold_value") is None and _th["value"] is None
     try:
         threshold = float(_raw_threshold)
     except (TypeError, ValueError):
+        # No numeric threshold is recorded. The cards illustrate the rule's direction at a nominal level;
+        # the caption says so (an internal schema note is not shown to readers - QA_VERIFY_B1 F2).
         threshold = 0.5
         _thr_unknown = True
-        st.info(
-            "Trigger thresholds shown use a default heuristic (0.5) — this "
-            "pair's `winner_summary.json.threshold_value` is on a legacy "
-            "non-numeric schema and could not be coerced to a float. "
-            "Numeric trigger cards will display after the pair pipeline is "
-            "rerun against the current schema."
-        )
     signal_display = winner.get("signal_display_name", winner.get("signal_code", "Signal"))
     target_symbol = winner.get("target_symbol", "SPY")
     signal_column = winner.get("signal_column")
@@ -534,16 +566,25 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
         if _is_rolling_tc
         else f"**{threshold:g}**"
     )
-    st.caption(
-        f"What this shows: Strategy family **{strategy}** "
-        f"({winner.get('strategy_display_name', '')}) · "
-        + (f"threshold loaded from `winner_summary.json` = {_thr_note} · "
-           if _th["source"] != "derived" else
-           f"`winner_summary.json` records no numeric threshold; recomputed from the signals file "
-           f"using the documented rolling definition = {_thr_note} · ")
-        +
-        f"direction: {direction.replace('_', ' ')}."
-    )
+    if _p2_range:
+        st.caption(
+            f"What this shows: Strategy family **{strategy}** ({winner.get('strategy_display_name', '')}) · "
+            f"position sized in proportion to the signal's place in its trailing range (no threshold) · "
+            f"direction: {direction.replace('_', ' ')}."
+        )
+    else:
+        st.caption(
+            f"What this shows: Strategy family **{strategy}** "
+            f"({winner.get('strategy_display_name', '')}) · "
+            + ("no numeric threshold is recorded for this rule; the cards illustrate its direction at a "
+               "nominal level · " if _thr_unknown else
+               f"threshold loaded from `winner_summary.json` = {_thr_note} · "
+               if _th["source"] != "derived" else
+               f"`winner_summary.json` records no numeric threshold; recomputed from the signals file "
+               f"using the documented rolling definition = {_thr_note} · ")
+            +
+            f"direction: {direction.replace('_', ' ')}."
+        )
     if _is_rolling_tc and pair_id == "retail_inv_sales_spy":
         st.caption(
             "At every monthly decision date, compare the ratio level from three "
@@ -552,7 +593,7 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
             "no hover zone, persistence rule, hysteresis, or partial position; "
             "the prior month's allocation does not alter the comparison."
         )
-    elif _is_rolling_tc:
+    elif _is_rolling_tc and not _p2_range:
         st.caption(
             f"Note: the decision boundary is a {_roll_desc} that moves "
             "over time — the single number shown is only its most recent level. "
@@ -571,7 +612,7 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
         )
 
     cards = _card_specs_for_strategy(
-        strategy, direction, threshold, signal_display, target_symbol, pair_id
+        strategy, direction, None if _p2_range else threshold, signal_display, target_symbol, pair_id
     )
     columns = st.columns(len(cards))
     for col, card in zip(columns, cards):
@@ -587,17 +628,19 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
                 real = real_slices.get(
                     slice_key_map.get(card["sparkline_direction"])
                 )
-                _mini_sparkline(
-                    card["sparkline_direction"],
-                    threshold,
-                    card["title"],
-                    key=f"trigger_{pair_id}_{card['key_suffix']}",
-                    real_slice=real,
-                )
+                if not _p2_range:            # a range-sized rule has no crossing to draw
+                    _mini_sparkline(
+                        card["sparkline_direction"],
+                        threshold,
+                        card["title"],
+                        key=f"trigger_{pair_id}_{card['key_suffix']}",
+                        real_slice=real,
+                    )
                 st.markdown(card["action_text"])
 
-    st.caption(
-        f"How to read it: sparklines are drawn from {data_source_note}; "
-        "thresholds match the runtime rule. The dashed horizontal line "
-        "is the decision threshold at which the action in each card fires."
-    )
+    if not _p2_range:
+        st.caption(
+            f"How to read it: sparklines are drawn from {data_source_note}; "
+            "thresholds match the runtime rule. The dashed horizontal line "
+            "is the decision threshold at which the action in each card fires."
+        )

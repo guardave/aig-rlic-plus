@@ -494,12 +494,18 @@ def render_probability_engine_panel(pair_id: str) -> None:
     # the signal value vs threshold, not a probability.
     is_probability_signal = column.startswith(_PROBABILITY_PREFIXES)
     show_near_threshold_zone = pair_id != "cement_spy"
+    # QA_VERIFY_B1 F2: a range-sized P2 rule (harness) has no decision threshold
+    _p2_range_hdr = (str(winner.get("strategy_code") or winner.get("strategy_family", "")).startswith("P2")
+                     and winner.get("threshold_value") is None and not is_probability_signal)
     panel_title = (
         "Probability Engine Panel"
         if is_probability_signal
         else "Signal Monitoring Panel"
     )
     panel_caption = (
+        "What this shows: how the winning signal value evolves over time; the rule sizes its position on "
+        "where the value sits in its own trailing range, so there is no decision threshold to draw."
+        if _p2_range_hdr else
         "What this shows: how the winning signal probability evolves over "
         "time and where the decision threshold sits."
         if is_probability_signal
@@ -641,6 +647,12 @@ def render_probability_engine_panel(pair_id: str) -> None:
             signals_df = signals_df.copy()
             signals_df[column] = signals_df[column].shift(_lead_n)
             display_name = f"{display_name} (lagged {_lead_n} {_lead_unit_txt})"
+    # QA_VERIFY_B1 F2: a range-sized P2 rule (harness) has no threshold: draw no line, no near-threshold zone.
+    _strat = str(winner.get("strategy_code") or winner.get("strategy_family", ""))
+    _p2_range = _strat.startswith("P2") and _tv is None and not is_probability and not _spec
+    if _p2_range:
+        _threshold_known = False
+        show_near_threshold_zone = False
     _render_chart(
         signals_df,
         column,
@@ -659,7 +671,14 @@ def render_probability_engine_panel(pair_id: str) -> None:
 
     # APP-SE5 universal takeaway caption
     strategy = winner.get("strategy_code") or winner.get("strategy_family", "")
-    if is_probability:
+    _counter = str(winner.get("direction", "")).replace("_", "") == "countercyclical"
+    if _p2_range:
+        takeaway = (
+            f"The signal ({display_name}) sets the position size directly: exposure is proportional to "
+            f"where the reading sits in its own trailing range, {'less' if _counter else 'more'} "
+            f"{target_symbol} when it is higher. There is no threshold to cross."
+        )
+    elif is_probability:
         takeaway = (
             f"The {display_name.lower()} is the live stress meter; the strategy "
             f"scales equity exposure down whenever this probability rises above "
@@ -678,7 +697,9 @@ def render_probability_engine_panel(pair_id: str) -> None:
             f"The signal ({display_name}) drives the strategy; position changes "
             f"are triggered when the value crosses {threshold:g}."
         )
-    if str(strategy).startswith("P1"):
+    if _p2_range:
+        pass
+    elif str(strategy).startswith("P1"):
         takeaway += " P1 Long/Cash: any crossing flips exposure between 100% and 0%."
     elif str(strategy).startswith("P2"):
         takeaway += " P2 Signal Strength: exposure scales continuously with the signal."

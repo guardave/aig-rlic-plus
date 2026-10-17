@@ -97,6 +97,31 @@ def _compute_exposure(
     return pd.Series(100.0, index=sig.index)
 
 
+def _deployed_positions(pair_dir: Path, winner: dict) -> tuple[pd.Series | None, str | None]:
+    """The winner's DEPLOYED positions from its strategy-returns artifact (the file the headline numbers come
+    from: winner_summary's source tag, else the latest dated file), as exposure in percent. For harness pairs
+    this is the as-known-at-the-time (MAIN) track. (None, None) when no file records positions."""
+    tag = None
+    try:
+        tag = winner["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
+    except (KeyError, TypeError, AttributeError):
+        pass
+    f = pair_dir / f"strategy_returns_{tag}.csv" if tag else None
+    if f is None or not f.exists():
+        files = sorted(pair_dir.glob("strategy_returns_2*.csv"))
+        f = files[-1] if files else None
+    if f is None:
+        return None, None
+    try:
+        df = pd.read_csv(f, parse_dates=["date"]).set_index("date")
+    except (ValueError, KeyError, OSError):
+        return None, None
+    if "position" not in df:
+        return None, None
+    pos = df["position"].astype(float).dropna() * 100.0
+    return (pos, f.name) if len(pos) else (None, None)
+
+
 def _render_chart(
     exposure: pd.Series,
     target_symbol: str,
@@ -244,9 +269,15 @@ def render_position_adjustment_panel(pair_id: str) -> None:
     direction = winner["direction"]
     target_symbol = winner["target_symbol"]
 
-    exposure = _compute_exposure(
-        signals_df[column], strategy, threshold, direction, is_probability
-    )
+    # QA_VERIFY_B1 F1: plot the positions the rule actually held (deployed, from the artifacts), never a
+    # re-derivation from the signal; the signal-based approximation remains only for pairs whose artifacts
+    # record no positions, and says so.
+    exposure, pos_file = _deployed_positions(pair_dir, winner)
+    approximated = exposure is None
+    if approximated:
+        exposure = _compute_exposure(
+            signals_df[column], strategy, threshold, direction, is_probability
+        )
 
     overlay_signal = None
     overlay_label = None
@@ -266,12 +297,14 @@ def render_position_adjustment_panel(pair_id: str) -> None:
         show_nber=show_nber,
     )
 
-    # APP-SE5 universal takeaway caption
+    # APP-SE5 universal takeaway caption (direction-aware)
+    is_counter = direction in ("countercyclical", "counter_cyclical")
+    more, less = ("less", "more") if is_counter else ("more", "less")
     if strategy == "P2_signal_strength":
         takeaway = (
-            f"Exposure scales continuously: {target_symbol} allocation falls "
-            f"toward zero as the stress signal approaches 1, and returns to "
-            f"100% as the signal fades."
+            f"Exposure is sized in proportion to the signal: a higher reading means {more} "
+            f"{target_symbol} and a lower reading means {less} ({direction} rule), from 0% to 100%; "
+            f"there is no fixed threshold to cross."
         )
     elif strategy == "P1_long_cash":
         takeaway = (
@@ -289,3 +322,9 @@ def render_position_adjustment_panel(pair_id: str) -> None:
             f"Strategy Summary for the exact rule."
         )
     st.caption(f"Why this matters: {takeaway}")
+    if approximated:
+        st.caption("Source: no positions are recorded in this pair's artifacts, so the curve is an "
+                   "approximation computed from the signal, not the rule's deployed positions.")
+    else:
+        st.caption(f"Source: deployed positions in `results/{pair_id}/{pos_file}` (the series the "
+                   f"headline results are computed from), from {exposure.index.min():%Y-%m}.")
