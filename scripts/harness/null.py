@@ -1,11 +1,17 @@
 """R7.1 null tournament: break the indicator-return link by a circular shift, rerun the same selection, K draws.
 
-  revised / market track: the RAW level inputs are circularly shifted inside their data span and every
-      transform, threshold and regime fit is recomputed (R7.1 'run the full pipeline').
-  real-time track (decision 3): the vintage panel is shifted as a block. Row u receives the whole real-time
-      information set of row u - k (the vintage visible at that row's window open and the readings it implies),
-      so the revision structure moves together.
-Offsets: uniform on [m, n - m], m = max(36 months in native periods, 20% of n); draw k uses seed 20261016 + k.
+The RAW indicator is shifted and the whole pipeline is rebuilt for every draw (Codex B0 fix):
+  revised / market track: the raw level inputs are circularly shifted inside their data span and every
+      transform, threshold and regime fit is recomputed.
+  real-time track (decision 3): inside EVERY vintage, the value of reference period d is replaced by that
+      vintage's value of period d - k (circular over the reference-period grid of the latest vintage; a source
+      period not yet in that vintage takes its latest-vintage value). Each vintage keeps its own release
+      structure (which periods it contains, and when it was published), and realtime_inputs, transforms and
+      thresholds are rebuilt per draw.
+Offsets: DISTINCT admissible values in [m, n - m], m = max(36 months in native periods, 20% of n), drawn without
+replacement (seed 20261016); all of them when there are at most K. R7.1 is calibrated for the dependence between
+neighbouring offsets: the SE of the mean timing Sharpe is a Bartlett (Newey-West) long-run SE over the draws
+ordered by offset, with a bandwidth covering one year of shift (see summarize).
 """
 from __future__ import annotations
 
@@ -20,11 +26,31 @@ from .spec import PairSpec
 SEED_BASE = 20261016
 
 
-def offsets(n: int, ppy: int, K: int, seed_base: int = SEED_BASE) -> list[int]:
+def admissible(n: int, ppy: int) -> np.ndarray:
     m = max(3 * ppy, int(np.ceil(0.2 * n)))
     if n - m < m:
         raise ValueError(f"span {n} too short for a circular-shift null (m={m})")
-    return [int(np.random.default_rng(seed_base + k).integers(m, n - m + 1)) for k in range(K)]
+    return np.arange(m, n - m + 1)
+
+
+def offsets(n: int, ppy: int, K: int, seed: int = SEED_BASE) -> list[int]:
+    """K distinct admissible offsets (all of them when there are at most K), drawn without replacement."""
+    adm = admissible(n, ppy)
+    if len(adm) <= K:
+        return [int(x) for x in adm]
+    return [int(x) for x in np.random.default_rng(seed).choice(adm, size=K, replace=False)]
+
+
+def shift_vintage_values(v: pd.Series, k: int, grid: pd.DatetimeIndex, latest: pd.Series) -> pd.Series:
+    """Real-time null transform of one vintage (see module doc): period d gets the vintage's value of period
+    grid[(pos(d) - k) mod N], or the latest-vintage value when that period is not in this vintage."""
+    pos = grid.get_indexer(v.index)
+    keep = pos >= 0
+    src = grid[(pos[keep] - k) % len(grid)]
+    vals = v.reindex(src).to_numpy()
+    fill = latest.reindex(src).to_numpy()
+    vals = np.where(np.isnan(vals), fill, vals)
+    return pd.Series(vals, index=v.index[keep]).sort_index()
 
 
 def roll_span(obj, k: int, start: int = 0, stop: int | None = None):
@@ -45,17 +71,6 @@ def data_span(levels: pd.DataFrame) -> tuple[int, int]:
     ok = levels.notna().any(axis=1).to_numpy()
     rows = np.flatnonzero(ok)
     return int(rows[0]), int(rows[-1]) + 1
-
-
-def realtime_block_shift(ti: TrackInputs, k: int) -> TrackInputs:
-    """Shift every lead's real-time frame by k rows inside the span where real-time data exist."""
-    any_rows = np.zeros(len(ti.index), bool)
-    for f in ti.lagged.values():
-        any_rows |= f.notna().any(axis=1).to_numpy()
-    rows = np.flatnonzero(any_rows)
-    s, e = int(rows[0]), int(rows[-1]) + 1
-    return TrackInputs(ti.name, ti.index, ti.ret, {L: roll_span(f, k, s, e) for L, f in ti.lagged.items()},
-                       dict(ti.meta, null_shift=k))
 
 
 def _timing_sharpe(res: TrackResult, j: int, ppy: int) -> float:
@@ -91,14 +106,35 @@ def run_null(spec: PairSpec, make_inputs: Callable[[int], TrackInputs], n_span: 
              legacy: bool = False) -> pd.DataFrame:
     """K draws; make_inputs(k) returns the shifted track inputs for offset k."""
     rows = []
-    for d, k in enumerate(offsets(n_span, spec.ppy, K)):
+    offs = offsets(n_span, spec.ppy, K)
+    for d, k in enumerate(offs):
         res = run_tournament(spec, make_inputs(k), legacy=legacy, full_table=False)
-        rows.append({"draw": d, "seed": SEED_BASE + d, "offset": k, **draw_record(res)})
-    return pd.DataFrame(rows)
+        rows.append({"draw": d, "seed": SEED_BASE, "offset": k, **draw_record(res)})
+    out = pd.DataFrame(rows)
+    out.attrs.update(n_admissible=int(len(admissible(n_span, spec.ppy))), span=int(n_span))
+    return out
 
 
-def summarize(null: pd.DataFrame, actual: dict, grid_len: int) -> dict:
-    """Percentiles of the actual winner within the null, R5.7 edge-share check and R7.1 PASS."""
+def dependent_se(x: np.ndarray, offs: np.ndarray, ppy: int) -> tuple[float, int]:
+    """(SE of the mean, Bartlett bandwidth) for draws ordered by offset: draws whose offsets are close shift the
+    same history by almost the same amount, so they are dependent. The bandwidth covers one year of shift
+    (ppy / median offset gap draws, at least the Newey-West floor(4 (K/100)^(2/9)))."""
+    order = np.argsort(offs)
+    x = np.asarray(x, float)[order]
+    K = len(x)
+    gaps = np.diff(np.sort(offs))
+    gap = float(np.median(gaps)) if len(gaps) else 1.0
+    L = int(min(K - 1, max(np.floor(4 * (K / 100) ** (2 / 9)), np.ceil(ppy / max(gap, 1.0)))))
+    e = x - x.mean()
+    lrv = e @ e / K
+    for j in range(1, L + 1):
+        lrv += 2 * (1 - j / (L + 1)) * (e[j:] @ e[:-j]) / K
+    return float(np.sqrt(max(lrv, 0.0) / K)), L
+
+
+def summarize(null: pd.DataFrame, actual: dict, grid_len: int, ppy: int = 12) -> dict:
+    """Percentiles of the actual winner within the null, R5.7 edge-share check and R7.1 PASS (dependence-aware:
+    |mean timing Sharpe| <= max(0.10, 2 SE) with SE from dependent_se)."""
     K = int(null["is_max"].notna().sum())
 
     def pct(col, val):
@@ -113,12 +149,18 @@ def summarize(null: pd.DataFrame, actual: dict, grid_len: int) -> dict:
     edge = null["grid_edge"].dropna().astype(bool)
     uni = min(2 / grid_len, 1.0) if grid_len else np.nan
     bound = uni + 3 * np.sqrt(uni * (1 - uni) / max(K, 1))
-    st = null["timing_sharpe"].dropna()
-    pass_tol = max(0.10, 2 * st.std(ddof=1) / np.sqrt(max(len(st), 1))) if len(st) > 1 else np.nan
+    ok = null["timing_sharpe"].notna()
+    st = null.loc[ok, "timing_sharpe"]
+    se, bw = dependent_se(st.to_numpy(), null.loc[ok, "offset"].to_numpy(), ppy) if len(st) > 2 else (np.nan, 0)
+    pass_tol = max(0.10, 2 * se) if len(st) > 2 else np.nan
+    sd = float(st.std(ddof=1)) if len(st) > 1 else np.nan
     hist_counts, hist_bins = np.histogram(null["selection_stat"].dropna(), bins=20) if K else ([], [])
     return {
-        "n_draws": K, "method": "circular shift of the raw input (revised/market) or vintage block (real-time); "
-        "same selection rule; R7.1", "seed_base": SEED_BASE,
+        "n_draws": K, "n_unique_offsets": int(null["offset"].nunique()),
+        "n_admissible_offsets": null.attrs.get("n_admissible"), "span": null.attrs.get("span"),
+        "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period "
+        "values inside every vintage), pipeline rebuilt per draw, same selection rule; distinct offsets; R7.1",
+        "seed_base": SEED_BASE,
         "is_max_percentile": p_is[0], "p_is": p_is[1],
         "selection_stat_percentile": p_j[0], "p_selection_stat": p_j[1],
         "winner_oos_percentile": p_oos[0], "p_oos": p_oos[1],
@@ -127,7 +169,10 @@ def summarize(null: pd.DataFrame, actual: dict, grid_len: int) -> dict:
         "edge_share": round(float(edge.mean()), 4) if len(edge) else None, "edge_share_uniform": round(uni, 4),
         "edge_share_bound": round(float(bound), 4), "edge_flag": bool(len(edge) and edge.mean() > bound),
         "timing_sharpe_mean": round(float(st.mean()), 4) if len(st) else None,
-        "timing_sharpe_sd": round(float(st.std(ddof=1)), 4) if len(st) > 1 else None,
-        "r71_pass": bool(len(st) > 1 and abs(st.mean()) <= pass_tol),
+        "timing_sharpe_sd": round(sd, 4) if len(st) > 1 else None,
+        "timing_sharpe_se_dependent": round(se, 4) if len(st) > 2 else None, "timing_sharpe_se_bandwidth": bw,
+        "timing_sharpe_effective_draws": round(float(sd ** 2 / se ** 2), 1) if len(st) > 2 and se > 0 else None,
+        "r71_tolerance": round(float(pass_tol), 4) if len(st) > 2 else None,
+        "r71_pass": bool(len(st) > 2 and abs(st.mean()) <= pass_tol),
         "null_scores_hist": {"bins": [round(float(b), 4) for b in hist_bins], "counts": [int(c) for c in hist_counts]},
     }

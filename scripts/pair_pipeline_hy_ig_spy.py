@@ -1087,7 +1087,6 @@ def stage_winner_artifacts(tourn: pd.DataFrame, vinfo: dict):
     ]
     from harness.artifacts import write_json
     write_json(ws_path, ws, "winner_summary")
-    write_json(Path(RESULTS_DIR, "tournament_winner.json"), ws)
     CTX["winner"] = dict(row=w, pos=pos, sr=sr, m=m, t_oos=t_oos, ws=ws)
 
     oos_record = {

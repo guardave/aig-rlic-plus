@@ -57,13 +57,15 @@ def revised_inputs(spec: PairSpec, levels: pd.DataFrame, index: pd.DatetimeIndex
                                                   "harsh": harsh})
 
 
-def realtime_inputs(spec: PairSpec, vint: pd.DataFrame, index: pd.DatetimeIndex, ret: np.ndarray) -> TrackInputs:
-    """Real-time values: per row, the vintage visible when the window opens (after-close aware)."""
+def realtime_inputs(spec: PairSpec, vint: pd.DataFrame, index: pd.DatetimeIndex, ret: np.ndarray,
+                    value_map=None) -> TrackInputs:
+    """Real-time values: per row, the vintage visible when the window opens (after-close aware). `value_map`
+    transforms every visible vintage first (null tournament raw shift, harness.null.shift_vintage_values)."""
     col = spec.level_columns[0]
     ac = align.after_close_rule(spec.vintage_series)
     lagged = align.realtime_frames(vint, index, spec.leads,
                                    lambda v: reading_frame(spec, v.rename(col).to_frame()),
-                                   spec.position_shift, spec.freq, ac)
+                                   spec.position_shift, spec.freq, ac, value_map)
     return TrackInputs("real_time", index, ret, lagged,
                        {"alignment": "realtime_vintage", "vintage_series": spec.vintage_series,
                         "after_close": ac, "first_vintage": vint.realtime_start.min().date().isoformat()})

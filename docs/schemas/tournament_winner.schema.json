@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aig-rlic-plus.local/schemas/tournament_winner.schema.json",
+  "x-owner": "evan",
+  "x-version": "1.0.0",
+  "title": "Tournament Winner (winner vs benchmark)",
+  "description": "Canonical `results/{pair_id}/tournament_winner.json` (docs/agent-sops/team-coordination.md, 'Tournament Winner JSON Schema', META-TWJ): the winner-vs-buy-and-hold delta record, distinct from winner_summary.json. Deltas are winner minus benchmark on the same OOS dates. Phase B pairs (scripts/harness) are validated against it at write time; legacy pipelines still write older flat variants (fleet item), so the file is not yet in validate_all_schemas.",
+  "type": "object",
+  "required": ["pair_id", "winner", "benchmark", "deltas", "suggested_strategy_objective"],
+  "additionalProperties": true,
+  "properties": {
+    "pair_id": {"type": "string", "minLength": 1},
+    "winner": {
+      "type": "object",
+      "required": ["signal", "threshold", "strategy", "oos_sharpe", "oos_ann_return", "max_drawdown", "annual_turnover"],
+      "properties": {
+        "signal": {"type": "string"}, "threshold": {"type": "string"}, "strategy": {"type": "string"},
+        "oos_sharpe": {"type": "number"}, "oos_ann_return": {"type": "number"},
+        "max_drawdown": {"type": "number", "maximum": 0}, "annual_turnover": {"type": "number", "minimum": 0}
+      }
+    },
+    "benchmark": {
+      "type": "object",
+      "required": ["name", "oos_sharpe", "oos_ann_return", "max_drawdown"],
+      "properties": {
+        "name": {"const": "Buy & Hold"}, "oos_sharpe": {"type": "number"}, "oos_ann_return": {"type": "number"},
+        "max_drawdown": {"type": "number", "maximum": 0}
+      }
+    },
+    "deltas": {
+      "type": "object",
+      "required": ["delta_sharpe", "delta_return", "delta_max_drawdown"],
+      "properties": {
+        "delta_sharpe": {"type": "number"}, "delta_return": {"type": "number"}, "delta_max_drawdown": {"type": "number"}
+      }
+    },
+    "suggested_strategy_objective": {"type": "string", "enum": ["min_mdd", "max_sharpe", "max_return"]}
+  }
+}

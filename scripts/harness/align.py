@@ -75,12 +75,14 @@ def _nominal(idx: pd.DatetimeIndex, u: int, lead: int, freq: str):
 
 def realtime_frames(vint: pd.DataFrame, index: pd.DatetimeIndex, leads: Iterable[int],
                     frame_fn: Callable[[pd.Series], pd.DataFrame], position_shift: int = 0, freq: str = "M",
-                    after_close=False) -> dict[int, pd.DataFrame]:
+                    after_close=False, value_map: Callable[[pd.Series], pd.Series] | None = None
+                    ) -> dict[int, pd.DataFrame]:
     """{lead: frame on `index`} where row u holds frame_fn(vintage visible at the window open of row u) at the
     latest period present in that vintage at or before the nominal reading (`lead` periods before index[u]).
     NaN when the window opens before the first vintage or no such period exists. Same rule as
     _pit_align.realtime_apply on every row u >= lead; rows u < lead, which realtime_apply leaves NaN, are filled
-    from readings before the first rebalance row (as the revised track's as-of shift on the level grid does)."""
+    from readings before the first rebalance row (as the revised track's as-of shift on the level grid does).
+    `value_map` (null tournaments only) transforms each visible vintage before the frame is computed."""
     idx = pd.DatetimeIndex(index)
     leads = list(leads)
     opn = window_open(idx, position_shift)
@@ -99,6 +101,8 @@ def realtime_frames(vint: pd.DataFrame, index: pd.DatetimeIndex, leads: Iterable
         key = _vintage_key(rs, re, d)
         if key not in cache:
             v = vintage_asof(vint, d, freq)
+            if value_map is not None and not v.empty:   # null tournament: transform the raw vintage values
+                v = value_map(v)
             if v.empty:
                 cache[key] = None
             else:

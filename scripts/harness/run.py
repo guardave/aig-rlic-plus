@@ -26,7 +26,7 @@ from harness import null as NL  # noqa: E402
 from harness import prose  # noqa: E402
 from harness.align import load_vintages  # noqa: E402
 from harness.candidates import manifest, manifest_record  # noqa: E402
-from harness.data import legacy_inputs, realtime_inputs, revised_inputs  # noqa: E402
+from harness.data import latest_levels, legacy_inputs, realtime_inputs, revised_inputs  # noqa: E402
 from harness.engine import TrackResult, run_tournament, score_candidate  # noqa: E402
 
 REPO = HERE.parents[1]
@@ -104,10 +104,11 @@ def null_maker(mod, which: str, ti):
     """(make_inputs(k), span length) for the track's null (see harness.null)."""
     spec = mod.SPEC
     if ti.name == "real_time":
-        rows = np.zeros(len(ti.index), bool)
-        for f in ti.lagged.values():
-            rows |= f.notna().any(axis=1).to_numpy()
-        return (lambda k: NL.realtime_block_shift(ti, k)), int(rows.sum())
+        vint = load_vintages(spec.vintage_series)
+        latest = latest_levels(spec.vintage_series, spec.freq)
+        grid = latest.index
+        return (lambda k: realtime_inputs(spec, vint, ti.index, ti.ret,
+                                          value_map=lambda v: NL.shift_vintage_values(v, k, grid, latest))), len(grid)
     lv = mod.revised_levels()
     s, e = NL.data_span(lv)
     return (lambda k: revised_inputs(spec, NL.roll_span(lv, k, s, e), ti.index, ti.ret, name=ti.name)), e - s
@@ -167,7 +168,7 @@ def run_pair(pair_id: str, tag: str, K: int = 100, write: bool = True, leak: boo
             valid = res.table[res.table["valid"]]
             actual = {"is_max": float(valid["is_sharpe"].max()), "selection_stat": res.selection["score"],
                       "winner_oos": float(res.table.loc[res.selection["winner"], "oos_sharpe"])}
-            summ = NL.summarize(nd, actual, len(spec.leads))
+            summ = NL.summarize(nd, actual, len(spec.leads), spec.ppy)
         else:
             nulls[role] = None
         records[role] = A.track_record(res, mod.SIGNAL_DISPLAY, summ)
@@ -302,6 +303,31 @@ def winner_summary(mod, tag: str, out: dict, extra: dict) -> dict:
     return A.jsonable(ws)
 
 
+def tournament_winner(ws: dict, tag: str) -> dict:
+    """Canonical winner-vs-benchmark record (team-coordination.md 'Tournament Winner JSON Schema', META-TWJ) for
+    the MAIN winner on its OOS dates; deltas = winner - buy-and-hold. The suggested objective follows the fleet
+    rule: min_mdd when the relative drawdown improvement exceeds the relative Sharpe improvement, else
+    max_sharpe."""
+    d_sh = ws["oos_sharpe"] - ws["bh_sharpe"]
+    d_ret = ws["oos_ann_return"] - ws["bh_ann_return"]
+    d_dd = ws["oos_max_drawdown"] - ws["bh_max_drawdown"]
+    rel_sharpe = d_sh / max(abs(ws["bh_sharpe"]), 0.1)
+    rel_dd = d_dd / max(abs(ws["bh_max_drawdown"]), 0.01)
+    return A.jsonable({
+        "pair_id": ws["pair_id"], "generated_at": ws["generated_at"], "track": "main",
+        "source_tournament_file": f"tournament_results_{tag}.csv",
+        "winner": {"signal": ws["signal_code"], "threshold": ws["threshold_code"], "strategy": ws["strategy_family"],
+                   "direction": ws["direction"], "lead_value": ws["lead_value"], "lead_unit": ws["lead_unit"],
+                   "oos_sharpe": ws["oos_sharpe"], "oos_ann_return": ws["oos_ann_return"],
+                   "max_drawdown": ws["oos_max_drawdown"], "annual_turnover": ws["annual_turnover"]},
+        "benchmark": {"name": "Buy & Hold", "oos_sharpe": ws["bh_sharpe"], "oos_ann_return": ws["bh_ann_return"],
+                      "max_drawdown": ws["bh_max_drawdown"]},
+        "deltas": {"delta_sharpe": round(d_sh, 6), "delta_return": round(d_ret, 6), "delta_max_drawdown": round(d_dd, 6)},
+        "beats_benchmark": bool(d_sh > 0),
+        "suggested_strategy_objective": "min_mdd" if rel_dd > rel_sharpe else "max_sharpe",
+    })
+
+
 def track_summary(mod, out: dict, ws: dict) -> dict:
     spec = mod.SPEC
     main, comp = out["records"]["main"], out["records"]["comparison"]
@@ -390,7 +416,8 @@ def write_outputs(mod, tag: str, out: dict, extra: dict) -> None:
     A.write_json(rdir / f"candidates_manifest_{tag}.json", manifest_record(spec, manifest(spec)))
     ws = winner_summary(mod, tag, out, extra)
     A.write_json(rdir / "winner_summary.json", ws, "winner_summary")
-    A.write_json(rdir / "tournament_winner.json", ws)
+    if ws.get("main_eligible"):
+        A.write_json(rdir / "tournament_winner.json", tournament_winner(ws, tag), "tournament_winner")
     ts = track_summary(mod, out, ws)
     A.write_json(rdir / "track_summary.json", ts, "track_summary")
     from harness import charts
