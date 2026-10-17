@@ -352,7 +352,15 @@ def write_narrative_provenance() -> None:
     """evidence_facts_<tag>.json: the evidence tables the page prose cites (scripts/gate_number_provenance.py)."""
     # the Strategy page's trade-log caption counts the broker-style log rows (full reconstructed history)
     n_rows = len(pd.read_csv(RES / "winner_trades_broker_style.csv"))
-    write_evidence_facts(PAIR_ID, DATE_TAG, sources=NARRATIVE_SOURCES, derived={"trade_log_rows": n_rows})
+    # test-period position changes of the MAIN winner, two counts (winner_summary oos_n_trades is the harness
+    # abs_sum count: int(sum |position change|), i.e. full SPY units traded)
+    sr = pd.read_csv(RES / f"strategy_returns_{DATE_TAG}.csv")
+    d = np.abs(np.diff(sr.loc[sr["sample"] == "OOS", "position"].dropna().to_numpy(float)))
+    write_evidence_facts(PAIR_ID, DATE_TAG, sources=NARRATIVE_SOURCES, derived={
+        "trade_log_rows": n_rows,
+        "position_change_threshold_pp": 5,
+        "oos_months_position_change_gt_5pct": int((d > 0.05).sum()),
+        "oos_sum_abs_position_change": round(float(d.sum()), 4)})
 
 
 def main() -> None:

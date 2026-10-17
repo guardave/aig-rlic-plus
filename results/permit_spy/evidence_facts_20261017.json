@@ -9,6 +9,9 @@
     "regime_quartile_returns.csv"
   ],
   "derived": {
-    "trade_log_rows": 302
+    "trade_log_rows": 302,
+    "oos_months_position_change_gt_5pct": 59,
+    "oos_sum_abs_position_change": 11.9,
+    "position_change_threshold_pp": 5
   }
 }

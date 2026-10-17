@@ -1,7 +1,7 @@
 {
   "pair_id": "permit_spy",
   "legacy_tag": "20260314",
-  "code": "scripts/legacy_repro/permit_spy.py (legacy stage_derived + stage_tournament verbatim, git c64a609a)",
+  "code": "scripts/legacy_repro/permit_spy.py (stage_derived + stage_tournament of git e1c44555, adaptations listed in its docstring)",
   "panel": "data/phaseB_inputs/permit_spy_monthly_legacy_20260314.csv",
   "panel_note": "PERMIT = ALFRED vintage as of 2026-03-14 (the published run's date); SPY = the legacy pipeline's own yfinance month-end adjusted closes (2026-10-08 pull)",
   "published_file": "results/permit_spy/tournament_results_20260314.csv",
@@ -108,7 +108,7 @@
       "oos_sharpe": 1.4454,
       "n_valid": 1745
     },
-    "note": "legacy code on the #255 floored grid L1..13 (registry note: winner unchanged); never published"
+    "note": "legacy code on the #255 floored grid L1..13 of c64a609a (registry note: winner unchanged); never published"
   },
   "sensitivity": [
     {

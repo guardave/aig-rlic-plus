@@ -6,9 +6,21 @@ tournament_results_20260314.csv: an OOS-selected tournament (max OOS Sharpe amon
 full-sample turnover < 24) on the lead grid {0,1,2,3,6}. No strategy_returns file was ever written, so the harness
 cannot replay it (harness.run.replay_legacy -> not_replayable, declared in scripts/pair_spec_permit_spy.py).
 
-This script runs the legacy pipeline's stage_derived + stage_tournament logic VERBATIM (copied from
-scripts/pair_pipeline_permit_spy.py as committed before the Phase B port, git c64a609a) on the pinned panel
-data/phaseB_inputs/permit_spy_monthly_legacy_20260314.csv and compares every row with the published CSV:
+Source: the stage_derived + stage_tournament code of scripts/pair_pipeline_permit_spy.py at git e1c44555 (the
+commit that produced the published 20260314 run, lead grid [0, 1, 2, 3, 6]; the later c64a609a only changed the
+grid to 1..13, the benchmark row's valid flag, the CSV writer and the FRED key handling). The signal, threshold,
+position, return and metric formulas are unchanged. Adaptations, all outside the scoring logic:
+  1. inputs come from the pinned panel below instead of a FRED / yfinance download; the panel is already on the
+     month-end grid 1990-01..2025-12, so the legacy resample/reindex step is the identity and is omitted
+     (ffill(limit=2) is kept);
+  2. only the columns the tournament uses are derived (permit transforms, spy_ret); the controls (houst, unrate,
+     vix, rates) and spy_fwd_* columns of stage_derived feed other stages only;
+  3. the lead list is an argument (published [0, 1, 2, 3, 6]; a second run on c64a609a's 1..13 is a check);
+  4. the per-candidate try/except, the redundant isinstance branch and the CSV write are dropped; the table gains
+     an unrounded oos_sharpe column, and the published rule's positions / returns are kept for the record;
+  5. the BENCHMARK row is computed for its Sharpe only (compared separately).
+It runs on the pinned panel data/phaseB_inputs/permit_spy_monthly_legacy_20260314.csv and compares every row with
+the published CSV:
 
     permit  PERMIT as published on 2026-03-14 (pinned ALFRED vintage file, data/release_calendar/vintages)
     spy     SPY month-end adjusted close of the legacy pipeline's own yfinance pull (2026-10-08 panel
@@ -48,7 +60,7 @@ TOL = {"oos_sharpe": 1e-4, "oos_ann_return": 1e-2, "max_drawdown": 1e-2, "annual
 
 
 def derived(panel: pd.DataFrame) -> pd.DataFrame:
-    """stage_derived (signal columns only), verbatim."""
+    """stage_derived of e1c44555, signal columns only (adaptations 1-2 in the module docstring)."""
     df = panel[["permit", "spy"]].copy()
     df = df.ffill(limit=2)
     p = df["permit"]
@@ -67,7 +79,7 @@ def derived(panel: pd.DataFrame) -> pd.DataFrame:
 
 
 def tournament(df: pd.DataFrame, leads: list[int], keep=None):
-    """stage_tournament, verbatim apart from the lead list argument and returning (table, kept series)."""
+    """stage_tournament of e1c44555 (adaptations 3-5 in the module docstring)."""
     work = df.copy()
     is_mask = work.index <= IS_END
     oos_mask = work.index >= OOS_START
@@ -164,7 +176,7 @@ def main() -> dict:
     rw = winner(rep)
     out = {
         "pair_id": PAIR_ID, "legacy_tag": LEGACY_TAG,
-        "code": "scripts/legacy_repro/permit_spy.py (legacy stage_derived + stage_tournament verbatim, git c64a609a)",
+        "code": "scripts/legacy_repro/permit_spy.py (stage_derived + stage_tournament of git e1c44555, adaptations listed in its docstring)",
         "panel": f"data/phaseB_inputs/{PANEL}",
         "panel_note": "PERMIT = ALFRED vintage as of 2026-03-14 (the published run's date); SPY = the legacy "
                       "pipeline's own yfinance month-end adjusted closes (2026-10-08 pull)",
@@ -186,7 +198,7 @@ def main() -> dict:
                                           and rw["strategy"] == WINNER[2] and rw["lead"] == WINNER[3]
                                           and abs(float(w_rep["oos_sharpe"]) - float(w_pub["oos_sharpe"])) <= 1e-4),
         "floor_grid_check": {"lead_grid": FLOOR_LEADS, "winner": winner(floor_tab),
-                             "note": "legacy code on the #255 floored grid L1..13 (registry note: winner unchanged); "
+                             "note": "legacy code on the #255 floored grid L1..13 of c64a609a (registry note: winner unchanged); "
                                      "never published"},
         "sensitivity": [
             {"panel": "2026-10-08 FRED PERMIT + 2026-10-08 yfinance SPY (data/permit_spy_monthly_20261008.parquet)",

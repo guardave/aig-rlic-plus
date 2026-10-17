@@ -30,6 +30,7 @@ _LP_P = P.col_dict(_LP_T, "horizon", "p_value")
 _G_MIN_P = P.colmin(P.csv_file(_RES / "granger_by_lag.csv"), "p_value")
 _G_SIG = bool(_G_MIN_P < 0.05)
 _TS = P.json_file(_RES / "track_summary.json")
+_EV = P.json_file(_RES / f"evidence_facts_{_TAG}.json")["derived"]
 _NT = _TS.get("null_tournament") or {}
 _MAN = P.json_file(_RES / f"candidates_manifest_{_TAG}.json")
 _GRID = P.lead_grid("permit_spy")
@@ -175,7 +176,7 @@ class StoryConfig:
 
 This result uses data as known at the time, covering {W.is_start} to {W.oos_end}: every month the rule reads building permits as they were published then, not today's revised figures.
 
-The winning rule is a **{_low(W.signal_display)} rule** ({_STRAT}): {_RULE}. It was selected on the training period ({W.is_start} to {W.is_end}) by {W.selection_objective} (stable lead range {W.plateau_range}), out of {W.n_valid} valid combinations. In the test period ({W.oos_start} to {W.oos_end}) it records Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, with maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}. The test-period Sharpe difference is {W.sharpe_gap} (95% interval {W.ci_low} to {W.ci_high}).
+The winning rule is a **{_low(W.signal_display)} rule** ({_STRAT}): {_RULE}. It was selected on the training period ({W.is_start} to {W.is_end}) by {W.selection_objective} (stable lead range {W.plateau_range}), out of {W.n_valid} valid combinations ({W.n_distinct} distinct position series). In the test period ({W.oos_start} to {W.oos_end}) it records Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, with maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}. The test-period Sharpe difference is {W.sharpe_gap} (95% interval {W.ci_low} to {W.ci_high}).
 
 On today's revised data (hindsight, for comparison only) the selected rule is to {_RULE_REVISED}; its test-period Sharpe is {W.comparison_oos_sharpe}.
 
@@ -402,7 +403,8 @@ EVIDENCE_METHOD_BLOCKS = {
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK],
     "level2_labels": ["Local Projections", "Quantile Regression"],
     "tournament_intro": (
-        f"The tournament tested {W.n_candidates} strategy combinations ({W.n_valid} valid on the training period) "
+        f"The tournament tested {W.n_candidates} declared strategy combinations ({W.n_valid} valid on the training "
+        f"period; {W.n_distinct} distinct position series, the others repeat a series exactly) "
         f"across {P.length(_MAN['signals'])} permit transforms, fixed and rolling thresholds, long/cash, signal-strength "
         f"and long/short strategies, both orientations and the lead grid {_GRID_RANGE} months, on data as known at "
         f"the time. The selected winner is `{_RID}`, "
@@ -424,8 +426,9 @@ class StrategyConfig:
     STATISTICAL_FRAMING_BANNER = (
         f"Correction (2026-10-17). This page previously reported the rule {W.previous_rule} "
         f"({W.previous_selection}: test-period Sharpe {W.previous_oos_sharpe}, published {W.previous_tag}). That "
-        "previously published rule was chosen by its test-period score on today's revised data with fixed lags, "
-        "so its test-period result was not a held-out result. The page now reports the rule selected on the training period from "
+        "previously published rule was chosen by its test-period score with fixed lags, so its test-period result "
+        f"was not a held-out result. That run used building permits as published on {W.previous_tag}. "
+        "The page now reports the rule selected on the training period from "
         "data as known at the time, with point-in-time release dates and the stable-lead-range rule; today's "
         "revised data are shown for comparison only."
     )
@@ -478,7 +481,7 @@ class StrategyConfig:
 If-then form:
 {_IF_THEN}
 
-Test-period results on data as known at the time ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} buy-and-hold; annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; {W.oos_n_trades} test-period trades; annual turnover {W.annual_turnover}.
+Test-period results on data as known at the time ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} buy-and-hold; annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; position changes summing to {W.oos_n_trades} full SPY units over the test period (whole units; exact sum {_EV['oos_sum_abs_position_change']}), with {_EV['oos_months_position_change_gt_5pct']} months in which the position moved by more than {_EV['position_change_threshold_pp']} percentage points; annual turnover {W.annual_turnover}.
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = f"""
@@ -590,7 +593,7 @@ _METHODS_TABLE_MD = P.definition_text("""
 """)
 
 _TOURNAMENT_DESIGN_MD = f"""
-Grid: permit transforms x training-percentile, rolling-percentile and zero thresholds x long/cash, signal-strength and long/short strategies x procyclical/countercyclical orientations x leads {_GRID_RANGE} months, with each position applied to the return of the month after it is set ({W.n_candidates} combinations, {W.n_distinct} distinct position series). Each data track selects its own winner on the training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it.
+Grid: permit transforms x training-percentile, rolling-percentile and zero thresholds x long/cash, signal-strength and long/short strategies x procyclical/countercyclical orientations x leads {_GRID_RANGE} months, with each position applied to the return of the month after it is set ({W.n_candidates} declared combinations; {W.n_distinct} distinct position series, the others repeat a series exactly). Each data track selects its own winner on the training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it.
 
 - As known at the time (headline): `{_RID}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe}, test-period Sharpe {W.oos_sharpe}. The single highest training Sharpe on this track ({W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}; it is shown for reference and is not the selection rule.
 - As revised today (hindsight): `{_RID_REVISED}`, training Sharpe {W.comparison_is_sharpe}, test-period Sharpe {W.comparison_oos_sharpe}.

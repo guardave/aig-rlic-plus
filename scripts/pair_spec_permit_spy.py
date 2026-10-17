@@ -1,12 +1,12 @@
 """Pair spec: Building Permits (PERMIT) x SPY, monthly (Phase B harness).
 
 Signals are functions of the PERMIT level only, so the same code runs on the revised panel and inside every
-ALFRED vintage. Signal formulas and threshold families follow the legacy pipeline (git c64a609a); the binary
+ALFRED vintage. Signal formulas and threshold families follow the legacy pipeline (git e1c44555, the published run); the binary
 contraction flag gets one flag threshold (0.5) instead of quantiles of a 0/1 series.
 
 Legacy: NOT replayable through the harness (LEGACY_REPLAY = None). The published rule (winner_summary 1.1.0,
 S3_mom / T1_p25 / P3 / L6, OOS Sharpe 1.4454) was selected by the OLD OOS method on tournament_results_20260314.csv
-and no strategy_returns file was ever written. Acceptance 4.1 is met by the verbatim legacy-code reproduction
+and no strategy_returns file was ever written. Acceptance 4.1 is met by the legacy-code reproduction (formulas unchanged, adaptations listed there)
 (scripts/legacy_repro/permit_spy.py -> results/permit_spy/legacy_reproduction_20260314.json).
 """
 from __future__ import annotations
