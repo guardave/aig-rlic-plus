@@ -1,35 +1,33 @@
 #!/usr/bin/env python3
-"""GATE-NUMBER-PROVENANCE (structured-prose layer 2): every number a schema-1.3 pair's pages SHOW must resolve to
-that pair's artifacts.
+"""GATE-NUMBER-PROVENANCE (structured-prose layer 2 v2): every number a schema-1.3 pair's pages SHOW must come from
+that pair's artifacts, and a number the pair config AUTHORS must carry its source.
 
 Layer 1 (gate_structured_prose.py: authored-text scan + NUMLIT) is static and can be evaded by code that builds a
-number (Codex B0f: text parsed from a dict, a rendered docstring, an imported constant, any allowed literal
-context). This layer checks the OUTPUT instead:
+number (Codex B0f). v1 of this layer matched rendered numbers against artifact values, which a stale number
+could pass by coincidence (24-32% of random plausible numbers). v2 tags provenance at render:
 
-  1. Render: each page of the pair (story / evidence / strategy / methodology) is executed in-process with
-     streamlit.testing.AppTest, the same page scripts the app serves; the text of every markdown, caption,
-     title/header, alert and metric element and every st.table / st.dataframe cell is collected. Chart
-     internals (Plotly titles, axes, hover) are not prose and are not checked here.
-  2. Tokens: every number in that text: decimals, integers, percentages, signed values, ISO dates, number
-     words ("five months") and ordinals ("45th").
-  3. Resolution: a token resolves when it equals, within its displayed rounding, a value in the pair's
-     ARTIFACT POOL: results/<pair>/winner_summary.json, track_summary.json, evidence_facts_<tag>.json (the
-     numbers the narrative cites, written by the pipeline), candidates_manifest_<tag>.json and the pair's
-     lead_axis_registry entry. Percent tokens also match pool values x 100; magnitudes match regardless of
-     sign; an integer matches an integer-valued pool number; a date matches a pool date (and a bare year
-     matches the year of a pool date). Tokens inside a justified allowlist span
-     (docs/gates/number_provenance_allowlist.json, plus the paths-'*' entries of
-     docs/gates/structured_prose_allowlist.json) are exempt.
-  4. Any unresolved token FAILs (hard for schema-1.3 pairs).
-
-RESIDUAL RISK (documented, measured): a stale number that happens to equal some artifact value at its printed
-precision passes. The pool is limited to the curated files above to keep that small; the gate prints, per pair,
-the share of random plausible tokens (2-dp values in [-3, 3], 1-dp percentages, integers 1-300) that would
-resolve by coincidence (`coincidence` line). Chart text is out of scope.
+  1. Render each page (story / evidence / strategy / methodology) in-process with streamlit.testing.AppTest,
+     with AIG_PROVENANCE_GATE=1. Then every artifact value a config formats into text carries an invisible
+     sentinel naming its source (components.provenance loaders: json_file / csv_file / lead_grid / length /
+     count / colmin / colmax ...; components.winner_fields text), and every prose string the pair config hands to
+     the templates is marked as AUTHORED (the gate imports the config fresh and wraps its prose attributes).
+     Definition text of the declared search space / methods tables (provenance.definitions /
+     definition_text) is marked as DEFINITION (the layer-1 path allowlist, carried to the rendered text).
+  2. AUTHORED numbers (decimals, %, pp, dates, number words, ordinals) must sit inside a sentinel or a justified
+     allowlist span (docs/gates/number_provenance_allowlist.json + paths-'*' entries of the layer-1
+     allowlist); anything else FAILs as UNTAGGED, whatever its value. Coincidence for authored text is zero by
+     construction: equalling an artifact value is not enough.
+  3. Every sentinel is re-evaluated from the artifacts on disk (provenance.evaluate) and must equal the
+     displayed text at its displayed precision (MISMATCH otherwise).
+  4. TEMPLATE text (shared components, not pair-authored) keeps the v1 value-matching fallback against the
+     curated pool (winner_summary, track_summary, evidence_facts + its declared sources / derived facts,
+     manifest, registry, trade-log first row, template-derived window lengths / KPI deltas); st.table /
+     st.dataframe cells may also match the pair's current result files. The printed 'coincidence' applies to
+     this template fallback only. Chart internals are not checked.
 
 Usage:
   python scripts/gate_number_provenance.py [pair ...]         # default: every pair with winner_summary 1.3.x
-  python scripts/gate_number_provenance.py --text FILE --pair P  # check a text file against P's pool (fixtures)
+  python scripts/gate_number_provenance.py --text FILE --pair P  # v1 value check of a text file (diagnostic)
 """
 from __future__ import annotations
 
@@ -236,7 +234,7 @@ def _allow_entries() -> list[dict]:
 def _allowed(span, text, entries) -> bool:
     s0, s1 = span
     for e in entries:
-        for m in re.finditer(e["regex"], text, re.I):
+        for m in re.finditer(e["regex"], text, re.I | re.M):
             if m.start() <= s0 and m.end() >= s1:
                 if e.get("deny_if_sentence"):
                     a = text.rfind(".", 0, m.start()) + 1
@@ -350,30 +348,206 @@ def _texts(node, out: list):
         out.append(("prose", v))
 
 
-def render_pages(pair: str, sections=SECTIONS) -> dict[str, list[tuple[str, str]]]:
-    """{section: [(kind, text)]} of the pair's pages, rendered in-process (AppTest)."""
+def _mark_authored(mod) -> None:
+    """Wrap every prose string a pair config hands to the templates in authored-text markers (A0 .. A1), in place:
+    attributes of the config classes / objects and module-level dicts / lists (block dicts), recursively.
+    Identifier-like strings (no whitespace: chart names, paths, codes) are left alone."""
+    import inspect
+
+    from components.provenance import A0, A1, DefText
+
+    def wrap(v):
+        if isinstance(v, str) and not isinstance(v, DefText) and re.search(r"\s", v) and A0 not in v:
+            return f"{A0}{v}{A1}"
+        if isinstance(v, dict):
+            for k in list(v):
+                v[k] = wrap(v[k])
+        elif isinstance(v, list):
+            v[:] = [wrap(x) for x in v]
+        return v
+
+    for name, obj in list(vars(mod).items()):
+        if name.startswith("__") or name.endswith("_TEXT") or inspect.ismodule(obj) or inspect.isfunction(obj):
+            continue
+        if inspect.isclass(obj):
+            if obj.__module__ == mod.__name__:
+                for a, v in list(vars(obj).items()):
+                    if not a.startswith("__") and not callable(v):
+                        setattr(obj, a, wrap(v))
+        elif isinstance(obj, (dict, list)):
+            wrap(obj)
+        elif hasattr(obj, "__dict__") and not inspect.isclass(obj):      # config objects (own or template classes)
+            for a, v in list(vars(obj).items()):
+                setattr(obj, a, wrap(v))
+
+
+def render_pages(pair: str, sections=SECTIONS, tagged: bool = True, prepare=None) -> dict[str, list[tuple[str, str]]]:
+    """{section: [(kind, text)]} of the pair's pages, rendered in-process (AppTest). tagged: render with
+    provenance sentinels on (AIG_PROVENANCE_GATE=1) and the pair config's prose marked as authored text."""
+    import importlib
+
     from streamlit.testing.v1 import AppTest
+    if str(APP) not in sys.path:
+        sys.path.insert(0, str(APP))
+    modname = f"pair_configs.{pair}_config"
+    old_env = os.environ.get("AIG_PROVENANCE_GATE")
     out = {}
-    for sec in sections:
-        pf = _page_file(pair, sec)
-        if pf is None:
-            continue
-        code = ("import streamlit as st, runpy\n"
-                "st.page_link = lambda *a, **k: None\n"          # multipage links need the full app router
-                f"runpy.run_path({str(pf)!r}, run_name='__main__')\n")
-        cwd = os.getcwd()
-        os.chdir(APP)
-        try:
+    cwd = os.getcwd()
+    try:
+        if tagged:
+            os.environ["AIG_PROVENANCE_GATE"] = "1"
+            sys.modules.pop(modname, None)
+            os.chdir(APP)
+            mod = importlib.import_module(modname)
+            if prepare is not None:              # tests: edit the imported config before it is marked
+                prepare(mod)
+            _mark_authored(mod)
+        for sec in sections:
+            pf = _page_file(pair, sec)
+            if pf is None:
+                continue
+            code = ("import streamlit as st, runpy\n"
+                    "st.page_link = lambda *a, **k: None\n"          # multipage links need the full app router
+                    f"runpy.run_path({str(pf)!r}, run_name='__main__')\n")
+            os.chdir(APP)
             at = AppTest.from_string(code, default_timeout=180).run()
-        finally:
-            os.chdir(cwd)
-        if at.exception:
-            out[sec] = [("prose", f"RENDER-EXCEPTION {e.message}") for e in at.exception]
-            continue
-        blocks: list[str] = []
-        _texts(at._tree, blocks)
-        out[sec] = blocks
+            if at.exception:
+                out[sec] = [("prose", f"RENDER-EXCEPTION {e.message}") for e in at.exception]
+                continue
+            blocks: list = []
+            _texts(at._tree, blocks)
+            out[sec] = blocks
+    finally:
+        os.chdir(cwd)
+        if old_env is None:
+            os.environ.pop("AIG_PROVENANCE_GATE", None)
+        else:
+            os.environ["AIG_PROVENANCE_GATE"] = old_env
+        if tagged:
+            sys.modules.pop(modname, None)      # the marked module never serves a normal render
     return out
+
+
+# ------------------------------------------------------------------------------------------- tagged analysis
+def parse_markers(text: str):
+    """(clean text, per-char kind list, value sentinels) of a rendered block. kind: 'template' | 'authored' |
+    'definition' | 'value'; sentinels: (start, end, source expression, displayed text) in clean coordinates.
+    A block that opens with an authored-close marker (a template split a config string) starts authored."""
+    from components.provenance import A0, A1, D0, D1, S0, S1, S2
+    first = min([i for i in (text.find(A0), text.find(A1)) if i >= 0], default=-1)
+    authored = first >= 0 and text[first] == A1
+    dfn = 0
+    clean, kinds, sents = [], [], []
+    i, n = 0, len(text)
+    while i < n:
+        ch = text[i]
+        if ch == A0:
+            authored = True
+        elif ch == A1:
+            authored = False
+        elif ch == D0:
+            dfn += 1
+        elif ch == D1:
+            dfn = max(0, dfn - 1)
+        elif ch == S0:
+            j = text.find(S1, i)
+            k = text.find(S2, j)
+            if j < 0 or k < 0:
+                i += 1
+                continue
+            src, shown = text[i + 1:j], text[j + 1:k]
+            for c in (A0, A1, D0, D1, S0, S1, S2):
+                shown = shown.replace(c, "")
+            start = len(clean)
+            clean.extend(shown)
+            kinds.extend(["value"] * len(shown))
+            sents.append((start, len(clean), src, shown))
+            i = k + 1
+            continue
+        else:
+            clean.append(ch)
+            kinds.append("definition" if dfn else ("authored" if authored else "template"))
+        i += 1
+    return "".join(clean), kinds, sents
+
+
+def verify_sentinel(src: str, shown: str, fields: dict) -> str | None:
+    """None when the displayed text equals its source at displayed precision, else the reason."""
+    from components import provenance as P
+    try:
+        val = P.evaluate(src, fields)
+    except Exception as e:                              # noqa: BLE001 - an unresolvable source is a finding
+        return f"source {src!r} does not resolve ({type(e).__name__}: {e})"
+    if src.startswith("wf:") or isinstance(val, str):
+        return None if str(val) == shown else f"text {shown!r} != {src} {str(val)!r}"
+    m = NUM.search(shown.replace("\u2212", "-"))
+    if not m:
+        return None                                     # a non-numeric rendering (n/a)
+    v = _value(m.group(0))
+    if v is None:
+        return None
+    x, d, pct = v
+    try:
+        e = float(val)
+    except (TypeError, ValueError):
+        return f"source {src!r} is not numeric"
+    tol = 0.5 * 10 ** -d + 1e-9
+    ok = abs(e - x) <= tol or (pct and abs(e * 100 - x) <= tol)
+    return None if ok else f"shows {shown!r} but {src} = {e:.6g}"
+
+
+def check_tagged(text: str, pool: dict, entries: list[dict], fields: dict, where: str) -> tuple[list[str], dict]:
+    """Layer 2 v2 on one rendered block. Authored numbers must sit in a verified sentinel or an allowlist span;
+    template text keeps the value-matching fallback. Returns (findings, counters)."""
+    clean, kinds, sents = parse_markers(text)
+    out, cnt = [], {"authored_tokens": 0, "template_tokens": 0, "tagged_values": len(sents)}
+    for a, b, src, shown in sents:
+        r = verify_sentinel(src, shown, fields)
+        if r:
+            out.append(f"MISMATCH {where}: {r}")
+    body = strip_non_prose(clean)
+    spans = []
+    for rx in (DATE, ORDINAL, NUM, WORD):
+        for m in rx.finditer(body):
+            if any(s <= m.start() < e for s, e in spans):
+                continue
+            spans.append(m.span())
+            # classify by the token's DIGITS (a unit sign such as % or pp written after a tagged value is fine)
+            digits = [kinds[i] for i in range(m.start(), m.end()) if body[i].isalnum()] or kinds[m.start():m.end()]
+            k = set(digits)
+            if k <= {"value"} or "definition" in k and k <= {"definition", "value"}:
+                continue
+            if rx is WORD and m.group(1).lower() in ("one", "a", "zero"):
+                continue
+            if "authored" in k:
+                cnt["authored_tokens"] += 1
+                if not _allowed(m.span(), clean, entries):
+                    out.append(f"UNTAGGED {where}: authored number {m.group(0)!r} is not from a field or "
+                               f"artifact — \"{_ctx(body, m)}\"")
+            else:
+                cnt["template_tokens"] += 1
+                if not _allowed(m.span(), clean, entries) and not _resolve_token(m, rx, pool):
+                    out.append(f"UNRESOLVED {where}: template number {m.group(0)!r} — \"{_ctx(body, m)}\"")
+    return out, cnt
+
+
+def _resolve_token(m, rx, pool) -> bool:
+    """Value-matching fallback for template text (the v1 rule)."""
+    tok = m.group(0)
+    if rx is DATE:
+        return tok in pool["dates"]
+    if rx is ORDINAL:
+        return resolves(int(m.group(1)), 0, True, pool)
+    if rx is WORD:
+        v = float(NUMBER_WORDS[m.group(1).lower()])
+        return resolves(v, 0 if v.is_integer() else 2, False, pool)
+    val = _value(tok)
+    if val is None:
+        return True
+    v, d, pct = val
+    if d == 0 and not pct and 1900 <= abs(v) <= 2100 and str(int(abs(v))) in pool["years"]:
+        return True
+    return resolves(v, d, pct, pool)
 
 
 # ------------------------------------------------------------------------------------------------- main
@@ -427,7 +601,8 @@ def check_pair(pair: str, pages: dict | None = None) -> tuple[list[str], dict]:
     tpool = None
     entries = _allow_entries()
     pages = render_pages(pair) if pages is None else pages
-    findings = []
+    fields = json.loads((RESULTS / pair / "winner_summary.json").read_text()).get("winner_fields") or {}
+    findings, tot = [], {"authored_tokens": 0, "template_tokens": 0, "tagged_values": 0}
     for sec, blocks in pages.items():
         for kind, b in blocks:
             if b.startswith("RENDER-EXCEPTION"):
@@ -435,10 +610,14 @@ def check_pair(pair: str, pages: dict | None = None) -> tuple[list[str], dict]:
                 continue
             if kind == "table":
                 tpool = tpool or load_table_pool(pair, pool)
-                findings += check_text(b, tpool, entries, f"{pair}/{sec} [table]")
+                findings += check_text(parse_markers(b)[0], tpool, entries, f"{pair}/{sec} [table]")
             else:
-                findings += check_text(b, pool, entries, f"{pair}/{sec}")
-    stats = {"tokens_pool": len(pool["nums"]), "coincidence": round(coincidence(pool), 3), "files": pool["files"]}
+                f, c = check_tagged(b, pool, entries, fields, f"{pair}/{sec}")
+                findings += f
+                for k in tot:
+                    tot[k] += c[k]
+    stats = {"tokens_pool": len(pool["nums"]), "coincidence_template": round(coincidence(pool), 3),
+             "files": pool["files"], **tot}
     return findings, stats
 
 
@@ -456,7 +635,9 @@ def main(argv=None) -> int:
     for p in a.pairs or pairs_13():
         f, st = check_pair(p)
         print(f"[{'FAIL' if f else 'OK  '}] {p}: {len(f)} unresolved; pool {st['tokens_pool']} values from "
-              f"{', '.join(Path(x).name for x in st['files'])} + registry; coincidence {st['coincidence']:.1%}")
+              f"{', '.join(Path(x).name for x in st['files'])} + registry; {st['tagged_values']} tagged values, "
+              f"{st['authored_tokens']} untagged authored tokens (allowlisted or failing), {st['template_tokens']} "
+              f"template tokens (value-matched; coincidence {st['coincidence_template']:.1%})")
         for x in f:
             print("     ", x[:260])
         hard += len(f)

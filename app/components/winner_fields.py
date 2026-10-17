@@ -18,6 +18,24 @@ from pathlib import Path
 _RESULTS = Path(__file__).resolve().parents[2] / "results"
 
 
+class FieldText(str):
+    """A field's display text. Behaves as the plain string (lookups, comparisons); when formatted into prose
+    under the number-provenance gate it carries a source sentinel (components.provenance)."""
+
+    def __new__(cls, text: str, name: str):
+        o = str.__new__(cls, text)
+        o.field = name
+        return o
+
+    def __format__(self, spec):
+        from components.provenance import tag
+        return tag(str.__format__(str.__str__(self), spec), f"wf:{self.field}")
+
+    def __str__(self):
+        from components.provenance import tag
+        return tag(str.__str__(self), f"wf:{self.field}")
+
+
 class WinnerFields:
     def __init__(self, pair_id: str, fields: dict):
         self._pair_id = pair_id
@@ -27,7 +45,7 @@ class WinnerFields:
         if name.startswith("_"):
             raise AttributeError(name)
         f = self._fields.get(name)
-        return f["text"] if f else f"[missing: {name}]"
+        return FieldText(f["text"], name) if f else f"[missing: {name}]"
 
     def value(self, name: str):
         f = self._fields.get(name)
