@@ -1,7 +1,7 @@
 {
   "chart_name": "chance_check",
   "pair_id": "hy_ig_spy",
-  "generated_at": "2026-10-17T15:25:12.139668+00:00",
+  "generated_at": "2026-10-17T23:24:22.118249+00:00",
   "generated_by": "scripts/harness/charts.py",
   "caption": "The real winner's plateau score ranks at the 89th percentile of 100 scrambled-signal contests.",
   "narrative_alignment_note": "The real winner's plateau score ranks at the 89th percentile of 100 scrambled-signal contests.",

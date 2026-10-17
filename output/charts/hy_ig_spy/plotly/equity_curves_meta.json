@@ -11,7 +11,7 @@
   ],
   "disposition": "consumed",
   "narrative_alignment_note": "OOS growth of $1: winner 1.83, SPY 2.61.",
-  "created_at": "2026-10-17T16:50:43Z",
+  "created_at": "2026-10-17T23:29:00Z",
   "method_name": "Strategy Backtest",
   "expected_chart_type": "line"
 }

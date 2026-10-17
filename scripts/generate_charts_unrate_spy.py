@@ -89,12 +89,11 @@ def add_sahm_shading(fig: go.Figure, df: pd.DataFrame) -> None:
     starts = stress.index[stress & ~stress.shift(1, fill_value=False)]
     ends = stress.index[stress & ~stress.shift(-1, fill_value=False)]
     for start, end in zip(starts, ends):
-        fig.add_vrect(
-            x0=start,
-            x1=end,
-            fillcolor="rgba(204,121,167,0.18)",
-            line_width=0,
-            layer="below",
+        # add_shape on the paper y-range: add_vrect adds nothing on a make_subplots(secondary_y) figure
+        # (permit_spy fix pass), so the Sahm bands were silently missing
+        fig.add_shape(
+            type="rect", xref="x", yref="paper", x0=str(start.date()), x1=str(end.date()), y0=0, y1=1,
+            fillcolor="rgba(204,121,167,0.18)", line_width=0, layer="below",
         )
 
 
@@ -311,7 +310,7 @@ def main() -> None:
     chart_structural_break()
     chart_subperiod()
     chart_history_zoom("dotcom", "Dot-Com Cycle: Unemployment Rose After Equity Weakness", "1999-01-31", "2003-12-31")
-    chart_history_zoom("gfc", "Global Financial Crisis: Labor Stress Confirmed the Recession", "2006-01-31", "2010-12-31")
+    chart_history_zoom("gfc", "Global Financial Crisis: Labor Stress Rose Through the Recession", "2006-01-31", "2010-12-31")
     chart_history_zoom("covid", "COVID Shock: Unemployment Spike", "2018-01-31", "2021-12-31")
     chart_history_zoom("inflation_2022", "2022 Rate-Hike Cycle: Labor Market Stayed Resilient", "2021-01-31", "2025-12-31")
     print(f"Done. Charts saved to {OUT}")
