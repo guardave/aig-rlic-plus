@@ -65,23 +65,30 @@ THRESHOLD_TEXT = P.definitions({
     "T_flag": "the contraction flag (year-over-year permit growth below zero)",
     "-": "its trailing 60-month range",
 })
+SIGNAL_TEXT = P.definitions({
+    "S1_level": "building permits level",
+    "S2_yoy": "year-over-year change in building permits",
+    "S3_mom": "month-over-month change in building permits",
+    "S4_dev": "building permits versus their 12-month average",
+    "S5_z": "60-month building permits z-score",
+    "S6_mom3m": "3-month change in building permits",
+    "S7_mom6m": "6-month change in building permits",
+    "S8_accel": "acceleration of the monthly building permits change",
+    "S9_contr": "building permits contraction flag (year-over-year growth below zero)",
+})
 SIDE = {"countercyclical": "at or below", "procyclical": "at or above"}
 STRATEGY_TEXT = {"P1_long_cash": "long/cash", "P2_signal_strength": "signal-strength sizing",
                  "P3_long_short": "long/short"}
-
-
-def _low(text: str) -> str:
-    return text[:1].lower() + text[1:]
 
 
 def _rule(prefix: str = "") -> str:
     """Plain-English rule of a track's winner, from its structured fields."""
     g = lambda n: getattr(W, prefix + n)  # noqa: E731
     fam = W.value(prefix + "strategy_family")
-    sig = f"the {_low(g('signal_display'))} from {g('lead_word')} months earlier"
+    sig = f"the {SIGNAL_TEXT.get(W.value(prefix + 'signal_code'), g('signal_code'))} from {g('lead_word')} months earlier"
     if fam == "P2_signal_strength":
         more = "higher" if W.value(prefix + "direction") == "procyclical" else "lower"
-        return (f"hold a share of SPY set by where {sig} sits in its trailing 60-month range (a {more} reading "
+        return (f"hold a share of SPY set by where {sig} sits in {THRESHOLD_TEXT['-']} (a {more} reading "
                 "means more SPY), with the rest in cash")
     side = SIDE.get(W.value(prefix + "direction"), g("direction"))
     thr = THRESHOLD_TEXT.get(g("threshold_code"), g("threshold_code"))
@@ -96,8 +103,9 @@ def _rid(prefix: str = "") -> str:
     return " / ".join(parts + [g("strategy_family"), f"L{g('lead')}"])
 
 
+_SIG = SIGNAL_TEXT.get(W.value("signal_code"), W.signal_code)
 _RULE = _rule()
-_FINAL_STEP = ("the position is set by where that reading sits in its trailing 60-month range"
+_FINAL_STEP = (f"the position is set by where that reading sits in {THRESHOLD_TEXT['-']}"
                if W.value("strategy_family") == "P2_signal_strength" else
                f"the reading is compared with {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)}")
 _RID = _rid()
@@ -109,7 +117,7 @@ _SAME_RULE = W.value("signal_code") == W.value("comparison_signal_code") and W.v
 _STRAT = STRATEGY_TEXT.get(W.value("strategy_family"), W.strategy_family)
 _IS_P2 = W.value("strategy_family") == "P2_signal_strength"
 _IF_THEN = (
-    f"- **IF** `{W.signal_code}` from {W.lead_word} months earlier is at the top of its trailing 60-month range -> "
+    f"- **IF** `{W.signal_code}` from {W.lead_word} months earlier is at the top of {THRESHOLD_TEXT['-']} -> "
     "full SPY; at the bottom -> cash; in between -> the matching share of SPY"
     + (" (the scale is inverted for this countercyclical rule)." if W.value("direction") == "countercyclical" else ".")
     if _IS_P2 else
@@ -151,7 +159,7 @@ class StoryConfig:
 
     KPI_CAPTION = (
         f"Winner selected on training data ({W.is_start} to {W.is_end}) by {W.selection_objective}: "
-        f"{W.signal_display}, {'trailing-range sizing' if _IS_P2 else W.threshold_code}, {_STRAT}, lead {W.lead_text}. "
+        f"{_SIG}, {'trailing-range sizing' if _IS_P2 else W.threshold_code}, {_STRAT}, lead {W.lead_text}. "
         f"Test-period Sharpe {W.oos_sharpe} "
         f"versus {W.bh_oos_sharpe} for buy-and-hold ({W.oos_start} to {W.oos_end})."
     )
@@ -176,7 +184,7 @@ class StoryConfig:
 
 This result uses data as known at the time, covering {W.is_start} to {W.oos_end}: every month the rule reads building permits as they were published then, not today's revised figures.
 
-The winning rule is a **{_low(W.signal_display)} rule** ({_STRAT}): {_RULE}. It was selected on the training period ({W.is_start} to {W.is_end}) by {W.selection_objective} (stable lead range {W.plateau_range}), out of {W.n_valid} valid combinations ({W.n_distinct} distinct position series). In the test period ({W.oos_start} to {W.oos_end}) it records Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, with maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}. The test-period Sharpe difference is {W.sharpe_gap} (95% interval {W.ci_low} to {W.ci_high}).
+The winning rule is a **{_SIG} rule** ({_STRAT}): {_RULE}. It was selected on the training period ({W.is_start} to {W.is_end}) by {W.selection_objective} (stable lead range {W.plateau_range}), out of {W.n_valid} valid combinations ({W.n_distinct} distinct position series). In the test period ({W.oos_start} to {W.oos_end}) it records Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, with maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}. The test-period Sharpe difference is {W.sharpe_gap} (95% interval {W.ci_low} to {W.ci_high}).
 
 On today's revised data (hindsight, for comparison only) the selected rule is to {_RULE_REVISED}; its test-period Sharpe is {W.comparison_oos_sharpe}.
 
@@ -419,7 +427,7 @@ EVIDENCE_METHOD_BLOCKS = {
 class StrategyConfig:
     PAGE_TITLE = "The Strategy: A Lagged Building-Permit Overlay for SPY"
     PAGE_SUBTITLE = (
-        f"A searched SPY allocation rule: {_low(W.signal_display)}, {_STRAT}, lead {W.lead_text}, on building-permit "
+        f"A searched SPY allocation rule: {_SIG}, {_STRAT}, lead {W.lead_text}, on building-permit "
         "data as known at the time."
     )
 
@@ -485,7 +493,7 @@ Test-period results on data as known at the time ({W.oos_start} to {W.oos_end}):
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = f"""
-First, at each month end the process takes building permits (`PERMIT`) as they were published on that date (the figures visible when the month's return window opens). Second, inside that vintage it computes the {_low(W.signal_display)} and {'its trailing 60-month range' if _IS_P2 else 'its threshold'}. Third, it uses the reading from {W.lead_word} months earlier, and the position is applied to the following month's return. Finally, {_FINAL_STEP}.
+First, at each month end the process takes building permits (`PERMIT`) as they were published on that date (the figures visible when the month's return window opens). Second, inside that vintage it computes the {_SIG} and {THRESHOLD_TEXT['-'] if _IS_P2 else 'its threshold'}. Third, it uses the reading from {W.lead_word} months earlier, and the position is applied to the following month's return. Finally, {_FINAL_STEP}.
 
 OOS Sharpe means test-period (out-of-sample) risk-adjusted return. OOS Return is the annualized test-period return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of test-period months with positive strategy return.
 """
@@ -494,7 +502,7 @@ OOS Sharpe means test-period (out-of-sample) risk-adjusted return. OOS Return is
 This describes the backtested rule so it can be audited; it is not a trading recommendation.
 
 1. At month end, read PERMIT as currently published.
-2. Compute the {_low(W.signal_display)} from that published series.
+2. Compute the {_SIG} from that published series.
 3. Take its value from {W.lead_word} months earlier; {_FINAL_STEP}.
 4. Set the position as the rule says ({_STRAT}) and hold it for the following month.
 5. Recheck monthly.
@@ -538,9 +546,9 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     TRADE_LOG_EXAMPLE_MD = (
         "**A concrete example from this pair:** the broker-style log records each change in the SPY position the "
         f"rule makes ({_STRAT}) "
-        + (f"as the {_low(W.signal_display)} reading moves within its trailing 60-month range."
+        + (f"as the {_SIG} reading moves within {THRESHOLD_TEXT['-']}."
            if _IS_P2 else
-           f"when the {_low(W.signal_display)} reading crosses {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)}.")
+           f"when the {_SIG} reading crosses {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)}.")
     )
 
     TRADE_LOG_COLUMN_EXAMPLES = {
@@ -573,7 +581,7 @@ _INDICATOR_CONSTRUCTION_MD = (
     "the monthly change and a contraction flag (year-over-year growth below zero). On the as-known-at-the-time "
     "track every signal and rolling threshold is recomputed inside the vintage published when each month's return "
     "window opens; training-period percentile thresholds use only earlier training readings. "
-    f"The winning signal is `{W.signal_code}` ({_low(W.signal_display)}), used with a lead of {W.lead_text}; "
+    f"The winning signal is `{W.signal_code}` ({_SIG}), used with a lead of {W.lead_text}; "
     f"{_FINAL_STEP}."
 )
 
