@@ -1,7 +1,7 @@
 {
   "chart_name": "tournament_scatter",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-17T16:42:07.263991+00:00",
+  "generated_at": "2026-10-17T17:17:32.400877+00:00",
   "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
   "caption": "Test-period Sharpe distribution across valid strategies by lead (data as known at the time); median 0.64 vs buy-and-hold 0.93.",
   "narrative_alignment_note": "Test-period Sharpe distribution across valid strategies by lead (data as known at the time); median 0.64 vs buy-and-hold 0.93.",

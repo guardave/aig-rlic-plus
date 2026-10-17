@@ -114,31 +114,30 @@ def null_maker(mod, which: str, ti):
     return (lambda k: revised_inputs(spec, NL.roll_span(lv, k, s, e), ti.index, ti.ret, name=ti.name)), e - s
 
 
-def r71_diagnosis(spec, make, n_span: int, summ: dict, log=print, K: int = 30) -> dict:
+def r71_diagnosis(spec, make, n_span: int, summ: dict, log=print, K: int = 30, max_offset=None) -> dict:
     """When the R7.1 check fails, describe where the bias lives: (a) the timing Sharpe averaged over ALL valid
     candidates of each draw (no selection) and (b) the selected winner's timing Sharpe when the target returns
-    are also randomly permuted (no return path). A bias seen only in (selected, real returns) is CONSISTENT with
-    a selection effect, but these two checks cannot exclude a lookahead in the null construction that only the
-    selection step exploits (Codex B0r: the real-time null's cross-vintage fill did exactly that); the leak
-    tests and a review of the null transform are still needed."""
+    are also randomly permuted (no return path). These checks locate the bias but do not identify its cause: a
+    lookahead in the null construction that only the selection step exploits looks the same (Codex B0r: the
+    real-time null's cross-vintage fill did exactly that). The flag stays open with the cause unproven."""
     log(f"  R7.1 diagnosis: {K} draws with permuted returns")
-    sh = NL.run_null(spec, make, n_span, K, shuffle_returns_seed=NL.SEED_BASE)
+    sh = NL.run_null(spec, make, n_span, K, shuffle_returns_seed=NL.SEED_BASE, max_offset=max_offset)
     st = sh["timing_sharpe"].dropna()
     se, _ = NL.dependent_se(st.to_numpy(), sh.loc[st.index, "offset"].to_numpy(), spec.ppy)
     a, b = summ["timing_sharpe_mean_all_valid_candidates"], round(float(st.mean()), 4)
     return {"timing_mean_selected_winner": summ["timing_sharpe_mean"], "timing_mean_all_valid_candidates": a,
             "timing_mean_selected_winner_returns_permuted": b, "returns_permuted_se": round(se, 4),
             "returns_permuted_draws": int(len(st)),
-            "consistent_with_selection_effect": bool(abs(a) <= 0.05 and abs(b) <= max(0.10, 2 * se)),
+            "bias_only_in_selected_winners_on_real_returns": bool(abs(a) <= 0.05 and abs(b) <= max(0.10, 2 * se)),
+            "cause": "unproven",
             "reading": (f"Selected winners average a timing Sharpe of {summ['timing_sharpe_mean']} in the null; all valid "
                         f"candidates average {a}; with the returns permuted the selected winners average {b} "
                         f"(SE {se:.3f}). "
-                        + ("The bias appears only after in-sample selection on the real return path, not in "
-                           "unselected candidates or without the return path: consistent with a selection effect, "
-                           "though these checks alone cannot exclude a lookahead that only selection exploits."
+                        + ("The bias appears only in the selected winners on the real return path, not in unselected "
+                           "candidates or without the return path. "
                            if abs(a) <= 0.05 and abs(b) <= max(0.10, 2 * se) else
-                           "The pattern is not explained by selection alone; investigate before relying on the null.")
-                        + " The leak tests are reported separately.")}
+                           "The bias also appears without selection or without the return path. ")
+                        + "Cause unproven; open flag. The leak tests are reported separately.")}
 
 
 def leak_makers(mod, ti):
@@ -190,14 +189,17 @@ def run_pair(pair_id: str, tag: str, K: int = 100, write: bool = True, leak: boo
         if res.selection is not None and K:
             log(f"  null tournament K={K}")
             make, n_span = null_maker(mod, role, ti)
-            nd = NL.run_null(spec, make, n_span, K)
+            max_off = NL.max_usable_offset(spec, make, n_span) if ti.name == "real_time" else None
+            if ti.name == "real_time":
+                log(f"  usable admissible offsets up to {max_off}")
+            nd = NL.run_null(spec, make, n_span, K, max_offset=max_off)
             nulls[role] = nd
             valid = res.table[res.table["valid"]]
             actual = {"is_max": float(valid["is_sharpe"].max()), "selection_stat": res.selection["score"],
                       "winner_oos": float(res.table.loc[res.selection["winner"], "oos_sharpe"])}
             summ = NL.summarize(nd, actual, len(spec.leads), spec.ppy)
             if not summ["r71_pass"]:
-                summ["r71_diagnosis"] = r71_diagnosis(spec, make, n_span, summ, log)
+                summ["r71_diagnosis"] = r71_diagnosis(spec, make, n_span, summ, log, max_offset=max_off)
         else:
             nulls[role] = None
         records[role] = A.track_record(res, mod.SIGNAL_DISPLAY, summ)

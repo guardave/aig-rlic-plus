@@ -10,8 +10,10 @@ The RAW indicator is shifted and the whole pipeline is rebuilt for every draw (C
       position undefined, scored by the metrics' NaN rule). Each vintage keeps its own release structure
       (which periods it contains, and when it was published), and realtime_inputs, transforms and thresholds
       are rebuilt per draw. At large offsets the wrapped (missing) part can cover the whole in-sample window
-      of the early vintages; such a draw has no in-sample-valid candidate, records no winner and is excluded
-      from the percentiles (n_draws counts draws with a winner; n_draws_without_winner is reported).
+      of the early vintages, so the admissible set is restricted UP FRONT to offsets that leave a usable
+      training window (some candidate meets the R3.3 eligibility rule; max_usable_offset, found by binary
+      search because usability is monotone in k); offsets are then drawn from that set. n_draws counts draws
+      with a winner; n_draws_without_winner is reported (expected 0).
 Offsets: DISTINCT admissible values in [m, n - m], m = max(36 months in native periods, 20% of n), drawn without
 replacement (seed 20261016); all of them when there are at most K. R7.1 is calibrated for the dependence between
 neighbouring offsets: the SE of the mean timing Sharpe is a Bartlett (Newey-West) long-run SE over the draws
@@ -24,22 +26,43 @@ from typing import Callable
 import numpy as np
 import pandas as pd
 
-from .engine import TrackInputs, TrackResult, run_tournament
+from .engine import TrackInputs, TrackResult, any_eligible, run_tournament
 from .spec import PairSpec
 
 SEED_BASE = 20261016
 
 
-def admissible(n: int, ppy: int) -> np.ndarray:
+def admissible(n: int, ppy: int, max_offset: int | None = None) -> np.ndarray:
     m = max(3 * ppy, int(np.ceil(0.2 * n)))
     if n - m < m:
         raise ValueError(f"span {n} too short for a circular-shift null (m={m})")
-    return np.arange(m, n - m + 1)
+    hi = n - m if max_offset is None else min(n - m, max_offset)
+    return np.arange(m, hi + 1)
 
 
-def offsets(n: int, ppy: int, K: int, seed: int = SEED_BASE) -> list[int]:
+def max_usable_offset(spec: PairSpec, make_inputs: Callable[[int], TrackInputs], n: int) -> int | None:
+    """Real-time track: the largest admissible offset whose shifted inputs still leave a usable training window
+    (some candidate meets the R3.3 eligibility rule). Without cross-vintage fill, the missing (wrapped) part of
+    every vintage only grows with the offset, so usability is monotone in k and a binary search over the
+    admissible range finds the cut. None when not even the smallest admissible offset is usable."""
+    adm = admissible(n, spec.ppy)
+    lo, hi = 0, len(adm) - 1
+    if not any_eligible(spec, make_inputs(int(adm[lo]))):
+        return None
+    if any_eligible(spec, make_inputs(int(adm[hi]))):
+        return int(adm[hi])
+    while hi - lo > 1:                    # invariant: adm[lo] usable, adm[hi] not
+        mid = (lo + hi) // 2
+        if any_eligible(spec, make_inputs(int(adm[mid]))):
+            lo = mid
+        else:
+            hi = mid
+    return int(adm[lo])
+
+
+def offsets(n: int, ppy: int, K: int, seed: int = SEED_BASE, max_offset: int | None = None) -> list[int]:
     """K distinct admissible offsets (all of them when there are at most K), drawn without replacement."""
-    adm = admissible(n, ppy)
+    adm = admissible(n, ppy, max_offset)
     if len(adm) <= K:
         return [int(x) for x in adm]
     return [int(x) for x in np.random.default_rng(seed).choice(adm, size=K, replace=False)]
@@ -121,11 +144,12 @@ def draw_record(res: TrackResult) -> dict:
 
 
 def run_null(spec: PairSpec, make_inputs: Callable[[int], TrackInputs], n_span: int, K: int = 100,
-             legacy: bool = False, shuffle_returns_seed: int | None = None) -> pd.DataFrame:
+             legacy: bool = False, shuffle_returns_seed: int | None = None,
+             max_offset: int | None = None) -> pd.DataFrame:
     """K draws; make_inputs(k) returns the shifted track inputs for offset k. shuffle_returns_seed (diagnostic
     only): the target returns are also randomly permuted, which removes their time path."""
     rows = []
-    offs = offsets(n_span, spec.ppy, K)
+    offs = offsets(n_span, spec.ppy, K, max_offset=max_offset)
     for d, k in enumerate(offs):
         ti = make_inputs(k)
         if shuffle_returns_seed is not None:
@@ -136,7 +160,8 @@ def run_null(spec: PairSpec, make_inputs: Callable[[int], TrackInputs], n_span: 
         res = run_tournament(spec, ti, legacy=legacy, full_table=False)
         rows.append({"draw": d, "seed": SEED_BASE, "offset": k, **draw_record(res)})
     out = pd.DataFrame(rows)
-    out.attrs.update(n_admissible=int(len(admissible(n_span, spec.ppy))), span=int(n_span))
+    out.attrs.update(n_admissible=int(len(admissible(n_span, spec.ppy, max_offset))), span=int(n_span),
+                     max_offset=max_offset)
     return out
 
 
@@ -184,6 +209,7 @@ def summarize(null: pd.DataFrame, actual: dict, grid_len: int, ppy: int = 12) ->
         "n_draws": K, "n_unique_offsets": int(null["offset"].nunique()),
         "n_draws_without_winner": int(null["selection_stat"].isna().sum()),
         "n_admissible_offsets": null.attrs.get("n_admissible"), "span": null.attrs.get("span"),
+        "max_usable_offset": null.attrs.get("max_offset"),
         "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period "
         "values inside every vintage), pipeline rebuilt per draw, same selection rule; distinct offsets; R7.1",
         "seed_base": SEED_BASE,

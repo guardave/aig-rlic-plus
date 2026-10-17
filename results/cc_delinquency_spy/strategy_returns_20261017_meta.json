@@ -3,7 +3,7 @@
   "track": "real_time",
   "role": "main",
   "winner_key": "chg_4q|T_roll_p50|P1|procyclical|2",
-  "generated_at": "2026-10-17T16:24:07.385001+00:00",
+  "generated_at": "2026-10-17T16:58:00.822910+00:00",
   "vintage_policy": {
     "alignment": "realtime_vintage",
     "vintage_series": "DRCCLACBN",

@@ -347,3 +347,14 @@ def test_realtime_frames_keep_columns_when_no_vintage_is_visible():
                          "realtime_end": [pd.Timestamp("2262-01-01")], "value": [1.0]})
     f = align.realtime_frames(vint, lv.index[:24], [1], lambda v: reading_frame(spec, v.rename("x").to_frame()))[1]
     assert "x|lvl|raw" in f.columns and f.isna().all(axis=None)
+
+
+def test_max_usable_offset_binary_search_and_restricted_draws(monkeypatch):
+    spec = make_spec(leads=[1, 2, 3])
+    calls = []
+    monkeypatch.setattr(null, "any_eligible", lambda sp, k: calls.append(k) or k <= 150)
+    assert null.max_usable_offset(spec, lambda k: k, 600) == 150 and len(calls) <= 12
+    offs = null.offsets(600, spec.ppy, 100, max_offset=150)
+    assert len(offs) == len(set(offs)) == 150 - 120 + 1 and max(offs) == 150      # all usable ones (< K)
+    monkeypatch.setattr(null, "any_eligible", lambda sp, k: False)
+    assert null.max_usable_offset(spec, lambda k: k, 600) is None

@@ -61,6 +61,21 @@ def _date(index, row) -> str | None:
     return None if row is None or row < 0 or row >= len(index) else index[row].date().isoformat()
 
 
+def any_eligible(spec: PairSpec, ti: TrackInputs) -> bool:
+    """True when at least one candidate meets the R3.3 eligibility rule (own IS returns >= min_is_n) on these
+    inputs: the usable-training-window test of the real-time null's admissible offsets (harness.null)."""
+    cands = manifest(spec)
+    pre_oos = ~np.asarray(ti.index >= pd.Timestamp(spec.oos_start))
+    by_lead: dict[int, list[int]] = {}
+    for j, c in enumerate(cands):
+        by_lead.setdefault(c.lead, []).append(j)
+    P = np.full((len(ti.index), len(cands)), np.nan)
+    for lead, cols in by_lead.items():
+        P[:, cols] = position_matrix(spec, ti.lagged[lead], [cands[j] for j in cols], pre_oos, "expanding")
+    R = strategy_returns(P, ti.ret, spec.position_shift)
+    return bool((np.sum(~np.isnan(R) & pre_oos[:, None], axis=0) >= spec.min_is_n).any())
+
+
 def run_tournament(spec: PairSpec, ti: TrackInputs, legacy: bool = False, full_table: bool = True) -> TrackResult:
     """legacy=True replays the pre-harness pipeline (spec.legacy scoring, eligibility and tie rule, raw IS argmax);
     otherwise Phase B rules: R3.3 eligibility, deployable scoring, D9 plateau selection with a raw-argmax side row."""

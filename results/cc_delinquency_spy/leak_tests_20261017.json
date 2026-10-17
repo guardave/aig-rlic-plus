@@ -229,10 +229,11 @@
   "null": {
     "main": {
       "n_draws": 55,
-      "n_unique_offsets": 85,
-      "n_draws_without_winner": 30,
-      "n_admissible_offsets": 85,
+      "n_unique_offsets": 56,
+      "n_draws_without_winner": 1,
+      "n_admissible_offsets": 56,
       "span": 142,
+      "max_usable_offset": 84,
       "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period values inside every vintage), pipeline rebuilt per draw, same selection rule; distinct offsets; R7.1",
       "seed_base": 20261016,
       "is_max_percentile": 0.2182,
@@ -313,6 +314,7 @@
       "n_draws_without_winner": 0,
       "n_admissible_offsets": 85,
       "span": 142,
+      "max_usable_offset": null,
       "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period values inside every vintage), pipeline rebuilt per draw, same selection rule; distinct offsets; R7.1",
       "seed_base": 20261016,
       "is_max_percentile": 0.6,
