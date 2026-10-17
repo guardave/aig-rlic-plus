@@ -593,6 +593,30 @@ def compute_split(df):
             "is_end": work.index[-(oos_n + 1)], "oos_end": work.index[-1]}
 
 
+def paired_block_bootstrap_sharpe_diff(strat, bh, block, ppy, draws=5000, seed=42):
+    """Paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H): the same resampled
+    blocks are applied to both series, so their dependence is kept. Returns mean, 95% CI and
+    P(diff <= 0)."""
+    s, b = np.asarray(strat, float), np.asarray(bh, float)
+    n = len(s)
+    rng = np.random.default_rng(seed)
+
+    def _sh(x):
+        return x.mean() / x.std() * np.sqrt(ppy) if x.std() > 0 else np.nan
+
+    d = []
+    for _ in range(draws):
+        starts = rng.integers(0, n, size=int(np.ceil(n / block)))
+        idx = np.concatenate([np.arange(k, k + block) % n for k in starts])[:n]
+        d.append(_sh(s[idx]) - _sh(b[idx]))
+    d = np.array(d)
+    d = d[~np.isnan(d)]
+    return {"observed": round(float(_sh(s) - _sh(b)), 4), "mean": round(float(d.mean()), 4),
+            "ci_95": [round(float(np.percentile(d, 2.5)), 4), round(float(np.percentile(d, 97.5)), 4)],
+            "p_diff_le_0": round(float((d <= 0).mean()), 4), "block_length": block, "draws": int(len(d)),
+            "seed": seed, "method": "paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H)"}
+
+
 def hac_t_mean(r, horizon=1):
     """HAC (Newey-West) t-stat of the mean; maxlags = max(floor(4*(n/100)^(2/9)), horizon-1)."""
     import statsmodels.api as sm
@@ -1255,7 +1279,8 @@ def _ensure_signal_code_registered(sig_code, winner, parquet_col):
     print(f"  signal_code registry: APPENDED {sig_code} (ECON-DS3 append-only)")
 
 
-def _write_evidence_status(ws, split, n_valid, is_window, t_oos):
+def _write_evidence_status(ws, split, n_valid, is_window, t_oos, bh_vol):
+    bs = ws["selection"]["inference"]["oos_sharpe_diff_vs_bh_bootstrap"]
     es = {
         "pair_id": PAIR_ID, "schema_version": "1.2.0", "status": "found_in_search",
         "updated_at": NOW_ISO, "owner": "evan",
@@ -1264,10 +1289,14 @@ def _write_evidence_status(ws, split, n_valid, is_window, t_oos):
             f"from the {DATE_TAG} monthly tournament ({n_valid} IS-valid combos) and evaluated on the held-out OOS "
             f"window {split['oos_start']}..{split['oos_end']} ({ws['oos_n']} months): OOS Sharpe {ws['oos_sharpe']:.2f} "
             f"vs B&H {ws['bh_sharpe']:.2f}, HAC t {t_oos:.2f}. No frozen-rule confirmation test has been run."),
-        "plain_english": (f"This is the rule with the highest in-sample Sharpe among {n_valid} valid combinations, "
-                          f"scored once on the {ws['oos_n']}-month out-of-sample window: Sharpe {ws['oos_sharpe']:.2f} "
-                          f"versus {ws['bh_sharpe']:.2f} for buy-and-hold. It has not been tested on data released "
-                          "after it was chosen."),
+        "plain_english": (f"This is the rule with the highest in-sample Sharpe among {n_valid} valid combinations. "
+                          f"On the {ws['oos_n']}-month out-of-sample window: Sharpe {ws['oos_sharpe']:.2f} versus "
+                          f"{ws['bh_sharpe']:.2f} for buy-and-hold; paired block-bootstrap 95% interval of the Sharpe "
+                          f"difference [{bs['ci_95'][0]:+.2f}, {bs['ci_95'][1]:+.2f}], so the two are not statistically "
+                          f"distinguishable; annualized return {ws['oos_ann_return']*100:.1f}% versus "
+                          f"{ws['bh_ann_return']*100:.1f}%, with lower volatility ({ws['oos_ann_vol']*100:.1f}% vs "
+                          f"{bh_vol*100:.1f}%) and drawdown ({ws['oos_max_drawdown']*100:.1f}% vs "
+                          f"{ws['bh_max_drawdown']*100:.1f}%). It has not been tested on data released after it was chosen."),
         "next_step": "Freeze the rule and evaluate it on months released after the freeze date.",
     }
     with open(os.path.join(RESULTS_DIR, "evidence_status.json"), "w") as f:
@@ -1482,7 +1511,10 @@ def main():
             "status": ("superseded: relied on full-sample, forward-backward smoothed HMM probabilities (look-ahead), "
                        "a lead (L0) below the publication-lag floor, and selection by OOS Sharpe"),
             "audit_file": f"hmm_lookahead_audit_{DATE_TAG}.json"},
-        "inference": {"oos_hac_t": round(t_oos, 3), "oos_hac_p": round(p_oos, 4), "oos_hac_maxlags": nw_oos,
+        "inference": {"oos_sharpe_diff_vs_bh_bootstrap": dict(paired_block_bootstrap_sharpe_diff(
+                          oos_r.values, ws_meta["work"]["spy_ret"].reindex(oos_r.index).values, 6, 12),
+                          block_unit="months"),
+                      "oos_hac_t": round(t_oos, 3), "oos_hac_p": round(p_oos, 4), "oos_hac_maxlags": nw_oos,
                       "is_hac_t": round(t_is, 3), "is_hac_maxlags": nw_is,
                       "n_distinct_candidates": int(sel["n_distinct"]),
                       "expected_max_abs_z_under_null": round(exp_max_z, 2),
@@ -1651,7 +1683,7 @@ def main():
         json.dump(kpis, f, indent=2)
 
     # evidence_status.json
-    _write_evidence_status(winner_summary, split, n_valid, is_window, t_oos)
+    _write_evidence_status(winner_summary, split, n_valid, is_window, t_oos, float(bh["oos_ann_vol"]))
 
     # design_note.md
     design = f"""# Design Note — {PAIR_ID} ({DATE_TAG})

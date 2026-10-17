@@ -2,9 +2,9 @@
   "pair_id": "nhs_spy",
   "schema_version": "1.2.0",
   "status": "found_in_search",
-  "updated_at": "2026-10-16T22:56:24Z",
+  "updated_at": "2026-10-17T09:03:52Z",
   "owner": "evan",
   "technical_note": "Winner selected by in-sample Sharpe (common pre-OOS window 2002-11-30..2018-01-31) from the 20261016 monthly tournament (5344 IS-valid combos) and evaluated on the held-out OOS window 2018-02-28..2026-05-31 (100 months): OOS Sharpe 0.93 vs B&H 0.89, HAC t 3.26. No frozen-rule confirmation test has been run.",
-  "plain_english": "This is the rule with the highest in-sample Sharpe among 5344 valid combinations, scored once on the 100-month out-of-sample window: Sharpe 0.93 versus 0.89 for buy-and-hold. It has not been tested on data released after it was chosen.",
+  "plain_english": "This is the rule with the highest in-sample Sharpe among 5344 valid combinations. On the 100-month out-of-sample window: Sharpe 0.93 versus 0.89 for buy-and-hold; paired block-bootstrap 95% interval of the Sharpe difference [-0.37, +0.45], so the two are not statistically distinguishable; annualized return 11.9% versus 14.8%, with lower volatility (12.7% vs 16.6%) and drawdown (-13.5% vs -23.9%). It has not been tested on data released after it was chosen.",
   "next_step": "Freeze the rule and evaluate it on months released after the freeze date."
 }

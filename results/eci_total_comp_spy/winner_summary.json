@@ -1,6 +1,6 @@
 {
   "pair_id": "eci_total_comp_spy",
-  "generated_at": "2026-10-16T22:55:49Z",
+  "generated_at": "2026-10-17T09:03:25Z",
   "signal_column": "eci_total_comp_pct_2q",
   "signal_code": "eci_total_comp_2q",
   "signal_display_name": "ECI 2-quarter growth",
@@ -19,8 +19,8 @@
   "lookback": "LB_NA",
   "direction": "countercyclical",
   "oos_sharpe": 0.6959,
-  "oos_sortino": 0.0,
-  "oos_calmar": 0.0,
+  "oos_sortino": null,
+  "oos_calmar": null,
   "oos_ann_return": 0.0429,
   "oos_ann_vol": 0.0617,
   "oos_max_drawdown": 0.0,
@@ -145,6 +145,20 @@
       "audit_file": "hmm_lookahead_audit_20261016.json"
     },
     "inference": {
+      "oos_sharpe_diff_vs_bh_bootstrap": {
+        "observed": -0.1106,
+        "mean": -0.2347,
+        "ci_95": [
+          -1.6991,
+          0.7482
+        ],
+        "p_diff_le_0": 0.6235,
+        "block_length": 2,
+        "draws": 4476,
+        "seed": 42,
+        "method": "paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H)",
+        "block_unit": "quarters"
+      },
       "oos_hac_t": 1.327,
       "oos_hac_p": 0.1844,
       "oos_hac_maxlags": 2,
@@ -156,5 +170,6 @@
     },
     "objective_runner_up_divergence": null
   },
-  "notes": "Quarterly pair (annualization sqrt(4); leads/lookbacks/oos_n in quarters). 20261016 rerun: tournament of 1180 strategy combos (+1 benchmark), 1080 IS-valid. Winner selected by in-sample Sharpe on the common IS window 2008-12-31..2019-12-31 (45 quarters) and evaluated on the held-out OOS window 2020-03-31..2026-03-31 (25 quarters): IS Sharpe 1.19 (B&H 0.79), OOS Sharpe 0.70 (B&H 0.80), OOS HAC t 1.33. The HMM and Markov-switching regime signals are not in the grid: a causal (IS-only, forward-filtered) fit needs at least 100 IS rows and ECI has 72 IS quarters. The previously published winner (hmm_stress/T3_zscore_1.0/LB12/P1_long_cash_counter/L4q, OOS Sharpe 1.41) used full-sample smoothed HMM probabilities; the same rule on a causal diagnostic HMM scores 1.03 (hmm_lookahead_audit_20261016.json). Lead-lag (empirical): ECI->SPY TY-Granger sig lags(q) NONE, SPY->ECI [1, 2, 3, 4] -> 'lagging'. Gross of costs; sensitivity in tournament_validation_20261016/."
+  "notes": "Quarterly pair (annualization sqrt(4); leads/lookbacks/oos_n in quarters). 20261016 rerun: tournament of 1180 strategy combos (+1 benchmark), 1080 IS-valid. Winner selected by in-sample Sharpe on the common IS window 2008-12-31..2019-12-31 (45 quarters) and evaluated on the held-out OOS window 2020-03-31..2026-03-31 (25 quarters): IS Sharpe 1.19 (B&H 0.79), OOS Sharpe 0.70 (B&H 0.80), OOS HAC t 1.33. The HMM and Markov-switching regime signals are not in the grid: a causal (IS-only, forward-filtered) fit needs at least 100 IS rows and ECI has 72 IS quarters. The previously published winner (hmm_stress/T3_zscore_1.0/LB12/P1_long_cash_counter/L4q, OOS Sharpe 1.41) used full-sample smoothed HMM probabilities; the same rule on a causal diagnostic HMM scores 1.03 (hmm_lookahead_audit_20261016.json). Lead-lag (empirical): ECI->SPY TY-Granger sig lags(q) NONE, SPY->ECI [1, 2, 3, 4] -> 'lagging'. Gross of costs; sensitivity in tournament_validation_20261016/.",
+  "oos_ratio_note": "oos_sortino / oos_calmar: n/a, no losing quarter in the OOS window"
 }

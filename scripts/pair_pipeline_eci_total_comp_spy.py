@@ -662,6 +662,30 @@ def stage_quartiles(df):
 CTX = {}
 
 
+def paired_block_bootstrap_sharpe_diff(strat, bh, block, ppy, draws=5000, seed=42):
+    """Paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H): the same resampled
+    blocks are applied to both series, so their dependence is kept. Returns mean, 95% CI and
+    P(diff <= 0)."""
+    s, b = np.asarray(strat, float), np.asarray(bh, float)
+    n = len(s)
+    rng = np.random.default_rng(seed)
+
+    def _sh(x):
+        return x.mean() / x.std() * np.sqrt(ppy) if x.std() > 0 else np.nan
+
+    d = []
+    for _ in range(draws):
+        starts = rng.integers(0, n, size=int(np.ceil(n / block)))
+        idx = np.concatenate([np.arange(k, k + block) % n for k in starts])[:n]
+        d.append(_sh(s[idx]) - _sh(b[idx]))
+    d = np.array(d)
+    d = d[~np.isnan(d)]
+    return {"observed": round(float(_sh(s) - _sh(b)), 4), "mean": round(float(d.mean()), 4),
+            "ci_95": [round(float(np.percentile(d, 2.5)), 4), round(float(np.percentile(d, 97.5)), 4)],
+            "p_diff_le_0": round(float((d <= 0).mean()), 4), "block_length": block, "draws": int(len(d)),
+            "seed": seed, "method": "paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H)"}
+
+
 def hac_t_mean(r, horizon=1):
     """HAC (Newey-West) t-stat of the mean; maxlags = max(floor(4*(n/100)^(2/9)), horizon-1)."""
     import statsmodels.api as sm
@@ -1430,7 +1454,10 @@ def main():
             "status": ("superseded: relied on full-sample, forward-backward smoothed HMM probabilities (look-ahead) and "
                        "was selected by OOS Sharpe"),
             "audit_file": f"hmm_lookahead_audit_{DATE_TAG}.json"},
-        "inference": {"oos_hac_t": round(t_oos, 3), "oos_hac_p": round(p_oos, 4), "oos_hac_maxlags": nw_oos,
+        "inference": {"oos_sharpe_diff_vs_bh_bootstrap": dict(paired_block_bootstrap_sharpe_diff(
+                          oos_r.values, ws_meta["work"]["spy_ret"].reindex(oos_r.index).values, 2, PERIODS_PER_YEAR),
+                          block_unit="quarters"),
+                      "oos_hac_t": round(t_oos, 3), "oos_hac_p": round(p_oos, 4), "oos_hac_maxlags": nw_oos,
                       "is_hac_t": round(t_is, 3), "is_hac_maxlags": nw_is,
                       "n_distinct_candidates": int(sel["n_distinct"]),
                       "expected_max_abs_z_under_null": round(exp_max_z, 2),
@@ -1497,6 +1524,13 @@ def main():
         sd += " (Procyclical orientation: high/accelerating wage inflation = risk-on.)"
     sd += " Rebalanced quarterly."
     winner_summary["strategy_description"] = sd
+    # Sortino / Calmar are undefined when the OOS window has no losing quarter (ann_metrics reports
+    # 0.0 by fleet convention; ticketed). Publish null with the reason instead of a false 0.0.
+    oos_q = strat_ret[(strat_ret.index >= split["oos_start"]) & (strat_ret.index <= split["oos_end"])]
+    if not (oos_q < 0).any():
+        winner_summary["oos_sortino"] = None
+        winner_summary["oos_calmar"] = None
+        winner_summary["oos_ratio_note"] = "oos_sortino / oos_calmar: n/a, no losing quarter in the OOS window"
 
     wpath = os.path.join(RESULTS_DIR, "winner_summary.json")
     with open(wpath, "w") as f:
@@ -1706,10 +1740,12 @@ def main():
                              f"evaluated on the held-out OOS window {split['oos_start']}..{split['oos_end']} "
                              f"({int(winner['oos_n'])} quarters): OOS Sharpe {float(winner['oos_sharpe']):.2f} vs B&H "
                              f"{float(bh['oos_sharpe']):.2f}, HAC t {t_oos:.2f}. No frozen-rule confirmation test has been run."),
-          "plain_english": (f"This is the rule with the highest in-sample Sharpe among {n_valid} valid combinations, "
-                            f"scored once on the {int(winner['oos_n'])}-quarter out-of-sample window: Sharpe "
-                            f"{float(winner['oos_sharpe']):.2f} versus {float(bh['oos_sharpe']):.2f} for buy-and-hold. "
-                            "It has not been tested on data released after it was chosen."),
+          "plain_english": (f"This is the rule with the highest in-sample Sharpe among {n_valid} valid combinations. "
+                            f"On the {int(winner['oos_n'])}-quarter out-of-sample window its Sharpe is "
+                            f"{'below' if float(winner['oos_sharpe']) < float(bh['oos_sharpe']) else 'above'} "
+                            f"buy-and-hold: {float(winner['oos_sharpe']):.2f} versus {float(bh['oos_sharpe']):.2f}; "
+                            f"annualized return {float(winner['oos_ann_return'])*100:.1f}% versus "
+                            f"{float(bh['oos_ann_return'])*100:.1f}%. It has not been tested on data released after it was chosen."),
           "next_step": "Freeze the rule and evaluate it on quarters released after the freeze date.",
           "owner": "evan"}
     with open(os.path.join(RESULTS_DIR, "evidence_status.json"), "w") as f:
