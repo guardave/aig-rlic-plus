@@ -1,4 +1,4 @@
-# How many variations? The combination space, raw and effective (revision 2)
+# How many variations? The combination space, raw and effective (revision 3)
 
 Branch `research261017_indicator_combos`, 2026-10-17. Author: Research Ray. This is a counting and descriptive
 document. No returns were read and no backtests were run.
@@ -9,17 +9,25 @@ Scripts and outputs:
 |--------|--------|
 | `scripts/combinatorics_exact.py` | `data/combinatorics_exact.json` |
 | `scripts/pit_panel_inspect.py` | `data/effective_dimensionality.json`, `data/panel_*.csv`, `data/spearman_*.csv`, `data/coverage_and_lags.csv` |
+| `scripts/power_notes.py` (synthetic data only) | `data/power_notes.json` |
 
 Revision 2 replaces three things from revision 1. They were wrong or overstated, as the QA and Codex reviews found:
 - the median-grid approximation for the raw count;
 - the "5–8 dimensions" average across different estimands;
 - the pre/post-2008 claim.
 
+Revision 3 makes four further changes:
+- the Sharpe power formula is corrected for monthly data;
+- power notes are added for the CVaR, interaction and episode endpoints;
+- the block-length sensitivity of the PR interval is added;
+- the Li–Ji labels are corrected: 13.0 is the published Li & Ji M_eff, and Σ min(λ, 1) is an ad hoc
+  capped-eigenvalue sum, not an M_eff estimator.
+
 ## Executive summary
 
 - **Raw count (exact, § 2).** These are sums over every subset of members of the products of their published grid
   sizes, per operator, after removing duplicate operators.
-  - Two-indicator combinations: **2 × 10^10 to 3 × 10^10** configurations per target asset and alignment.
+  - Two-indicator combinations: **1.9 × 10^10 to 2.5 × 10^10** configurations per target asset and alignment.
   - If a filter is allowed to re-tune its second member separately in each regime, the count rises to **4 × 10^13
     to 7 × 10^13**.
   - Across 20 assets and 3 alignments: about **1.2 × 10^12 to 1.5 × 10^12** (or 2.6 × 10^15 to 3.9 × 10^15).
@@ -31,19 +39,26 @@ Revision 2 replaces three things from revision 1. They were wrong or overstated,
 - **Effective dimensionality, primary estimand.**
   - The primary estimand is the participation ratio of the strict point-in-time panel: 10 ALFRED vintage series
     plus 4 unrevised market series, 2001-08 → 2026-05, 298 months.
-  - Result: **PR = 5.5, 90% block-bootstrap interval 3.8–6.4.**
+  - Result: **PR = 5.5, 90% block-bootstrap interval 3.8–6.4** with 24-month blocks. Across block lengths of 12 to
+    48 months the interval runs from [3.63, 6.31] to [3.94, 6.41].
   - Independent series with the same serial correlation would give PR ≥ 10.2 (5th percentile of the null), so the
     panel is far more concentrated than chance.
 - **Sensitivity.**
   - Parallel analysis with serial-dependence-preserving nulls keeps only **2 factors** (stationary bootstrap) or
     **1** (phase randomisation).
-  - Σ min(λ, 1) = 8.0.
+  - Li & Ji (2005) M_eff = 10.0. The ad hoc capped-eigenvalue sum Σ min(λ, 1) = 8.0.
   - Clusters at |ρ| ≥ 0.5: 8.
   - Plain reading: there are **one or two strong common factors and about 4–6 effective dimensions in total**.
     The "5–8 independent dimensions" of revision 1 was generous.
-- **Power.** At 80% power the minimum detectable Sharpe gap over 8 years is **0.49–0.86** when the strategy's
-  returns correlate 0.8–0.9 with its comparator. Over a 3-year forward window it is **0.80–2.14**. Serial
-  correlation and multiplicity raise these further (§ 4).
+- **Power (§ 4; monthly data, 80% power).**
+  - **Sharpe gap:** 0.45–0.65 over 8 years and 0.73–1.06 over 3 years, when the strategy's returns correlate
+    0.8–0.9 with its comparator.
+  - **Relative CVaR(5%) reduction:** about 28–35% over 8 years and 40–50% over 3 years. The registered margin is
+    15%.
+  - **Interaction coefficient:** 2.8–4.3 pp per month over 8 years. The margins are 0.25–0.50.
+  - **Episode tests:** an all-favourable outcome needs ≥ 5 episodes at α = 0.05, or 6 at α = 0.025.
+  - Most confirmatory hypotheses are therefore underpowered on any window we can foresee. This is stated in
+    advance.
 
 ## 1. Dimensions and the member universe
 
@@ -124,27 +139,31 @@ are very skewed (96 to 19,344 rules per pair), and Π m_i is driven by the large
   - parallel analysis under two serial-dependence-preserving nulls, each with every column made independent and
     2000 draws: a per-column stationary bootstrap (mean block 24 months) and per-column phase randomisation;
   - the entropy effective rank;
-  - M_eff = Σ min(λ, 1);
-  - the published Li & Ji (2005) formula;
+  - the Li & Ji (2005) M_eff (published formula);
+  - an ad hoc capped-eigenvalue sum Σ min(λ, 1), which is *not* an M_eff estimator;
+  - the PR interval under block lengths of 12, 24, 36 and 48 months;
   - hierarchical clusters;
   - the same statistics on the revised-as-of panels (not point-in-time) and on 3-month changes.
 - **The Li & Ji formula.** Li & Ji (2005) define M_eff = Σ [I(λ ≥ 1) + (λ − ⌊λ⌋)]. Revision 1 implemented exactly
   this, giving 13.0 for revised core 23.
   - This formula is not monotone in λ. An eigenvalue of 1.9 counts 1.9, but one of 2.0 counts 1.0.
-  - Following the Codex review, revision 2 reports Σ min(λ, 1) as the M_eff figure (10.45 for core 23) and keeps
-    the published value for reference. Both are sensitivity measures only.
+  - Revision 2 relabelled Σ min(λ, 1) as M_eff following the first Codex review. Codex has since withdrawn that
+    claim (CODEX_REVIEW_2.md), and QA confirmed the published formula from secondary sources.
+  - Revision 3 therefore reports **13.0 (core 23) and 10.0 (strict-PIT-14) as the Li & Ji M_eff**, and labels
+    Σ min(λ, 1) (10.45 and 7.97) only as an ad hoc capped-eigenvalue sum.
+  - Both remain sensitivity measures. The primary estimand is PR.
 
 ### 3.2 Results
 
-| Panel | Track | Months | Vars | **PR [90% CI]** | Null PR, 5th percentile | PA (stationary block) | PA (phase) | Entropy rank | Σ min(λ,1) | Li–Ji (published) |
+| Panel | Track | Months | Vars | **PR [90% CI]** | Null PR, 5th percentile | PA (stationary block) | PA (phase) | Entropy rank | Li & Ji M_eff | Capped sum Σmin(λ,1) (ad hoc) |
 |-------|-------|-------:|-----:|------|------:|---:|---:|------:|------:|------:|
-| **strict-PIT-14** (primary) | vintage + market | 298 (2001-08 → 2026-05) | 14 | **5.52 [3.75, 6.35]** | 10.2 | 2 | 1 | 7.81 | 7.97 | 10.0 |
-| strict-PIT-14, 3-month changes | vintage + market | 295 | 14 | 6.38 [4.93, 9.08] | 12.6 | 2 | 2 | 9.17 | 9.03 | 11.0 |
-| real-time, 10 long-history series | vintage | 304 (2001-06 → 2026-09) | 10 | 4.23 [3.05, 4.99] | 7.9 | 2 | 2 | 5.76 | 5.80 | 6.0 |
-| real-time, all 16 | vintage | 160 (2013-06 → 2026-09) | 16 | 4.18 [2.99, 5.08] | 9.8 | 2 | 2 | 6.40 | 7.08 | 9.0 |
-| revised-as-of core 23 (not PIT) | revised | 296 (2001-08 → 2026-03) | 23 | 5.59 [3.91, 6.61] | 14.2 | 3 | 2 | 9.11 | 10.45 | 13.0 |
-| revised-as-of all 29 (not PIT) | revised | 107 (2017-02 → 2025-12) | 29 | 4.77 [3.41, 5.20] | 11.0 | 2 | 2 | 7.92 | 10.57 | 13.0 |
-| revised core 23, 3-month changes | revised | 293 | 23 | 8.58 [6.63, 11.02] | 19.3 | 3 | 3 | 13.25 | 13.67 | 16.0 |
+| **strict-PIT-14** (primary) | vintage + market | 298 (2001-08 → 2026-05) | 14 | **5.52 [3.75, 6.35]** | 10.2 | 2 | 1 | 7.81 | 10.0 | 7.97 |
+| strict-PIT-14, 3-month changes | vintage + market | 295 | 14 | 6.38 [4.93, 9.08] | 12.6 | 2 | 2 | 9.17 | 11.0 | 9.03 |
+| real-time, 10 long-history series | vintage | 304 (2001-06 → 2026-09) | 10 | 4.23 [3.05, 4.99] | 7.9 | 2 | 2 | 5.76 | 6.0 | 5.80 |
+| real-time, all 16 | vintage | 160 (2013-06 → 2026-09) | 16 | 4.18 [2.99, 5.08] | 9.8 | 2 | 2 | 6.40 | 9.0 | 7.08 |
+| revised-as-of core 23 (not PIT) | revised | 296 (2001-08 → 2026-03) | 23 | 5.59 [3.91, 6.61] | 14.2 | 3 | 2 | 9.11 | 13.0 | 10.45 |
+| revised-as-of all 29 (not PIT) | revised | 107 (2017-02 → 2025-12) | 29 | 4.77 [3.41, 5.20] | 11.0 | 2 | 2 | 7.92 | 13.0 | 10.57 |
+| revised core 23, 3-month changes | revised | 293 | 23 | 8.58 [6.63, 11.02] | 19.3 | 3 | 3 | 13.25 | 16.0 | 13.67 |
 
 **Reading the table.**
 - On the primary panel the first eigenvalue is 4.86 (35% of the variance) and the second is 2.21 (cumulative 51%).
@@ -184,48 +203,99 @@ test that relies on it is **exploratory**. It holds 8 blocks and covers all 29 p
 | B7 Money | M2 | M2 YoY (vintage) |
 | B8 Market risk & internals | VIX / VIX3M, SOX/SPY | VIX level (market, 1990+) |
 
-## 4. Power: minimum detectable Sharpe gap
+## 4. Power: minimum detectable effects (revision 3)
 
-The variance of the difference between two Sharpe ratios is (Jobson–Korkie, with Memmel's 2003 correction; iid,
-annualised Sharpe, T in years):
+All numbers in this section come from `scripts/power_notes.py`, which writes `data/power_notes.json`. The script
+uses synthetic data only and is seeded.
 
-Var(SR₁ − SR₂) ≈ [2(1 − ρ) + ½(SR₁² + SR₂² − 2·SR₁·SR₂·ρ²)] / T
+### 4.1 Sharpe-ratio gap (formula corrected)
 
-The minimum detectable effect is MDE = (z₁₋α/2m + z₀.₈) · √(VIF · Var), where:
-- the test is two-sided at 5% with 80% power;
-- m is the number of tests in the family (Bonferroni-equivalent);
-- VIF inflates the variance for serial correlation.
+Memmel's (2003) correction of the Jobson–Korkie variance holds **per observation**. With n = 12T monthly
+observations and an annualised Sharpe ratio SR_a = √12 · SR_m, the variance of the annualised Sharpe difference is:
 
-The tables assume equal Sharpe ratios for the two strategies, SR = 0.5 / 1.0.
+Var(SR_a1 − SR_a2) = (1/T) · [ 2(1 − ρ) + ½ · (SR_a1² + SR_a2² − 2 · SR_a1 · SR_a2 · ρ²) / 12 ]
+
+The minimum detectable effect is then:
+
+MDE = (z₁₋α/2m + z₀.₈) · √(VIF · Var)
+
+Here the test is two-sided at 5% with 80% power, m is the number of tests in the family, and VIF inflates the
+variance for serial correlation. Revision 2 omitted the "/ 12". QA reproduced revision 2's formula exactly, so its
+numbers matched; the Codex review identified the frequency mismatch. The corrected values below agree with Codex's
+0.63–0.65 (ρ = 0.8) and 0.45–0.46 (ρ = 0.9) at T = 8.
 
 **Table 4a.** m = 1, VIF = 1. Each cell gives SR = 0.5 / SR = 1.0.
 
 | Years | ρ = 0.5 | ρ = 0.7 | ρ = 0.8 | ρ = 0.9 |
 |------:|--------:|--------:|--------:|--------:|
-| 3 (forward V-C after 3 years) | 1.76 / 2.14 | 1.38 / 1.70 | 1.13 / 1.41 | 0.80 / 1.01 |
-| 8 (≈ the viewed OOS window) | 1.08 / 1.31 | 0.84 / 1.04 | **0.69 / 0.86** | **0.49 / 0.62** |
-| 16 | 0.76 / 0.93 | 0.60 / 0.74 | 0.49 / 0.61 | 0.35 / 0.44 |
-| 25 | 0.61 / 0.74 | 0.48 / 0.59 | 0.39 / 0.49 | 0.28 / 0.35 |
+| 3 | 1.63 / 1.67 | 1.26 / 1.30 | **1.03 / 1.06** | **0.73 / 0.75** |
+| 8 | 1.00 / 1.02 | 0.77 / 0.79 | **0.63 / 0.65** | **0.45 / 0.46** |
+| 16 | 0.71 / 0.72 | 0.55 / 0.56 | 0.45 / 0.46 | 0.32 / 0.33 |
+| 25 | 0.56 / 0.58 | 0.44 / 0.45 | 0.36 / 0.37 | 0.25 / 0.26 |
 
-**Table 4b.** ρ = 0.8, SR = 0.5, VIF = 1.5 (moderate serial correlation in monthly overlay returns), by family size m.
+For ρ = 0.8–0.9, the 3-year range is **0.73–1.06** and the 8-year range is **0.45–0.65**.
+
+**Table 4b.** ρ = 0.8, SR = 0.5, VIF = 1.5, by family size m.
 
 | m | 3 years | 8 years | 16 years | 25 years |
 |--:|--------:|--------:|---------:|---------:|
-| 1 | 1.39 | 0.85 | 0.60 | 0.48 |
-| 10 | 1.81 | 1.11 | 0.78 | 0.63 |
-| 50 | 2.05 | 1.25 | 0.89 | 0.71 |
+| 1 | 1.26 | 0.77 | 0.55 | 0.44 |
+| 4 | 1.51 | 0.92 | 0.65 | 0.52 |
+| 10 | 1.65 | 1.01 | 0.71 | 0.57 |
+| 50 | 1.87 | 1.14 | 0.81 | 0.65 |
 
-- Without the Sharpe-level term, the 8-year MDE would be 0.63 at ρ = 0.8 and 0.44 at ρ = 0.9 (the figures in the
-  Codex review).
-- Fat tails, negative skew and lower correlations (an overlay against buy-and-hold often correlates only 0.5–0.7)
-  push the MDE higher still.
-- **Consequences.**
-  - A Sharpe gain is very hard to establish on any window we have.
-  - The bank's primary endpoints are therefore tail (CVaR), event and calibration measures with explicit margins.
-  - D2-09 labels hypotheses whose MDE exceeds twice their margin as "underpowered" in advance, without dropping
-    them.
-  - The forward window V-C will usually be inconclusive for several years. V-S is what makes confirmatory
-    recession questions decidable.
+### 4.2 Registered endpoints
+
+**Relative CVaR(5%) reduction** (U1 and U2 hypotheses; margin 10–15%). The estimate comes from a Monte Carlo
+with these assumptions:
+- monthly returns from a bivariate Student-t with 5 degrees of freedom;
+- 15% annual volatility;
+- an overlay equal to (1 − δ) times a correlated copy of the benchmark;
+- a one-sided 5% test; 4,000 simulations per cell.
+
+| Years | Tail months (5%) | Null 95th percentile, ρ = 0.8 / 0.9 | MDE at 80% power, ρ = 0.8 / 0.9 |
+|------:|-----------------:|--------------------:|-------------------------:|
+| 3 | 2 | 0.36 / 0.29 | 0.50 / 0.40 |
+| 8 | 5 | 0.25 / 0.18 | 0.35 / 0.28 |
+| 16 | 10 | 0.18 / 0.13 | 0.28 / 0.20 |
+| 25 | 15 | 0.15 / 0.11 | 0.23 / 0.18 |
+
+- A 15% CVaR margin is detectable at 80% power only beyond about 25 years of data, even before correcting for the
+  number of tests.
+- The registered U1 margin is a minimum economic effect, not a detectable one. D2-09 will label these hypotheses
+  "underpowered" before any run.
+
+**Interaction coefficient** (D1-05, and the F-STATE family). The approximation is
+Var(d) ≈ σ² / (n·p) + σ² / (n·(1 − p)), with:
+- s = ±1 balanced;
+- regime share p;
+- σ = 4.5 pp, the monthly standard deviation of equity excess returns;
+- MDE = 2.8 · √Var.
+
+| Years | p = 0.1 | p = 0.2 | p = 0.3 |
+|------:|--------:|--------:|--------:|
+| 3 | 7.00 | 5.25 | 4.58 |
+| 8 | 4.29 | 3.21 | 2.81 |
+| 16 | 3.03 | 2.27 | 1.98 |
+| 25 | 2.42 | 1.82 | 1.59 |
+
+- The values are in pp per month.
+- The registered margins (0.25 pp for D1-05.H1 and 0.50 pp for the F-STATE family) are an order of magnitude below
+  the MDE on any window. In practice, an interaction can be confirmed only if it is very large.
+- This weakness is inherent to state-dependence questions: stress regimes are rare and noisy.
+
+**Episode-level exact tests** (D1-02.H1 McNemar, the D1-02.H2 / D1-13 / D1-14 sign tests). These tests can reject
+only if every discordant episode favours the rule, and only with enough episodes:
+- at least 5 episodes at α = 0.05;
+- 6 at α = 0.025;
+- 7 at α = 0.0125 (for example after a Holm or Bonferroni split).
+
+US history provides 3 usable recessions. This is why V-S (country-recessions) is the confirmatory route for F-REC.
+
+**Brier skill score** (D1-27). With about 6 held-out recessions, the Diebold–Mariano statistic on monthly Brier
+differences is dominated by a handful of episodes. Its block bootstrap should therefore use blocks at least as long
+as a recession episode (18–24 months). In practice the evidence equals the episode-level sign of the log-score gain
+(≥ 5 of 5 or ≥ 6 of 6 needed, as above).
 
 ## 5. Limits
 

@@ -1,6 +1,6 @@
 # Data and tool inventory for the combination study
 
-Phase 1 drafting document (revision 2), branch `research261017_indicator_combos` (from `int261017_phaseB` @ 3d735ec7),
+Phase 1 drafting document (revision 3), branch `research261017_indicator_combos` (from `int261017_phaseB` @ 3d735ec7),
 2026-10-17. Author: Research Ray. Read-only survey: nothing on other branches was modified. The harness was read
 from branch `feat261017_phaseB_harness` with `git show`.
 
@@ -80,7 +80,7 @@ from branch `feat261017_phaseB_harness` with `git show`.
 | G8 | Market series start 2000 locally | V-B for B3 members | Pull FRED T10Y3M (1982+), BAMLH0A0HYM2 / BAMLC0A0CM (1996–97+) | L |
 | G9 | No earnings data | D1-12 third link | Shiller S&P EPS (monthly, revised), or drop the link and use INDPRO | L |
 | G10 | Extra candidate members (claims, JOLTS, Philly Fed) have no calendar or vintages | Optional | Calendar rows + ALFRED vintages (ICSA, JTSJOL are on ALFRED) | L each |
-| G11 | Pre-registration registry | P1–P4 | **Done in draft (rev2):** `registry/hypotheses.yaml`, `registry/families.yaml` and the gate `scripts/gate_combo_registry.py` (pre-commit). Still to do: a hash log at registration and an immutability guard modelled on `_tournament_io.py` | L |
+| G11 | Pre-registration registry | P1–P5 | **Done in draft (rev3):** `registry/hypotheses.yaml` (one object per hypothesis), `registry/families.yaml`, `registry/schema.json`, the gate `scripts/gate_combo_registry.py` and its 29 mutation tests (`tests/`). The branch pre-commit hook runs the gate on the staged files. Limits: the hook is active only when `core.hooksPath` is `scripts/hooks`; `git commit --no-verify` bypasses it; declared labels are checked for consistency, not truth. Still to do: a hash log at registration and an immutability guard modelled on `_tournament_io.py` | L |
 | G12 | Effective-dimension estimate uses standard transforms, not winners' states | D2-02, D2-03 | Done after G4 | L |
 | G13 | Real-time unemployment and output before 1980 | D1-02, D1-27 LORO event count | Philadelphia Fed Real-Time Data Set for Macroeconomists (RTDSM; unemployment vintages from 1965) | L/M |
 | G14 | No sequestered confirmatory dataset | V-S (all confirmatory recession questions) | G7-ex-US real-time vintages (OECD MEI Original Release Data and Revisions; EABCN real-time database; Bank of England real-time database), local total-return equity indices, local recession dates. Acquired and frozen under a blind protocol: specs hashed before any return is read | H |
