@@ -14,7 +14,7 @@ from pathlib import Path
 import pandas as pd
 
 from components.page_templates import MethodologyConfig
-from components.winner_fields import load
+from components.winner_fields import lead_grid, load
 
 W = load("cc_delinquency_spy")
 _RES = Path(__file__).resolve().parents[2] / "results" / "cc_delinquency_spy"
@@ -35,6 +35,12 @@ _LP = pd.read_csv(_CORE / "local_projections.csv")
 _QT = json.loads((_CORE / "quantile_equality_test.json").read_text())
 _SB = json.loads((_RES / "structural_break_cc_delinquency_spy.json").read_text())["max_abs_z"]
 _ST = pd.read_csv(_RES / f"stationarity_tests_{_TAG}.csv").set_index(["variable", "test"])["p_value"]
+_MAN = json.loads((_RES / f"candidates_manifest_{_TAG}.json").read_text())
+_GRID = lead_grid("cc_delinquency_spy")
+_GRID_RANGE = f"L{_GRID[0]}-L{_GRID[-1]}"
+_VIN0 = _WS["tracks"]["main"]["sample"]["first_vintage"][:4]  # first archived real-time vintage (year)
+_HZ = list(_LP["horizon"])
+_HZ_TXT = ", ".join(str(h) for h in _HZ[:-1]) + f" and {_HZ[-1]}"
 
 SIGNAL_TEXT = {
     "level": "delinquency rate", "diff_1q": "quarter-on-quarter change in the delinquency rate",
@@ -73,16 +79,15 @@ class StoryConfig:
 
     HEADLINE_H2 = (
         f"## Test-period Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, on delinquency data "
-        "as known at the time (archive from 2011)"
+        f"as known at the time (archive from {_VIN0})"
     )
 
     PLAIN_ENGLISH = (
-        "The credit-card delinquency rate is the share of card balances at least 30 days past due, a quarterly "
+        f"The credit-card delinquency rate is the share of card balances at least 30 days past due, a quarterly "
         "read on household financial stress. The economic prior is countercyclical: when delinquency is high or "
         "rising, consumers are struggling, recession risk is elevated, and you would want less equity. The "
         "headline result uses the delinquency figures as they were published at each date. Those published "
-        "figures are archived only from 2011, so the training period for the headline result is short, and the "
-        "rule should be read as a candidate, not a validated edge."
+        f"figures are archived only from {_VIN0}, so the training period for the headline result is short."
     )
 
     WHERE_THIS_FITS = (
@@ -100,7 +105,7 @@ class StoryConfig:
     KPI_CAPTION = (
         f"Winner selected on training data ({W.is_start} to {W.is_end}, {W.is_n} quarters as known at the time) by "
         f"{W.selection_objective}. Test period {W.oos_start} to {W.oos_end} ({W.oos_n} quarters). Sharpe ratios "
-        "use quarterly annualization. Treat it as a candidate, not a verdict."
+        "use quarterly annualization."
     )
 
     HERO_TITLE = "Credit-Card Delinquency Rate vs the S&P 500 (SPY)"
@@ -122,7 +127,7 @@ class StoryConfig:
     NARRATIVE_SECTION_1 = f"""
 ### Credit-card delinquency: a lagging credit-stress gauge
 
-This result uses data as known at the time, covering {W.is_start} to {W.oos_end}: each quarter the rule reads the delinquency rate as it was published then. That archive starts in 2011, so the training period is only {W.is_n} quarters.
+This result uses data as known at the time, covering {W.is_start} to {W.oos_end}: each quarter the rule reads the delinquency rate as it was published then. That archive starts in {_VIN0}, so the training period is only {W.is_n} quarters.
 
 The credit-card delinquency rate (not seasonally adjusted, FRB series `DRCCLACBN`) is the percentage of credit-card loan balances at commercial banks that are at least 30 days past due. Because it is a lagging-to-coincident credit measure, it tends to rise into and through recessions rather than ahead of them. The economic prior is **countercyclical**: when delinquency is high or rising, equity exposure should be reduced.
 
@@ -131,7 +136,7 @@ The credit-card delinquency rate (not seasonally adjusted, FRB series `DRCCLACBN
 **On today's revised data (hindsight, for comparison only)** the rule selected over the longer revised history is to {_RULE_REVISED}; its test-period Sharpe is {W.comparison_oos_sharpe}.
 
 <!-- expander: What exactly is the credit-card delinquency series? -->
-The delinquency rate on credit-card loans (FRED/FRB series `DRCCLACBN`) is the ratio of credit-card balances 30+ days past due to total credit-card balances at all commercial banks, expressed as a percentage. It is quarterly, **not seasonally adjusted (NSA)**, published in the Federal Reserve's charge-off and delinquency release roughly seven weeks after quarter end, and it is revised. Because it is NSA, the series carries quarterly seasonal swings of up to ~0.15 pp vs the seasonally adjusted series (DRCCLACBS); signals built on the level relative to a rolling percentile, or on short changes, can be partly driven by that seasonality. Higher readings mean more household distress.
+The delinquency rate on credit-card loans (FRED/FRB series `DRCCLACBN`) is the ratio of credit-card balances 30+ days past due to total credit-card balances at all commercial banks, expressed as a percentage. It is quarterly, **not seasonally adjusted (NSA)**, published in the Federal Reserve's charge-off and delinquency release several weeks after quarter end, and it is revised. Because it is NSA, the series carries quarterly seasonal swings relative to the seasonally adjusted series (DRCCLACBS); signals built on the level relative to a rolling percentile, or on short changes, can be partly driven by that seasonality. Higher readings mean more household distress.
 <!-- /expander -->
 
 ### A quarterly credit pair: small samples, few cycles, explicit units
@@ -159,7 +164,7 @@ Leads are in QUARTERS; Sharpe ratios are annualized by the square root of 4. Cre
                 "sample as household balance sheets buckled — the clearest "
                 "single illustration of delinquency as a credit-stress gauge. "
                 "It rose alongside and after the deepest equity drawdown in the "
-                "sample, confirming its lagging character."
+                "sample, consistent with its lagging character."
             ),
             "caption": "GFC: delinquency spiked to sample highs.",
         },
@@ -168,7 +173,7 @@ Leads are in QUARTERS; Sharpe ratios are annualized by the square root of 4. Cre
             "title": "COVID Shock (2020)",
             "narrative": (
                 "Fiscal support kept measured delinquency subdued in 2020 even "
-                "as the equity crash and rebound played out within two quarters "
+                "as the equity crash and rebound played out within months "
                 "— far faster than a quarterly, lagging credit series can time. "
                 "A reminder that the signal reads the credit cycle, not fast "
                 "market shocks."
@@ -177,13 +182,13 @@ Leads are in QUARTERS; Sharpe ratios are annualized by the square root of 4. Cre
         },
         {
             "slug": "rate_hike_2022",
-            "title": "2022–24 Delinquency Upturn (Post-Pandemic Normalization)",
+            "title": "2022–2024 Delinquency Upturn (Post-Pandemic Normalization)",
             "narrative": (
                 "Delinquency climbed steadily off pandemic lows through the "
                 "2022 rate-hike cycle and beyond, while equities fell in 2022 "
-                "and recovered afterwards — one episode, inside the test period."
+                "and recovered afterwards. This single episode lies inside the test period."
             ),
-            "caption": "2022–24: delinquency normalized higher.",
+            "caption": "2022–2024: delinquency normalized higher.",
         },
     ]
 
@@ -222,7 +227,7 @@ CORRELATION_BLOCK = dict(
     method_name="Correlation Battery",
     method_theory=(
         "Pearson correlations between every delinquency transform (level, quarter-on-quarter change, 4-quarter "
-        "change, 20-quarter z-score) and forward SPY returns at 1-, 2-, and 4-quarter horizons."
+        f"change, 20-quarter z-score) and forward SPY returns at horizons of {_HZ_TXT} quarters."
     ),
     question="Is there any raw statistical association between credit-card delinquency today and stock returns over the coming quarters?",
     how_to_read=(
@@ -308,7 +313,7 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     chart_status="ready",
     method_name="Local Projections",
     method_theory=(
-        "Local projections estimate how future SPY returns respond across 1-, 2-, and 4-quarter horizons after a "
+        f"Local projections estimate how future SPY returns respond at horizons of {_HZ_TXT} quarters after a "
         "change in the delinquency signal."
     ),
     question="How does SPY respond after credit-card delinquency changes?",
@@ -316,9 +321,9 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     chart_name=LOCAL_PROJECTIONS_CHART_NAME,
     chart_caption=(
         f"What this shows: coefficients {', '.join(f'{c:.3f}' for c in _LP['coef'])} with p-values "
-        f"{', '.join(f'{p:.2f}' for p in _LP['p_value'])} at 1, 2 and 4 quarters."
+        f"{', '.join(f'{p:.2f}' for p in _LP['p_value'])} at horizons of {_HZ_TXT} quarters."
     ),
-    observation=f"R-squared is at most {_LP['r_squared'].max():.3f} at any horizon.",
+    observation=f"The largest R-squared across horizons is {_LP['r_squared'].max():.3f}.",
     interpretation="The raw macro relationship carries no measurable forward response.",
     key_message="SPY shows no robust dynamic response to credit-card delinquency changes.",
 )
@@ -388,13 +393,14 @@ EVIDENCE_METHOD_BLOCKS = {
     "tournament_intro": (
         "The statistical tests above ask whether the indicator forecasts. The tournament asks a pragmatic "
         "question: across the declared QUARTERLY trading rules built from this series, which one did best on the "
-        f"training period? We tested {W.n_candidates} combinations ({W.n_valid} valid as known at the time): 4 signal "
-        "transforms x threshold schemes x long/cash x both orientations x quarterly leads L2-L5. The winner is "
+        f"training period? We tested {W.n_candidates} combinations ({W.n_valid} valid as known at the time): "
+        f"{len(_MAN['signals'])} signal transforms x threshold schemes x long/cash x both orientations x quarterly "
+        f"leads {_GRID_RANGE}. The winner is "
         f"`{W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}`, chosen on the training period by "
         f"{W.selection_objective}."
     ),
     "transition": (
-        "**Transition:** the lead-lag verdict is no forecasting lead. The next page shows the single rule the "
+        "**Transition:** the lead-lag tests find no forecasting lead. The next page shows the single rule the "
         "search selected on each data track, with its fragility flags."
     ),
 }
@@ -406,7 +412,7 @@ EVIDENCE_METHOD_BLOCKS = {
 class StrategyConfig:
     PAGE_TITLE = "The Strategy: A Quarterly Long/Cash Credit Overlay"
     PAGE_SUBTITLE = (
-        f"The rule selected on the training period from data as known at the time ({W.is_n} quarters from 2011); "
+        f"The rule selected on the training period from data as known at the time ({W.is_n} quarters from {_VIN0}); "
         "no frozen-rule hold-out test has been run yet."
     )
 
@@ -426,10 +432,12 @@ class StrategyConfig:
         "data has not been run."
     )
 
+    # Status and badge rule come from track_summary.json (components.two_track.badge_status); this text states
+    # facts only.
     EXECUTIVE_CONFIDENCE_SUMMARY = dict(
-        status="Candidate",
+        status="",
         status_detail=(
-            "A FOUND-IN-SEARCH candidate selected on a short as-known-at-the-time training period; it has not faced "
+            "Found in search: selected on a short as-known-at-the-time training period; it has not faced "
             "a frozen-rule hold-out final exam."
         ),
         strengths=[
@@ -446,9 +454,9 @@ class StrategyConfig:
             f"The rolling correlation is sign-unstable; a structural-break proxy shows max |z| = {_SB:.2f}.",
         ],
         conclusion=(
-            f"This long/cash overlay is a found-in-search candidate: rule {W.signal_code} / {W.threshold_code} / "
-            f"L{W.lead}, test-period Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe}, on a short as-known-at-the-time "
-            "history with no forecasting lead in the formal tests."
+            f"Rule {W.signal_code} / {W.threshold_code} / L{W.lead}: test-period Sharpe {W.oos_sharpe} versus "
+            f"{W.bh_oos_sharpe} for buy-and-hold, on a short as-known-at-the-time history with no forecasting lead in "
+            "the formal tests."
         ),
     )
 
@@ -473,7 +481,7 @@ If-then form (evaluated once per quarter):
 
 Test-period results on data as known at the time ({W.oos_start} to {W.oos_end}, {W.oos_n} quarters; Sharpe annualized by the square root of 4): Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} buy-and-hold; annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; {W.oos_n_trades} test-period trades (annual turnover {W.annual_turnover}).
 
-**Read this as a candidate, not a validated edge.** The training period as known at the time is {W.is_n} quarters and the formal tests find no forecasting lead.
+The training period as known at the time is {W.is_n} quarters and the formal tests find no forecasting lead.
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = f"""
@@ -523,15 +531,15 @@ No formulas, three steps:
     )
 
     CAVEATS_MD = f"""
-**Why we do not call this a validated edge:**
+**Main caveats:**
 
-1. **Short history as known at the time.** Published (real-time) delinquency figures are archived from 2011, so the training period is {W.is_n} quarters ({W.is_start} to {W.is_end}) and the test period {W.oos_n} quarters.
+1. **Short history as known at the time.** Published (real-time) delinquency figures are archived from {_VIN0}, so the training period is {W.is_n} quarters ({W.is_start} to {W.is_end}) and the test period {W.oos_n} quarters.
 2. **No forecasting lead.** Delinquency to SPY Granger p-values by lag are {_G_P}; the rule reads a *state*, it does not forecast.
 3. **Search selection.** The winner is one of {W.n_valid} valid combinations; across {W.null_draws} contests run on circularly shifted data, the winner's stable-range score ranks at the {W.null_percentile} point.
 4. **Two data views disagree.** On today's revised data the selected rule is to {_RULE_REVISED} (hindsight).
 5. **Data character.** QUARTERLY, revised, LAGGING and not seasonally adjusted. The raw level's ADF p-value is {_ST[('ccdelinq_level', 'ADF')]:.2f} (unit root not rejected); the 4-quarter change's is {_ST[('ccdelinq_chg_4q', 'ADF')]:.2f}.
 
-**What this means:** the honest label is a **found-in-search CANDIDATE**. The prescribed next step is a final exam: freeze this rule and test it once on an untouched window.
+**What this means:** the result was found in search and has not been tested on untouched data. The prescribed next step is a final exam: freeze this rule and test it once on an untouched window.
 """
 
     TRADE_LOG_EXAMPLE_MD = (
@@ -573,7 +581,7 @@ _INDICATOR_CONSTRUCTION_MD = (
     "the level, the quarter-on-quarter change, the 4-quarter change and a 20-quarter rolling z-score; rolling "
     "thresholds use 20-quarter windows. On the as-known-at-the-time track every signal and threshold is "
     "recomputed inside the vintage published when each quarter's return window opens. The tradeable lead grid "
-    f"runs L2-L5 QUARTERS (strict publication floor); the winner uses `{W.signal_code}` at L{W.lead}."
+    f"runs {_GRID_RANGE} QUARTERS (strict publication floor); the winner uses `{W.signal_code}` at L{W.lead}."
 )
 
 _METHODS_TABLE_MD = """
@@ -592,7 +600,7 @@ _METHODS_TABLE_MD = """
 """
 
 _TOURNAMENT_DESIGN_MD = f"""
-Grid: 4 signal transforms x threshold schemes x long/cash x both orientations x QUARTERLY leads L2-L5 ({W.n_candidates} combinations). Each data track selects its own winner on its training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it.
+Grid: {len(_MAN['signals'])} signal transforms x threshold schemes x long/cash x both orientations x QUARTERLY leads {_GRID_RANGE} ({W.n_candidates} combinations). Each data track selects its own winner on its training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it.
 
 - As known at the time (headline): `{W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe} ({W.is_start} to {W.is_end}), test-period Sharpe {W.oos_sharpe}; {W.n_valid} valid combinations, {W.n_distinct} distinct position series.
 - As revised today (hindsight): `{W.comparison_signal_code} / {W.comparison_threshold_code} / L{W.comparison_lead}`, training Sharpe {W.comparison_is_sharpe} ({W.comparison_is_start} to {W.comparison_is_end}), test-period Sharpe {W.comparison_oos_sharpe}.

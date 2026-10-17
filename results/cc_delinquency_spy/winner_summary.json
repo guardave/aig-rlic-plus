@@ -1,6 +1,6 @@
 {
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-17T14:12:20.479980+00:00",
+  "generated_at": "2026-10-17T15:02:31.499148+00:00",
   "schema_version": "1.3.0",
   "target_symbol": "SPY",
   "track_policy": "compute_twice",
@@ -114,7 +114,7 @@
       "lead": 2,
       "is_sharpe": 1.451573,
       "oos_sharpe": 0.84968,
-      "note": "isolated-peak sensitivity; not the selection rule"
+      "note": "highest single in-sample Sharpe in the grid; reference only, not the selection rule"
     },
     "rationale": "Winner selected on IS data only by the D9 lead-plateau rule; OOS reported for it only.",
     "inference": {
@@ -275,7 +275,7 @@
         "lead": 2,
         "is_sharpe": 1.451573,
         "oos_sharpe": 0.84968,
-        "note": "isolated-peak sensitivity; not the selection rule"
+        "note": "highest single in-sample Sharpe in the grid; reference only, not the selection rule"
       },
       "runner_up": {
         "signal": "chg_4q",
@@ -362,6 +362,7 @@
         "timing_sharpe_se_bandwidth": 4,
         "timing_sharpe_effective_draws": 38.0,
         "r71_tolerance": 0.1,
+        "timing_sharpe_mean_all_valid_candidates": 0.0003,
         "r71_pass": true,
         "null_scores_hist": {
           "bins": [
@@ -511,7 +512,7 @@
         "lead": 2,
         "is_sharpe": 0.848436,
         "oos_sharpe": 0.546166,
-        "note": "isolated-peak sensitivity; not the selection rule"
+        "note": "highest single in-sample Sharpe in the grid; reference only, not the selection rule"
       },
       "runner_up": {
         "signal": "zscore_20q",
@@ -598,6 +599,7 @@
         "timing_sharpe_se_bandwidth": 4,
         "timing_sharpe_effective_draws": 40.8,
         "r71_tolerance": 0.1,
+        "timing_sharpe_mean_all_valid_candidates": 0.0099,
         "r71_pass": true,
         "null_scores_hist": {
           "bins": [
@@ -838,6 +840,18 @@
       "value": 1.451573,
       "text": "1.45"
     },
+    "raw_argmax_rule": {
+      "value": "chg_4q|T_roll_p50|P1|procyclical|2",
+      "text": "chg_4q / T_roll_p50 / P1"
+    },
+    "raw_argmax_position": {
+      "value": true,
+      "text": "inside the stable lead range"
+    },
+    "raw_argmax_is_winner": {
+      "value": true,
+      "text": "the same rule as the winner"
+    },
     "ci_low": {
       "value": -0.7813,
       "text": "-0.78"
@@ -1025,6 +1039,18 @@
     "comparison_raw_argmax_is_sharpe": {
       "value": 0.848436,
       "text": "0.85"
+    },
+    "comparison_raw_argmax_rule": {
+      "value": "level|T_roll_p75|P1|countercyclical|2",
+      "text": "level / T_roll_p75 / P1"
+    },
+    "comparison_raw_argmax_position": {
+      "value": true,
+      "text": "inside the stable lead range"
+    },
+    "comparison_raw_argmax_is_winner": {
+      "value": false,
+      "text": "a different rule from the winner"
     },
     "comparison_ci_low": {
       "value": -1.3637,

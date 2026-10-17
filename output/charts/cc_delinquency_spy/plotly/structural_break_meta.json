@@ -1,7 +1,7 @@
 {
   "chart_name": "structural_break",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-17T14:30:56.441437+00:00",
+  "generated_at": "2026-10-17T15:32:31.416364+00:00",
   "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
   "caption": "Proxy check for large changes in the delinquency-SPY relationship (rolling-correlation z-score); max |z| = 2.95.",
   "narrative_alignment_note": "Proxy check for large changes in the delinquency-SPY relationship (rolling-correlation z-score); max |z| = 2.95.",

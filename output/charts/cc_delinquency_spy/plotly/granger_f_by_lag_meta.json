@@ -1,7 +1,7 @@
 {
   "chart_name": "granger_f_by_lag",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-17T14:30:55.508447+00:00",
+  "generated_at": "2026-10-17T15:32:30.447424+00:00",
   "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
   "caption": "Granger p-values by quarterly lag for credit-card delinquency predicting SPY returns; smallest p 0.34.",
   "narrative_alignment_note": "Granger p-values by quarterly lag for credit-card delinquency predicting SPY returns; smallest p 0.34.",
