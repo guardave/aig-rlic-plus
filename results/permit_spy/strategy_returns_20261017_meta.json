@@ -1,0 +1,15 @@
+{
+  "pair_id": "permit_spy",
+  "track": "real_time",
+  "role": "main",
+  "winner_key": "S5_z|-|P2|procyclical|13",
+  "generated_at": "2026-10-17T19:36:12.075368+00:00",
+  "vintage_policy": {
+    "alignment": "realtime_vintage",
+    "vintage_series": "PERMIT",
+    "after_close": false,
+    "first_vintage": "1999-08-17"
+  },
+  "calendar_sha256": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
+  "vintage_file_sha256": "6bb25cbbfba72b8ef733d45b86e61425fe938ddee64325cf49c2c9e667c41419"
+}

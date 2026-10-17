@@ -1,0 +1,14 @@
+{
+  "pair_id": "permit_spy",
+  "date_tag": "20261017",
+  "sources": [
+    "core_models_20261017/local_projections.csv",
+    "core_models_20261017/quantile_equality_test.json",
+    "core_models_20261017/quantile_regression.csv",
+    "granger_by_lag.csv",
+    "regime_quartile_returns.csv"
+  ],
+  "derived": {
+    "trade_log_rows": 302
+  }
+}

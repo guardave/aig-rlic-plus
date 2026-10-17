@@ -1,153 +1,303 @@
-# Simulated trade record based on backtest signals. No real trades executed. Starting capital: $10,000. Commission: 5 bps. Pair: permit_spy. Strategy: P3_long_short (procyclical). Signal: 1-Month Momentum (lead 6 months). Source: winner_trade_log.csv. See docs/data_vintage_note_permit_spy.md.
-trade_date,side,instrument,quantity_pct,price,notional_usd,commission_bps,commission_usd,cum_pnl_pct,reason
-1993-02-28,BUY,SPY,100.0,24.43843,10000.0,5,5.0,1.0669,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -1.2856 (threshold -2.7293) — enter long SPY
-1993-09-30,SELL,SPY,100.0,25.739841,10000.0,5,5.0,6.4489,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -8.0139 (threshold -2.7293) — enter short SPY
-1993-10-31,BUY,SPY,100.0,26.247633,10000.0,5,5.0,4.3489,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 4.5455 (threshold -2.7293) — enter long SPY
-1994-07-31,SELL,SPY,100.0,26.203266,10000.0,5,5.0,4.1725,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -4.8597 (threshold -2.7293) — enter short SPY
-1994-09-30,BUY,SPY,100.0,26.51528,10000.0,5,5.0,2.7316,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 5.7526 (threshold -2.7293) — enter long SPY
-1994-12-31,SELL,SPY,100.0,26.373793,10000.0,5,5.0,2.1834,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -2.7937 (threshold -2.7293) — enter short SPY
-1995-01-31,BUY,SPY,100.0,27.260155,10000.0,5,5.0,-1.2508,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -1.6212 (threshold -2.7293) — enter long SPY
-1995-05-31,SELL,SPY,100.0,31.218004,10000.0,5,5.0,13.0864,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -4.0802 (threshold -2.7293) — enter short SPY
-1995-06-30,BUY,SPY,100.0,31.84966,10000.0,5,5.0,10.7983,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 4.1791 (threshold -2.7293) — enter long SPY
-1995-07-31,SELL,SPY,100.0,32.87412,10000.0,5,5.0,14.3622,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -8.1662 (threshold -2.7293) — enter short SPY
-1995-08-31,BUY,SPY,100.0,33.02047,10000.0,5,5.0,13.853,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -2.1841 (threshold -2.7293) — enter long SPY
-1996-07-31,SELL,SPY,100.0,38.31901,10000.0,5,5.0,32.1222,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.8141 (threshold -2.7293) — enter short SPY
-1996-08-31,BUY,SPY,100.0,39.05699,10000.0,5,5.0,29.5776,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 2.3792 (threshold -2.7293) — enter long SPY
-1998-10-31,SELL,SPY,100.0,68.13981,10000.0,5,5.0,126.0644,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.6137 (threshold -2.7293) — enter short SPY
-1998-11-30,BUY,SPY,100.0,71.93395,10000.0,5,5.0,113.4768,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 0.4525 (threshold -2.7293) — enter long SPY
-1999-03-31,SELL,SPY,100.0,79.979744,10000.0,5,5.0,137.3541,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -4.6554 (threshold -2.7293) — enter short SPY
-1999-04-30,BUY,SPY,100.0,83.01695,10000.0,5,5.0,128.3406,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 9.0044 (threshold -2.7293) — enter long SPY
-1999-05-31,SELL,SPY,100.0,81.11868,10000.0,5,5.0,123.1194,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -2.7341 (threshold -2.7293) — enter short SPY
-1999-06-30,BUY,SPY,100.0,85.61091,10000.0,5,5.0,110.7634,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 4.1866 (threshold -2.7293) — enter long SPY
-1999-09-30,SELL,SPY,100.0,80.68224,10000.0,5,5.0,98.6296,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.1977 (threshold -2.7293) — enter short SPY
-1999-11-30,BUY,SPY,100.0,87.35026,10000.0,5,5.0,82.658,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 2.5 (threshold -2.7293) — enter long SPY
-2000-03-31,SELL,SPY,100.0,94.704704,10000.0,5,5.0,98.0368,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -7.1813 (threshold -2.7293) — enter short SPY
-2000-04-30,BUY,SPY,100.0,91.378654,10000.0,5,5.0,104.9919,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 6.3185 (threshold -2.7293) — enter long SPY
-2000-10-31,SELL,SPY,100.0,90.47138,10000.0,5,5.0,102.9566,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.2707 (threshold -2.7293) — enter short SPY
-2000-12-31,BUY,SPY,100.0,83.280106,10000.0,5,5.0,119.2473,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 1.8795 (threshold -2.7293) — enter long SPY
-2001-06-30,SELL,SPY,100.0,78.26007,10000.0,5,5.0,106.0313,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -4.399 (threshold -2.7293) — enter short SPY
-2001-07-31,BUY,SPY,100.0,77.46214,10000.0,5,5.0,108.1319,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 10.1102 (threshold -2.7293) — enter long SPY
-2002-03-31,SELL,SPY,100.0,73.839745,10000.0,5,5.0,98.399,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.096 (threshold -2.7293) — enter short SPY
-2002-04-30,BUY,SPY,100.0,69.54554,10000.0,5,5.0,109.937,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 0.0639 (threshold -2.7293) — enter long SPY
-2002-09-30,SELL,SPY,100.0,53.1583,10000.0,5,5.0,60.4689,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -5.3721 (threshold -2.7293) — enter short SPY
-2002-10-31,BUY,SPY,100.0,57.53237,10000.0,5,5.0,47.2649,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -1.301 (threshold -2.7293) — enter long SPY
-2003-07-31,SELL,SPY,100.0,65.412125,10000.0,5,5.0,67.4346,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -4.6414 (threshold -2.7293) — enter short SPY
-2003-08-31,BUY,SPY,100.0,66.7613,10000.0,5,5.0,63.9811,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 2.5442 (threshold -2.7293) — enter long SPY
-2003-09-30,SELL,SPY,100.0,66.03323,10000.0,5,5.0,62.1928,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -5.2319 (threshold -2.7293) — enter short SPY
-2003-10-31,BUY,SPY,100.0,69.56778,10000.0,5,5.0,53.5111,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 2.6181 (threshold -2.7293) — enter long SPY
-2004-05-31,SELL,SPY,100.0,75.17689,10000.0,5,5.0,65.8884,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -4.672 (threshold -2.7293) — enter short SPY
-2004-06-30,BUY,SPY,100.0,76.567604,10000.0,5,5.0,62.8196,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 3.5975 (threshold -2.7293) — enter long SPY
-2004-12-31,SELL,SPY,100.0,81.76717,10000.0,5,5.0,73.8764,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -6.0465 (threshold -2.7293) — enter short SPY
-2005-01-31,BUY,SPY,100.0,79.93389,10000.0,5,5.0,77.7749,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 4.5545 (threshold -2.7293) — enter long SPY
-2005-11-30,SELL,SPY,100.0,85.87902,10000.0,5,5.0,90.997,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.0233 (threshold -2.7293) — enter short SPY
-2005-12-31,BUY,SPY,100.0,85.71447,10000.0,5,5.0,91.3629,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 4.4604 (threshold -2.7293) — enter long SPY
-2006-04-30,SELL,SPY,100.0,90.86607,10000.0,5,5.0,102.8642,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -4.1096 (threshold -2.7293) — enter short SPY
-2006-05-31,BUY,SPY,100.0,88.129105,10000.0,5,5.0,108.9746,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 2.212 (threshold -2.7293) — enter long SPY
-2006-06-30,SELL,SPY,100.0,88.324585,10000.0,5,5.0,109.4382,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -4.4184 (threshold -2.7293) — enter short SPY
-2006-07-31,BUY,SPY,100.0,88.755,10000.0,5,5.0,108.4176,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 4.3396 (threshold -2.7293) — enter long SPY
-2006-08-31,SELL,SPY,100.0,90.69185,10000.0,5,5.0,112.9657,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.2098 (threshold -2.7293) — enter short SPY
-2006-09-30,BUY,SPY,100.0,93.140915,10000.0,5,5.0,107.2148,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -1.0743 (threshold -2.7293) — enter long SPY
-2006-10-31,SELL,SPY,100.0,96.07641,10000.0,5,5.0,113.7455,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -5.6657 (threshold -2.7293) — enter short SPY
-2006-12-31,BUY,SPY,100.0,99.29688,10000.0,5,5.0,106.6944,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -1.9948 (threshold -2.7293) — enter long SPY
-2007-01-31,SELL,SPY,100.0,100.79033,10000.0,5,5.0,109.8031,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -5.5704 (threshold -2.7293) — enter short SPY
-2007-02-28,BUY,SPY,100.0,98.81309,10000.0,5,5.0,113.9189,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -2.3256 (threshold -2.7293) — enter long SPY
-2007-03-31,SELL,SPY,100.0,99.95841,10000.0,5,5.0,116.3984,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.8908 (threshold -2.7293) — enter short SPY
-2007-05-31,BUY,SPY,100.0,107.926926,10000.0,5,5.0,99.7978,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -2.2293 (threshold -2.7293) — enter long SPY
-2007-10-31,SELL,SPY,100.0,109.85054,10000.0,5,5.0,103.3588,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -7.8947 (threshold -2.7293) — enter short SPY
-2007-11-30,BUY,SPY,100.0,105.59574,10000.0,5,5.0,111.2355,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 1.5646 (threshold -2.7293) — enter long SPY
-2007-12-31,SELL,SPY,100.0,104.406944,10000.0,5,5.0,108.8574,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -5.7602 (threshold -2.7293) — enter short SPY
-2008-05-31,BUY,SPY,100.0,100.71852,10000.0,5,5.0,115.0144,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 2.6846 (threshold -2.7293) — enter long SPY
-2008-06-30,SELL,SPY,100.0,92.30104,10000.0,5,5.0,97.0447,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -6.1275 (threshold -2.7293) — enter short SPY
-2008-10-31,BUY,SPY,100.0,70.23939,10000.0,5,5.0,149.5559,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 4.2399 (threshold -2.7293) — enter long SPY
-2009-01-31,SELL,SPY,100.0,60.571926,10000.0,5,5.0,115.2081,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -21.9492 (threshold -2.7293) — enter short SPY
-2009-07-31,BUY,SPY,100.0,73.18661,10000.0,5,5.0,71.5582,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -1.6245 (threshold -2.7293) — enter long SPY
-2009-09-30,SELL,SPY,100.0,78.581184,10000.0,5,5.0,84.2038,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -8.0645 (threshold -2.7293) — enter short SPY
-2009-10-31,BUY,SPY,100.0,77.070435,10000.0,5,5.0,87.7451,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 1.5595 (threshold -2.7293) — enter long SPY
-2010-04-30,SELL,SPY,100.0,89.264084,10000.0,5,5.0,117.4491,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -4.2693 (threshold -2.7293) — enter short SPY
-2010-05-31,BUY,SPY,100.0,82.16916,10000.0,5,5.0,134.7325,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 6.8611 (threshold -2.7293) — enter long SPY
-2010-07-31,SELL,SPY,100.0,83.24045,10000.0,5,5.0,137.7928,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -4.2169 (threshold -2.7293) — enter short SPY
-2010-08-31,BUY,SPY,100.0,79.49625,10000.0,5,5.0,148.4889,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 2.2013 (threshold -2.7293) — enter long SPY
-2010-10-31,SELL,SPY,100.0,89.92451,10000.0,5,5.0,181.0855,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -7.278 (threshold -2.7293) — enter short SPY
-2010-12-31,BUY,SPY,100.0,95.935974,10000.0,5,5.0,162.2957,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 2.087 (threshold -2.7293) — enter long SPY
-2011-03-31,SELL,SPY,100.0,101.59397,10000.0,5,5.0,177.765,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -2.931 (threshold -2.7293) — enter short SPY
-2011-04-30,BUY,SPY,100.0,104.53628,10000.0,5,5.0,169.7206,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -0.8881 (threshold -2.7293) — enter long SPY
-2011-07-31,SELL,SPY,100.0,99.58706,10000.0,5,5.0,156.9508,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -8.8608 (threshold -2.7293) — enter short SPY
-2011-09-30,BUY,SPY,100.0,87.57883,10000.0,5,5.0,189.8952,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 7.5646 (threshold -2.7293) — enter long SPY
-2012-03-31,SELL,SPY,100.0,110.15972,10000.0,5,5.0,264.6404,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -5.7187 (threshold -2.7293) — enter short SPY
-2012-04-30,BUY,SPY,100.0,109.42433,10000.0,5,5.0,267.0746,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 10.0 (threshold -2.7293) — enter long SPY
-2012-10-31,SELL,SPY,100.0,111.74908,10000.0,5,5.0,274.8732,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -9.1811 (threshold -2.7293) — enter short SPY
-2012-11-30,BUY,SPY,100.0,112.3855,10000.0,5,5.0,272.7383,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 8.7432 (threshold -2.7293) — enter long SPY
-2013-04-30,SELL,SPY,100.0,127.70091,10000.0,5,5.0,323.5334,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -4.6237 (threshold -2.7293) — enter short SPY
-2013-05-31,BUY,SPY,100.0,130.7119,10000.0,5,5.0,313.5472,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 3.3822 (threshold -2.7293) — enter long SPY
-2013-09-30,SELL,SPY,100.0,135.73207,10000.0,5,5.0,329.43,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -4.4898 (threshold -2.7293) — enter short SPY
-2013-10-31,BUY,SPY,100.0,142.0174,10000.0,5,5.0,309.5444,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 8.1197 (threshold -2.7293) — enter long SPY
-2013-12-31,SELL,SPY,100.0,150.01779,10000.0,5,5.0,332.6157,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -6.0818 (threshold -2.7293) — enter short SPY
-2014-01-31,BUY,SPY,100.0,144.72993,10000.0,5,5.0,347.8646,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 5.8386 (threshold -2.7293) — enter long SPY
-2014-02-28,SELL,SPY,100.0,151.31743,10000.0,5,5.0,368.2495,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.3099 (threshold -2.7293) — enter short SPY
-2014-03-31,BUY,SPY,100.0,152.57237,10000.0,5,5.0,364.3661,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 4.1494 (threshold -2.7293) — enter long SPY
-2014-07-31,SELL,SPY,100.0,158.28737,10000.0,5,5.0,381.7602,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -2.8856 (threshold -2.7293) — enter short SPY
-2014-08-31,BUY,SPY,100.0,164.53394,10000.0,5,5.0,362.7482,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 6.4549 (threshold -2.7293) — enter long SPY
-2014-11-30,SELL,SPY,100.0,170.6483,10000.0,5,5.0,379.9448,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -6.6055 (threshold -2.7293) — enter short SPY
-2014-12-31,BUY,SPY,100.0,170.21538,10000.0,5,5.0,381.1623,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -0.7859 (threshold -2.7293) — enter long SPY
-2015-05-31,SELL,SPY,100.0,175.63329,10000.0,5,5.0,396.4776,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.1993 (threshold -2.7293) — enter short SPY
-2015-06-30,BUY,SPY,100.0,172.06586,10000.0,5,5.0,406.562,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 1.2276 (threshold -2.7293) — enter long SPY
-2015-09-30,SELL,SPY,100.0,161.01274,10000.0,5,5.0,374.0216,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -4.8802 (threshold -2.7293) — enter short SPY
-2015-10-31,BUY,SPY,100.0,174.70845,10000.0,5,5.0,333.7014,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 8.7687 (threshold -2.7293) — enter long SPY
-2016-01-31,SELL,SPY,100.0,163.73784,10000.0,5,5.0,306.4676,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -17.3314 (threshold -2.7293) — enter short SPY
-2016-02-29,BUY,SPY,100.0,163.60193,10000.0,5,5.0,306.805,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 2.193 (threshold -2.7293) — enter long SPY
-2016-07-31,SELL,SPY,100.0,185.42128,10000.0,5,5.0,361.06,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.3031 (threshold -2.7293) — enter short SPY
-2016-08-31,BUY,SPY,100.0,185.64333,10000.0,5,5.0,360.5079,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 0.0854 (threshold -2.7293) — enter long SPY
-2016-09-30,SELL,SPY,100.0,185.65416,10000.0,5,5.0,360.5347,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -4.6075 (threshold -2.7293) — enter short SPY
-2016-10-31,BUY,SPY,100.0,182.43546,10000.0,5,5.0,368.5191,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 3.7567 (threshold -2.7293) — enter long SPY
-2017-04-30,SELL,SPY,100.0,206.44705,10000.0,5,5.0,430.1841,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.7606 (threshold -2.7293) — enter short SPY
-2017-05-31,BUY,SPY,100.0,209.36061,10000.0,5,5.0,422.7017,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -1.9139 (threshold -2.7293) — enter long SPY
-2017-08-31,SELL,SPY,100.0,215.65341,10000.0,5,5.0,438.4126,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -5.2955 (threshold -2.7293) — enter short SPY
-2017-09-30,BUY,SPY,100.0,219.99834,10000.0,5,5.0,427.5648,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 3.0794 (threshold -2.7293) — enter long SPY
-2017-11-30,SELL,SPY,100.0,232.06528,10000.0,5,5.0,456.5018,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.4373 (threshold -2.7293) — enter short SPY
-2017-12-31,BUY,SPY,100.0,234.88005,10000.0,5,5.0,449.7519,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 12.0033 (threshold -2.7293) — enter long SPY
-2018-01-31,SELL,SPY,100.0,248.11769,10000.0,5,5.0,480.7355,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -7.1693 (threshold -2.7293) — enter short SPY
-2018-02-28,BUY,SPY,100.0,239.09604,10000.0,5,5.0,501.8512,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 5.0159 (threshold -2.7293) — enter long SPY
-2018-03-31,SELL,SPY,100.0,232.5421,10000.0,5,5.0,485.3537,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.4875 (threshold -2.7293) — enter short SPY
-2018-04-30,BUY,SPY,100.0,233.74391,10000.0,5,5.0,482.3285,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 6.52 (threshold -2.7293) — enter long SPY
-2018-05-31,SELL,SPY,100.0,239.42601,10000.0,5,5.0,496.4844,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -4.2035 (threshold -2.7293) — enter short SPY
-2018-06-30,BUY,SPY,100.0,240.80255,10000.0,5,5.0,493.055,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 0.9238 (threshold -2.7293) — enter long SPY
-2018-11-30,SELL,SPY,100.0,245.7889,10000.0,5,5.0,505.3355,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -2.9028 (threshold -2.7293) — enter short SPY
-2018-12-31,BUY,SPY,100.0,224.14795,10000.0,5,5.0,558.6334,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 0.5232 (threshold -2.7293) — enter long SPY
-2019-02-28,SELL,SPY,100.0,249.94218,10000.0,5,5.0,634.4268,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -4.5727 (threshold -2.7293) — enter short SPY
-2019-03-31,BUY,SPY,100.0,254.46637,10000.0,5,5.0,621.133,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 3.2207 (threshold -2.7293) — enter long SPY
-2019-04-30,SELL,SPY,100.0,264.86194,10000.0,5,5.0,650.593,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.1963 (threshold -2.7293) — enter short SPY
-2019-05-31,BUY,SPY,100.0,247.97139,10000.0,5,5.0,698.4592,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 5.3459 (threshold -2.7293) — enter long SPY
-2019-07-31,SELL,SPY,100.0,269.23657,10000.0,5,5.0,766.9323,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -4.7836 (threshold -2.7293) — enter short SPY
-2019-08-31,BUY,SPY,100.0,264.72864,10000.0,5,5.0,781.4477,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 2.5518 (threshold -2.7293) — enter long SPY
-2019-12-31,SELL,SPY,100.0,294.135,10000.0,5,5.0,879.3599,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.5635 (threshold -2.7293) — enter short SPY
-2020-01-31,BUY,SPY,100.0,294.0162,10000.0,5,5.0,879.7555,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 6.1586 (threshold -2.7293) — enter long SPY
-2020-06-30,SELL,SPY,100.0,284.702,10000.0,5,5.0,848.7176,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -5.9935 (threshold -2.7293) — enter short SPY
-2020-07-31,BUY,SPY,100.0,301.46872,10000.0,5,5.0,792.8456,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 3.6036 (threshold -2.7293) — enter long SPY
-2020-09-30,SELL,SPY,100.0,310.43448,10000.0,5,5.0,819.3991,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -7.4914 (threshold -2.7293) — enter short SPY
-2020-11-30,BUY,SPY,100.0,335.62036,10000.0,5,5.0,739.82,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 16.171 (threshold -2.7293) — enter long SPY
-2021-08-31,SELL,SPY,100.0,423.1251,10000.0,5,5.0,958.7824,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -7.7628 (threshold -2.7293) — enter short SPY
-2021-09-30,BUY,SPY,100.0,403.40524,10000.0,5,5.0,1008.1273,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 2.63 (threshold -2.7293) — enter long SPY
-2021-12-31,SELL,SPY,100.0,448.04938,10000.0,5,5.0,1130.7618,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -2.8773 (threshold -2.7293) — enter short SPY
-2022-01-31,BUY,SPY,100.0,424.41867,10000.0,5,5.0,1195.6737,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 0.2418 (threshold -2.7293) — enter long SPY
-2022-03-31,SELL,SPY,100.0,427.37427,10000.0,5,5.0,1204.6966,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -5.53 (threshold -2.7293) — enter short SPY
-2022-04-30,BUY,SPY,100.0,389.86404,10000.0,5,5.0,1319.2086,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 4.0854 (threshold -2.7293) — enter long SPY
-2022-08-31,SELL,SPY,100.0,375.56293,10000.0,5,5.0,1267.1488,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.2813 (threshold -2.7293) — enter short SPY
-2022-09-30,BUY,SPY,100.0,340.84406,10000.0,5,5.0,1393.5347,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 0.5924 (threshold -2.7293) — enter long SPY
-2022-11-30,SELL,SPY,100.0,389.0344,10000.0,5,5.0,1604.6985,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -8.3378 (threshold -2.7293) — enter short SPY
-2022-12-31,BUY,SPY,100.0,366.6154,10000.0,5,5.0,1702.9357,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 1.9366 (threshold -2.7293) — enter long SPY
-2023-02-28,SELL,SPY,100.0,379.87347,10000.0,5,5.0,1768.136,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -8.5731 (threshold -2.7293) — enter short SPY
-2023-03-31,BUY,SPY,100.0,393.95856,10000.0,5,5.0,1698.8686,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 2.7617 (threshold -2.7293) — enter long SPY
-2023-05-31,SELL,SPY,100.0,402.09964,10000.0,5,5.0,1736.0419,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -12.1079 (threshold -2.7293) — enter short SPY
-2023-06-30,BUY,SPY,100.0,428.156,10000.0,5,5.0,1617.065,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 0.6424 (threshold -2.7293) — enter long SPY
-2023-09-30,SELL,SPY,100.0,414.35165,10000.0,5,5.0,1561.7044,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -8.529 (threshold -2.7293) — enter short SPY
-2023-10-31,BUY,SPY,100.0,405.35666,10000.0,5,5.0,1597.7777,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -0.4054 (threshold -2.7293) — enter long SPY
-2023-12-31,SELL,SPY,100.0,462.58075,10000.0,5,5.0,1837.4525,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -7.0476 (threshold -2.7293) — enter short SPY
-2024-01-31,BUY,SPY,100.0,469.94803,10000.0,5,5.0,1806.5957,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 3.9617 (threshold -2.7293) — enter long SPY
-2024-09-30,SELL,SPY,100.0,563.65924,10000.0,5,5.0,2186.7854,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -6.4046 (threshold -2.7293) — enter short SPY
-2024-10-31,BUY,SPY,100.0,558.6294,10000.0,5,5.0,2207.1916,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -1.1518 (threshold -2.7293) — enter long SPY
-2024-11-30,SELL,SPY,100.0,591.9424,10000.0,5,5.0,2344.7774,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.5641 (threshold -2.7293) — enter short SPY
-2024-12-31,BUY,SPY,100.0,577.6997,10000.0,5,5.0,2403.6011,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = 3.838 (threshold -2.7293) — enter long SPY
-2025-03-31,SELL,SPY,100.0,553.04956,10000.0,5,5.0,2296.7738,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -2.8455 (threshold -2.7293) — enter short SPY
-2025-04-30,BUY,SPY,100.0,548.2546,10000.0,5,5.0,2317.5539,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -0.4184 (threshold -2.7293) — enter long SPY
-2025-10-31,SELL,SPY,100.0,678.198,10000.0,5,5.0,2890.5453,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -3.9838 (threshold -2.7293) — enter short SPY
-2025-11-30,BUY,SPY,100.0,679.5205,10000.0,5,5.0,2884.7136,P3_long_short/procyclical: 1-Month Momentum (lead 6m) = -1.9691 (threshold -2.7293) — enter long SPY
+trade_date,side,instrument,quantity_pct,commission_bps,signal_value,threshold_value,position_before,position_after,reason
+1999-08-31,BUY,SPY,87.28373811156875,5,0.872837,,0.0,0.8728373811156875,S5_z procyclical position resized to the trailing-range reading
+1999-09-30,BUY,SPY,12.716261888431246,5,1.0,,0.8728373811156875,1.0,S5_z procyclical position resized to the trailing-range reading
+1999-10-31,SELL,SPY,51.53355318215793,5,0.484664,,1.0,0.4846644681784207,S5_z procyclical position resized to the trailing-range reading
+1999-11-30,BUY,SPY,51.53355318215793,5,1.0,,0.4846644681784207,1.0,S5_z procyclical position resized to the trailing-range reading
+1999-12-31,SELL,SPY,22.555460375250046,5,0.774445,,1.0,0.7744453962474995,S5_z procyclical position resized to the trailing-range reading
+2000-01-31,BUY,SPY,0.8458833009799993,5,0.782904,,0.7744453962474995,0.7829042292572995,S5_z procyclical position resized to the trailing-range reading
+2000-02-29,BUY,SPY,15.16753279341625,5,0.93458,,0.7829042292572995,0.934579557191462,S5_z procyclical position resized to the trailing-range reading
+2000-03-31,SELL,SPY,19.35344981221282,5,0.741045,,0.934579557191462,0.7410450590693338,S5_z procyclical position resized to the trailing-range reading
+2000-04-30,SELL,SPY,30.784950307999786,5,0.433196,,0.7410450590693338,0.43319555598933596,S5_z procyclical position resized to the trailing-range reading
+2000-05-31,SELL,SPY,20.45589846914584,5,0.228637,,0.43319555598933596,0.22863657129787757,S5_z procyclical position resized to the trailing-range reading
+2000-06-30,BUY,SPY,12.411699356537042,5,0.352754,,0.22863657129787757,0.352753564863248,S5_z procyclical position resized to the trailing-range reading
+2000-07-31,BUY,SPY,15.264322482710208,5,0.505397,,0.352753564863248,0.5053967896903501,S5_z procyclical position resized to the trailing-range reading
+2000-08-31,SELL,SPY,9.817538510948587,5,0.407221,,0.5053967896903501,0.4072214045808642,S5_z procyclical position resized to the trailing-range reading
+2000-09-30,SELL,SPY,6.833639523418661,5,0.338885,,0.4072214045808642,0.3388850093466776,S5_z procyclical position resized to the trailing-range reading
+2000-10-31,SELL,SPY,33.613222739732585,5,0.002753,,0.3388850093466776,0.0027527819493517675,S5_z procyclical position resized to the trailing-range reading
+2000-11-30,BUY,SPY,24.392097170539127,5,0.246674,,0.0027527819493517675,0.24667375365474303,S5_z procyclical position resized to the trailing-range reading
+2000-12-31,BUY,SPY,10.936312099565404,5,0.356037,,0.24667375365474303,0.3560368746503971,S5_z procyclical position resized to the trailing-range reading
+2001-01-31,SELL,SPY,0.6113233500607607,5,0.349924,,0.3560368746503971,0.34992364114978947,S5_z procyclical position resized to the trailing-range reading
+2001-02-28,BUY,SPY,20.944952785352157,5,0.559373,,0.34992364114978947,0.559373169003311,S5_z procyclical position resized to the trailing-range reading
+2001-03-31,SELL,SPY,31.7496719637998,5,0.241876,,0.559373169003311,0.24187644936531305,S5_z procyclical position resized to the trailing-range reading
+2001-04-30,SELL,SPY,20.978349718640484,5,0.032093,,0.24187644936531305,0.032092952178908236,S5_z procyclical position resized to the trailing-range reading
+2001-05-31,SELL,SPY,2.506397670431542,5,0.007029,,0.032092952178908236,0.007028975474592818,S5_z procyclical position resized to the trailing-range reading
+2001-06-30,SELL,SPY,0.7028975474592818,5,0.0,,0.007028975474592818,0.0,S5_z procyclical position resized to the trailing-range reading
+2001-07-31,BUY,SPY,6.373055156989173,5,0.063731,,0.0,0.06373055156989173,S5_z procyclical position resized to the trailing-range reading
+2001-08-31,SELL,SPY,6.373055156989173,5,0.0,,0.06373055156989173,0.0,S5_z procyclical position resized to the trailing-range reading
+2001-09-30,BUY,SPY,2.119046095797584,5,0.02119,,0.0,0.021190460957975842,S5_z procyclical position resized to the trailing-range reading
+2001-10-31,BUY,SPY,0.8476851079954149,5,0.029667,,0.021190460957975842,0.02966731203792999,S5_z procyclical position resized to the trailing-range reading
+2001-11-30,BUY,SPY,3.0710785514603325,5,0.060378,,0.02966731203792999,0.060378097552533316,S5_z procyclical position resized to the trailing-range reading
+2001-12-31,BUY,SPY,14.574449842610871,5,0.206123,,0.060378097552533316,0.20612259597864202,S5_z procyclical position resized to the trailing-range reading
+2002-01-31,SELL,SPY,18.673887753398187,5,0.019384,,0.20612259597864202,0.01938371844466016,S5_z procyclical position resized to the trailing-range reading
+2002-02-28,BUY,SPY,49.448328174929316,5,0.513867,,0.01938371844466016,0.5138670001939533,S5_z procyclical position resized to the trailing-range reading
+2002-03-31,SELL,SPY,19.295945966881334,5,0.320908,,0.5138670001939533,0.3209075405251399,S5_z procyclical position resized to the trailing-range reading
+2002-04-30,SELL,SPY,11.628095368433977,5,0.204627,,0.3209075405251399,0.20462658684080015,S5_z procyclical position resized to the trailing-range reading
+2002-05-31,BUY,SPY,7.1807552137880375,5,0.276434,,0.20462658684080015,0.2764341389786805,S5_z procyclical position resized to the trailing-range reading
+2002-06-30,BUY,SPY,3.308210926901478,5,0.309516,,0.2764341389786805,0.3095162482476953,S5_z procyclical position resized to the trailing-range reading
+2002-07-31,SELL,SPY,14.672259176460631,5,0.162794,,0.3095162482476953,0.162793656483089,S5_z procyclical position resized to the trailing-range reading
+2002-08-31,SELL,SPY,5.697478230732998,5,0.105819,,0.162793656483089,0.10581887417575901,S5_z procyclical position resized to the trailing-range reading
+2002-09-30,BUY,SPY,0.4236662647619391,5,0.110056,,0.10581887417575901,0.1100555368233784,S5_z procyclical position resized to the trailing-range reading
+2002-10-31,SELL,SPY,11.00555368233784,5,0.0,,0.1100555368233784,0.0,S5_z procyclical position resized to the trailing-range reading
+2002-12-31,BUY,SPY,29.90658449926937,5,0.299066,,0.0,0.29906584499269373,S5_z procyclical position resized to the trailing-range reading
+2003-01-31,BUY,SPY,13.576475699537404,5,0.434831,,0.29906584499269373,0.4348306019880678,S5_z procyclical position resized to the trailing-range reading
+2003-02-28,SELL,SPY,6.111011563502128,5,0.37372,,0.4348306019880678,0.3737204863530465,S5_z procyclical position resized to the trailing-range reading
+2003-03-31,BUY,SPY,26.453622914177128,5,0.638257,,0.3737204863530465,0.6382567154948178,S5_z procyclical position resized to the trailing-range reading
+2003-04-30,SELL,SPY,49.6524643595746,5,0.141732,,0.6382567154948178,0.1417320718990718,S5_z procyclical position resized to the trailing-range reading
+2003-05-31,BUY,SPY,11.10174481146116,5,0.25275,,0.1417320718990718,0.2527495200136834,S5_z procyclical position resized to the trailing-range reading
+2003-06-30,BUY,SPY,21.773210450907758,5,0.470482,,0.2527495200136834,0.470481624522761,S5_z procyclical position resized to the trailing-range reading
+2003-07-31,BUY,SPY,9.519094723509703,5,0.565673,,0.470481624522761,0.565672571757858,S5_z procyclical position resized to the trailing-range reading
+2003-08-31,SELL,SPY,2.3674067461398662,5,0.541999,,0.565672571757858,0.5419985042964593,S5_z procyclical position resized to the trailing-range reading
+2003-09-30,SELL,SPY,16.474454355671902,5,0.377254,,0.5419985042964593,0.3772539607397403,S5_z procyclical position resized to the trailing-range reading
+2003-10-31,BUY,SPY,39.87907490049593,5,0.776045,,0.3772539607397403,0.7760447097446996,S5_z procyclical position resized to the trailing-range reading
+2003-11-30,BUY,SPY,0.8767045482407143,5,0.784812,,0.7760447097446996,0.7848117552271068,S5_z procyclical position resized to the trailing-range reading
+2003-12-31,SELL,SPY,21.60187815955088,5,0.568793,,0.7848117552271068,0.568792973631598,S5_z procyclical position resized to the trailing-range reading
+2004-01-31,BUY,SPY,43.1207026368402,5,1.0,,0.568792973631598,1.0,S5_z procyclical position resized to the trailing-range reading
+2004-02-29,SELL,SPY,50.28422254603567,5,0.497158,,1.0,0.49715777453964327,S5_z procyclical position resized to the trailing-range reading
+2004-03-31,BUY,SPY,1.4761498542524731,5,0.511919,,0.49715777453964327,0.511919273082168,S5_z procyclical position resized to the trailing-range reading
+2004-04-30,SELL,SPY,36.10378012509389,5,0.150881,,0.511919273082168,0.15088147183122907,S5_z procyclical position resized to the trailing-range reading
+2004-05-31,BUY,SPY,36.8351746416578,5,0.519233,,0.15088147183122907,0.5192332182478071,S5_z procyclical position resized to the trailing-range reading
+2004-06-30,BUY,SPY,14.219036053311651,5,0.661424,,0.5192332182478071,0.6614235787809236,S5_z procyclical position resized to the trailing-range reading
+2004-07-31,BUY,SPY,5.2259557941647605,5,0.713683,,0.6614235787809236,0.7136831367225712,S5_z procyclical position resized to the trailing-range reading
+2004-08-31,BUY,SPY,2.689113809321264,5,0.740574,,0.7136831367225712,0.7405742748157839,S5_z procyclical position resized to the trailing-range reading
+2004-09-30,BUY,SPY,15.731644740666662,5,0.897891,,0.7405742748157839,0.8978907222224505,S5_z procyclical position resized to the trailing-range reading
+2004-10-31,SELL,SPY,11.40079556125755,5,0.783883,,0.8978907222224505,0.783882766609875,S5_z procyclical position resized to the trailing-range reading
+2004-11-30,BUY,SPY,13.023438809142995,5,0.914117,,0.783882766609875,0.914117154701305,S5_z procyclical position resized to the trailing-range reading
+2004-12-31,SELL,SPY,28.80497747315076,5,0.626067,,0.914117154701305,0.6260673799697973,S5_z procyclical position resized to the trailing-range reading
+2005-01-31,BUY,SPY,11.350216258390144,5,0.73957,,0.6260673799697973,0.7395695425536988,S5_z procyclical position resized to the trailing-range reading
+2005-02-28,SELL,SPY,5.4967821984660326,5,0.684602,,0.7395695425536988,0.6846017205690385,S5_z procyclical position resized to the trailing-range reading
+2005-03-31,SELL,SPY,6.384362463635385,5,0.620758,,0.6846017205690385,0.6207580959326846,S5_z procyclical position resized to the trailing-range reading
+2005-04-30,BUY,SPY,10.48099815497353,5,0.725568,,0.6207580959326846,0.7255680774824199,S5_z procyclical position resized to the trailing-range reading
+2005-05-31,BUY,SPY,4.575626050489068,5,0.771324,,0.7255680774824199,0.7713243379873106,S5_z procyclical position resized to the trailing-range reading
+2005-06-30,BUY,SPY,6.344938025312885,5,0.834774,,0.7713243379873106,0.8347737182404394,S5_z procyclical position resized to the trailing-range reading
+2005-07-31,SELL,SPY,25.399224514968978,5,0.580781,,0.8347737182404394,0.5807814730907497,S5_z procyclical position resized to the trailing-range reading
+2005-08-31,BUY,SPY,15.019809044624699,5,0.73098,,0.5807814730907497,0.7309795635369967,S5_z procyclical position resized to the trailing-range reading
+2005-09-30,SELL,SPY,13.103551903995292,5,0.599944,,0.7309795635369967,0.5999440444970437,S5_z procyclical position resized to the trailing-range reading
+2005-10-31,SELL,SPY,5.4084347807098805,5,0.54586,,0.5999440444970437,0.5458596966899449,S5_z procyclical position resized to the trailing-range reading
+2005-11-30,BUY,SPY,6.865754497109022,5,0.614517,,0.5458596966899449,0.6145172416610352,S5_z procyclical position resized to the trailing-range reading
+2005-12-31,SELL,SPY,2.5642359224453015,5,0.588875,,0.6145172416610352,0.5888748824365821,S5_z procyclical position resized to the trailing-range reading
+2006-01-31,SELL,SPY,4.2112518068420535,5,0.546762,,0.5888748824365821,0.5467623643681616,S5_z procyclical position resized to the trailing-range reading
+2006-02-28,BUY,SPY,6.401476454099186,5,0.610777,,0.5467623643681616,0.6107771289091535,S5_z procyclical position resized to the trailing-range reading
+2006-03-31,SELL,SPY,8.926468359543371,5,0.521512,,0.6107771289091535,0.5215124453137198,S5_z procyclical position resized to the trailing-range reading
+2006-04-30,SELL,SPY,12.640559070122382,5,0.395107,,0.5215124453137198,0.39510685461249595,S5_z procyclical position resized to the trailing-range reading
+2006-05-31,BUY,SPY,21.13475691453943,5,0.606454,,0.39510685461249595,0.6064544237578903,S5_z procyclical position resized to the trailing-range reading
+2006-06-30,SELL,SPY,11.625805319467759,5,0.490196,,0.6064544237578903,0.4901963705632127,S5_z procyclical position resized to the trailing-range reading
+2006-07-31,BUY,SPY,9.535299339363595,5,0.585549,,0.4901963705632127,0.5855493639568486,S5_z procyclical position resized to the trailing-range reading
+2006-08-31,BUY,SPY,0.5722832957606339,5,0.591272,,0.5855493639568486,0.591272196914455,S5_z procyclical position resized to the trailing-range reading
+2006-09-30,SELL,SPY,2.132171321908849,5,0.56995,,0.591272196914455,0.5699504836953665,S5_z procyclical position resized to the trailing-range reading
+2006-10-31,BUY,SPY,2.941036219645643,5,0.599361,,0.5699504836953665,0.5993608458918229,S5_z procyclical position resized to the trailing-range reading
+2006-11-30,SELL,SPY,17.232061333338773,5,0.42704,,0.5993608458918229,0.4270402325584352,S5_z procyclical position resized to the trailing-range reading
+2006-12-31,BUY,SPY,7.257646678472268,5,0.499617,,0.4270402325584352,0.4996166993431579,S5_z procyclical position resized to the trailing-range reading
+2007-01-31,SELL,SPY,13.26261006570364,5,0.366991,,0.4996166993431579,0.3669905986861215,S5_z procyclical position resized to the trailing-range reading
+2007-02-28,BUY,SPY,11.534417744626053,5,0.482335,,0.3669905986861215,0.482334776132382,S5_z procyclical position resized to the trailing-range reading
+2007-03-31,SELL,SPY,8.264780379960257,5,0.399687,,0.482334776132382,0.39968697233277944,S5_z procyclical position resized to the trailing-range reading
+2007-04-30,SELL,SPY,10.06286258569512,5,0.299058,,0.39968697233277944,0.29905834647582824,S5_z procyclical position resized to the trailing-range reading
+2007-05-31,SELL,SPY,15.512897802600603,5,0.143929,,0.29905834647582824,0.1439293684498222,S5_z procyclical position resized to the trailing-range reading
+2007-06-30,SELL,SPY,11.059903790285622,5,0.03333,,0.1439293684498222,0.033330330546966,S5_z procyclical position resized to the trailing-range reading
+2007-07-31,SELL,SPY,3.3330330546966,5,0.0,,0.033330330546966,0.0,S5_z procyclical position resized to the trailing-range reading
+2008-01-31,BUY,SPY,10.375199728731381,5,0.103752,,0.0,0.10375199728731381,S5_z procyclical position resized to the trailing-range reading
+2008-02-29,SELL,SPY,5.433774276752902,5,0.049414,,0.10375199728731381,0.04941425451978479,S5_z procyclical position resized to the trailing-range reading
+2008-03-31,SELL,SPY,0.9205985219486006,5,0.040208,,0.04941425451978479,0.040208269300298784,S5_z procyclical position resized to the trailing-range reading
+2008-04-30,BUY,SPY,3.3774932323513633,5,0.073983,,0.040208269300298784,0.07398320162381242,S5_z procyclical position resized to the trailing-range reading
+2008-05-31,SELL,SPY,7.398320162381242,5,0.0,,0.07398320162381242,0.0,S5_z procyclical position resized to the trailing-range reading
+2008-06-30,BUY,SPY,4.2290043409263145,5,0.04229,,0.0,0.042290043409263144,S5_z procyclical position resized to the trailing-range reading
+2008-07-31,SELL,SPY,4.2290043409263145,5,0.0,,0.042290043409263144,0.0,S5_z procyclical position resized to the trailing-range reading
+2008-12-31,BUY,SPY,3.288175960914582,5,0.032882,,0.0,0.03288175960914582,S5_z procyclical position resized to the trailing-range reading
+2009-01-31,SELL,SPY,1.1125784598136415,5,0.021756,,0.03288175960914582,0.021755975011009406,S5_z procyclical position resized to the trailing-range reading
+2009-02-28,SELL,SPY,0.05530803796939439,5,0.021203,,0.021755975011009406,0.02120289463131546,S5_z procyclical position resized to the trailing-range reading
+2009-03-31,SELL,SPY,0.38208670088990604,5,0.017382,,0.02120289463131546,0.0173820276224164,S5_z procyclical position resized to the trailing-range reading
+2009-04-30,BUY,SPY,0.7792544743140672,5,0.025175,,0.0173820276224164,0.025174572365557073,S5_z procyclical position resized to the trailing-range reading
+2009-05-31,BUY,SPY,3.7654306869093377,5,0.062829,,0.025174572365557073,0.06282887923465046,S5_z procyclical position resized to the trailing-range reading
+2009-06-30,BUY,SPY,1.7494271039646667,5,0.080323,,0.06282887923465046,0.08032315027429712,S5_z procyclical position resized to the trailing-range reading
+2009-07-31,BUY,SPY,10.643145687618555,5,0.186755,,0.08032315027429712,0.18675460715048267,S5_z procyclical position resized to the trailing-range reading
+2009-08-31,SELL,SPY,9.51778107703575,5,0.091577,,0.18675460715048267,0.09157679638012517,S5_z procyclical position resized to the trailing-range reading
+2009-09-30,SELL,SPY,0.6318408998505456,5,0.085258,,0.09157679638012517,0.08525838738161971,S5_z procyclical position resized to the trailing-range reading
+2009-10-31,BUY,SPY,0.13752040145764421,5,0.086634,,0.08525838738161971,0.08663359139619616,S5_z procyclical position resized to the trailing-range reading
+2009-11-30,SELL,SPY,0.6189953364666421,5,0.080444,,0.08663359139619616,0.08044363803152974,S5_z procyclical position resized to the trailing-range reading
+2009-12-31,SELL,SPY,1.3475184303253895,5,0.066968,,0.08044363803152974,0.06696845372827584,S5_z procyclical position resized to the trailing-range reading
+2010-01-31,BUY,SPY,0.10070355789965624,5,0.067975,,0.06696845372827584,0.0679754893072724,S5_z procyclical position resized to the trailing-range reading
+2010-02-28,BUY,SPY,1.2705652661568936,5,0.080681,,0.0679754893072724,0.08068114196884134,S5_z procyclical position resized to the trailing-range reading
+2010-03-31,BUY,SPY,2.8196692200284867,5,0.108878,,0.08068114196884134,0.1088778341691262,S5_z procyclical position resized to the trailing-range reading
+2010-04-30,BUY,SPY,0.6293321962491077,5,0.115171,,0.1088778341691262,0.11517115613161728,S5_z procyclical position resized to the trailing-range reading
+2010-05-31,BUY,SPY,2.042838660715933,5,0.1356,,0.11517115613161728,0.1355995427387766,S5_z procyclical position resized to the trailing-range reading
+2010-06-30,BUY,SPY,4.02835230170733,5,0.175883,,0.1355995427387766,0.17588306575584992,S5_z procyclical position resized to the trailing-range reading
+2010-07-31,BUY,SPY,3.222080730636709,5,0.208104,,0.17588306575584992,0.208103873062217,S5_z procyclical position resized to the trailing-range reading
+2010-08-31,BUY,SPY,2.232379195217951,5,0.230428,,0.208103873062217,0.23042766501439652,S5_z procyclical position resized to the trailing-range reading
+2010-09-30,BUY,SPY,2.1175880578120725,5,0.251604,,0.23042766501439652,0.25160354559251724,S5_z procyclical position resized to the trailing-range reading
+2010-10-31,BUY,SPY,0.9986883726995022,5,0.26159,,0.25160354559251724,0.26159042931951226,S5_z procyclical position resized to the trailing-range reading
+2010-11-30,BUY,SPY,0.08401064559903637,5,0.262431,,0.26159042931951226,0.2624305357755026,S5_z procyclical position resized to the trailing-range reading
+2010-12-31,BUY,SPY,2.6586069026741543,5,0.289017,,0.2624305357755026,0.28901660480224417,S5_z procyclical position resized to the trailing-range reading
+2011-01-31,BUY,SPY,3.0539664101309483,5,0.319556,,0.28901660480224417,0.31955626890355365,S5_z procyclical position resized to the trailing-range reading
+2011-02-28,SELL,SPY,1.0204728609988667,5,0.309352,,0.31955626890355365,0.309351540293565,S5_z procyclical position resized to the trailing-range reading
+2011-03-31,BUY,SPY,1.5860603556640707,5,0.325212,,0.309351540293565,0.3252121438502057,S5_z procyclical position resized to the trailing-range reading
+2011-04-30,BUY,SPY,2.039375314425751,5,0.345606,,0.3252121438502057,0.3456058969944632,S5_z procyclical position resized to the trailing-range reading
+2011-05-31,SELL,SPY,1.2058532189373694,5,0.333547,,0.3456058969944632,0.3335473648050895,S5_z procyclical position resized to the trailing-range reading
+2011-06-30,SELL,SPY,1.049834931255933,5,0.323049,,0.3335473648050895,0.3230490154925302,S5_z procyclical position resized to the trailing-range reading
+2011-07-31,BUY,SPY,0.8366320205223932,5,0.331415,,0.3230490154925302,0.3314153356977541,S5_z procyclical position resized to the trailing-range reading
+2011-08-31,BUY,SPY,0.30565035078481406,5,0.334472,,0.3314153356977541,0.33447183920560225,S5_z procyclical position resized to the trailing-range reading
+2011-09-30,BUY,SPY,0.6345569219882274,5,0.340817,,0.33447183920560225,0.3408174084254845,S5_z procyclical position resized to the trailing-range reading
+2011-10-31,BUY,SPY,2.757300271343782,5,0.36839,,0.3408174084254845,0.36839041113892235,S5_z procyclical position resized to the trailing-range reading
+2011-11-30,BUY,SPY,0.3410550504508614,5,0.371801,,0.36839041113892235,0.37180096164343096,S5_z procyclical position resized to the trailing-range reading
+2011-12-31,BUY,SPY,1.9974732472276935,5,0.391776,,0.37180096164343096,0.3917756941157079,S5_z procyclical position resized to the trailing-range reading
+2012-01-31,BUY,SPY,3.651400279430211,5,0.42829,,0.3917756941157079,0.42828969691001,S5_z procyclical position resized to the trailing-range reading
+2012-02-29,BUY,SPY,1.6797800364515614,5,0.445087,,0.42828969691001,0.4450874972745256,S5_z procyclical position resized to the trailing-range reading
+2012-03-31,BUY,SPY,0.40052678811483,5,0.449093,,0.4450874972745256,0.4490927651556739,S5_z procyclical position resized to the trailing-range reading
+2012-04-30,BUY,SPY,12.811270197219665,5,0.577205,,0.4490927651556739,0.5772054671278706,S5_z procyclical position resized to the trailing-range reading
+2012-05-31,BUY,SPY,12.52029088919433,5,0.702408,,0.5772054671278706,0.7024083760198139,S5_z procyclical position resized to the trailing-range reading
+2012-06-30,BUY,SPY,12.563276898853793,5,0.828041,,0.7024083760198139,0.8280411450083518,S5_z procyclical position resized to the trailing-range reading
+2012-07-31,BUY,SPY,17.19588549916482,5,1.0,,0.8280411450083518,1.0,S5_z procyclical position resized to the trailing-range reading
+2012-10-31,SELL,SPY,2.662003384065814,5,0.97338,,1.0,0.9733799661593419,S5_z procyclical position resized to the trailing-range reading
+2012-11-30,BUY,SPY,2.662003384065814,5,1.0,,0.9733799661593419,1.0,S5_z procyclical position resized to the trailing-range reading
+2013-02-28,SELL,SPY,1.056974847826575,5,0.98943,,1.0,0.9894302515217342,S5_z procyclical position resized to the trailing-range reading
+2013-03-31,BUY,SPY,1.056974847826575,5,1.0,,0.9894302515217342,1.0,S5_z procyclical position resized to the trailing-range reading
+2013-05-31,SELL,SPY,3.4410347592139123,5,0.96559,,1.0,0.9655896524078609,S5_z procyclical position resized to the trailing-range reading
+2013-06-30,BUY,SPY,3.4410347592139123,5,1.0,,0.9655896524078609,1.0,S5_z procyclical position resized to the trailing-range reading
+2013-07-31,SELL,SPY,1.1320145111452073,5,0.98868,,1.0,0.9886798548885479,S5_z procyclical position resized to the trailing-range reading
+2013-08-31,BUY,SPY,1.1320145111452073,5,1.0,,0.9886798548885479,1.0,S5_z procyclical position resized to the trailing-range reading
+2014-02-28,SELL,SPY,2.7037643681108836,5,0.972962,,1.0,0.9729623563188912,S5_z procyclical position resized to the trailing-range reading
+2014-03-31,BUY,SPY,2.7037643681108836,5,1.0,,0.9729623563188912,1.0,S5_z procyclical position resized to the trailing-range reading
+2014-04-30,SELL,SPY,9.810608507708896,5,0.901894,,1.0,0.901893914922911,S5_z procyclical position resized to the trailing-range reading
+2014-05-31,BUY,SPY,9.810608507708896,5,1.0,,0.901893914922911,1.0,S5_z procyclical position resized to the trailing-range reading
+2014-06-30,SELL,SPY,4.560158329543507,5,0.954398,,1.0,0.9543984167045649,S5_z procyclical position resized to the trailing-range reading
+2014-07-31,SELL,SPY,7.579501645936826,5,0.878603,,0.9543984167045649,0.8786034002451967,S5_z procyclical position resized to the trailing-range reading
+2014-08-31,BUY,SPY,5.4442819718252045,5,0.933046,,0.8786034002451967,0.9330462199634487,S5_z procyclical position resized to the trailing-range reading
+2014-09-30,SELL,SPY,5.21090312414374,5,0.880937,,0.9330462199634487,0.8809371887220113,S5_z procyclical position resized to the trailing-range reading
+2014-10-31,BUY,SPY,5.1339798595834925,5,0.932277,,0.8809371887220113,0.9322769873178463,S5_z procyclical position resized to the trailing-range reading
+2014-11-30,BUY,SPY,6.772301268215375,5,1.0,,0.9322769873178463,1.0,S5_z procyclical position resized to the trailing-range reading
+2014-12-31,SELL,SPY,6.490046646299952,5,0.9351,,1.0,0.9350995335370005,S5_z procyclical position resized to the trailing-range reading
+2015-01-31,SELL,SPY,4.09976307934008,5,0.894102,,0.9350995335370005,0.8941019027435997,S5_z procyclical position resized to the trailing-range reading
+2015-02-28,SELL,SPY,4.99307695989758,5,0.844171,,0.8941019027435997,0.8441711331446239,S5_z procyclical position resized to the trailing-range reading
+2015-03-31,BUY,SPY,0.583322789842633,5,0.850004,,0.8441711331446239,0.8500043610430502,S5_z procyclical position resized to the trailing-range reading
+2015-04-30,SELL,SPY,2.3204378807951787,5,0.8268,,0.8500043610430502,0.8267999822350984,S5_z procyclical position resized to the trailing-range reading
+2015-05-31,BUY,SPY,10.66968570533704,5,0.933497,,0.8267999822350984,0.9334968392884688,S5_z procyclical position resized to the trailing-range reading
+2015-06-30,SELL,SPY,10.620615065756667,5,0.827291,,0.9334968392884688,0.8272906886309022,S5_z procyclical position resized to the trailing-range reading
+2015-07-31,BUY,SPY,0.7047313207603989,5,0.834338,,0.8272906886309022,0.8343380018385061,S5_z procyclical position resized to the trailing-range reading
+2015-08-31,SELL,SPY,0.7342537909988733,5,0.826995,,0.8343380018385061,0.8269954639285174,S5_z procyclical position resized to the trailing-range reading
+2015-09-30,SELL,SPY,1.8803437138951717,5,0.808192,,0.8269954639285174,0.8081920267895657,S5_z procyclical position resized to the trailing-range reading
+2015-10-31,BUY,SPY,0.4933129054233931,5,0.813125,,0.8081920267895657,0.8131251558437996,S5_z procyclical position resized to the trailing-range reading
+2015-11-30,BUY,SPY,8.168733231936642,5,0.894812,,0.8131251558437996,0.894812488163166,S5_z procyclical position resized to the trailing-range reading
+2015-12-31,SELL,SPY,8.82488061705261,5,0.806564,,0.894812488163166,0.80656368199264,S5_z procyclical position resized to the trailing-range reading
+2016-01-31,SELL,SPY,1.9133353844350887,5,0.78743,,0.80656368199264,0.7874303281482891,S5_z procyclical position resized to the trailing-range reading
+2016-02-29,SELL,SPY,4.582870775904279,5,0.741602,,0.7874303281482891,0.7416016203892463,S5_z procyclical position resized to the trailing-range reading
+2016-03-31,BUY,SPY,4.790951398094789,5,0.789511,,0.7416016203892463,0.7895111343701942,S5_z procyclical position resized to the trailing-range reading
+2016-04-30,SELL,SPY,10.852474476696683,5,0.680986,,0.7895111343701942,0.6809863896032273,S5_z procyclical position resized to the trailing-range reading
+2016-05-31,BUY,SPY,19.837471581521115,5,0.879361,,0.6809863896032273,0.8793611054184385,S5_z procyclical position resized to the trailing-range reading
+2016-06-30,BUY,SPY,10.903454445911965,5,0.988396,,0.8793611054184385,0.9883956498775581,S5_z procyclical position resized to the trailing-range reading
+2016-07-31,BUY,SPY,1.1604350122441875,5,1.0,,0.9883956498775581,1.0,S5_z procyclical position resized to the trailing-range reading
+2016-08-31,SELL,SPY,29.562517703901015,5,0.704375,,1.0,0.7043748229609899,S5_z procyclical position resized to the trailing-range reading
+2016-09-30,BUY,SPY,2.2496298049199948,5,0.726871,,0.7043748229609899,0.7268711210101898,S5_z procyclical position resized to the trailing-range reading
+2016-10-31,SELL,SPY,6.691369364550937,5,0.659957,,0.7268711210101898,0.6599574273646804,S5_z procyclical position resized to the trailing-range reading
+2016-11-30,BUY,SPY,5.579359524783656,5,0.715751,,0.6599574273646804,0.715751022612517,S5_z procyclical position resized to the trailing-range reading
+2016-12-31,BUY,SPY,15.084708476720843,5,0.866598,,0.715751022612517,0.8665981073797254,S5_z procyclical position resized to the trailing-range reading
+2017-01-31,SELL,SPY,14.504490276327564,5,0.721553,,0.8665981073797254,0.7215532046164498,S5_z procyclical position resized to the trailing-range reading
+2017-02-28,SELL,SPY,3.0394692190406025,5,0.691159,,0.7215532046164498,0.6911585124260438,S5_z procyclical position resized to the trailing-range reading
+2017-03-31,SELL,SPY,6.044126031058827,5,0.630717,,0.6911585124260438,0.6307172521154555,S5_z procyclical position resized to the trailing-range reading
+2017-04-30,SELL,SPY,15.285709391730546,5,0.47786,,0.6307172521154555,0.47786015819815003,S5_z procyclical position resized to the trailing-range reading
+2017-05-31,BUY,SPY,9.8387484200046,5,0.576248,,0.47786015819815003,0.576247642398196,S5_z procyclical position resized to the trailing-range reading
+2017-06-30,BUY,SPY,1.1135773110495295,5,0.587383,,0.576247642398196,0.5873834155086913,S5_z procyclical position resized to the trailing-range reading
+2017-07-31,BUY,SPY,1.8521282010500073,5,0.605905,,0.5873834155086913,0.6059046975191914,S5_z procyclical position resized to the trailing-range reading
+2017-08-31,SELL,SPY,4.302405173361312,5,0.562881,,0.6059046975191914,0.5628806457855783,S5_z procyclical position resized to the trailing-range reading
+2017-09-30,BUY,SPY,4.06935785117507,5,0.603574,,0.5628806457855783,0.603574224297329,S5_z procyclical position resized to the trailing-range reading
+2017-10-31,BUY,SPY,11.565324197602166,5,0.719227,,0.603574224297329,0.7192274662733507,S5_z procyclical position resized to the trailing-range reading
+2017-11-30,BUY,SPY,0.9764386394954583,5,0.728992,,0.7192274662733507,0.7289918526683052,S5_z procyclical position resized to the trailing-range reading
+2017-12-31,SELL,SPY,8.105844984180022,5,0.647933,,0.7289918526683052,0.647933402826505,S5_z procyclical position resized to the trailing-range reading
+2018-01-31,BUY,SPY,0.6703683502391811,5,0.654637,,0.647933402826505,0.6546370863288968,S5_z procyclical position resized to the trailing-range reading
+2018-02-28,BUY,SPY,6.494890898229411,5,0.719586,,0.6546370863288968,0.7195859953111909,S5_z procyclical position resized to the trailing-range reading
+2018-03-31,SELL,SPY,25.167017083465527,5,0.467916,,0.7195859953111909,0.4679158244765357,S5_z procyclical position resized to the trailing-range reading
+2018-04-30,BUY,SPY,10.70022468542774,5,0.574918,,0.4679158244765357,0.5749180713308131,S5_z procyclical position resized to the trailing-range reading
+2018-05-31,SELL,SPY,8.011568258748374,5,0.494802,,0.5749180713308131,0.4948023887433293,S5_z procyclical position resized to the trailing-range reading
+2018-06-30,SELL,SPY,19.656645673426667,5,0.298236,,0.4948023887433293,0.2982359320090627,S5_z procyclical position resized to the trailing-range reading
+2018-07-31,BUY,SPY,31.61358914063203,5,0.614372,,0.2982359320090627,0.614371823415383,S5_z procyclical position resized to the trailing-range reading
+2018-08-31,SELL,SPY,26.21668819526159,5,0.352205,,0.614371823415383,0.3522049414627671,S5_z procyclical position resized to the trailing-range reading
+2018-09-30,BUY,SPY,12.01052238603238,5,0.47231,,0.3522049414627671,0.4723101653230909,S5_z procyclical position resized to the trailing-range reading
+2018-10-31,SELL,SPY,25.825473244884954,5,0.214055,,0.4723101653230909,0.21405543287424134,S5_z procyclical position resized to the trailing-range reading
+2018-11-30,BUY,SPY,42.9675341358935,5,0.643731,,0.21405543287424134,0.6437307742331764,S5_z procyclical position resized to the trailing-range reading
+2018-12-31,SELL,SPY,13.436303815880358,5,0.509368,,0.6437307742331764,0.5093677360743728,S5_z procyclical position resized to the trailing-range reading
+2019-01-31,SELL,SPY,4.5548831914868195,5,0.463819,,0.5093677360743728,0.4638189041595046,S5_z procyclical position resized to the trailing-range reading
+2019-02-28,BUY,SPY,20.12913030661137,5,0.66511,,0.4638189041595046,0.6651102072256183,S5_z procyclical position resized to the trailing-range reading
+2019-03-31,SELL,SPY,25.617467881580406,5,0.408936,,0.6651102072256183,0.40893552840981423,S5_z procyclical position resized to the trailing-range reading
+2019-04-30,BUY,SPY,24.68552106796265,5,0.655791,,0.40893552840981423,0.6557907390894407,S5_z procyclical position resized to the trailing-range reading
+2019-05-31,SELL,SPY,10.943151744714086,5,0.546359,,0.6557907390894407,0.5463592216422999,S5_z procyclical position resized to the trailing-range reading
+2019-06-30,SELL,SPY,35.04446261360199,5,0.195915,,0.5463592216422999,0.19591459550627996,S5_z procyclical position resized to the trailing-range reading
+2019-07-31,SELL,SPY,3.6615322145335276,5,0.159299,,0.19591459550627996,0.15929927336094468,S5_z procyclical position resized to the trailing-range reading
+2019-08-31,BUY,SPY,3.1749447334920076,5,0.191049,,0.15929927336094468,0.19104872069586476,S5_z procyclical position resized to the trailing-range reading
+2019-09-30,SELL,SPY,19.104872069586477,5,0.0,,0.19104872069586476,0.0,S5_z procyclical position resized to the trailing-range reading
+2019-10-31,BUY,SPY,9.029475954902463,5,0.090295,,0.0,0.09029475954902463,S5_z procyclical position resized to the trailing-range reading
+2019-11-30,SELL,SPY,5.170293387103782,5,0.038592,,0.09029475954902463,0.038591825677986816,S5_z procyclical position resized to the trailing-range reading
+2019-12-31,BUY,SPY,25.481207293909907,5,0.293404,,0.038591825677986816,0.2934038986170859,S5_z procyclical position resized to the trailing-range reading
+2020-01-31,BUY,SPY,0.7890375646295966,5,0.301294,,0.2934038986170859,0.30129427426338184,S5_z procyclical position resized to the trailing-range reading
+2020-02-29,SELL,SPY,13.56017525004343,5,0.165693,,0.30129427426338184,0.16569252176294755,S5_z procyclical position resized to the trailing-range reading
+2020-03-31,SELL,SPY,16.569252176294754,5,0.0,,0.16569252176294755,0.0,S5_z procyclical position resized to the trailing-range reading
+2020-05-31,BUY,SPY,22.649191698348623,5,0.226492,,0.0,0.22649191698348625,S5_z procyclical position resized to the trailing-range reading
+2020-06-30,BUY,SPY,2.980550524897313,5,0.256297,,0.22649191698348625,0.2562974222324594,S5_z procyclical position resized to the trailing-range reading
+2020-07-31,SELL,SPY,25.629742223245938,5,0.0,,0.2562974222324594,0.0,S5_z procyclical position resized to the trailing-range reading
+2020-08-31,BUY,SPY,45.83956963319307,5,0.458396,,0.0,0.4583956963319307,S5_z procyclical position resized to the trailing-range reading
+2020-09-30,BUY,SPY,49.545910050425874,5,0.953855,,0.4583956963319307,0.9538547968361895,S5_z procyclical position resized to the trailing-range reading
+2020-10-31,SELL,SPY,20.770678471975867,5,0.746148,,0.9538547968361895,0.7461480121164308,S5_z procyclical position resized to the trailing-range reading
+2020-11-30,BUY,SPY,25.385198788356924,5,1.0,,0.7461480121164308,1.0,S5_z procyclical position resized to the trailing-range reading
+2020-12-31,SELL,SPY,1.8976389841345087,5,0.981024,,1.0,0.9810236101586549,S5_z procyclical position resized to the trailing-range reading
+2021-01-31,SELL,SPY,28.15833048494374,5,0.69944,,0.9810236101586549,0.6994403053092175,S5_z procyclical position resized to the trailing-range reading
+2021-02-28,BUY,SPY,30.05596946907825,5,1.0,,0.6994403053092175,1.0,S5_z procyclical position resized to the trailing-range reading
+2021-03-31,SELL,SPY,47.955096173358605,5,0.520449,,1.0,0.520449038266414,S5_z procyclical position resized to the trailing-range reading
+2021-04-30,SELL,SPY,39.434900002263355,5,0.1261,,0.520449038266414,0.1261000382437804,S5_z procyclical position resized to the trailing-range reading
+2021-05-31,SELL,SPY,12.61000382437804,5,0.0,,0.1261000382437804,0.0,S5_z procyclical position resized to the trailing-range reading
+2021-06-30,BUY,SPY,32.84289848213235,5,0.328429,,0.0,0.3284289848213235,S5_z procyclical position resized to the trailing-range reading
+2021-07-31,BUY,SPY,11.053262449829832,5,0.438962,,0.3284289848213235,0.4389616093196218,S5_z procyclical position resized to the trailing-range reading
+2021-08-31,BUY,SPY,50.247389592515354,5,0.941436,,0.4389616093196218,0.9414355052447754,S5_z procyclical position resized to the trailing-range reading
+2021-09-30,SELL,SPY,6.473976365246504,5,0.876696,,0.9414355052447754,0.8766957415923103,S5_z procyclical position resized to the trailing-range reading
+2021-10-31,BUY,SPY,10.161296209848725,5,0.978309,,0.8766957415923103,0.9783087036907976,S5_z procyclical position resized to the trailing-range reading
+2021-11-30,SELL,SPY,2.170779647992871,5,0.956601,,0.9783087036907976,0.9566009072108689,S5_z procyclical position resized to the trailing-range reading
+2021-12-31,BUY,SPY,4.339909278913112,5,1.0,,0.9566009072108689,1.0,S5_z procyclical position resized to the trailing-range reading
+2022-03-31,SELL,SPY,21.708900227913553,5,0.782911,,1.0,0.7829109977208645,S5_z procyclical position resized to the trailing-range reading
+2022-04-30,BUY,SPY,0.7537048634591814,5,0.790448,,0.7829109977208645,0.7904480463554563,S5_z procyclical position resized to the trailing-range reading
+2022-05-31,BUY,SPY,2.0311934336557647,5,0.81076,,0.7904480463554563,0.8107599806920139,S5_z procyclical position resized to the trailing-range reading
+2022-06-30,SELL,SPY,9.7262063151494,5,0.713498,,0.8107599806920139,0.7134979175405199,S5_z procyclical position resized to the trailing-range reading
+2022-07-31,SELL,SPY,4.413911588688646,5,0.669359,,0.7134979175405199,0.6693588016536335,S5_z procyclical position resized to the trailing-range reading
+2022-08-31,SELL,SPY,1.6679341919038526,5,0.652679,,0.6693588016536335,0.652679459734595,S5_z procyclical position resized to the trailing-range reading
+2022-09-30,BUY,SPY,10.419846462444626,5,0.756878,,0.652679459734595,0.7568779243590412,S5_z procyclical position resized to the trailing-range reading
+2022-10-31,SELL,SPY,16.93015491957969,5,0.587576,,0.7568779243590412,0.5875763751632443,S5_z procyclical position resized to the trailing-range reading
+2022-11-30,BUY,SPY,7.379281019353156,5,0.661369,,0.5875763751632443,0.6613691853567759,S5_z procyclical position resized to the trailing-range reading
+2022-12-31,BUY,SPY,1.8903516758117078,5,0.680273,,0.6613691853567759,0.680272702114893,S5_z procyclical position resized to the trailing-range reading
+2023-01-31,BUY,SPY,13.687256322293461,5,0.817145,,0.680272702114893,0.8171452653378276,S5_z procyclical position resized to the trailing-range reading
+2023-02-28,SELL,SPY,7.246524864791592,5,0.74468,,0.8171452653378276,0.7446800166899117,S5_z procyclical position resized to the trailing-range reading
+2023-03-31,SELL,SPY,0.3654332993937359,5,0.741026,,0.7446800166899117,0.7410256836959743,S5_z procyclical position resized to the trailing-range reading
+2023-04-30,BUY,SPY,0.06571979280621809,5,0.741683,,0.7410256836959743,0.7416828816240365,S5_z procyclical position resized to the trailing-range reading
+2023-05-31,SELL,SPY,7.399096328060494,5,0.667692,,0.7416828816240365,0.6676919183434316,S5_z procyclical position resized to the trailing-range reading
+2023-06-30,SELL,SPY,7.7043215885829515,5,0.590649,,0.6676919183434316,0.590648702457602,S5_z procyclical position resized to the trailing-range reading
+2023-07-31,SELL,SPY,1.1228642501077468,5,0.57942,,0.590648702457602,0.5794200599565246,S5_z procyclical position resized to the trailing-range reading
+2023-08-31,SELL,SPY,3.9921591595421524,5,0.539498,,0.5794200599565246,0.539498468361103,S5_z procyclical position resized to the trailing-range reading
+2023-09-30,SELL,SPY,6.259394512920818,5,0.476905,,0.539498468361103,0.47690452323189486,S5_z procyclical position resized to the trailing-range reading
+2023-10-31,SELL,SPY,0.20646900544104563,5,0.47484,,0.47690452323189486,0.4748398331774844,S5_z procyclical position resized to the trailing-range reading
+2023-11-30,SELL,SPY,3.018995014829157,5,0.44465,,0.4748398331774844,0.44464988302919284,S5_z procyclical position resized to the trailing-range reading
+2023-12-31,SELL,SPY,13.075670860743422,5,0.313893,,0.44464988302919284,0.3138931744217586,S5_z procyclical position resized to the trailing-range reading
+2024-01-31,BUY,SPY,0.39799588473483083,5,0.317873,,0.3138931744217586,0.31787313326910693,S5_z procyclical position resized to the trailing-range reading
+2024-02-29,SELL,SPY,4.789625418231314,5,0.269977,,0.31787313326910693,0.2699768790867938,S5_z procyclical position resized to the trailing-range reading
+2024-03-31,BUY,SPY,10.692958261568691,5,0.376906,,0.2699768790867938,0.3769064617024807,S5_z procyclical position resized to the trailing-range reading
+2024-04-30,SELL,SPY,5.424279359879863,5,0.322664,,0.3769064617024807,0.3226636681036821,S5_z procyclical position resized to the trailing-range reading
+2024-05-31,BUY,SPY,1.3579128157124143,5,0.336243,,0.3226636681036821,0.3362427962608062,S5_z procyclical position resized to the trailing-range reading
+2024-06-30,BUY,SPY,5.028649399417473,5,0.386529,,0.3362427962608062,0.38652929025498095,S5_z procyclical position resized to the trailing-range reading
+2024-07-31,SELL,SPY,3.608057033318368,5,0.350449,,0.38652929025498095,0.35044871992179727,S5_z procyclical position resized to the trailing-range reading
+2024-08-31,BUY,SPY,0.42264961284091407,5,0.354675,,0.35044871992179727,0.3546752160502064,S5_z procyclical position resized to the trailing-range reading
+2024-09-30,BUY,SPY,6.3520139106441,5,0.418195,,0.3546752160502064,0.4181953551566474,S5_z procyclical position resized to the trailing-range reading
+2024-10-31,SELL,SPY,5.950491403881925,5,0.35869,,0.4181953551566474,0.35869044111782816,S5_z procyclical position resized to the trailing-range reading
+2024-11-30,BUY,SPY,1.2864783543344138,5,0.371555,,0.35869044111782816,0.3715552246611723,S5_z procyclical position resized to the trailing-range reading
+2024-12-31,SELL,SPY,2.693222352198932,5,0.344623,,0.3715552246611723,0.344623001139183,S5_z procyclical position resized to the trailing-range reading
+2025-01-31,BUY,SPY,1.6722720986135642,5,0.361346,,0.344623001139183,0.3613457221253186,S5_z procyclical position resized to the trailing-range reading
+2025-02-28,SELL,SPY,2.579687389762525,5,0.335549,,0.3613457221253186,0.3355488482276934,S5_z procyclical position resized to the trailing-range reading
+2025-03-31,BUY,SPY,4.839772983215612,5,0.383947,,0.3355488482276934,0.3839465780598495,S5_z procyclical position resized to the trailing-range reading
+2025-04-30,SELL,SPY,8.113894646259496,5,0.302808,,0.3839465780598495,0.30280763159725455,S5_z procyclical position resized to the trailing-range reading
+2025-05-31,SELL,SPY,3.537499512545411,5,0.267433,,0.30280763159725455,0.26743263647180043,S5_z procyclical position resized to the trailing-range reading
+2025-06-30,SELL,SPY,5.7606960550698,5,0.209826,,0.26743263647180043,0.20982567592110243,S5_z procyclical position resized to the trailing-range reading
+2025-07-31,BUY,SPY,5.247037729838292,5,0.262296,,0.20982567592110243,0.26229605321948535,S5_z procyclical position resized to the trailing-range reading
+2025-08-31,SELL,SPY,2.9273754834707706,5,0.233022,,0.26229605321948535,0.23302229838477764,S5_z procyclical position resized to the trailing-range reading
+2025-09-30,BUY,SPY,4.407446533404072,5,0.277097,,0.23302229838477764,0.27709676371881836,S5_z procyclical position resized to the trailing-range reading
+2025-10-31,SELL,SPY,4.502022090276511,5,0.232077,,0.27709676371881836,0.23207654281605325,S5_z procyclical position resized to the trailing-range reading
+2025-11-30,SELL,SPY,0.3857725787030697,5,0.228219,,0.23207654281605325,0.22821881702902255,S5_z procyclical position resized to the trailing-range reading
+2025-12-31,BUY,SPY,8.76032421082086,5,0.315822,,0.22821881702902255,0.31582205913723116,S5_z procyclical position resized to the trailing-range reading
+2026-01-31,SELL,SPY,3.1386006547992062,5,0.284436,,0.31582205913723116,0.2844360525892391,S5_z procyclical position resized to the trailing-range reading
+2026-02-28,SELL,SPY,2.08906576848909,5,0.263545,,0.2844360525892391,0.2635453949043482,S5_z procyclical position resized to the trailing-range reading
+2026-03-31,SELL,SPY,0.6497418175275493,5,0.257048,,0.2635453949043482,0.2570479767290727,S5_z procyclical position resized to the trailing-range reading
+2026-04-30,BUY,SPY,2.5438458971026368,5,0.282486,,0.2570479767290727,0.28248643570009907,S5_z procyclical position resized to the trailing-range reading
+2026-05-31,SELL,SPY,26.325430136247892,5,0.019232,,0.28248643570009907,0.019232134337620166,S5_z procyclical position resized to the trailing-range reading
+2026-06-30,SELL,SPY,1.9232134337620166,5,0.0,,0.019232134337620166,0.0,S5_z procyclical position resized to the trailing-range reading
+2026-08-31,BUY,SPY,0.8532406627264658,5,0.008532,,0.0,0.008532406627264658,S5_z procyclical position resized to the trailing-range reading
+2026-09-30,SELL,SPY,0.8532406627264658,5,0.0,,0.008532406627264658,0.0,S5_z procyclical position resized to the trailing-range reading

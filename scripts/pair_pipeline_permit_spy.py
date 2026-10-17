@@ -1,467 +1,373 @@
 #!/usr/bin/env python3
-"""
-Full Analysis Pipeline: Building Permits (PERMIT) → S&P 500 (SPY)
-=================================================================
-Priority pair #3. Monthly housing indicator → equity target.
-Adapted from INDPRO template.
+"""Pair pipeline: Building Permits (PERMIT) x SPY (Phase B harness).
 
-Date: 2026-03-14
+The tournament runs on scripts/harness (spec: scripts/pair_spec_permit_spy.py) on two tracks:
+  * MAIN, "As known at the time": real-time PERMIT vintages (ALFRED), each rebalance uses the vintage visible when
+    its return window opens; signals and rolling thresholds are computed inside that vintage.
+  * COMPARISON, "As revised today (hindsight)": today's revised values with point-in-time release timing.
+Each track selects its own winner by the D9 lead-plateau rule on in-sample data; null tournament K=100,
+paired block bootstrap vs buy-and-hold, leak tests. This file keeps the pair's evidence and metadata stages
+(computed on the revised panel, descriptive).
+
+The published pre-harness rule (S3_mom / T1_p25 / P3 / L6, OOS-selected, 20260314) is not replayable through the
+harness; its legacy-code reproduction is scripts/legacy_repro/permit_spy.py (run first by main()).
 """
 
-import os, sys, json, warnings, time
+from __future__ import annotations
+
+import json
+import sys
+import time
+from datetime import datetime, timezone
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 from scipy import stats
-from dotenv import load_dotenv
+from statsmodels.tsa.stattools import adfuller, grangercausalitytests, kpss
 
-warnings.filterwarnings("ignore")
+REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "scripts"))
+from legacy_repro import permit_spy as legacy_repro_permit_spy  # noqa: E402
+import pair_spec_permit_spy as spec_mod  # noqa: E402
+from harness.artifacts import trade_log, winner_series  # noqa: E402
+from harness.evidence import write_evidence_facts  # noqa: E402
+from harness.run import run_pair  # noqa: E402
 
 PAIR_ID = "permit_spy"
-INDICATOR_NAME = "Building Permits"
-TARGET_NAME = "S&P 500"
-START_DATE = "1990-01-01"
-END_DATE = "2025-12-31"
-IS_END = "2017-12-31"
-OOS_START = "2018-01-01"
-DATE_TAG = "20261008"
+DATE_TAG = "20261017"  # Phase B B1: harness, two tracks, D9 plateau, null K=100, bootstrap
+TARGET_SYMBOL = "SPY"
+COST_BPS = 5
+EVIDENCE_SIGNAL = "permit_yoy"   # year-over-year change: the smooth transform used by the descriptive tests
+DATA_DIR = REPO / "data"
+RES = REPO / "results" / PAIR_ID
+CORE = RES / f"core_models_{DATE_TAG}"
+VALID = RES / f"tournament_validation_{DATE_TAG}"
+NOW_ISO = datetime.now(timezone.utc).isoformat()
+SIGNALS = spec_mod.SIGNALS
 
-BASE_DIR = "/workspaces/aig-rlic-plus"
-DATA_DIR = os.path.join(BASE_DIR, "data")
-RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
-EXPLORE_DIR = os.path.join(RESULTS_DIR, f"exploratory_{DATE_TAG}")
-MODELS_DIR = os.path.join(RESULTS_DIR, f"core_models_{DATE_TAG}")
-VALID_DIR = os.path.join(RESULTS_DIR, f"tournament_validation_{DATE_TAG}")
 
-for d in [DATA_DIR, RESULTS_DIR, EXPLORE_DIR, MODELS_DIR, VALID_DIR]:
-    os.makedirs(d, exist_ok=True)
+def ann_metrics(rets: pd.Series) -> dict[str, float]:
+    """Monthly performance block used by the evidence tables (sub-period, quartile)."""
+    rets = rets.dropna()
+    if len(rets) == 0 or rets.std() == 0:
+        return {"oos_sharpe": 0.0, "oos_ann_return": 0.0, "max_drawdown": 0.0, "oos_n": int(len(rets))}
+    equity = (1 + rets).cumprod()
+    return {"oos_sharpe": float(rets.mean() / rets.std() * np.sqrt(12)),
+            "oos_ann_return": float((1 + rets).prod() ** (12 / len(rets)) - 1),
+            "max_drawdown": float((equity / equity.cummax() - 1).min()), "oos_n": int(len(rets))}
 
-STAGE_TIMES = {}
 
-def timed(name):
-    def dec(func):
-        def wrap(*a, **kw):
-            t0 = time.time()
-            print(f"\n{'='*60}\n  {name}\n{'='*60}")
-            r = func(*a, **kw)
-            el = time.time() - t0
-            STAGE_TIMES[name] = el
-            print(f"  [{name}] {el:.1f}s")
-            return r
-        return wrap
-    return dec
-
-# ===== STAGE 1: DATA =====
-@timed("1_data")
-def stage_data():
-    from fredapi import Fred
-    import yfinance as yf
-
-    load_dotenv()  # repo-root .env; hardcoded fallback removed (key rotated after leak)
-    api_key = os.environ.get("FRED_API_KEY")
-    if not api_key:
-        raise SystemExit("FRED_API_KEY not set — copy .env.example to .env, or run setup.sh.")
-    fred = Fred(api_key=api_key)
-
-    series = {}
-    for sid, name in [("PERMIT", "permit"), ("UNRATE", "unrate"), ("HOUST", "houst"),
-                      ("DGS10", "dgs10"), ("DTB3", "dtb3"), ("DFF", "fed_funds")]:
-        try:
-            s = fred.get_series(sid, observation_start=START_DATE, observation_end=END_DATE)
-            series[name] = s.astype(float)
-            v = s.dropna()
-            print(f"  [FRED] {sid:10s} -> {name}: {len(v)} obs, {v.index.min().date()} to {v.index.max().date()}")
-        except Exception as e:
-            print(f"  [FRED] {sid} FAILED: {e}")
-
-    for ticker, name in [("SPY", "spy"), ("^VIX", "vix")]:
-        try:
-            df = yf.download(ticker, start=START_DATE, end=END_DATE, progress=False, auto_adjust=True)
-            if isinstance(df.columns, pd.MultiIndex):
-                df.columns = df.columns.get_level_values(0)
-            s = df["Close"]
-            s.index = s.index.tz_localize(None) if s.index.tz else s.index
-            series[name] = s.astype(float)
-            print(f"  [YF]   {ticker:10s} -> {name}: {len(s)} obs")
-        except Exception as e:
-            print(f"  [YF]   {ticker} FAILED: {e}")
-
-    return series
-
-# ===== STAGE 2: ALIGNMENT + DERIVED =====
-@timed("2_derived")
-def stage_derived(series):
-    monthly_idx = pd.date_range(START_DATE, END_DATE, freq="ME")
-    df = pd.DataFrame(index=monthly_idx)
-    df.index.name = "date"
-
-    monthly_cols = {"permit", "unrate", "houst"}
-    daily_cols = {"spy", "vix", "dgs10", "dtb3", "fed_funds"}
-
-    for col in monthly_cols:
-        if col in series:
-            df[col] = series[col].resample("ME").last().reindex(monthly_idx)
-    for col in daily_cols:
-        if col in series:
-            df[col] = series[col].resample("ME").last().reindex(monthly_idx)
-    df = df.ffill(limit=2)
-
-    # Derived
-    p = df["permit"]
-    df["permit_yoy"] = (p / p.shift(12) - 1) * 100
-    df["permit_mom"] = (p / p.shift(1) - 1) * 100
-    df["permit_ma12"] = p.rolling(12, min_periods=10).mean()
-    df["permit_dev_trend"] = p - df["permit_ma12"]
-    rm60 = p.rolling(60, min_periods=48)
-    df["permit_zscore_60m"] = (p - rm60.mean()) / rm60.std()
-    df["permit_mom_3m"] = p - p.shift(3)
-    df["permit_mom_6m"] = p - p.shift(6)
-    df["permit_accel"] = df["permit_mom"] - df["permit_mom"].shift(1)
-    df["permit_contraction"] = (df["permit_yoy"] < 0).astype(int)
-
-    if "dgs10" in df.columns and "dtb3" in df.columns:
-        df["yield_spread_10y3m"] = df["dgs10"] - df["dtb3"]
-
-    if "spy" in df.columns:
-        df["spy_ret"] = df["spy"].pct_change()
-        spy = df["spy"]
-        df["spy_fwd_1m"] = spy.shift(-1) / spy - 1
-        df["spy_fwd_3m"] = spy.shift(-3) / spy - 1
-        df["spy_fwd_6m"] = spy.shift(-6) / spy - 1
-        df["spy_fwd_12m"] = spy.shift(-12) / spy - 1
-
-    df = df.dropna(subset=["permit"])
-    print(f"  Monthly: {df.shape}, {df.index.min().date()} to {df.index.max().date()}")
+def build_panel() -> pd.DataFrame:
+    """Revised PERMIT (latest pinned ALFRED vintage) and SPY month-end closes on the full monthly grid."""
+    idx = spec_mod.rebalance_index()
+    lv = spec_mod.revised_levels()
+    df = lv.reindex(idx)
+    df["spy"] = spec_mod.target_prices().reindex(idx)
+    df["spy_ret"] = df["spy"].pct_change()
+    for horizon in (1, 3, 6, 12):
+        df[f"spy_fwd_{horizon}m"] = df["spy"].pct_change(horizon).shift(-horizon)
+    full = spec_mod.features(lv)
+    for col in SIGNALS.values():
+        if col != "permit":
+            df[col] = full[col].reindex(idx)
+    df.to_parquet(DATA_DIR / "permit_spy_monthly_latest.parquet")
+    df.describe().T.to_csv(DATA_DIR / f"summary_stats_permit_spy_{DATE_TAG}.csv")
+    missing = df.isna().sum().rename("missing_count").to_frame()
+    missing["missing_pct"] = missing["missing_count"] / len(df)
+    missing.to_markdown(DATA_DIR / f"missing_value_report_permit_spy_{DATE_TAG}.md")
+    pd.DataFrame([
+        {"Column Name": "permit", "Display Name": "Building permits", "Description": "New private housing units "
+         "authorized by building permits", "Source": "FRED / ALFRED (pinned vintages)", "Series ID": "PERMIT",
+         "Unit": "Thousands of units, SAAR", "Transformation": "Monthly level", "Seasonal Adj.": "Seasonally adjusted",
+         "Direction Convention": "Higher = more planned residential construction",
+         "Effective Start": str(df["permit"].first_valid_index().date()),
+         "Known Quirks": "Revised (monthly and annual seasonal-factor revisions); published about three weeks after month end",
+         "Display Note": "Builders apply for permits before they start construction.",
+         "Refresh Freq.": "Monthly", "Refresh Source": "data/release_calendar/vintages/PERMIT.csv.gz"},
+        {"Column Name": "spy", "Display Name": "SPY adjusted close", "Description": "SPDR S&P 500 ETF adjusted close",
+         "Source": "Yahoo Finance (pinned)", "Series ID": "SPY", "Unit": "USD",
+         "Transformation": "Month-end adjusted close", "Seasonal Adj.": "N/A",
+         "Direction Convention": "Higher = higher equity price",
+         "Effective Start": str(df["spy"].first_valid_index().date()), "Known Quirks": "ETF history begins in 1993",
+         "Display Note": "Used as the equity-market target and benchmark.", "Refresh Freq.": "Daily",
+         "Refresh Source": "data/phaseB_inputs/spy_month_end_20261017.csv"},
+    ]).to_csv(DATA_DIR / f"data_dictionary_permit_spy_{DATE_TAG}.csv", index=False)
+    print(f"  Panel rows: {len(df)}, {df.index.min().date()} to {df.index.max().date()}")
     return df
 
-# ===== STAGE 3: STATIONARITY =====
-@timed("3_stationarity")
-def stage_stationarity(df):
-    from arch.unitroot import ADF, KPSS
-    results = []
-    for col in ["permit", "spy", "permit_yoy", "permit_mom", "unrate"]:
-        if col not in df.columns:
-            continue
+
+def trade_reason(winner: dict) -> str:
+    if winner["threshold_code"] == "-":      # P2 sizes on the trailing 60-month range: no threshold crossing
+        return f"{winner['signal_code']} {winner['direction']} position resized to the trailing-range reading"
+    return f"{winner['signal_code']} {winner['direction']} rule crossed {winner['threshold_code']}"
+
+
+def run_tournament() -> tuple[pd.DataFrame, dict, dict]:
+    out = run_pair(PAIR_ID, DATE_TAG, K=100, extra={
+        "target_symbol": TARGET_SYMBOL, "cost_bps": COST_BPS,
+        "lookback": "LB60 where rolling thresholds apply",
+        "strategy_description": "Position in SPY set by the lagged building-permits signal relative to its "
+                                "threshold (P1 long/cash, P2 sized by the trailing range, P3 long/short).",
+        "notes": "Building permits are a leading housing indicator. Headline = as known at the time (real-time "
+                 "vintages); still a search-selected rule. The published 20260314 rule was OOS-selected and is "
+                 "not replayable through the harness (see legacy_reproduction_20260314.json)."})
+    winner = json.loads((RES / "winner_summary.json").read_text())
+    tourn = pd.read_csv(RES / f"tournament_results_{DATE_TAG}.csv")
+    tourn["valid"] = tourn["valid"].astype(bool)
+    res = out["results"]["main"]
+    ws = winner_series(res, res.selection["winner"])
+    log = trade_log(ws, TARGET_SYMBOL, COST_BPS, trade_reason(winner))
+    log.to_csv(RES / "winner_trade_log.csv", index=False)
+    log.to_csv(RES / "winner_trades_broker_style.csv", index=False)
+    return tourn, winner, out
+
+
+def write_evidence(df: pd.DataFrame, tourn: pd.DataFrame, winner: dict) -> None:
+    x_col = EVIDENCE_SIGNAL
+    target_cols = ["spy_fwd_1m", "spy_fwd_3m", "spy_fwd_6m", "spy_fwd_12m"]
+    corr_rows = []
+    for col in SIGNALS.values():
+        for fwd in target_cols:
+            sub = df[[col, fwd]].dropna()
+            if len(sub) < 20 or sub[col].std() == 0:
+                continue
+            r, p = stats.pearsonr(sub[col], sub[fwd])
+            corr_rows.append({"pair_name": f"{col}_to_{fwd}", "metric": "pearson", "value": r, "p_value": p})
+    pd.DataFrame(corr_rows).to_csv(CORE / "correlations.csv", index=False)
+
+    granger_rows = []
+    gdata = df[["spy_ret", x_col]].dropna()
+    tests = grangercausalitytests(gdata[["spy_ret", x_col]], maxlag=12, verbose=False)
+    for lag, res in tests.items():
+        f_stat, p_val, _, _ = res[0]["ssr_ftest"]
+        granger_rows.append({"lag": lag, "f_stat": f_stat, "p_value": p_val, "direction": "PERMIT_to_SPY"})
+    pd.DataFrame(granger_rows).to_csv(CORE / "granger_causality.csv", index=False)
+    pd.DataFrame(granger_rows).to_csv(RES / "granger_by_lag.csv", index=False)
+
+    ccf_rows = []
+    x = df[x_col].diff()      # pre-whitening by first differences (the YoY change is persistent)
+    y = df["spy_ret"]
+    for lag in range(-12, 13):
+        sub = pd.concat([x.shift(lag), y], axis=1).dropna()
+        corr = sub.iloc[:, 0].corr(sub.iloc[:, 1]) if len(sub) > 20 else np.nan
+        band = 1.96 / np.sqrt(max(len(sub), 1))
+        ccf_rows.append({"lag": lag, "ccf": corr, "upper_ci": band, "lower_ci": -band,
+                         "significant": bool(abs(corr) > band) if pd.notna(corr) else False})
+    pd.DataFrame(ccf_rows).to_csv(CORE / "ccf_prewhitened.csv", index=False)
+
+    sub = df[[x_col, "spy_ret"]].dropna()
+    q = pd.qcut(sub[x_col], 4, labels=["Q1", "Q2", "Q3", "Q4"])
+    q_rows = []
+    for label in ["Q1", "Q2", "Q3", "Q4"]:
+        rets = sub.loc[q == label, "spy_ret"]
+        q_rows.append({"quartile": label, "mean_return": rets.mean(), "sharpe": ann_metrics(rets)["oos_sharpe"],
+                       "n": len(rets), "yoy_low": float(sub.loc[q == label, x_col].min()),
+                       "yoy_high": float(sub.loc[q == label, x_col].max())})
+    pd.DataFrame(q_rows).to_csv(RES / "regime_quartile_returns.csv", index=False)
+
+    rcorr = []
+    for dt in df.index:
+        window = df.loc[:dt, [x_col, "spy_ret"]].tail(60).dropna()
+        if len(window) >= 36:
+            rcorr.append({"date": dt, "rolling_corr": window[x_col].corr(window["spy_ret"])})
+    rc = pd.DataFrame(rcorr)
+    rc.to_csv(RES / f"rolling_correlation_{PAIR_ID}.csv", index=False)
+    max_abs_z = 0.0
+    if not rc.empty and rc["rolling_corr"].std() > 0:
+        max_abs_z = float(((rc["rolling_corr"] - rc["rolling_corr"].mean()) / rc["rolling_corr"].std()).abs().max())
+    (RES / f"structural_break_{PAIR_ID}.json").write_text(
+        json.dumps({"pair_id": PAIR_ID, "method": "rolling-correlation z-score proxy", "max_abs_z": max_abs_z},
+                   indent=2) + "\n")
+
+    lp_rows = []
+    for h in [1, 3, 6, 12]:
+        s = df[[x_col, f"spy_fwd_{h}m"]].dropna()
+        slope, intercept, r, p, se = stats.linregress(s[x_col], s[f"spy_fwd_{h}m"])
+        lp_rows.append({"horizon": h, "coef": slope, "p_value": p, "r_squared": r * r})
+    pd.DataFrame(lp_rows).to_csv(CORE / "local_projections.csv", index=False)
+    pd.DataFrame(lp_rows).to_csv(CORE / "predictive_regressions.csv", index=False)
+
+    from _quantile_regression import DEFAULT_QUANTILES, fit_quantile_regression
+    qs = df[[x_col, "spy_fwd_3m"]].dropna()
+    qr_rows, qr_test = fit_quantile_regression(qs[x_col], qs["spy_fwd_3m"], DEFAULT_QUANTILES)
+    pd.DataFrame(qr_rows).to_csv(CORE / "quantile_regression.csv", index=False)
+    (CORE / "quantile_equality_test.json").write_text(json.dumps(qr_test, indent=2) + "\n")
+
+    subperiods = [("Dot_Com", "2000-03-31", "2002-10-31"), ("GFC", "2007-12-31", "2009-06-30"),
+                  ("COVID", "2020-02-29", "2020-04-30"), ("Rate_Hike_2022", "2022-01-31", "2022-12-31")]
+    strat = pd.read_csv(RES / f"strategy_returns_{DATE_TAG}.csv", parse_dates=["date"]).set_index("date")
+    sp_rows = []
+    for name, start, end in subperiods:
+        sret = strat.loc[start:end, "strategy_return"]
+        bret = strat.loc[start:end, "benchmark_return"]
+        sp_rows.append({"period": name, "strategy_sharpe": ann_metrics(sret)["oos_sharpe"],
+                        "buy_hold_sharpe": ann_metrics(bret)["oos_sharpe"], "strategy_return": (1 + sret).prod() - 1,
+                        "buy_hold_return": (1 + bret).prod() - 1})
+    pd.DataFrame(sp_rows).to_csv(RES / "subperiod_sharpe.csv", index=False)
+
+    station_rows = []
+    for col in ["permit", "permit_yoy", "permit_mom", "spy_ret"]:
         s = df[col].dropna()
-        if len(s) < 50:
-            continue
-        try:
-            adf = ADF(s, max_lags=12)
-            results.append({"variable": col, "test": "ADF", "statistic": round(adf.stat, 4),
-                          "p_value": round(adf.pvalue, 4),
-                          "conclusion": "Stationary" if adf.pvalue < 0.05 else "Non-stationary"})
-        except Exception:
-            pass
-        try:
-            kpss = KPSS(s)
-            results.append({"variable": col, "test": "KPSS", "statistic": round(kpss.stat, 4),
-                          "p_value": round(kpss.pvalue, 4),
-                          "conclusion": "Stationary" if kpss.pvalue > 0.05 else "Non-stationary"})
-        except Exception:
-            pass
-    stat_df = pd.DataFrame(results)
-    stat_df.to_csv(os.path.join(RESULTS_DIR, f"stationarity_tests_{DATE_TAG}.csv"), index=False)
-    print(f"  {len(stat_df)} tests saved")
-    return stat_df
+        adf = adfuller(s, autolag="AIC")
+        station_rows.append({"variable": col, "test": "ADF", "statistic": adf[0], "p_value": adf[1], "lags": adf[2],
+                             "conclusion": "stationary" if adf[1] < 0.05 else "unit_root_not_rejected"})
+        kp = kpss(s, regression="c", nlags="auto")
+        station_rows.append({"variable": col, "test": "KPSS", "statistic": kp[0], "p_value": kp[1], "lags": kp[2],
+                             "conclusion": "stationary_not_rejected" if kp[1] > 0.05 else "nonstationary"})
+    pd.DataFrame(station_rows).to_csv(RES / f"stationarity_tests_{DATE_TAG}.csv", index=False)
 
-# ===== STAGE 4: EXPLORATORY =====
-@timed("4_exploratory")
-def stage_exploratory(df):
-    signals = [c for c in df.columns if c.startswith("permit_") and "fwd" not in c and "ma12" not in c]
-    fwd_cols = [c for c in df.columns if c.startswith("spy_fwd_")]
+    valid = tourn[(tourn["valid"]) & (tourn["signal"] != "BENCHMARK")]
+    pct_in_grid = float((valid["oos_sharpe"] >= winner["oos_sharpe"]).mean())
+    bs = winner["selection"]["inference"]["oos_sharpe_diff_vs_bh_bootstrap"]
+    pd.DataFrame([{"signal": winner["signal_code"], "threshold": winner["threshold_code"],
+                   "strategy": winner["strategy_family"], "track": "as known at the time",
+                   "oos_sharpe": winner["oos_sharpe"], "oos_percentile_in_grid": pct_in_grid,
+                   "sharpe_diff_vs_bh": bs["observed"], "ci_95_low": bs["ci_95"][0], "ci_95_high": bs["ci_95"][1],
+                   "p_diff_le_0": bs["p_diff_le_0"], "method": bs["method"], "block_length": bs["block_length"],
+                   "draws": bs["draws"], "seed": bs["seed"]}]).to_csv(VALID / "bootstrap.csv", index=False)
+    pd.DataFrame([{"signal": winner["signal_code"], "threshold": winner["threshold_code"],
+                   "strategy": winner["strategy_family"], "tx_cost_bps": COST_BPS,
+                   "gross_sharpe": winner["oos_sharpe"]}]).to_csv(VALID / "transaction_costs.csv", index=False)
 
-    corr_results = []
-    for sig in signals:
-        for fwd in fwd_cols:
-            valid = df[[sig, fwd]].dropna()
-            if len(valid) < 30:
-                continue
-            r, p = stats.pearsonr(valid[sig], valid[fwd])
-            corr_results.append({"signal": sig, "horizon": fwd, "method": "Pearson",
-                                "correlation": round(r, 4), "p_value": round(p, 4), "n": len(valid)})
-    corr_df = pd.DataFrame(corr_results)
-    corr_df.to_csv(os.path.join(EXPLORE_DIR, "correlations.csv"), index=False)
 
-    # Regime stats
-    regime_results = []
-    if "permit_yoy" in df.columns and "spy_ret" in df.columns:
-        valid = df[["permit_yoy", "spy_ret"]].dropna()
-        if len(valid) > 100:
-            quartiles = pd.qcut(valid["permit_yoy"], 4, labels=["Q1_low", "Q2", "Q3", "Q4_high"])
-            for q in ["Q1_low", "Q2", "Q3", "Q4_high"]:
-                rets = valid.loc[quartiles == q, "spy_ret"]
-                if len(rets) < 5:
-                    continue
-                ann_ret = rets.mean() * 12 * 100
-                ann_vol = rets.std() * np.sqrt(12) * 100
-                regime_results.append({"regime": q, "n_months": len(rets),
-                    "ann_return_pct": round(ann_ret, 2), "ann_vol_pct": round(ann_vol, 2),
-                    "sharpe": round(ann_ret / ann_vol, 3) if ann_vol > 0 else 0})
-    pd.DataFrame(regime_results).to_csv(os.path.join(EXPLORE_DIR, "regime_descriptive_stats.csv"), index=False)
-
-    sig_count = len(corr_df[corr_df["p_value"] < 0.05]) if len(corr_df) > 0 else 0
-    print(f"  Correlations: {len(corr_df)} ({sig_count} sig)")
-    if regime_results:
-        print(f"  Regime Sharpes: {dict(zip([r['regime'] for r in regime_results], [r['sharpe'] for r in regime_results]))}")
-    return corr_df
-
-# ===== STAGE 5: CORE MODELS =====
-@timed("5_models")
-def stage_models(df):
-    import statsmodels.api as sm
-    import statsmodels.formula.api as smf
-    from statsmodels.tsa.stattools import grangercausalitytests
-
-    base_cols = ["permit_yoy", "permit_mom", "permit_zscore_60m", "permit_contraction",
-                 "permit_mom_3m", "permit_mom_6m", "permit_accel",
-                 "spy_ret", "spy_fwd_1m", "spy_fwd_3m", "spy_fwd_6m", "spy_fwd_12m"]
-    ctrl_cols = ["vix", "yield_spread_10y3m", "unrate"]
-    work_cols = [c for c in base_cols + ctrl_cols if c in df.columns]
-    work = df[work_cols].dropna(subset=["permit_yoy", "spy_ret"])
-    print(f"  Working: {work.shape}")
-
-    # Granger
-    gc_results = []
-    try:
-        gc_data = work[["spy_ret", "permit_yoy"]].dropna()
-        if len(gc_data) > 50:
-            gc = grangercausalitytests(gc_data[["spy_ret", "permit_yoy"]], maxlag=6, verbose=False)
-            for lag, r in gc.items():
-                gc_results.append({"direction": "Permit->SPY", "lag": lag,
-                    "f_stat": round(r[0]["ssr_ftest"][0], 4), "p_value": round(r[0]["ssr_ftest"][1], 4)})
-            gc_rev = grangercausalitytests(gc_data[["permit_yoy", "spy_ret"]], maxlag=6, verbose=False)
-            for lag, r in gc_rev.items():
-                gc_results.append({"direction": "SPY->Permit", "lag": lag,
-                    "f_stat": round(r[0]["ssr_ftest"][0], 4), "p_value": round(r[0]["ssr_ftest"][1], 4)})
-    except Exception as e:
-        print(f"  Granger failed: {e}")
-    pd.DataFrame(gc_results).to_csv(os.path.join(MODELS_DIR, "granger_causality.csv"), index=False)
-    print(f"  Granger: {len(gc_results)} tests")
-
-    # Regressions
-    reg_results = []
-    for sig in ["permit_yoy", "permit_mom", "permit_zscore_60m"]:
-        for fwd in ["spy_fwd_1m", "spy_fwd_3m", "spy_fwd_6m", "spy_fwd_12m"]:
-            if sig not in work.columns or fwd not in work.columns:
-                continue
-            valid = work[[sig, fwd]].dropna()
-            if len(valid) < 30:
-                continue
-            try:
-                X = sm.add_constant(valid[sig])
-                model = sm.OLS(valid[fwd], X).fit(cov_type="HC3")
-                reg_results.append({"signal": sig, "horizon": fwd,
-                    "coef": round(model.params.iloc[1], 6), "t_stat": round(model.tvalues.iloc[1], 3),
-                    "p_value": round(model.pvalues.iloc[1], 4), "r_squared": round(model.rsquared, 4),
-                    "n": int(model.nobs)})
-            except Exception:
-                pass
-    reg_df = pd.DataFrame(reg_results)
-    reg_df.to_csv(os.path.join(MODELS_DIR, "predictive_regressions.csv"), index=False)
-    print(f"  Regressions: {len(reg_df)}")
-
-    # Local projections
-    lp_results = []
-    for fwd, h in [("spy_fwd_1m", 1), ("spy_fwd_3m", 3), ("spy_fwd_6m", 6), ("spy_fwd_12m", 12)]:
-        if fwd not in work.columns:
-            continue
-        valid = work[["permit_yoy", fwd]].dropna()
-        ctrls = [c for c in ["vix", "yield_spread_10y3m"] if c in work.columns]
-        for c in ctrls:
-            valid[c] = work.loc[valid.index, c]
-        valid = valid.dropna()
-        if len(valid) < 30:
-            continue
-        try:
-            X = sm.add_constant(valid[["permit_yoy"] + ctrls])
-            nw = int(0.75 * len(valid) ** (1/3))
-            model = sm.OLS(valid[fwd], X).fit(cov_type="HAC", cov_kwds={"maxlags": nw})
-            ci = model.conf_int().loc["permit_yoy"]
-            lp_results.append({"horizon_months": h,
-                "coef": round(model.params["permit_yoy"], 6), "se": round(model.bse["permit_yoy"], 6),
-                "t_stat": round(model.tvalues["permit_yoy"], 3), "p_value": round(model.pvalues["permit_yoy"], 4),
-                "ci_lower": round(ci[0], 6), "ci_upper": round(ci[1], 6),
-                "r_squared": round(model.rsquared, 4), "n": int(model.nobs)})
-        except Exception:
-            pass
-    pd.DataFrame(lp_results).to_csv(os.path.join(MODELS_DIR, "local_projections.csv"), index=False)
-    print(f"  Local projections: {len(lp_results)} horizons")
-
-    # Quantile regression
-    qr_results = []
-    valid_qr = work[["permit_yoy", "spy_fwd_3m"]].dropna()
-    if len(valid_qr) > 30:
-        for tau in [0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95]:
-            try:
-                qr = smf.quantreg("spy_fwd_3m ~ permit_yoy", data=valid_qr).fit(q=tau)
-                qr_results.append({"quantile": tau,
-                    "coef": round(qr.params["permit_yoy"], 6), "p_value": round(qr.pvalues["permit_yoy"], 4),
-                    "ci_lower": round(qr.conf_int().loc["permit_yoy", 0], 6),
-                    "ci_upper": round(qr.conf_int().loc["permit_yoy", 1], 6)})
-            except Exception:
-                pass
-    pd.DataFrame(qr_results).to_csv(os.path.join(MODELS_DIR, "quantile_regression.csv"), index=False)
-    print(f"  Quantile reg: {len(qr_results)} quantiles")
-
-    # Diagnostics
-    diag_results = []
-    valid_diag = work[["permit_yoy", "spy_fwd_3m"]].dropna()
-    if len(valid_diag) > 30:
-        X = sm.add_constant(valid_diag["permit_yoy"])
-        model = sm.OLS(valid_diag["spy_fwd_3m"], X).fit()
-        resid = model.resid
-        jb_s, jb_p = stats.jarque_bera(resid)
-        diag_results.append({"test": "Jarque-Bera", "statistic": round(jb_s, 4), "p_value": round(jb_p, 4)})
-        from statsmodels.stats.stattools import durbin_watson
-        dw = durbin_watson(resid)
-        diag_results.append({"test": "Durbin-Watson", "statistic": round(dw, 4), "p_value": np.nan})
-    pd.DataFrame(diag_results).to_csv(os.path.join(MODELS_DIR, "diagnostics_summary.csv"), index=False)
-
-    # Interpretation metadata
+def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
     interp = {
-        "indicator": "permit", "target": "spy",
-        "expected_direction": "pro_cyclical", "observed_direction": "unknown",
-        "direction_consistent": True,
-        "mechanism": "Rising building permits signal housing expansion, driving employment, consumer wealth, and material demand — bullish for equities.",
-        "confidence": "high", "key_finding": "", "caveats": [
-            "Monthly frequency with ~3-week publication lag",
-            "Housing bubble (2003-2007) may dominate regime models",
-            "COVID April 2020 collapse is an outlier"
-        ]
+        "pair_id": PAIR_ID, "schema_version": "1.1.0", "indicator_nature": "leading", "indicator_type": "production",
+        "strategy_objective": "max_sharpe",
+        "owner_writes": {
+            "dana": ["indicator_nature", "indicator_type", "known_stress_episodes", "data_provenance"],
+            "evan": ["observed_direction", "direction_consistent", "key_finding", "confidence"],
+            "ray": ["strategy_objective", "narrative_summary", "expected_direction", "mechanism", "caveats"],
+        },
+        "last_updated_by": "ray", "last_updated_at": NOW_ISO, "indicator": "permit", "target": "spy",
+        "expected_direction": "procyclical", "observed_direction": winner["direction"],
+        "direction_consistent": winner["direction"] == "procyclical",
+        "mechanism": "Rising building permits signal planned residential construction, which feeds employment, "
+                     "materials demand and household wealth; a pro-cyclical reading is bullish for equities.",
+        "confidence": "low",
+        "key_finding": f"As known at the time (real-time PERMIT vintages), the rule selected on in-sample data uses "
+                       f"{winner['signal_code']} at L{winner['lead_value']} (IS Sharpe {winner['is_sharpe']:.2f}) "
+                       f"with held-out OOS Sharpe {winner['oos_sharpe']:.2f} versus buy-and-hold "
+                       f"{winner['bh_sharpe']:.2f}.",
+        "caveats": [
+            "Building permits are revised, including annual seasonal-factor revisions; the headline uses the values "
+            "as published at each date (ALFRED vintages) and the as-revised-today result is shown for comparison only.",
+            "The strategy is search-selected and needs fresh holdout validation.",
+            "The previously published rule was selected on its test-period score and is replaced here.",
+        ],
+        "narrative_summary": "Building permits are tested as a leading housing-cycle signal for SPY allocation.",
+        "known_stress_episodes": [
+            {"label": "Dot-Com recession", "start": "2001-03-01", "end": "2001-11-30",
+             "note": "Housing held up while equities fell."},
+            {"label": "Housing bust and Global Financial Crisis", "start": "2006-01-01", "end": "2009-06-30",
+             "note": "Permits fell for several years before and during the recession."},
+            {"label": "COVID shock", "start": "2020-02-01", "end": "2020-06-30",
+             "note": "Brief collapse, then a fast rebound."},
+        ],
+        "data_provenance": {"source": "FRED", "series_id": "PERMIT", "accessed_at": NOW_ISO},
     }
-    if len(reg_df) > 0:
-        best = reg_df.loc[reg_df["p_value"].idxmin()]
-        interp["key_finding"] = f"{best['signal']} predicts {best['horizon']} (coef={best['coef']:.4f}, t={best['t_stat']:.2f}, p={best['p_value']:.4f})"
-        interp["observed_direction"] = "pro_cyclical" if best["coef"] > 0 else "counter_cyclical"
-        interp["direction_consistent"] = bool(best["coef"] > 0)
+    (RES / "interpretation_metadata.json").write_text(json.dumps(interp, indent=2) + "\n")
 
-    with open(os.path.join(RESULTS_DIR, "interpretation_metadata.json"), "w") as f:
-        json.dump(interp, f, indent=2)
+    defs = [
+        ("permit", "Building permits level (thousands of units, SAAR)", "FRED PERMIT", "raw", ["hero"]),
+        ("permit_yoy", "Year-over-year percent change", "(x_t / x_{t-12} - 1) * 100", "derivative",
+         ["regime_stats", "local_projections", "quantile_coef"]),
+        ("permit_mom", "Month-over-month percent change", "(x_t / x_{t-1} - 1) * 100", "derivative", []),
+        ("permit_dev_trend", "Level minus its 12-month average", "x_t - mean12", "derivative", []),
+        ("permit_zscore_60m", "Level versus its five-year history", "(x - mean60)/std60", "derivative", []),
+        ("permit_mom_3m", "Three-month change in level", "x_t - x_{t-3}", "derivative", []),
+        ("permit_mom_6m", "Six-month change in level", "x_t - x_{t-6}", "derivative", []),
+        ("permit_accel", "Change in the monthly percent change", "mom_t - mom_{t-1}", "derivative", []),
+        ("permit_contraction", "Year-over-year change below zero", "1[yoy < 0]", "regime_state", []),
+    ]
+    signal_scope = {
+        "pair_id": PAIR_ID, "schema_version": "1.0.0", "owner": "evan", "last_updated_by": "evan",
+        "last_updated_at": NOW_ISO,
+        "indicator_axis": {"canonical_column": "permit", "display_name": "Building Permits (PERMIT)",
+                           "derivatives": [{"name": c, "definition": d, "formula": f, "role": r, "appears_in_charts": ch}
+                                           for c, d, f, r, ch in defs]},
+        "target_axis": {
+            "canonical_column": "spy", "display_name": "SPY adjusted close",
+            "derivatives": [
+                {"name": "spy", "definition": "SPY adjusted month-end close", "formula": "month-end adjusted close",
+                 "role": "raw", "appears_in_charts": ["hero", "equity_curves"]},
+                {"name": "spy_ret", "definition": "SPY monthly return", "formula": "spy_t / spy_{t-1} - 1",
+                 "role": "derivative", "appears_in_charts": []},
+                {"name": "spy_fwd_1m", "definition": "One-month forward SPY return", "formula": "spy_{t+1} / spy_t - 1",
+                 "role": "derivative", "appears_in_charts": ["correlation_heatmap"]},
+                {"name": "spy_fwd_3m", "definition": "Three-month forward SPY return",
+                 "formula": "spy_{t+3} / spy_t - 1", "role": "derivative",
+                 "appears_in_charts": ["local_projections", "quantile_coef"]},
+                {"name": "spy_fwd_6m", "definition": "Six-month forward SPY return", "formula": "spy_{t+6} / spy_t - 1",
+                 "role": "derivative", "appears_in_charts": ["correlation_heatmap"]},
+                {"name": "spy_fwd_12m", "definition": "Twelve-month forward SPY return",
+                 "formula": "spy_{t+12} / spy_t - 1", "role": "derivative", "appears_in_charts": ["correlation_heatmap"]},
+            ],
+        },
+        "notes": "Scope limited to PERMIT-derived housing signals and SPY returns.",
+    }
+    (RES / "signal_scope.json").write_text(json.dumps(signal_scope, indent=2) + "\n")
+    (RES / "kpis.json").write_text(json.dumps({"pair_id": PAIR_ID, "winner_oos_sharpe": winner["oos_sharpe"],
+                                               "benchmark_oos_sharpe": winner["bh_sharpe"],
+                                               "oos_max_drawdown": winner["oos_max_drawdown"],
+                                               "bh_max_drawdown": winner["bh_max_drawdown"]}, indent=2) + "\n")
+    evidence_status = {
+        "pair_id": PAIR_ID, "schema_version": "1.2.0", "status": "found_in_search", "updated_at": NOW_ISO,
+        "plain_english": "A winning rule was found in the search grid, but it has not passed a fresh final exam.",
+        "technical_note": f"Winner selected on in-sample data by the lead-plateau rule (D9) from the {DATE_TAG} "
+                          "tournament on real-time PERMIT vintages and evaluated on the held-out OOS window.",
+        "next_step": "Freeze the selected rule and run a confirmation test on future data or a reserved holdout window.",
+        "owner": "evan",
+    }
+    (RES / "evidence_status.json").write_text(json.dumps(evidence_status, indent=2) + "\n")
+    (RES / f"pipeline_timing_{DATE_TAG}.json").write_text(
+        json.dumps({"pair_id": PAIR_ID, "elapsed_seconds": elapsed, "generated_at": NOW_ISO}, indent=2) + "\n")
+    analyst_suggestions = {
+        "pair_id": PAIR_ID, "schema_version": "1.0.0", "last_updated_at": NOW_ISO,
+        "suggestions": [{
+            "signal_name": "PERMIT revision robustness", "proposed_by": "evan", "source": "FRED",
+            "observation": f"The rule selected on in-sample data uses a {winner['lead_value']}-month lead on the "
+                           f"{winner['signal_display_name'].lower()} ({winner['direction']}, {winner['threshold_code']}); "
+                           f"held-out OOS max drawdown {winner['oos_max_drawdown']:.1%} vs buy-and-hold "
+                           f"{winner['bh_max_drawdown']:.1%}.",
+            "rationale": "Permits are revised every year (seasonal factors), so deployment should track whether "
+                         "real-time and revised readings keep giving the same signal.",
+            "possible_use_case": "robustness check",
+            "caveats": "Search-selected rule; the live tradability assumptions are not final-exam validated.",
+            "date_filed": DATE_TAG[:4] + "-" + DATE_TAG[4:6] + "-" + DATE_TAG[6:],
+        }],
+        "notes": "Generated with the PERMIT x SPY pair pipeline.",
+    }
+    (RES / "analyst_suggestions.json").write_text(json.dumps(analyst_suggestions, indent=2) + "\n")
 
-    return reg_df
 
-# ===== STAGE 6: TOURNAMENT =====
-@timed("6_tournament")
-def stage_tournament(df):
-    work = df.copy().dropna(subset=["permit"])
-    is_mask = work.index <= IS_END
-    oos_mask = work.index >= OOS_START
+NARRATIVE_SOURCES = ["regime_quartile_returns.csv", "granger_by_lag.csv",
+                     f"core_models_{DATE_TAG}/quantile_regression.csv",
+                     f"core_models_{DATE_TAG}/quantile_equality_test.json",
+                     f"core_models_{DATE_TAG}/local_projections.csv"]
 
-    if "spy_ret" not in work.columns:
-        work["spy_ret"] = work["spy"].pct_change()
 
-    signal_cols = {"S1_level": "permit", "S2_yoy": "permit_yoy", "S3_mom": "permit_mom",
-                   "S4_dev": "permit_dev_trend", "S5_z": "permit_zscore_60m",
-                   "S6_mom3m": "permit_mom_3m", "S7_mom6m": "permit_mom_6m",
-                   "S8_accel": "permit_accel", "S9_contr": "permit_contraction"}
-    available = {k: v for k, v in signal_cols.items() if v in work.columns and work[v].notna().sum() > 50}
+def write_narrative_provenance() -> None:
+    """evidence_facts_<tag>.json: the evidence tables the page prose cites (scripts/gate_number_provenance.py)."""
+    # the Strategy page's trade-log caption counts the broker-style log rows (full reconstructed history)
+    n_rows = len(pd.read_csv(RES / "winner_trades_broker_style.csv"))
+    write_evidence_facts(PAIR_ID, DATE_TAG, sources=NARRATIVE_SOURCES, derived={"trade_log_rows": n_rows})
 
-    leads = list(range(1, 14))  # #255 floor L1 shifted grid [1..13] (months)
-    results = []
 
-    for sig_name, sig_col in available.items():
-        signal = work[sig_col]
-        for lead in leads:
-            sig_l = signal.shift(lead) if lead > 0 else signal
-            is_sig = sig_l[is_mask].dropna()
-            if len(is_sig) < 20:
-                continue
-
-            thresholds = {}
-            for pct in [25, 50, 75]:
-                thresholds[f"T1_p{pct}"] = is_sig.quantile(pct / 100)
-            for pct in [25, 50, 75]:
-                thresholds[f"T2_rp{pct}"] = sig_l.rolling(60, min_periods=36).quantile(pct / 100)
-            if sig_name in ["S2_yoy", "S3_mom", "S8_accel"]:
-                thresholds["T4_zero"] = 0
-
-            for tname, tval in thresholds.items():
-                for strat in ["P1", "P2", "P3"]:
-                    try:
-                        if isinstance(tval, (int, float)):
-                            bullish = sig_l > tval
-                        else:
-                            bullish = sig_l > tval
-
-                        if strat == "P1":
-                            pos = bullish.astype(float)
-                        elif strat == "P2":
-                            smin = sig_l.rolling(60, min_periods=36).min()
-                            smax = sig_l.rolling(60, min_periods=36).max()
-                            sr = (smax - smin).replace(0, np.nan)
-                            pos = ((sig_l - smin) / sr).clip(0, 1)
-                        elif strat == "P3":
-                            pos = bullish.astype(float) * 2 - 1
-
-                        strat_ret = pos.shift(1) * work["spy_ret"]
-                        is_r = strat_ret[is_mask].dropna()
-                        oos_r = strat_ret[oos_mask].dropna()
-                        if len(is_r) < 24 or len(oos_r) < 12:
-                            continue
-
-                        oos_sharpe = (oos_r.mean() / oos_r.std()) * np.sqrt(12) if oos_r.std() > 0 else 0
-                        cum = (1 + oos_r).cumprod()
-                        dd = ((cum - cum.cummax()) / cum.cummax()).min()
-                        turnover = pos.diff().abs().sum() / (len(pos.dropna()) / 12)
-                        valid = oos_sharpe > 0 and turnover < 24 and len(oos_r) >= 12
-
-                        results.append({"signal": sig_name, "threshold": tname, "strategy": strat,
-                            "lead_months": lead, "oos_sharpe": round(oos_sharpe, 4),
-                            "oos_ann_return": round(oos_r.mean() * 12 * 100, 2),
-                            "max_drawdown": round(dd * 100, 2), "annual_turnover": round(turnover, 2),
-                            "oos_n": len(oos_r), "valid": valid})
-                    except Exception:
-                        continue
-
-    # Benchmark
-    bh = work.loc[oos_mask, "spy_ret"].dropna()
-    if len(bh) > 0:
-        bh_s = (bh.mean() / bh.std()) * np.sqrt(12) if bh.std() > 0 else 0
-        bh_cum = (1 + bh).cumprod()
-        bh_dd = ((bh_cum - bh_cum.cummax()) / bh_cum.cummax()).min()
-        results.append({"signal": "BENCHMARK", "threshold": "BUY_HOLD", "strategy": "BH",
-            "lead_months": 0, "oos_sharpe": round(bh_s, 4),
-            "oos_ann_return": round(bh.mean() * 12 * 100, 2),
-            "max_drawdown": round(bh_dd * 100, 2), "annual_turnover": 0,
-            "oos_n": len(bh), "valid": False})
-
-    rdf = pd.DataFrame(results)
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from _tournament_io import write_tournament  # ECON-T5 §4 immutability guard
-    write_tournament(rdf, os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}.csv"))
-
-    valid_count = rdf["valid"].sum() if len(rdf) > 0 else 0
-    print(f"  Tournament: {len(rdf)} combos, {valid_count} valid")
-    if len(rdf) > 0:
-        vs = rdf[rdf["valid"] & (rdf["signal"] != "BENCHMARK")]
-        if len(vs) > 0:
-            best = vs.loc[vs["oos_sharpe"].idxmax()]
-            print(f"  Best: {best['signal']}/{best['threshold']}/{best['strategy']}/L{best['lead_months']} Sharpe={best['oos_sharpe']:.2f} DD={best['max_drawdown']:.1f}%")
-        bm = rdf[rdf["signal"] == "BENCHMARK"]
-        if len(bm) > 0:
-            print(f"  B&H:  Sharpe={bm.iloc[0]['oos_sharpe']:.2f} DD={bm.iloc[0]['max_drawdown']:.1f}%")
-    return rdf
-
-# ===== MAIN =====
-def main():
+def main() -> None:
     t0 = time.time()
-    print(f"{'='*60}\n  {INDICATOR_NAME} -> {TARGET_NAME}\n{'='*60}")
+    for path in (RES, CORE, VALID):
+        path.mkdir(parents=True, exist_ok=True)
+    legacy_repro_permit_spy.main()
+    df = build_panel()
+    df[[c for c in SIGNALS.values() if c != "permit"]].to_parquet(RES / f"signals_{DATE_TAG}.parquet")
+    tourn, winner, _ = run_tournament()
+    write_evidence(df, tourn, winner)
+    write_metadata(df, winner, time.time() - t0)
+    write_narrative_provenance()
+    print(f"Done. Results saved to {RES}")
 
-    series = stage_data()
-    df = stage_derived(series)
-    df.to_parquet(os.path.join(DATA_DIR, f"{PAIR_ID}_monthly_{DATE_TAG}.parquet"), engine="pyarrow")
-
-    stage_stationarity(df)
-    stage_exploratory(df)
-    reg_df = stage_models(df)
-    tourn_df = stage_tournament(df)
-
-    elapsed = time.time() - t0
-    print(f"\n{'='*60}\n  DONE in {elapsed:.1f}s\n{'='*60}")
-
-    timing = {"pair_id": PAIR_ID, "total_seconds": round(elapsed, 1),
-              "stage_times": {k: round(v, 1) for k, v in STAGE_TIMES.items()}}
-    with open(os.path.join(RESULTS_DIR, f"pipeline_timing_{DATE_TAG}.json"), "w") as f:
-        json.dump(timing, f, indent=2)
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,31 @@
+{
+  "pair_id": "permit_spy",
+  "generated_at": "2026-10-17T19:36:12.267530+00:00",
+  "track": "main",
+  "source_tournament_file": "tournament_results_20261017.csv",
+  "winner": {
+    "signal": "S5_z",
+    "threshold": "-",
+    "strategy": "P2_signal_strength",
+    "direction": "procyclical",
+    "lead_value": 13,
+    "lead_unit": "months",
+    "oos_sharpe": 0.499231,
+    "oos_ann_return": 0.042844,
+    "max_drawdown": -0.191145,
+    "annual_turnover": 1.359998
+  },
+  "benchmark": {
+    "name": "Buy & Hold",
+    "oos_sharpe": 0.915422,
+    "oos_ann_return": 0.144733,
+    "max_drawdown": -0.239272
+  },
+  "deltas": {
+    "delta_sharpe": -0.416191,
+    "delta_return": -0.101889,
+    "delta_max_drawdown": 0.048127
+  },
+  "beats_benchmark": false,
+  "suggested_strategy_objective": "min_mdd"
+}

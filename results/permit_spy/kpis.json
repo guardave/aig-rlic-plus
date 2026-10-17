@@ -1,0 +1,7 @@
+{
+  "pair_id": "permit_spy",
+  "winner_oos_sharpe": 0.499231,
+  "benchmark_oos_sharpe": 0.915422,
+  "oos_max_drawdown": -0.191145,
+  "bh_max_drawdown": -0.239272
+}

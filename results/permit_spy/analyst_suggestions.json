@@ -1,0 +1,18 @@
+{
+  "pair_id": "permit_spy",
+  "schema_version": "1.0.0",
+  "last_updated_at": "2026-10-17T19:07:53.058698+00:00",
+  "suggestions": [
+    {
+      "signal_name": "PERMIT revision robustness",
+      "proposed_by": "evan",
+      "source": "FRED",
+      "observation": "The rule selected on in-sample data uses a 13-month lead on the 60-month building permits z-score (procyclical, -); held-out OOS max drawdown -19.1% vs buy-and-hold -23.9%.",
+      "rationale": "Permits are revised every year (seasonal factors), so deployment should track whether real-time and revised readings keep giving the same signal.",
+      "possible_use_case": "robustness check",
+      "caveats": "Search-selected rule; the live tradability assumptions are not final-exam validated.",
+      "date_filed": "2026-10-17"
+    }
+  ],
+  "notes": "Generated with the PERMIT x SPY pair pipeline."
+}
