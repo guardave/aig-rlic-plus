@@ -52,6 +52,7 @@ _N_THR = _D["n_threshold_labels"]
 _OOS_MONTHS = _D["oos_months"]
 _QT_TAILS, _WF1 = _D["quantile_tails"], _D["walk_forward_rank1"]
 _HB = _D["best_hmm_rule"]
+_D0, _D1, _HT = _D["data_start"], _D["data_end"], _D["hmm_regime_threshold"]
 
 
 def _yrs():
@@ -89,8 +90,9 @@ SIGNAL_TEXT = P.definitions({
     "S13_acceleration": "HY-IG spread acceleration",
 })
 _SIG = SIGNAL_TEXT.get(W.signal_code, W.signal_display)
-_RULE = (f"each day, take the {_SIG} as it stood {W.lead_text} earlier and compare it with {_THR}; hold 100% SPY "
-         "when it is below, otherwise hold cash")
+RULE_ACTION_TEXT = P.definitions({"countercyclical": "hold 100% SPY when it is below, otherwise hold cash"})
+_RULE = (f"each day, take the {_SIG} as it stood {W.lead_text} earlier and compare it with {_THR}; "
+         f"{RULE_ACTION_TEXT['countercyclical']}")
 
 
 # =========================================================================
@@ -122,7 +124,7 @@ class StoryConfig:
 information about SPY returns? The portal contains dozens of such pair studies. Here the
 lens is fixed on corporate credit spreads and broad US equity returns measured via SPY.
 
-**How to navigate the four pages.** The Story page explains the economic hypothesis and
+**How to navigate the pages.** The Story page explains the economic hypothesis and
 the historical episodes. The Evidence page presents the statistical tests and what each
 one found. The Strategy page describes the selected trading rule and its out-of-sample
 record. The Methodology page is the technical appendix.
@@ -146,7 +148,7 @@ record. The Methodology page is the technical appendix.
     HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
         "How to read it: HY-IG spread (left axis, inverted, orange) and SPY price (right "
-        "axis, blue), 2000-01-03 to 2026-04-22. Shaded bands mark NBER recessions. The spread's highest peaks "
+        f"axis, blue), {_D0} to {_D1}. Shaded bands mark NBER recessions. The spread's highest peaks "
         f"({_H['peaks']['dotcom'][0]:.1f} pp on {_H['peaks']['dotcom'][1]}, {_H['peaks']['gfc'][0]:.1f} on "
         f"{_H['peaks']['gfc'][1]}, {_H['peaks']['covid'][0]:.1f} on {_H['peaks']['covid'][1]}) fell inside the "
         "largest SPY drawdowns. The energy-sector peak "
@@ -156,9 +158,10 @@ record. The Methodology page is the technical appendix.
     REGIME_TITLE = "SPY Returns in Calm and Stress Regimes of a Causal HMM"
     REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
-        "What this shows: same-day SPY performance when a 2-state HMM (fit on 2000-2019 data "
-        f"only, forward-filtered) puts the stress probability at or below 0.5 (calm, regime Sharpe {_CALM[0]:.2f}, "
-        f"{_CALM[1] * 100:.1f}% a year) versus above 0.5 (stress, regime Sharpe {_STRESS[0]:.2f}, {_STRESS[1] * 100:.1f}% a year). "
+        f"What this shows: same-day SPY performance when a 2-state HMM (fit on in-sample data only, {_D0} to "
+        f"{W.is_end}, forward-filtered) puts the stress probability at or below {_HT} (calm, regime Sharpe "
+        f"{_CALM[0]:.2f}, {_CALM[1] * 100:.1f}% a year) versus above {_HT} (stress, regime Sharpe {_STRESS[0]:.2f}, "
+        f"{_STRESS[1] * 100:.1f}% a year). "
         "These are concurrent returns: the chart describes the regimes, it is not a "
         "forecast. As a trading signal the same probability's out-of-sample record is on the Evidence page "
         "(HMM block)."
@@ -727,7 +730,7 @@ EVIDENCE_METHOD_BLOCKS = {
     "title": "The Evidence: What the Data Shows",
     "overview": (
         "*The HY-IG spread and SPY are tested with correlation, lead-lag, Granger, regime, "
-        "quantile and local-projection methods on daily data from 2000-01-03 to 2026-04-22 "
+        f"quantile and local-projection methods on daily data from {_D0} to {_D1} "
         "(monthly aggregates where stated). The tests agree on a strong same-day "
         "relationship. They disagree on forward predictability: the monthly Granger test "
         "finds some, while the overlap-robust regressions and the quartile forward test do "
@@ -884,7 +887,7 @@ class StrategyConfig:
         f"What this shows: the rule's Sharpe in each calendar year {_WF1['first_year']}-{_WF1['last_year']} "
         "(bars) next to SPY's Sharpe in the same year (markers). Positive in "
         f"{_WF1['n_positive']} of {_WF1['n_years']} years and above SPY in "
-        f"{_WF1['n_above_bh']} of {_WF1['n_years']}. Years before 2019-10 are in-sample: the "
+        f"{_WF1['n_above_bh']} of {_WF1['n_years']}. Years before {W.oos_start} are in-sample: the "
         "rule was selected on them."
     )
 
@@ -971,7 +974,7 @@ feature and as regression controls. Pre-2023 OAS history is spliced from the arc
 (see `interpretation_metadata.json` caveats).
 """)
 
-_INDICATOR_CONSTRUCTION_MD = (
+_INDICATOR_CONSTRUCTION_MD = P.definition_text(
     "The primary indicator is the HY-IG credit spread, built daily as the ICE BofA US High "
     "Yield Index option-adjusted spread (FRED: BAMLH0A0HYM2) minus the ICE BofA US Corporate "
     "Index option-adjusted spread (FRED: BAMLC0A0CM), in percentage points. From it the "
@@ -979,7 +982,7 @@ _INDICATOR_CONSTRUCTION_MD = (
     "21/63/126-day percent changes, 21/63/252-day changes, an acceleration term and the "
     "CCC-BB quality spread. It also builds causal regime probabilities: a 2-state "
     "Gaussian HMM on [daily spread change, VIX], and a 2-state Markov-switching model of "
-    "the daily spread change. Both are fitted on in-sample data only (to 2019-09-30) and "
+    f"the daily spread change. Both are fitted on in-sample data only (to {W.is_end}) and "
     "forward-filtered, so the value on day t uses data up to t only "
     "(scripts/_regime_causal.py). "
     f"The winning signal is `{W.signal_code}` ({_SIG}). The authoritative list of derivatives is rendered from "
@@ -1048,11 +1051,11 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     tournament_design_md=_TOURNAMENT_DESIGN_MD,
     references_md=_REFERENCES_MD,
     sample_period_note=(
-        "Data run from 2000-01-03 to 2026-04-22 (business days). The OOS window follows the ECON-OOS2 formula: "
+        f"Data run from {_D0} to {_D1} (business days). The OOS window follows the ECON-OOS2 formula: "
         f"{_OOS_MONTHS} months ({W.oos_start} -> {W.oos_end}). In-sample selection uses the common window {W.is_start} -> "
         f"{W.is_end}, which starts when the longest-warm-up eligible candidate has its first return. The dot-com bust "
         "and the GFC are in-sample; the COVID shock and the post-pandemic rate shock are out-of-sample. Regime models are fitted on "
-        "data up to 2019-09-30 only."
+        f"data up to {W.is_end} only."
     ),
     plain_english=(
         "This section covers the technical decisions — data sources, sample period, "

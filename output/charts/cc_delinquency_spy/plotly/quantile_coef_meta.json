@@ -1,7 +1,7 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-17T18:10:10.972129+00:00",
+  "generated_at": "2026-10-17T23:06:55.907253+00:00",
   "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
   "caption": "Delinquency (4-quarter change) coefficient across 2-quarter forward SPY return quantiles (real quantile regression); cross-quantile equality Wald p=0.45 (equality not rejected).",
   "narrative_alignment_note": "Delinquency (4-quarter change) coefficient across 2-quarter forward SPY return quantiles (real quantile regression); cross-quantile equality Wald p=0.45 (equality not rejected).",

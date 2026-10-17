@@ -512,7 +512,7 @@ No formulas, three steps:
     WALK_FORWARD_TITLE = "Subperiod Sharpe and Durability"
     WALK_FORWARD_CAPTION = (
         "What this shows: strategy vs buy-and-hold Sharpe across major credit-stress episodes. Episodes before "
-        "2011 precede the as-known-at-the-time archive, so the rule holds cash there."
+        f"{_VIN0} precede the as-known-at-the-time archive, so the rule holds cash there."
     )
     CROSS_PERIOD_CAPTIONS = {
         "rolling_correlation": (
@@ -577,7 +577,7 @@ _DATA_SOURCES_MD = P.definition_text("""
 QUARTERLY credit pair. The delinquency series is native quarterly, not seasonally adjusted (NSA), revised and lagging. No seasonal adjustment is applied in this pipeline.
 """)
 
-_INDICATOR_CONSTRUCTION_MD = (
+_INDICATOR_CONSTRUCTION_MD = P.definition_text(
     "The raw indicator is the credit-card delinquency rate (% of balances 30+ days past due). The pipeline builds "
     "the level, the quarter-on-quarter change, the 4-quarter change and a 20-quarter rolling z-score; rolling "
     "thresholds use 20-quarter windows. On the as-known-at-the-time track every signal and threshold is "
@@ -633,7 +633,7 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     ),
     plain_english=(
         "One QUARTERLY credit series (the credit-card delinquency rate) and the S&P 500 ETF (SPY). The headline "
-        "uses the delinquency figures as they were published at each date, which are archived from 2011; the "
+        f"uses the delinquency figures as they were published at each date, which are archived from {_VIN0}; the "
         "as-revised-today view uses today's corrected figures over the longer history and is shown for comparison "
         "only. Every number on these pages is reproduced by one deterministic script."
     ),

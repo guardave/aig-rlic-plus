@@ -466,7 +466,7 @@ def main() -> None:
     chart_history_zoom("dotcom", "Dot-Com Recession: Delinquency Drifted Higher Through the Downturn", "1999-03-31", "2003-12-31")
     chart_history_zoom("gfc", "Global Financial Crisis: Delinquency Spiked to Sample Highs", "2006-03-31", "2010-12-31")
     chart_history_zoom("covid", "COVID Shock: Support Programs Kept Delinquency Subdued", "2018-03-31", "2021-12-31")
-    chart_history_zoom("rate_hike_2022", "2022-24 Delinquency Upturn: Post-Pandemic Normalization", "2021-03-31", "2025-06-30")
+    chart_history_zoom("rate_hike_2022", "2022–2024 Delinquency Upturn: Post-Pandemic Normalization", "2021-03-31", "2025-06-30")
     print(f"Done. Charts saved to {OUT}")
 
 

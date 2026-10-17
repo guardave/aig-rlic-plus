@@ -567,7 +567,7 @@ _DATA_SOURCES_MD = P.definition_text("""
 | Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted month-end close | Monthly |
 """)
 
-_INDICATOR_CONSTRUCTION_MD = (
+_INDICATOR_CONSTRUCTION_MD = P.definition_text(
     "The raw indicator is the U.S. civilian unemployment rate, in percent. "
     "The pipeline constructs the month-on-month change and multi-month changes (signal codes "
     f"{', '.join(f'`{c}`' for c in _MAN['signals'] if c.startswith('chg_'))}); a 60-month rolling z-score; and a "

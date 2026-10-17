@@ -1597,6 +1597,7 @@ def stage_narrative_provenance():
     rgr = _pd.read_csv(res / "rolling_granger_hy_ig_spy.csv")["p_value_24m"].dropna()
     derived = {
         "history_years": int(DATE_TAG[:4]) - int(spy.index[0].year),
+        "data_start": str(spy.index[0].date()), "data_end": str(spy.index[-1].date()),
         "hmm_regime_threshold": 0.5,
         "hmm_regime_calm": regime((hp <= 0.5) & hp.notna()), "hmm_regime_stress": regime(hp > 0.5),
         "best_hmm_rule": {"strategy": best["strategy"], "lead_days": int(best["lead_days"]),
