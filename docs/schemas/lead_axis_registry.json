@@ -416,12 +416,13 @@
       "class": "monthly",
       "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 1 = 2 - position_shift 1. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
       "conformed": true,
-      "note": "Winner confirmed UNCHANGED under the floored grid in #255 re-run testing; committed artifacts retained because a full regen surfaces pre-existing producer debt (legacy winner_summary/signal_scope/analyst_suggestions/interpretation_metadata schema) out of #255 scope \u2014 floor-grid source edit + producer cleanup deferred to a follow-up.",
+      "note": "Phase B port (2026-10-17): rebuilt on scripts/harness (two tracks, D9 plateau). The published 20260314 rule (S3_mom/T1_p25/P3/L6, OOS-selected on grid {0,1,2,3,6}) is not replayable through the harness (no strategy_returns); reproduced from the legacy code in results/permit_spy/legacy_reproduction_20260314.json. Earlier #255 note: winner confirmed unchanged under the floored grid.",
       "position_shift": 1,
       "lead_floor_effective": 2,
       "release_calendar_series": "PERMIT",
-      "alignment": "fixed_lag",
-      "value_vintage": "revised_alfred"
+      "alignment": "pit_asof",
+      "value_vintage": "revised_alfred",
+      "track_policy": "compute_twice"
     },
     "petrol_inv_spy": {
       "signal_frequency": "monthly",
