@@ -497,6 +497,41 @@ def numeric_literals(cfg_path: Path) -> list[str]:
     return out
 
 
+APPROVED_DEF_ATTRS = {"_DATA_SOURCES_MD", "_METHODS_TABLE_MD", "_GRID_TABLE_MD", "_INDICATOR_CONSTRUCTION_MD"}
+
+
+def provenance_api(cfg_path: Path) -> list[str]:
+    """PROVENANCE-API (hard, schema-1.3 pairs; Codex L2v2 F1 / F10): a config may not mint tags or definitions
+    itself. No private name of components.provenance (P._tag, P._PNum, ...), no direct DefText; definition_text()
+    only as the value of an approved methodology block, definitions() only for a *_TEXT dict."""
+    tree = ast.parse(cfg_path.read_text())
+    aliases = {a.asname or a.name for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) and n.module == "components"
+               for a in n.names if a.name == "provenance"}
+    out = []
+    for n in ast.walk(tree):
+        if isinstance(n, ast.ImportFrom) and n.module == "components.provenance":
+            bad = [a.name for a in n.names if a.name.startswith("_") or a.name == "DefText"]
+            if bad:
+                out.append(f"PROVENANCE-API (line {n.lineno}): imports {bad} from components.provenance")
+        if isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name) and n.value.id in aliases \
+                and (n.attr.startswith("_") or n.attr == "DefText"):
+            out.append(f"PROVENANCE-API (line {n.lineno}): {n.value.id}.{n.attr} (configs never mint tags)")
+    parent = {c: x for x in ast.walk(tree) for c in ast.iter_child_nodes(x)}
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and isinstance(n.func.value, ast.Name) \
+                and n.func.value.id in aliases and n.func.attr in ("definition_text", "definitions"):
+            p = parent.get(n)
+            targets = [t.id for t in getattr(p, "targets", []) if isinstance(t, ast.Name)] \
+                if isinstance(p, ast.Assign) else []
+            ok = (targets and all(t in APPROVED_DEF_ATTRS for t in targets)) if n.func.attr == "definition_text" \
+                else (targets and all(t.endswith("_TEXT") for t in targets))
+            if not ok:
+                out.append(f"PROVENANCE-API (line {n.lineno}): {n.func.attr}() must be assigned to "
+                           + ("an approved methodology block " + str(sorted(APPROVED_DEF_ATTRS))
+                              if n.func.attr == "definition_text" else "a *_TEXT dict"))
+    return out
+
+
 def check_pair_files(cfg: Path, ws_path: Path, hard: bool) -> list[str]:
     ws = json.loads(ws_path.read_text())
     f = fields_from_summary(ws)
@@ -508,7 +543,7 @@ def check_pair_files(cfg: Path, ws_path: Path, hard: bool) -> list[str]:
             findings += [x for x in (f"VERDICT {where}: \"{m.group(0)}\"" for pat in BANNED
                                      for m in [re.search(pat, text, re.I)] if m)]
     if hard:
-        findings += structural(cfg) + swapped_placeholders(cfg) + numeric_literals(cfg)
+        findings += structural(cfg) + swapped_placeholders(cfg) + numeric_literals(cfg) + provenance_api(cfg)
     return findings
 
 

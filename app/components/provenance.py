@@ -11,10 +11,14 @@ and the gate (scripts/gate_number_provenance.py) fails on any number in the pair
 inside a sentinel (or a justified allowlist span), and re-evaluates every sentinel's source expression against
 the artifacts to check the displayed text.
 
-Source expressions:
-    art:<results-relative path>#<key path>      a value in a JSON (a/b/0/c) or CSV (r<row>/<column>) artifact
-    wf:<field>                                  a winner_fields entry (its display text)
-    mul(a,b) div(a,b) add(a,b) sub(a,b) neg(a) abs(a) const:<number>
+Source expressions (sentinel: S0 <source> U <unit> S1 <text> S2; unit 'pct' when the value was formatted with a
+'%' spec, i.e. displayed x 100, else 'raw'):
+    art:<results-relative path>#<key path>      a value in a JSON (a/b/0/c) or CSV (r<row>/<column>) artifact; the
+                                                path must resolve inside results/<pair>/ (the gate enforces it)
+    reg:<pair>/<key path>                       the pair's lead_axis_registry entry
+    wf:<field>                                  a winner_fields entry (text reconciled with its value by the gate)
+    mul(a,b) div(a,b) add(a,b) sub(a,b) neg(a) abs(a); const:<number> only as an operand of mul / div (unit
+    constants) or add / sub (1), next to an artifact operand; never a root (Codex L2v2 F1)
     len(<container source>)  count(<csv source>,<column>,<op>,<number or column>)
     min(<csv source>,<column>)  max(<csv source>,<column>)
 Arithmetic on tagged numbers (x * 100, a - b) keeps a tag (it can be re-evaluated); a number computed any other
@@ -42,6 +46,8 @@ def gate_on() -> bool:
 S0, S1, S2 = "", "", ""          # value sentinel: open, source / text separator, close
 D0, D1 = "", ""                        # definition text
 A0, A1 = "", ""                        # authored config text (added by the gate)
+AP = ""                                      # end of the config attribute path after A0 (added by the gate)
+U = ""                                       # source / unit separator inside a value sentinel
 RESULTS = Path(__file__).resolve().parents[2] / "results"
 REGISTRY = Path(__file__).resolve().parents[2] / "docs" / "schemas" / "lead_axis_registry.json"
 _ESC = {",": "%2C", "(": "%28", ")": "%29"}
@@ -53,28 +59,30 @@ def _esc(s: str) -> str:
     return s
 
 
-def tag(text, src: str) -> str:
-    text = str(text)
-    return f"{S0}{src}{S1}{text}{S2}" if gate_on() else text
+def _tag(text, src: str, unit: str = "raw") -> str:
+    """Sentinel-wrapped text in gate mode (private: configs never mint tags; the gate re-evaluates every source
+    and rejects constant roots and sources outside the pair's results)."""
+    text = str.__str__(text) if isinstance(text, str) else str(text)
+    return f"{S0}{src}{U}{unit}{S1}{text}{S2}" if gate_on() else text
 
 
 # --------------------------------------------------------------------------------------------- tagged numbers
 def _num(v, src):
-    return PInt(v, src) if isinstance(v, int) and not isinstance(v, bool) else PNum(v, src)
+    return _PInt(v, src) if isinstance(v, int) and not isinstance(v, bool) else _PNum(v, src)
 
 
 def _src(x) -> str:
-    return x.src if isinstance(x, (PNum, PInt)) else f"const:{x!r}"
+    return x.src if isinstance(x, (_PNum, _PInt)) else f"const:{x!r}"
 
 
 class _Tagged:
     src: str
 
     def __format__(self, spec):
-        return tag(self._base().__format__(spec), self.src)
+        return _tag(self._base().__format__(spec), self.src, "pct" if spec.rstrip().endswith("%") else "raw")
 
     def __str__(self):
-        return tag(self._base().__str__(), self.src)
+        return _tag(self._base().__str__(), self.src)
 
     def __repr__(self):
         return self._base().__repr__()
@@ -89,13 +97,19 @@ class _Tagged:
         return self
 
     def __round__(self, nd=None):
-        return _num(round(self._base(), nd), self.src) if nd is not None else PInt(round(self._base()), self.src)
+        return _num(round(self._base(), nd), self.src) if nd is not None else _PInt(round(self._base()), self.src)
 
     def _op(self, other, fn, name, rev=False):
         if not isinstance(other, (int, float)) or isinstance(other, bool):
             return NotImplemented
         a, b = (other, self) if rev else (self, other)
-        return _num(fn(float(a), float(b)), f"{name}({_src(a)},{_src(b)})")
+        base = lambda x: x._base() if isinstance(x, _Tagged) else x  # noqa: E731  (int op int stays int)
+        res = fn(base(a), base(b))
+        if not isinstance(other, _Tagged):
+            c = abs(float(other))
+            if c not in (UNIT_MUL if name in ("mul", "div") else UNIT_ADD):
+                return res              # an untagged operand that is not a unit constant: the result is untagged
+        return _num(res, f"{name}({_src(a)},{_src(b)})")
 
     def __mul__(self, o):
         return self._op(o, lambda a, b: a * b, "mul")
@@ -122,7 +136,7 @@ class _Tagged:
         return self._op(o, lambda a, b: a - b, "sub", True)
 
 
-class PNum(_Tagged, float):
+class _PNum(_Tagged, float):
     def __new__(cls, v, src: str):
         o = float.__new__(cls, v)
         o.src = src
@@ -131,10 +145,13 @@ class PNum(_Tagged, float):
     def _base(self):
         return float(self)
 
+    def __reduce__(self):                       # copy / deepcopy / pickle (plotly deep-copies figure data)
+        return (_PNum, (float(self), self.src))
+
     __hash__ = float.__hash__
 
 
-class PInt(_Tagged, int):
+class _PInt(_Tagged, int):
     def __new__(cls, v, src: str):
         o = int.__new__(cls, v)
         o.src = src
@@ -143,18 +160,21 @@ class PInt(_Tagged, int):
     def _base(self):
         return int(self)
 
+    def __reduce__(self):
+        return (_PInt, (int(self), self.src))
+
     __hash__ = int.__hash__
 
 
 # ------------------------------------------------------------------------------------------------- loaders
 def _rel(path: Path) -> str:
     try:
-        return _esc(str(Path(path).resolve().relative_to(RESULTS)))
+        return _esc(str(Path(path).resolve().relative_to(RESULTS.resolve())))
     except ValueError:
-        return _esc(str(path))
+        return "outside-results:" + _esc(str(path))       # the gate rejects it (Codex L2v2 F2)
 
 
-class PStr(str):
+class _PStr(str):
     """Artifact text that contains numbers (e.g. a diagnosis reading): tagged when formatted into prose."""
 
     def __new__(cls, text: str, src: str):
@@ -163,36 +183,48 @@ class PStr(str):
         return o
 
     def __format__(self, spec):
-        return tag(str.__format__(str.__str__(self), spec), self.src)
+        return _tag(str.__format__(str.__str__(self), spec), self.src)
+
+    def __reduce__(self):
+        return (_PStr, (str.__str__(self), self.src))
 
     def __str__(self):
-        return tag(str.__str__(self), self.src)
+        return _tag(str.__str__(self), self.src)
 
 
-class PList(list):
+class _PList(list):
     src: str
 
 
-class PDict(dict):
+class _PDict(dict):
     src: str
 
 
-def _wrap(o, src: str):
+def _wrap(o, src: str, dates: bool = True):
     if isinstance(o, str):
-        return PStr(o, src) if re.search(r"\d", o) else o
+        # prose-like text with numbers (a diagnosis reading) and ISO dates are tagged; identifier-like strings
+        # (file names, codes, keys) stay plain so that code building paths or lookups from them is unaffected
+        tagged = re.search(r"\d", o) and (re.search(r"\s", o) or
+                                          dates and re.fullmatch(r"\d{4}-\d{2}(?:-\d{2})?", o))
+        return _PStr(o, src) if tagged else o
     if isinstance(o, bool) or o is None:
         return o
     if isinstance(o, (int, float)):
         return _num(o, src) if not (isinstance(o, float) and math.isnan(o)) else o
     if isinstance(o, dict):
-        d = PDict({k: _wrap(v, f"{src}/{_esc(str(k))}") for k, v in o.items()})
+        d = _PDict({k: _wrap(v, f"{src}/{_esc(str(k))}", dates) for k, v in o.items()})
         d.src = src
         return d
     if isinstance(o, list):
-        lst = PList(_wrap(v, f"{src}/{i}") for i, v in enumerate(o))
+        lst = _PList(_wrap(v, f"{src}/{i}", dates) for i, v in enumerate(o))
         lst.src = src
         return lst
     return o
+
+
+def artifact(data, path):
+    """Tag an artifact already loaded from `path` (e.g. by schema_check.validate_or_die) like json_file does."""
+    return _wrap(data, f"art:{_rel(path)}#", dates=False) if gate_on() else data
 
 
 def json_file(path) -> dict:
@@ -212,7 +244,7 @@ def csv_file(path, **kw) -> pd.DataFrame:
                                                          f"{src}r{i}/{_esc(str(c))}")
                                for i, v in enumerate(df[c])], index=df.index, dtype=object)
         else:                                       # formatted text cells ("+0.0082**") stay tagged as text
-            df[c] = pd.Series([PStr(v, f"{src}r{i}/{_esc(str(c))}") if isinstance(v, str) and re.search(r"\d", v)
+            df[c] = pd.Series([_PStr(v, f"{src}r{i}/{_esc(str(c))}") if isinstance(v, str) and re.search(r"\d", v)
                                else v for i, v in enumerate(df[c])], index=df.index, dtype=object)
     df.attrs["src"] = src
     return df
@@ -229,48 +261,48 @@ def lead_grid(pair_id: str) -> list:
         grid = json.loads(REGISTRY.read_text())["pairs"][pair_id]["lead_grid"]
     except (OSError, KeyError, json.JSONDecodeError):
         return []
-    out = PList(PInt(v, f"reg:{_esc(pair_id)}/lead_grid/{i}") for i, v in enumerate(grid))
+    out = _PList(_PInt(v, f"reg:{_esc(pair_id)}/lead_grid/{i}") for i, v in enumerate(grid))
     out.src = f"reg:{_esc(pair_id)}/lead_grid"
     return out
 
 
 # ------------------------------------------------------------------------------------------- derived values
-def length(obj) -> PInt:
+def length(obj) -> _PInt:
     """len() of a loaded JSON list / dict or a loaded CSV table, tagged."""
     src = obj.attrs["src"] if isinstance(obj, pd.DataFrame) else obj.src
-    return PInt(len(obj), f"len({src})")
+    return _PInt(len(obj), f"len({src})")
 
 
 _OPS = {"<": lambda a, b: a < b, ">": lambda a, b: a > b, "<=": lambda a, b: a <= b, ">=": lambda a, b: a >= b,
         "!=": lambda a, b: a != b, "==": lambda a, b: a == b}
 
 
-def count(df: pd.DataFrame, col: str, op: str, other) -> PInt:
+def count(df: pd.DataFrame, col: str, op: str, other) -> _PInt:
     """Rows of a loaded CSV where `col <op> other` (a number or another column), tagged."""
     a = df[col].astype(float)
     b = df[other].astype(float) if isinstance(other, str) else float(other)
     n = int(_OPS[op](a, b).sum())
-    return PInt(n, f"count({df.attrs['src']},{_esc(col)},{op},{_esc(str(other))})")
+    return _PInt(n, f"count({df.attrs['src']},{_esc(col)},{op},{_esc(str(other))})")
 
 
-def colmin(df: pd.DataFrame, col: str) -> PNum:
-    return PNum(float(df[col].astype(float).min()), f"min({df.attrs['src']},{_esc(col)})")
+def colmin(df: pd.DataFrame, col: str) -> _PNum:
+    return _PNum(float(df[col].astype(float).min()), f"min({df.attrs['src']},{_esc(col)})")
 
 
-def colmax(df: pd.DataFrame, col: str) -> PNum:
-    return PNum(float(df[col].astype(float).max()), f"max({df.attrs['src']},{_esc(col)})")
+def colmax(df: pd.DataFrame, col: str) -> _PNum:
+    return _PNum(float(df[col].astype(float).max()), f"max({df.attrs['src']},{_esc(col)})")
 
 
-def colmaxabs(df: pd.DataFrame, col: str) -> PNum:
-    return PNum(float(df[col].astype(float).abs().max()), f"maxabs({df.attrs['src']},{_esc(col)})")
+def colmaxabs(df: pd.DataFrame, col: str) -> _PNum:
+    return _PNum(float(df[col].astype(float).abs().max()), f"maxabs({df.attrs['src']},{_esc(col)})")
 
 
-def prefix(text: "PStr", n: int) -> "PStr | str":
+def prefix(text: "_PStr", n: int) -> "_PStr | str":
     """The first n characters of tagged artifact text (e.g. the year of a date), still tagged."""
-    return PStr(str.__str__(text)[:n], f"prefix({text.src},{n})") if isinstance(text, PStr) else text[:n]
+    return _PStr(str.__str__(text)[:n], f"prefix({text.src},{n})") if isinstance(text, _PStr) else text[:n]
 
 
-def year(date_text: "PStr") -> "PStr | str":
+def year(date_text: "_PStr") -> "_PStr | str":
     """The year of a tagged ISO date."""
     return prefix(date_text, 4)
 
@@ -300,7 +332,7 @@ def definition_text(text: str) -> DefText:
 def items(d: dict):
     """(key, value) pairs of a loaded JSON dict with the keys tagged (keys that are numbers, e.g. horizons)."""
     src = getattr(d, "src", "")
-    return [(PStr(k, f"key({src},{_esc(str(k))})") if re.search(r"\d", str(k)) else k, v) for k, v in d.items()]
+    return [(_PStr(k, f"key({src},{_esc(str(k))})") if re.search(r"\d", str(k)) else k, v) for k, v in d.items()]
 
 
 # --------------------------------------------------------------------------------- evaluation (used by the gate)
@@ -324,9 +356,24 @@ def _unesc(s: str) -> str:
     return s
 
 
-def _art(ref: str):
+UNIT_MUL = {100.0, 12.0, 4.0, 52.0, 252.0, 0.01, 1.0}     # percent, periods per year
+UNIT_ADD = {1.0}                                          # inclusive counts (months from a to b)
+
+
+class SourceError(ValueError):
+    pass
+
+
+def _art(ref: str, pair: str | None):
     path, _, key = ref.partition("#")
-    f = RESULTS / _unesc(path)
+    if path.startswith("outside-results:"):
+        raise SourceError(f"source file outside results/: {_unesc(path[16:])}")
+    f = (RESULTS / _unesc(path)).resolve()
+    root = (RESULTS / pair).resolve() if pair else RESULTS.resolve()
+    try:
+        f.relative_to(root)
+    except ValueError:
+        raise SourceError(f"source {f} is not inside {root}") from None
     if f.suffix == ".csv":
         if not key:
             return pd.read_csv(f)
@@ -339,46 +386,67 @@ def _art(ref: str):
     return o
 
 
-def evaluate(src: str, fields: dict | None = None):
-    """Value of a source expression, from the artifacts on disk (winner fields: their display text)."""
+def _has_leaf(src: str) -> bool:
+    return bool(re.search(r"(?:^|[(,])(?:art|wf|reg):", src))
+
+
+def evaluate(src: str, fields: dict | None = None, pair: str | None = None, _root: bool = True):
+    """Value of a source expression, from the artifacts on disk (winner fields: their display text). With `pair`,
+    every artifact must be inside results/<pair>/ and every registry key under that pair; a constant may not be a
+    root or a stand-alone source (SourceError)."""
     m = re.fullmatch(r"(\w+)\((.*)\)", src, re.S)
     if src.startswith("art:"):
-        return _art(src[4:])
+        return _art(src[4:], pair)
     if src.startswith("wf:"):
         return ((fields or {}).get(src[3:]) or {}).get("text")
     if src.startswith("reg:"):
+        keys = [_unesc(k) for k in src[4:].split("/")]
+        if pair and keys[0] != pair:
+            raise SourceError(f"registry source for another pair: {src}")
         o = json.loads(REGISTRY.read_text())["pairs"]
-        for k in src[4:].split("/"):
-            k = _unesc(k)
+        for k in keys:
             o = o[int(k)] if isinstance(o, list) else o[k]
         return o
     if src.startswith("const:"):
+        if _root:
+            raise SourceError(f"a constant is not a source: {src}")
         return float(src[6:])
     if not m:
-        raise ValueError(f"bad source expression {src!r}")
+        raise SourceError(f"bad source expression {src!r}")
+    if _root and not _has_leaf(src):
+        raise SourceError(f"no artifact in source expression {src!r}")
     fn, args = m.group(1), _split_args(m.group(2))
+    ev = lambda x: evaluate(x, fields, pair, False)  # noqa: E731
     if fn in ("mul", "div", "add", "sub"):
-        a, b = (float(evaluate(x, fields)) for x in args)
+        for x, y in ((args[0], args[1]), (args[1], args[0])):
+            if x.startswith("const:"):
+                c = abs(float(x[6:]))
+                ok = c in (UNIT_MUL if fn in ("mul", "div") else UNIT_ADD) and _has_leaf(y)
+                if not ok:
+                    raise SourceError(f"constant {x} is not an allowed unit operand in {src!r}")
+        if not (_has_leaf(args[0]) or _has_leaf(args[1])):
+            raise SourceError(f"no artifact operand in {src!r}")
+        a, b = (float(ev(x)) for x in args)
         return {"mul": a * b, "div": a / b, "add": a + b, "sub": a - b}[fn]
     if fn in ("neg", "abs"):
-        a = float(evaluate(args[0], fields))
+        a = float(ev(args[0]))
         return -a if fn == "neg" else abs(a)
     if fn == "len":
-        return len(evaluate(args[0], fields))
+        return len(ev(args[0]))
     if fn in ("min", "max", "maxabs"):
-        df = evaluate(args[0], fields)
-        s = df[_unesc(args[1])].astype(float)
-        return float(s.min() if fn == "min" else s.max() if fn == "max" else s.abs().max())
+        df = ev(args[0])
+        sr = df[_unesc(args[1])].astype(float)
+        return float(sr.min() if fn == "min" else sr.max() if fn == "max" else sr.abs().max())
     if fn == "key":
-        d = evaluate(args[0], fields)
+        d = ev(args[0])
         k = _unesc(args[1])
         if k not in d:
-            raise KeyError(k)
+            raise SourceError(f"key {k!r} not in {args[0]}")
         return k
     if fn == "prefix":
-        return str(evaluate(args[0], fields))[:int(args[1])]
+        return str(ev(args[0]))[:int(args[1])]
     if fn == "count":
-        df = evaluate(args[0], fields)
+        df = ev(args[0])
         col, op, other = _unesc(args[1]), args[2], _unesc(args[3])
         a = df[col].astype(float)
         try:
@@ -386,4 +454,4 @@ def evaluate(src: str, fields: dict | None = None):
         except ValueError:
             b = df[other].astype(float)
         return int(_OPS[op](a, b).sum())
-    raise ValueError(f"unknown function {fn!r} in {src!r}")
+    raise SourceError(f"unknown function {fn!r} in {src!r}")

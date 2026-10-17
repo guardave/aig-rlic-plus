@@ -47,35 +47,35 @@ _PE = '"The rule holds SPY when the inventories-to-sales ratio from {W.lead_word
 EVASIONS = {
     "sharpe_one_decimal": ('out-of-sample Sharpe {W.oos_sharpe} versus "', 'out-of-sample Sharpe 0.7 versus "'),
     "number_words": (_PE, _PE.replace("{W.lead_word}", "six")),
-    "no_sharpe_word": ('"its 5-year rolling median, and holds cash otherwise."',
-                       '"its 5-year rolling median, and holds cash otherwise. It returned 0.73 against 0.92 for SPY."'),
+    "no_sharpe_word": ('f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise."',
+                       'f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise. It returned 0.73 against 0.92 for SPY."'),
     "swapped_strategy_bh": ('f"scores an in-sample Sharpe of {W.median_valid_is_sharpe}. Out of sample it records Sharpe '
                             '{W.oos_sharpe} "\n        f"versus {W.bh_oos_sharpe},',
                             'f"scores an in-sample Sharpe of {W.median_valid_is_sharpe}. Out of sample it records Sharpe '
                             '{W.bh_oos_sharpe} "\n        f"versus {W.oos_sharpe},'),
-    "prior_months_reading": ('"its 5-year rolling median, and holds cash otherwise."',
-                             '"its 5-year rolling median, and holds cash otherwise. It acts on the prior month\'s reading."'),
-    "delayed_one_calendar_quarter": ('"its 5-year rolling median, and holds cash otherwise."',
-                                     '"its 5-year rolling median, and holds cash otherwise. The signal is delayed by one '
+    "prior_months_reading": ('f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise."',
+                             'f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise. It acts on the prior month\'s reading."'),
+    "delayed_one_calendar_quarter": ('f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise."',
+                                     'f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise. The signal is delayed by one '
                                      'calendar quarter."'),
-    "chosen_for_oos_performance": ('"its 5-year rolling median, and holds cash otherwise."',
-                                   '"its 5-year rolling median, and holds cash otherwise. It was chosen for out-of-sample '
+    "chosen_for_oos_performance": ('f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise."',
+                                   'f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise. It was chosen for out-of-sample '
                                    'performance."'),
-    "count_168_rules": ('"its 5-year rolling median, and holds cash otherwise."',
-                        '"its 5-year rolling median, and holds cash otherwise. It is the best of 168 rules."'),
+    "count_168_rules": ('f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise."',
+                        'f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise. It is the best of 168 rules."'),
     "stale_drawdown": ('maximum drawdown {W.oos_max_drawdown} versus', 'maximum drawdown -12.0% versus'),
-    "stale_return": ('"its 5-year rolling median, and holds cash otherwise."',
-                     '"its 5-year rolling median, and holds cash otherwise. Its annual return was 9.4%."'),
+    "stale_return": ('f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise."',
+                     'f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise. Its annual return was 9.4%."'),
     # QA_VERIFY_B0r allowlist loopholes: a percentile result outside threshold definitions, a bare 0% / 100%
-    "ordinal_percentile_result": ('"its 5-year rolling median, and holds cash otherwise."',
-                                  '"its 5-year rolling median, and holds cash otherwise. Its score ranks at the 97th '
+    "ordinal_percentile_result": ('f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise."',
+                                  'f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise. Its score ranks at the 97th '
                                   'percentile of the scrambled contests."'),
-    "bare_full_percent": ('"its 5-year rolling median, and holds cash otherwise."',
-                          '"its 5-year rolling median, and holds cash otherwise. It was right 100% of the time."'),
-    "bare_zero_percent": ('"its 5-year rolling median, and holds cash otherwise."',
-                          '"its 5-year rolling median, and holds cash otherwise. Drawdown was 0% in the test period."'),
-    "verdict_word": ('"its 5-year rolling median, and holds cash otherwise."',
-                     '"its 5-year rolling median, and holds cash otherwise. This is not a validated edge."'),
+    "bare_full_percent": ('f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise."',
+                          'f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise. It was right 100% of the time."'),
+    "bare_zero_percent": ('f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise."',
+                          'f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise. Drawdown was 0% in the test period."'),
+    "verdict_word": ('f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise."',
+                     'f"{THRESHOLD_TEXT[\'T_roll_median\']}, and holds cash otherwise. This is not a validated edge."'),
 }
 
 
@@ -171,7 +171,7 @@ def _pct(v, nd=1):
 
 _SHARE = _pct(W.value("oos_sharpe"), 0)
 THRESHOLD_TEXT = {"T_roll_p75": "its rolling 60-month 75th percentile"}
-_RULE = "hold 100% SPY when the reading is below the threshold; otherwise exposure from 100% to 0%."
+RULE_ACTION_TEXT = {"P1": "hold 100% SPY when the reading is below the threshold; otherwise exposure from 100% to 0%."}
 _POS = W.value("oos_sharpe") > 0
 ''')
     assert findings(d, hard=True) == []

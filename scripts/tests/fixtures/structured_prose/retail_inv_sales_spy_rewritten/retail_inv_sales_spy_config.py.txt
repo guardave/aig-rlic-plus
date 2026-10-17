@@ -4,6 +4,8 @@ from pathlib import Path
 
 from components.winner_fields import WinnerFields
 
+THRESHOLD_TEXT = {"T_roll_median": "its 5-year rolling median", "T_roll_heading": "Rolling 5-Year Median"}
+
 W = WinnerFields("retail_inv_sales_spy", json.loads(Path(__file__).with_name("winner_summary.json").read_text())["winner_fields"])
 
 
@@ -22,6 +24,6 @@ class StoryConfig:
 class StrategyConfig:
     PLAIN_ENGLISH = (
         f"The rule holds SPY when the inventories-to-sales ratio from {W.lead_word} months earlier was at or above "
-        "its 5-year rolling median, and holds cash otherwise."
+        f"{THRESHOLD_TEXT['T_roll_median']}, and holds cash otherwise."
     )
-    WINNER_HEADING = f"Tournament Winner: Ratio Level vs Rolling 5-Year Median / P1 Long/Cash / L{W.lead}"
+    WINNER_HEADING = f"Tournament Winner: Ratio Level vs {THRESHOLD_TEXT['T_roll_heading']} / P1 Long/Cash / L{W.lead}"

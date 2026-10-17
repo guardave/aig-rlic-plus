@@ -173,6 +173,10 @@ def validate_or_die(instance_path: Path, schema_name: str) -> dict:
         )
         raise SchemaValidationError(schema_name, instance_path, errors)
 
+    # Number-provenance gate (structured-prose layer 2): in gate mode the shared templates' artifact values carry
+    # source sentinels too (no effect on a normal render).
+    from components.provenance import artifact
+    instance = artifact(instance, Path(instance_path))
     return instance
 
 

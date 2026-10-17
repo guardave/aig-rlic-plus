@@ -28,11 +28,11 @@ class FieldText(str):
         return o
 
     def __format__(self, spec):
-        from components.provenance import tag
+        from components.provenance import _tag as tag
         return tag(str.__format__(str.__str__(self), spec), f"wf:{self.field}")
 
     def __str__(self):
-        from components.provenance import tag
+        from components.provenance import _tag as tag
         return tag(str.__str__(self), f"wf:{self.field}")
 
 

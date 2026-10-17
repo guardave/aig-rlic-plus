@@ -77,7 +77,7 @@ def test_wrong_sentinel_value_fails():
 
     def inject(mod):
         mod.STORY_CONFIG.PLAIN_ENGLISH = (mod.STORY_CONFIG.PLAIN_ENGLISH + " Out-of-sample Sharpe "
-                                          + P.tag("1.91", "wf:oos_sharpe") + ".")
+                                          + P._tag("1.91", "wf:oos_sharpe") + ".")
     bad, _ = g.check_pair(PAIR, g.render_pages(PAIR, sections=("story",), prepare=inject))
     assert any(b.startswith("MISMATCH") and "1.91" in b for b in bad), bad[:5]
 
@@ -88,15 +88,17 @@ def test_parse_markers_and_source_evaluation():
     os.environ["AIG_PROVENANCE_GATE"] = "1"
     try:
         ws = P.json_file(g.RESULTS / PAIR / "winner_summary.json")
-        text = f"{P.A0}Sharpe {ws['oos_sharpe']:.2f} vs {ws['bh_sharpe'] * 100:.0f} and 0.77.{P.A1}"
+        text = (f"{P.A0}StoryConfig.X{P.AP}Sharpe {ws['oos_sharpe']:.2f} vs {ws['bh_sharpe'] * 100:.0f} and "
+                f"{ws['oos_max_drawdown']:.1%} and 0.77.{P.A1}")
     finally:
         os.environ.pop("AIG_PROVENANCE_GATE")
-    clean, kinds, sents = g.parse_markers(text)
-    assert clean.startswith("Sharpe ") and len(sents) == 2
-    for a, b, src, shown in sents:
-        assert g.verify_sentinel(src, shown, _ws()["winner_fields"]) is None
-    f, c = g.check_tagged(text, g.load_pool(PAIR), [], {}, "t")
-    assert c["tagged_values"] == 2 and any("0.77" in x for x in f)
+    clean, kinds, paths, sents, defs = g.parse_markers(text)
+    assert clean.startswith("Sharpe ") and len(sents) == 3 and paths[0] == "StoryConfig.X"
+    assert [u for *_, u, _ in sents] == ["raw", "raw", "pct"]
+    for a, b, src, unit, shown in sents:
+        assert g.verify_sentinel(src, unit, shown, _ws()["winner_fields"], PAIR) is None
+    f, c = g.check_tagged(text, g.load_pool(PAIR), [], {}, "t", PAIR)
+    assert c["tagged_values"] == 3 and any("0.77" in x for x in f)
 
 
 # ----------------------------------------------------------------------------------------- regression record
@@ -155,3 +157,153 @@ def test_injected_stale_prose_fails_end_to_end_v2():
         mod.STORY_CONFIG.PLAIN_ENGLISH = mod.STORY_CONFIG.PLAIN_ENGLISH + " Its test-period Sharpe was 7.77."
     bad, _ = g.check_pair(PAIR, g.render_pages(PAIR, sections=("story",), prepare=inject))
     assert any(b.startswith("UNTAGGED") and "'7.77'" in b for b in bad), bad[:3]
+
+
+# ------------------------------------------------------------------------- Codex L2v2 review: every repro FAILs
+def _gate_env():
+    import os
+    os.environ["AIG_PROVENANCE_GATE"] = "1"
+
+
+def _gate_off():
+    import os
+    os.environ.pop("AIG_PROVENANCE_GATE", None)
+
+
+def _authored(body, path="StoryConfig.PLAIN_ENGLISH"):
+    from components import provenance as P
+    return f"{P.A0}{path}{P.AP}{body}{P.A1}"
+
+
+def _check(text, approved=None):
+    return g.check_tagged(text, g.load_pool(PAIR), g._allow_entries(), _ws()["winner_fields"], "t", PAIR,
+                          approved)[0]
+
+
+def test_l2v2_f1_constant_cannot_mint_a_tag():
+    from components import provenance as P
+    _gate_env()
+    try:
+        a = _authored("Stale " + P._tag("987.65", "const:987.65"))
+        b = _authored(f"Stale {P._PNum(987.65, 'const:987.65'):.2f}")
+        c = _authored(f"Stale {P._PNum(987.65, 'mul(const:987.65,const:1.0)'):.2f}")
+    finally:
+        _gate_off()
+    for t in (a, b, c):
+        assert any(x.startswith("MISMATCH") for x in _check(t)), t
+    with pytest.raises(P.SourceError):
+        P.evaluate("const:987.65", {}, PAIR)
+    with pytest.raises(P.SourceError):                       # a constant that is not a unit operand
+        P.evaluate(f"mul(art:{PAIR}/winner_summary.json#/oos_sharpe,const:7.0)", {}, PAIR)
+
+
+def test_l2v2_f2_sources_must_live_in_the_pairs_results(tmp_path):
+    from components import provenance as P
+    f = tmp_path / "not_results.json"
+    f.write_text('{"value": 12.34}')
+    other = next(p for p in g.RESULTS.iterdir() if p.is_dir() and p.name != PAIR and (p / "winner_summary.json").exists())
+    _gate_env()
+    try:
+        outside = P.json_file(f)
+        a = _authored(f"Stale {outside['value']:.2f}")
+        b = _authored(f"Stale {P.json_file(other / 'winner_summary.json')['oos_sharpe']:.2f}")
+    finally:
+        _gate_off()
+    assert any("MISMATCH" in x and "outside" in x for x in _check(a))
+    assert any("MISMATCH" in x and "not inside" in x for x in _check(b))     # another pair's results
+
+
+def test_l2v2_f3_chart_text_is_extracted_and_checked():
+    import json
+    spec = json.dumps({"data": [{"name": "Winner (Sharpe 987.65)", "text": ["987.65"]}],
+                       "layout": {"title": {"text": "Chart title 987.65"}, "yaxis": {"title": {"text": "Axis 987.65"}},
+                                  "annotations": [{"text": "note 987.65"}]}})
+    texts = g._chart_texts(spec)
+    assert len(texts) == 5 and all("987.65" in t for t in texts)
+    for t in texts:
+        assert any(x.startswith("UNRESOLVED") for x in _check(t)), t
+
+    from streamlit.testing.v1 import AppTest
+    at = AppTest.from_string("import streamlit as st, plotly.graph_objects as go\n"
+                             "st.plotly_chart(go.Figure(layout={'title': {'text': 'Chart title 987.65'}}))\n").run()
+    blocks = []
+    g._texts(at._tree, blocks)
+    assert ("chart", "Chart title 987.65") in blocks
+
+
+def test_l2v2_f4_table_cells_are_sentinel_verified_and_sign_aware():
+    from components import provenance as P
+    _gate_env()
+    try:
+        wrong = "Sharpe | " + P._tag("987.65", "wf:oos_sharpe")
+    finally:
+        _gate_off()
+    tpool = g.load_table_pool(PAIR, g.load_pool(PAIR))
+    f, _ = g.check_tagged(wrong, tpool, [], _ws()["winner_fields"], "t [table]", PAIR)
+    assert any(x.startswith("MISMATCH") for x in f)
+    f, _ = g.check_tagged(_authored("Stale estimate -57"), tpool, [], {}, "t [table]", PAIR)
+    assert f
+
+
+def test_l2v2_f5_template_matching_is_sign_sensitive():
+    x = _ws()["oos_sharpe"]
+    assert x > 0
+    assert any(t.startswith("UNRESOLVED") for t in _check(f"Out-of-sample Sharpe {-x:.2f}."))
+    assert _check(f"Out-of-sample Sharpe {x:.2f}.") == []
+
+
+def test_l2v2_f6_winner_field_text_is_reconciled_with_value():
+    fields = {"metric": {"value": 1.23, "text": "9.99"}, "pct": {"value": 0.239, "text": "23.9%"},
+              "lead": {"value": 5, "text": "five"}, "bad_word": {"value": 5, "text": "seven"},
+              "rng": {"value": [4, 5, 6], "text": "L4-L6"}}
+    assert g.verify_sentinel("wf:metric", "raw", "9.99", fields, PAIR)
+    assert g.verify_sentinel("wf:pct", "raw", "23.9%", fields, PAIR) is None
+    assert g.verify_sentinel("wf:lead", "raw", "five", fields, PAIR) is None
+    assert g.verify_sentinel("wf:bad_word", "raw", "seven", fields, PAIR)
+    assert g.verify_sentinel("wf:rng", "raw", "L4-L6", fields, PAIR) is None
+
+
+def test_l2v2_f7_every_number_and_the_declared_unit_are_checked():
+    src = f"art:{PAIR}/winner_summary.json#/oos_sharpe"
+    x = _ws()["oos_sharpe"]
+    assert g.verify_sentinel(src, "raw", f"{x:.2f} and 987.65", {}, PAIR)          # extra number in the span
+    assert g.verify_sentinel(src, "raw", f"{x * 100:.0f}%", {}, PAIR)               # raw value shown as x100
+    assert g.verify_sentinel(src, "pct", f"{x * 100:.0f}%", {}, PAIR) is None       # declared percent
+    assert g.verify_sentinel(src, "pct", f"{x:.2f}", {}, PAIR)                      # declared percent, raw shown
+
+
+@pytest.mark.parametrize("body", ["It returned seventy percent.", "It returned zero percent.",
+                                  "It returned one percent.", "It held twenty-one months.",
+                                  "It returned 二十 percent.", "It ranked Ⅻ.", "Sharpe 1.⁹."])
+def test_l2v2_f8_number_words_and_non_ascii_numerals_fail(body):
+    assert _check(_authored(body)), body
+
+
+@pytest.mark.parametrize("body", ["The stale estimate used a 12-month return.", "The stale Sharpe was reported in 2025.",
+                                  "The stale allocation holds 100% SPY."])
+def test_l2v2_f9_phrase_allowlists_are_bound_to_config_paths(body):
+    assert any(x.startswith("UNTAGGED") for x in _check(_authored(body))), body
+
+
+def test_l2v2_f10_definition_text_must_come_from_an_approved_field(tmp_path):
+    from components import provenance as P
+    t = _authored(f"Stale result {P.D0}987.65 percent{P.D1}")
+    assert any(x.startswith("DEFINITION") for x in _check(t, approved=set()))
+    import gate_structured_prose as L1
+    cfg = tmp_path / "x_config.py"
+    cfg.write_text("from components import provenance as P\nX = P.definition_text('987.65 percent')\n"
+                   "Y = P._tag('987.65', 'const:987.65')\nZ = P.definitions({'a': '1'})\n"
+                   "from components.provenance import _PNum\n")
+    found = L1.provenance_api(cfg)
+    assert len(found) == 4, found                              # X, Y (P._tag), Z (not *_TEXT), the import
+
+
+def test_l2v2_f11_markers_never_leak_into_a_later_normal_render():
+    from components import provenance as P
+    g.render_pages(PAIR, sections=("story",), tagged=True)
+    plain = g.render_pages(PAIR, sections=("story",), tagged=False)
+    text = "".join(b for blocks in plain.values() for _, b in blocks)
+    assert not any(c in text for c in (P.A0, P.A1, P.AP, P.S0, P.S1, P.S2, P.D0, P.D1, P.U))
+    import sys as _s
+    assert f"pair_configs.{PAIR}_config" not in _s.modules
+    assert not hasattr(_s.modules.get("pair_configs"), f"{PAIR}_config")

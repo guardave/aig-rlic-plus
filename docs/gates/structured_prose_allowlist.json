@@ -4,18 +4,52 @@
     {
       "id": "method_window",
       "paths": [
-        "*"
+        "*_BLOCK*",
+        "EVIDENCE_METHOD_BLOCKS*",
+        "*CROSS_PERIOD_CAPTIONS*",
+        "*methods_table*",
+        "_METHODS_TABLE_MD",
+        "*tournament_design*",
+        "_TOURNAMENT_DESIGN_MD",
+        "*indicator_construction*",
+        "_INDICATOR_CONSTRUCTION_MD",
+        "*SIGNAL_RULE_MD",
+        "*HOW_SIGNAL*",
+        "*MANUAL_USE*",
+        "*TRADE_LOG*",
+        "*REGIME_CAPTION",
+        "*HERO_CAPTION",
+        "*CAVEATS_MD",
+        "*NARRATIVE_SECTION_*",
+        "*PAGE_SUBTITLE",
+        "*KPI_CAPTION",
+        "*LEADERBOARD_NOTE*"
       ],
       "regex": "\\b\\d+(?:/\\d+)*(?:\\.\\d+)?(?:[- ]|-to-)(?:month|quarter|day|trading[- ]day|business[- ]day|week|year)s?(?:[- ][A-Za-z&-]+){0,2}?(?:[- ](?:change|chg|rolling|z-score|history|horizon|window|median|average|percentile|forward|momentum|percent change|% change|rate of change|range|rank|low|high|period|blocks?|minimum|maximum|sum|lookback|warm-up|return|returns|overlapping|realized|volatility|correlation|Granger|test|z-scores|changes|percentile ranks|% changes|equivalent))",
-      "why": "Transform / window / horizon definitions of the pair spec (e.g. '60-month rolling', '3-month change', '21-day forward return'); they define signals, not results. Leads use a different phrase class (earlier / lagged / lead), which stays banned."
+      "why": "Transform / window / horizon definitions of the pair spec (e.g. '60-month rolling', '3-month change', '21-day forward return'); they define signals, not results. Leads use a different phrase class (earlier / lagged / lead), which stays banned. Bound to the config attributes where it is a definition (Codex L2v2 F9), not global."
     },
     {
       "id": "trailing_window",
       "paths": [
-        "*"
+        "*_BLOCK*",
+        "EVIDENCE_METHOD_BLOCKS*",
+        "*CROSS_PERIOD_CAPTIONS*",
+        "*methods_table*",
+        "_METHODS_TABLE_MD",
+        "*tournament_design*",
+        "_TOURNAMENT_DESIGN_MD",
+        "*indicator_construction*",
+        "_INDICATOR_CONSTRUCTION_MD",
+        "*SIGNAL_RULE_MD",
+        "*HOW_SIGNAL*",
+        "*MANUAL_USE*",
+        "*TRADE_LOG*",
+        "*CAVEATS_MD",
+        "*NARRATIVE_SECTION_*",
+        "*LEADERBOARD_NOTE*"
       ],
       "regex": "\\b(?:trailing|rolling|over the last|over the trailing|its own trailing|of its own trailing|previous)\\s+\\d+(?:,\\d{3})?\\s+(?:trading days|business days|days|months|quarters|weeks|years)\\b",
-      "why": "Rolling-window lengths of the declared thresholds and transforms (spec constants)."
+      "why": "Rolling-window lengths of the declared thresholds and transforms (spec constants). Bound to the config attributes where it is a definition (Codex L2v2 F9), not global."
     },
     {
       "id": "ordinal_percentile",
@@ -35,11 +69,24 @@
     {
       "id": "calendar",
       "paths": [
-        "*"
+        "*HISTORY_ZOOM_EPISODES*",
+        "*NARRATIVE_SECTION_*",
+        "*HERO_CAPTION",
+        "*HERO_TITLE",
+        "*WHERE_THIS_FITS",
+        "*CAVEATS_MD",
+        "*REFERENCES*",
+        "*references_md",
+        "*data_sources*",
+        "_DATA_SOURCES_MD",
+        "*sample_period_note",
+        "*STATISTICAL_FRAMING_BANNER",
+        "*PAGE_SUBTITLE",
+        "*HEADLINE_H2"
       ],
       "regex": "\\b(?:19|20)\\d{2}(?:-\\d{2}){0,2}\\b(?:\\s*(?:-|–|to|→|->)\\s*(?:19|20)\\d{2}(?:-\\d{2}){0,2}\\b)?",
       "deny_if_sentence": "test[- ]period|out[- ]of[- ]sample|\\bOOS\\b|in[- ]sample window|training period|held-out",
-      "why": "Calendar references to historical events, publication dates and methodology-change dates. Denied in sentences about result windows (test / training / OOS), whose dates come from winner_fields."
+      "why": "Calendar references to historical events, publication dates and methodology-change dates. Denied in sentences about result windows (test / training / OOS), whose dates come from winner_fields. Bound to the config attributes where it is a definition (Codex L2v2 F9), not global."
     },
     {
       "id": "identifiers",
@@ -105,34 +152,79 @@
     {
       "id": "position_sizes",
       "paths": [
-        "*"
+        "*SIGNAL_RULE_MD",
+        "*HOW_SIGNAL*",
+        "*MANUAL_USE*",
+        "*TRADE_LOG*",
+        "*_TEXT*"
       ],
       "regex": "\\b(?:exposure (?:from|of)|hold(?:s|ing)?|position(?: size)?(?: of| from)?)\\s+(?:0|100)%(?:\\s*(?:to|-|→)\\s*(?:0|100)%)?(?:\\s+(?:SPY|invested|cash))?|\\bHOLD SPY \\((?:0|100)%|\\b(?:0|100)%\\s+(?:SPY|invested)\\b|\\$10,000",
-      "why": "Position sizes of the long/cash family, only in a position phrase ('hold 100% SPY', 'exposure from 0% to 100%', 'HOLD SPY (100%)', '100% invested') and the trade log's notional stake; a bare 0% / 100% is a result and fails (QA_VERIFY_B0r)."
+      "why": "Position sizes of the long/cash family, only in a position phrase ('hold 100% SPY', 'exposure from 0% to 100%', 'HOLD SPY (100%)', '100% invested') and the trade log's notional stake; a bare 0% / 100% is a result and fails (QA_VERIFY_B0r). Bound to the config attributes where it is a definition (Codex L2v2 F9), not global."
     },
     {
       "id": "method_specs",
       "paths": [
-        "*"
+        "*_BLOCK*",
+        "EVIDENCE_METHOD_BLOCKS*",
+        "*CROSS_PERIOD_CAPTIONS*",
+        "*methods_table*",
+        "_METHODS_TABLE_MD",
+        "*tournament_design*",
+        "_TOURNAMENT_DESIGN_MD",
+        "*indicator_construction*",
+        "_INDICATOR_CONSTRUCTION_MD"
       ],
       "regex": "\\blags?\\s+\\d+\\s*(?:-|–|to)\\s*\\d+|\\blags? of \\d+ to \\d+|\\btau\\s*=\\s*0\\.\\d+|\\boffsets?\\s+[-−]?\\d+\\s*(?:\\.\\.|to|-)\\s*\\+?\\d+|\\b\\d+(?:,\\s*\\d+)*,?\\s+and\\s+\\d+\\s+(?:quarters|months|days|trading days)\\b|\\b\\d+\\s+(?:signal transforms|transforms|buckets|quartiles|regimes|states|signals|strategies \\(|leads \\{)|\\{\\d+(?:,\\s*\\d+)*\\}|\\b\\d+-quarter delinquency change|\\bat \\d+(?:,\\s*\\d+)* and \\d+ days\\b|\\blags?\\s+[-+−]?\\d+(?:\\s*(?:-|–|to|and)\\s*[-+−]?\\d+)?|\\bmax\\(0\\.75\\s*·?\\s*n\\^\\(1/3\\),\\s*h-1\\)|\\bh\\s*-\\s*1\\b|\\bh\\s*=\\s*\\d+d?\\b|\\bevery \\d+ trading days\\b",
-      "why": "Specifications of the evidence methods and the declared grid (Granger / CCF lags, regression quantiles, horizon lists, number of transforms or buckets, the lead set as declared in the registry); they define methods, not results."
+      "why": "Specifications of the evidence methods and the declared grid (Granger / CCF lags, regression quantiles, horizon lists, number of transforms or buckets, the lead set as declared in the registry); they define methods, not results. Bound to the config attributes where it is a definition (Codex L2v2 F9), not global."
     },
     {
       "id": "structure_words",
       "paths": [
-        "*"
+        "*_BLOCK*",
+        "EVIDENCE_METHOD_BLOCKS*",
+        "*CROSS_PERIOD_CAPTIONS*",
+        "*methods_table*",
+        "_METHODS_TABLE_MD",
+        "*tournament_design*",
+        "_TOURNAMENT_DESIGN_MD",
+        "*indicator_construction*",
+        "_INDICATOR_CONSTRUCTION_MD",
+        "*SIGNAL_RULE_MD",
+        "*HOW_SIGNAL*",
+        "*MANUAL_USE*",
+        "*TRADE_LOG*",
+        "*CAVEATS_MD",
+        "*EXECUTIVE*",
+        "*NARRATIVE_SECTION_*",
+        "_GRID_TABLE_MD",
+        "*grid_table*"
       ],
       "regex": "\\b(?:two|three|four|five|six|seven|eight|nine|ten|twelve|fifteen)\\s+(?:data tracks|tracks|buckets|quartiles|signal transforms|transforms|neighbouring leads|neighbouring grid leads|adjacent leads|steps|regimes|states|legs|channels|pages|tiers|signals|methods|tests|strategies|threshold schemes|equal-count quartiles|quartile means|regime probabilities|lags)\\b|\\b(?:one|two)\\s+(?:track|data views?|views?|series|directions?|legs?)\\b",
-      "why": "Counts of page / method structure (pages, tracks, quartile buckets, transforms in the declared grid, the D9 window of three leads), not result counts."
+      "why": "Counts of page / method structure (pages, tracks, quartile buckets, transforms in the declared grid, the D9 window of three leads), not result counts. Bound to the config attributes where it is a definition (Codex L2v2 F9), not global."
     },
     {
       "id": "release_and_execution_rule",
       "paths": [
-        "*"
+        "*_BLOCK*",
+        "EVIDENCE_METHOD_BLOCKS*",
+        "*CROSS_PERIOD_CAPTIONS*",
+        "*methods_table*",
+        "_METHODS_TABLE_MD",
+        "*tournament_design*",
+        "_TOURNAMENT_DESIGN_MD",
+        "*indicator_construction*",
+        "_INDICATOR_CONSTRUCTION_MD",
+        "*SIGNAL_RULE_MD",
+        "*HOW_SIGNAL*",
+        "*MANUAL_USE*",
+        "*TRADE_LOG*",
+        "*data_sources*",
+        "_DATA_SOURCES_MD",
+        "*NARRATIVE_SECTION_*",
+        "*CAVEATS_MD"
       ],
       "regex": "\\babout one business day after (?:the|its) (?:value )?date\\b|\\bone[- ](?:trading[- ])?day execution lag\\b|\\ba further execution day\\b|\\bat least one (?:trading )?day back\\b|\\beffective lag is at least two trading days\\b|\\bshortest lead in the traded grid is one trading day\\b",
-      "why": "The publication rule and execution lag recorded in the lead-axis registry (release_calendar_series rule:next_business_day, position_shift 1, lead_floor_effective 2); not results."
+      "why": "The publication rule and execution lag recorded in the lead-axis registry (release_calendar_series rule:next_business_day, position_shift 1, lead_floor_effective 2); not results. Bound to the config attributes where it is a definition (Codex L2v2 F9), not global."
     },
     {
       "id": "declared_grid_sizes",
@@ -155,10 +247,23 @@
     {
       "id": "series_definition",
       "paths": [
-        "*"
+        "*PAGE_SUBTITLE",
+        "*PLAIN_ENGLISH",
+        "*HERO_CAPTION",
+        "*NARRATIVE_SECTION_*",
+        "*indicator_construction*",
+        "_INDICATOR_CONSTRUCTION_MD"
       ],
       "regex": "\\b(?:at least )?30\\+? days past due\\b",
-      "why": "FRB definition of the delinquency series DRCCLACBN (balances 30 or more days past due); a fixed series definition, not a result."
+      "why": "FRB definition of the delinquency series DRCCLACBN (balances 30 or more days past due); a fixed series definition, not a result. Bound to the config attributes where it is a definition (Codex L2v2 F9), not global."
+    },
+    {
+      "id": "inline_citation",
+      "paths": [
+        "*"
+      ],
+      "regex": "\\((?:[A-Z][\\wÀ-ſ.'-]+(?: et al\\.)?(?:,? (?:and|&) [A-Z][\\wÀ-ſ.'-]+)?), \\d{4}[a-z]?\\)",
+      "why": "An inline literature citation '(Author, YYYY)' (a publication year, not a result)."
     }
   ]
 }

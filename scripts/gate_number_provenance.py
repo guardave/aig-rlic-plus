@@ -25,6 +25,16 @@ could pass by coincidence (24-32% of random plausible numbers). v2 tags provenan
      st.dataframe cells may also match the pair's current result files. The printed 'coincidence' applies to
      this template fallback only. Chart internals are not checked.
 
+Hardening after Codex L2v2 (F1-F11): configs cannot mint tags (private constructors; layer-1 PROVENANCE-API);
+a constant is never a source, only a unit operand next to an artifact; every source must resolve inside
+results/<pair>/ (or the pair's registry entry); winner_fields text is reconciled with its value; every number in
+a tagged span is checked in the declared unit (raw / pct); tables and charts go through the same sentinel check
+(charts: see CHART_SCOPE); template matching respects explicit signs; number words compose (twenty-one) and
+'one' / 'zero' count when a unit follows; non-ASCII numerals are reported; layer-1 phrase exemptions apply to
+authored text only in the config attributes their `paths` name (GLOBAL_OK excepted); definition text must equal
+an approved definition (a *_TEXT dict value or an approved methodology block); the marked config module is fully
+discarded after a render. Shared-template values loaded through schema_check.validate_or_die are tagged too.
+
 Usage:
   python scripts/gate_number_provenance.py [pair ...]         # default: every pair with winner_summary 1.3.x
   python scripts/gate_number_provenance.py --text FILE --pair P  # v1 value check of a text file (diagnostic)
@@ -49,11 +59,12 @@ PROSE_ALLOWLIST = REPO / "docs" / "gates" / "structured_prose_allowlist.json"
 REGISTRY = REPO / "docs" / "schemas" / "lead_axis_registry.json"
 SECTIONS = ("story", "evidence", "strategy", "methodology")
 
-NUMBER_WORDS = {w: i for i, w in enumerate(
+UNITS = {w: i for i, w in enumerate(
     "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen "
-    "seventeen eighteen nineteen twenty".split())}
-NUMBER_WORDS.update({"thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "hundred": 100, "dozen": 12,
-                     "half": 0.5, "quarter of": 0.25, "third of": 1 / 3})
+    "seventeen eighteen nineteen".split())}
+TENS = {"twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90}
+SCALES = {"hundred": 100, "thousand": 1000, "million": 1e6, "dozen": 12, "half": 0.5}
+NUMBER_WORDS = {**UNITS, **TENS, **SCALES}          # (kept for callers of v1)
 ORDINAL_WORDS = {"first": 1, "second": 2, "third": 3, "fourth": 4, "fifth": 5, "sixth": 6, "seventh": 7,
                  "eighth": 8, "ninth": 9, "tenth": 10, "eleventh": 11, "twelfth": 12}
 DATE = re.compile(r"\b(\d{4})-(\d{2})(?:-(\d{2}))?\b")
@@ -61,7 +72,26 @@ NUM = re.compile(r"(?<![\w.])[-+−]?\$?\d{1,3}(?:,\d{3})+(?:\.\d+)?%?"
                  r"|(?<![\w.])[-+−]?\$?\d+(?:\.\d+)?(?:e[-+]?\d+)?%?"
                  r"|(?<=[A-Za-z])\d+(?:\.\d+)?(?=\b)")
 ORDINAL = re.compile(r"\b(\d+)(?:st|nd|rd|th)\b")
-WORD = re.compile(r"\b(" + "|".join(sorted(NUMBER_WORDS, key=len, reverse=True)) + r")\b", re.I)
+_U9 = "one|two|three|four|five|six|seven|eight|nine"
+WORD = re.compile(r"\b(?:(?P<tens>" + "|".join(TENS) + r")(?:[- ](?P<unit>" + _U9 + r"))?|(?P<small>"
+                  + "|".join(sorted(UNITS, key=len, reverse=True)) + r")|(?P<scale>" + "|".join(SCALES) + r"))\b",
+                  re.I)
+# a number word followed by a unit is a quantity even for 'one' / 'zero' (Codex L2v2 F8: 'zero percent')
+UNIT_AFTER = re.compile(r"\s*-?\s*(?:%|(?:per ?cent|pp|percentage points?|basis points?|bps?|months?|quarters?|"
+                        r"years?|days?|weeks?|times)\b)", re.I)
+# numerals other than ASCII / Unicode decimal digits: superscripts / subscripts, vulgar fractions, Roman numerals,
+# Chinese / Japanese numerals. Always reported (nothing in a pair page needs them).
+NONASCII_NUM = re.compile(r"[\u00b2\u00b3\u00b9\u00bc-\u00be\u2070-\u2079\u2080-\u2089\u2150-\u218b"
+                          r"\u3007\u96f6\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u5341\u767e"
+                          r"\u5343\u4e07\u5104\u4ebf\u5169]+")
+
+
+def word_value(m) -> float:
+    if m.group("tens"):
+        return TENS[m.group("tens").lower()] + (UNITS[m.group("unit").lower()] if m.group("unit") else 0)
+    if m.group("small"):
+        return UNITS[m.group("small").lower()]
+    return SCALES[m.group("scale").lower()]
 
 
 # ------------------------------------------------------------------------------------------------- pool
@@ -94,7 +124,7 @@ def pool_files(pair: str) -> list[Path]:
     ws = json.loads((rdir / "winner_summary.json").read_text())
     tag = ws["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
     files = [rdir / "winner_summary.json", rdir / "track_summary.json", rdir / f"evidence_facts_{tag}.json",
-             rdir / f"candidates_manifest_{tag}.json"]
+             rdir / f"candidates_manifest_{tag}.json", rdir / "interpretation_metadata.json"]
     return [f for f in files if f.exists()]
 
 
@@ -144,6 +174,7 @@ def load_pool(pair: str) -> dict:
         import pandas as pd
         first = pd.read_csv(tl, comment="#").iloc[:1]
         nums += [float(x) for x in first.select_dtypes("number").to_numpy().ravel()]
+        strs += [str(x) for x in first.select_dtypes(exclude="number").to_numpy().ravel()]
     try:
         _walk(json.loads(REGISTRY.read_text())["pairs"][pair], nums, strs)
     except (OSError, KeyError):
@@ -210,25 +241,42 @@ def _value(tok: str) -> tuple[float, int, bool] | None:
     return v, d, pct
 
 
-def resolves(v: float, d: int, pct: bool, pool: dict, is_int_word=False) -> bool:
+def resolves(v: float, d: int, pct: bool, pool: dict, is_int_word=False, signed: bool = False) -> bool:
     """Percent tokens (and ordinals, passed as pct) match a pool value or 100x a pool value at the printed
     precision; bare integers match integer-valued pool numbers exactly (so "5" is not "any value in
-    [4.5, 5.5)"); decimals match at their printed precision. Signs are ignored (prose writes magnitudes)."""
-    av = abs(v)
+    [4.5, 5.5)"); decimals match at their printed precision. signed (the token carries an explicit + / -
+    sign): the pool value must have that sign (Codex L2v2 F5); an unsigned token matches a magnitude."""
+    def same(a, x, tol):
+        return abs(a - x) <= tol if signed else abs(abs(a) - abs(x)) <= tol
     if pct:
         tol = 0.5 * 10 ** -d + 1e-9
-        return any(abs(abs(a) - av) <= tol or abs(abs(a) * 100 - av) <= tol for a in pool["nums"])
+        return any(same(a, v, tol) or same(a * 100, v, tol) for a in pool["nums"])
     if d == 0:
-        return any(float(abs(a)).is_integer() and abs(a) == av for a in pool["nums"])
+        return any(float(abs(a)).is_integer() and (a == v if signed else abs(a) == abs(v)) for a in pool["nums"])
     tol = 0.5 * 10 ** -d + 1e-9
-    return any(abs(abs(a) - av) <= tol for a in pool["nums"])
+    return any(same(a, v, tol) for a in pool["nums"])
+
+
+# Layer-1 allowlist entries usable anywhere in AUTHORED text (they cannot carry a result: list numbering, proper
+# names, identifiers / codes, fixed statistical conventions). Every other layer-1 entry applies to authored text
+# only in the config attributes its `paths` name (Codex L2v2 F9: no global phrase laundering). Template text uses the
+# layer-2 entries (docs/gates/number_provenance_allowlist.json: template phrases) and GLOBAL_OK only.
+GLOBAL_OK = {"list_numbering", "names", "identifiers", "statistical_conventions", "inline_citation"}
 
 
 def _allow_entries() -> list[dict]:
     out = json.loads(ALLOWLIST.read_text())["entries"] if ALLOWLIST.exists() else []
     if PROSE_ALLOWLIST.exists():
-        out += [e for e in json.loads(PROSE_ALLOWLIST.read_text())["entries"] if e["paths"] == ["*"]]
+        out += json.loads(PROSE_ALLOWLIST.read_text())["entries"]
     return out
+
+
+def _entries_for(entries: list[dict], kind: str, path: str | None) -> list[dict]:
+    from fnmatch import fnmatch
+    if kind != "authored":                     # template / chart / table text: the layer-2 entries (template phrases)
+        return [e for e in entries if "paths" not in e or e["id"] in GLOBAL_OK]
+    return [e for e in entries if e["id"] in GLOBAL_OK
+            or (e.get("paths") and e["paths"] != ["*"] and path and any(fnmatch(path, g) for g in e["paths"]))]
 
 
 def _allowed(span, text, entries) -> bool:
@@ -260,38 +308,8 @@ def strip_non_prose(text: str) -> str:
 
 
 def check_text(text: str, pool: dict, entries: list[dict], where: str = "") -> list[str]:
-    """Unresolved numeric tokens of one rendered text block."""
-    text = strip_non_prose(text)
-    out, taken = [], []
-    for m in DATE.finditer(text):
-        taken.append(m.span())
-        if m.group(0) not in pool["dates"] and not _allowed(m.span(), text, entries):
-            out.append(f"UNRESOLVED {where}: date {m.group(0)} — \"{_ctx(text, m)}\"")
-    for m in ORDINAL.finditer(text):
-        taken.append(m.span())
-        v = int(m.group(1))
-        if not (resolves(v, 0, True, pool) or _allowed(m.span(), text, entries)):
-            out.append(f"UNRESOLVED {where}: ordinal {m.group(0)} — \"{_ctx(text, m)}\"")
-    for m in NUM.finditer(text):
-        if any(a <= m.start() < b for a, b in taken):
-            continue
-        val = _value(m.group(0))
-        if val is None:
-            continue
-        v, d, pct = val
-        pct = pct or bool(re.match(r"\s?pp\b", text[m.end():m.end() + 4]))   # percentage points
-        if d == 0 and not pct and 1900 <= abs(v) <= 2100 and str(int(abs(v))) in pool["years"]:
-            continue
-        if resolves(v, d, pct, pool) or _allowed(m.span(), text, entries):
-            continue
-        out.append(f"UNRESOLVED {where}: number {m.group(0)} — \"{_ctx(text, m)}\"")
-    for m in WORD.finditer(text):
-        w = m.group(1).lower()
-        if w in ("one", "a") or _allowed(m.span(), text, entries):
-            continue
-        if not resolves(float(NUMBER_WORDS[w]), 0 if float(NUMBER_WORDS[w]).is_integer() else 2, False, pool):
-            out.append(f"UNRESOLVED {where}: number word '{m.group(1)}' — \"{_ctx(text, m)}\"")
-    return out
+    """v1 value check of plain text (no markers: every token is template-classified and value-matched)."""
+    return check_tagged(text, pool, entries, {}, where)[0]
 
 
 def _ctx(text: str, m) -> str:
@@ -310,7 +328,7 @@ def coincidence(pool: dict, n: int = 3000, seed: int = 7) -> float:
             v, d, p = round(rng.uniform(0, 100), 1), 1, True
         else:
             v, d, p = float(rng.randint(1, 300)), 0, False
-        hit += resolves(v, d, p, pool)
+        hit += resolves(v, d, p, pool, signed=v < 0)
     return hit / n
 
 
@@ -320,8 +338,60 @@ def _page_file(pair: str, section: str) -> Path | None:
     return hits[0] if hits else None
 
 
+CHART_SCOPE = ("chart titles, axis titles, annotations, legend title, trace names and text labels are checked; "
+               "hover text / hovertemplates and plotted data values are NOT (disclosed gap)")
+
+
+def _chart_texts(spec: str) -> list[str]:
+    """Visible text of a Plotly figure (Codex L2v2 F3): see CHART_SCOPE."""
+    try:
+        fig = json.loads(spec)
+    except (TypeError, ValueError):
+        return []
+    out = []
+    lay = fig.get("layout") or {}
+
+    def title(o):
+        t = (o or {}).get("title")
+        return t.get("text") if isinstance(t, dict) else t
+    for k, v in lay.items():
+        if k == "title" or k.startswith(("xaxis", "yaxis")) or k == "legend":
+            t = title(lay) if k == "title" else title(v)
+            if isinstance(t, str):
+                out.append(t)
+    for a in lay.get("annotations") or []:
+        if isinstance(a, dict) and isinstance(a.get("text"), str):
+            out.append(a["text"])
+    for tr in fig.get("data") or []:
+        if isinstance(tr.get("name"), str):
+            out.append(tr["name"])
+        t = tr.get("text")
+        if isinstance(t, str):
+            out.append(t)
+        elif isinstance(t, list):
+            # a bar / point label that shows the value it is attached to (its own y, or x for horizontal bars)
+            # is a label of plotted data, not a separate claim; anything else is checked like other chart text
+            ys = tr.get("x") if tr.get("orientation") == "h" else tr.get("y")
+            for i, x in enumerate(t):
+                if not isinstance(x, (str, int, float)):
+                    continue
+                own = ys[i] if isinstance(ys, list) and i < len(ys) else None
+                if not _labels_value(str(x), own):
+                    out.append(str(x))
+    return out
+
+
+def _labels_value(label: str, own) -> bool:
+    toks = _numbers(label)
+    if len(toks) != 1 or not isinstance(own, (int, float)):
+        return False
+    (x, d, _pct), _ = toks[0]
+    return abs(float(own) - x) <= 0.5 * 10 ** -d + 1e-9
+
+
 def _texts(node, out: list):
-    """(kind, text) of every rendered element: kind 'table' for st.table / st.dataframe rows, else 'prose'."""
+    """(kind, text) of every rendered element: 'table' for st.table / st.dataframe rows, 'chart' for the visible
+    text of a Plotly chart, else 'prose'."""
     ch = getattr(node, "children", None)
     if isinstance(ch, dict):
         for c in ch.values():
@@ -338,6 +408,9 @@ def _texts(node, out: list):
         except Exception:
             pass
         return
+    if typ == "plotly_chart":
+        out.extend(("chart", t) for t in _chart_texts(getattr(getattr(node, "proto", None), "spec", "")))
+        return
     if typ in ("text_input", "selectbox", "radio", "checkbox", "button"):
         return
     try:
@@ -348,22 +421,39 @@ def _texts(node, out: list):
         out.append(("prose", v))
 
 
+APPROVED_DEF_ATTRS = {"_DATA_SOURCES_MD", "_METHODS_TABLE_MD", "_GRID_TABLE_MD", "_INDICATOR_CONSTRUCTION_MD"}
+_APPROVED: dict[str, set] = {}
+
+
+def approved_definitions(mod) -> set[str]:
+    """Raw texts a config may mark as definitions (Codex L2v2 F10): the values of its *_TEXT dicts and the
+    approved methodology blocks (APPROVED_DEF_ATTRS), as they were built (with their inner sentinels)."""
+    from components.provenance import DefText
+    out = set()
+    for name, obj in vars(mod).items():
+        if name.endswith("_TEXT") and isinstance(obj, dict):
+            out |= {str.__str__(v) for v in obj.values() if isinstance(v, DefText)}
+        elif name in APPROVED_DEF_ATTRS and isinstance(obj, DefText):
+            out.add(str.__str__(obj))
+    return out
+
+
 def _mark_authored(mod) -> None:
-    """Wrap every prose string a pair config hands to the templates in authored-text markers (A0 .. A1), in place:
-    attributes of the config classes / objects and module-level dicts / lists (block dicts), recursively.
-    Identifier-like strings (no whitespace: chart names, paths, codes) are left alone."""
+    """Wrap every prose string a pair config hands to the templates in authored-text markers carrying its
+    attribute path (A0 <path> AP <text> A1), in place: attributes of the config classes / objects and module-level
+    dicts / lists (block dicts), recursively. Identifier-like strings (no whitespace) are left alone."""
     import inspect
 
-    from components.provenance import A0, A1, DefText
+    from components.provenance import A0, A1, AP, DefText
 
-    def wrap(v):
+    def wrap(v, path):
         if isinstance(v, str) and not isinstance(v, DefText) and re.search(r"\s", v) and A0 not in v:
-            return f"{A0}{v}{A1}"
+            return f"{A0}{path}{AP}{v}{A1}"
         if isinstance(v, dict):
             for k in list(v):
-                v[k] = wrap(v[k])
+                v[k] = wrap(v[k], f"{path}[{k}]")
         elif isinstance(v, list):
-            v[:] = [wrap(x) for x in v]
+            v[:] = [wrap(x, path) for x in v]
         return v
 
     for name, obj in list(vars(mod).items()):
@@ -373,12 +463,24 @@ def _mark_authored(mod) -> None:
             if obj.__module__ == mod.__name__:
                 for a, v in list(vars(obj).items()):
                     if not a.startswith("__") and not callable(v):
-                        setattr(obj, a, wrap(v))
-        elif isinstance(obj, (dict, list)):
-            wrap(obj)
-        elif hasattr(obj, "__dict__") and not inspect.isclass(obj):      # config objects (own or template classes)
+                        setattr(obj, a, wrap(v, f"{obj.__name__}.{a}"))
+        elif isinstance(obj, (dict, list)) and not name.startswith("_"):   # public block dicts / lists only
+            wrap(obj, name)
+        elif hasattr(obj, "__dict__") and not inspect.isclass(obj) \
+                and type(obj).__module__ in (mod.__name__, "components.page_templates"):   # config objects only
+            # (never shared helper objects such as the cached WinnerFields: marking them would leak into
+            # every later render in the process)
             for a, v in list(vars(obj).items()):
-                setattr(obj, a, wrap(v))
+                setattr(obj, a, wrap(v, f"{name}.{a}"))
+
+
+def _drop_config(modname: str) -> None:
+    """Forget a (possibly marked) config module completely: sys.modules AND the attribute on its parent package
+    (Codex L2v2 F11: `import pair_configs.x` would otherwise hand back the marked module)."""
+    sys.modules.pop(modname, None)
+    pkg, _, leaf = modname.rpartition(".")
+    if pkg in sys.modules and hasattr(sys.modules[pkg], leaf):
+        delattr(sys.modules[pkg], leaf)
 
 
 def render_pages(pair: str, sections=SECTIONS, tagged: bool = True, prepare=None) -> dict[str, list[tuple[str, str]]]:
@@ -394,14 +496,17 @@ def render_pages(pair: str, sections=SECTIONS, tagged: bool = True, prepare=None
     out = {}
     cwd = os.getcwd()
     try:
+        _drop_config(modname)
         if tagged:
             os.environ["AIG_PROVENANCE_GATE"] = "1"
-            sys.modules.pop(modname, None)
             os.chdir(APP)
             mod = importlib.import_module(modname)
             if prepare is not None:              # tests: edit the imported config before it is marked
                 prepare(mod)
+            _APPROVED[pair] = approved_definitions(mod)
             _mark_authored(mod)
+        else:
+            os.environ.pop("AIG_PROVENANCE_GATE", None)
         for sec in sections:
             pf = _page_file(pair, sec)
             if pf is None:
@@ -423,131 +528,203 @@ def render_pages(pair: str, sections=SECTIONS, tagged: bool = True, prepare=None
             os.environ.pop("AIG_PROVENANCE_GATE", None)
         else:
             os.environ["AIG_PROVENANCE_GATE"] = old_env
-        if tagged:
-            sys.modules.pop(modname, None)      # the marked module never serves a normal render
+        _drop_config(modname)                     # the marked module never serves a later render
     return out
 
 
 # ------------------------------------------------------------------------------------------- tagged analysis
 def parse_markers(text: str):
-    """(clean text, per-char kind list, value sentinels) of a rendered block. kind: 'template' | 'authored' |
-    'definition' | 'value'; sentinels: (start, end, source expression, displayed text) in clean coordinates.
-    A block that opens with an authored-close marker (a template split a config string) starts authored."""
-    from components.provenance import A0, A1, D0, D1, S0, S1, S2
+    """(clean text, kinds, paths, sentinels, definitions) of a rendered block.
+    kinds[i] in {'template', 'authored', 'definition', 'value'}; paths[i] = config attribute path of authored text;
+    sentinels = (start, end, source, unit, shown) in clean coordinates; definitions = raw text of every definition
+    span. A block that opens with an authored-close marker (a template split a config string) starts authored."""
+    from components.provenance import A0, A1, AP, D0, D1, S0, S1, S2, U
+    marks = (A0, A1, AP, D0, D1, S0, S1, S2, U)
     first = min([i for i in (text.find(A0), text.find(A1)) if i >= 0], default=-1)
     authored = first >= 0 and text[first] == A1
-    dfn = 0
-    clean, kinds, sents = [], [], []
+    path = None
+    dfn, dstart, defs = 0, None, []
+    clean, kinds, paths, sents = [], [], [], []
     i, n = 0, len(text)
     while i < n:
         ch = text[i]
         if ch == A0:
             authored = True
+            k = text.find(AP, i)
+            if k > i and A1 not in text[i:k]:
+                path, i = text[i + 1:k], k + 1
+                continue
         elif ch == A1:
-            authored = False
+            authored, path = False, None
         elif ch == D0:
+            if dfn == 0:
+                dstart = i + 1
             dfn += 1
         elif ch == D1:
             dfn = max(0, dfn - 1)
+            if dfn == 0 and dstart is not None:
+                defs.append(text[dstart:i])
+                dstart = None
         elif ch == S0:
             j = text.find(S1, i)
             k = text.find(S2, j)
             if j < 0 or k < 0:
                 i += 1
                 continue
-            src, shown = text[i + 1:j], text[j + 1:k]
-            for c in (A0, A1, D0, D1, S0, S1, S2):
+            head = text[i + 1:j]
+            src, _, unit = head.partition(U)
+            shown = text[j + 1:k]
+            for c in marks:
                 shown = shown.replace(c, "")
             start = len(clean)
             clean.extend(shown)
             kinds.extend(["value"] * len(shown))
-            sents.append((start, len(clean), src, shown))
+            paths.extend([path] * len(shown))
+            sents.append((start, len(clean), src, unit or "raw", shown))
             i = k + 1
             continue
         else:
             clean.append(ch)
             kinds.append("definition" if dfn else ("authored" if authored else "template"))
+            paths.append(path)
         i += 1
-    return "".join(clean), kinds, sents
+    return "".join(clean), kinds, paths, sents, defs
 
 
-def verify_sentinel(src: str, shown: str, fields: dict) -> str | None:
-    """None when the displayed text equals its source at displayed precision, else the reason."""
+def _numbers(text: str):
+    """Numeric tokens of a span (values, decimals, percent, explicit sign) — dates excluded."""
+    body = DATE.sub(lambda m: " " * len(m.group(0)), text)
+    return [(_value(m.group(0)), m.group(0)) for m in NUM.finditer(body) if _value(m.group(0))]
+
+
+def reconcile_field(name: str, fields: dict) -> str | None:
+    """winner_fields text vs value (Codex L2v2 F6): every number the text shows must be the value (x 100 for a
+    percent, any element of a list value, a digit run of a string value); a number word must equal the value."""
+    f = fields.get(name)
+    if not f:
+        return f"winner field {name!r} does not exist"
+    val, text = f.get("value"), str(f.get("text", ""))
+    if isinstance(val, bool) or val is None:
+        return None
+    toks = _numbers(text)
+    if isinstance(val, (int, float)):
+        vals = [float(val)]
+    elif isinstance(val, list) and all(isinstance(x, (int, float)) and not isinstance(x, bool) for x in val):
+        vals = [float(x) for x in val]
+    elif isinstance(val, str):
+        digits = re.findall(r"\d+", val)
+        bad = [t for (_, t) in toks if re.sub(r"\D", "", t.split(".")[0]) not in digits
+               and not any(re.sub(r"\D", "", t) in d for d in digits)]
+        return f"field {name}: text {text!r} shows {bad} not in its value {val!r}" if bad and not DATE.fullmatch(val) \
+            else None
+    else:
+        return None
+    if not toks:
+        w = WORD.search(text)
+        if w and float(word_value(w)) not in vals:
+            return f"field {name}: text {text!r} (= {word_value(w)}) != value {val!r}"
+        return None
+    for (x, d, pct), t in toks:
+        tol = 0.5 * 10 ** -d + 1e-9
+        if not any(abs(abs((v * 100) if pct else v) - abs(x)) <= tol for v in vals):
+            return f"field {name}: text {text!r} shows {t} but its value is {val!r}"
+    return None
+
+
+def verify_sentinel(src: str, unit: str, shown: str, fields: dict, pair: str | None) -> str | None:
+    """None when the displayed text equals its source at displayed precision, else the reason. Every number in
+    the span is checked against the one source value, in the declared unit (Codex L2v2 F7)."""
     from components import provenance as P
     try:
-        val = P.evaluate(src, fields)
+        val = P.evaluate(src, fields, pair)
     except Exception as e:                              # noqa: BLE001 - an unresolvable source is a finding
         return f"source {src!r} does not resolve ({type(e).__name__}: {e})"
-    if src.startswith("wf:") or isinstance(val, str):
-        return None if str(val) == shown else f"text {shown!r} != {src} {str(val)!r}"
-    m = NUM.search(shown.replace("\u2212", "-"))
-    if not m:
-        return None                                     # a non-numeric rendering (n/a)
-    v = _value(m.group(0))
-    if v is None:
-        return None
-    x, d, pct = v
+    if src.startswith("wf:"):
+        r = reconcile_field(src[3:], fields)
+        if r:
+            return r
+        return None if val == shown else f"text {shown!r} != {src} {val!r}"
+    if isinstance(val, str):
+        return None if val == shown else f"text {shown!r} != {src} {val!r}"
+    toks = _numbers(shown.replace("−", "-"))
+    if not toks:
+        return None if not re.search(r"\d", shown) else f"shows {shown!r} for numeric {src}"
     try:
         e = float(val)
     except (TypeError, ValueError):
         return f"source {src!r} is not numeric"
+    if len(toks) > 1:
+        return f"shows {shown!r}: {len(toks)} numbers in one tagged value ({src})"
+    (x, d, _pct), t = toks[0]
+    target = e * 100 if unit == "pct" else e
     tol = 0.5 * 10 ** -d + 1e-9
-    ok = abs(e - x) <= tol or (pct and abs(e * 100 - x) <= tol)
-    return None if ok else f"shows {shown!r} but {src} = {e:.6g}"
+    return None if abs(target - x) <= tol else f"shows {shown!r} but {src} = {target:.6g} ({unit})"
 
 
-def check_tagged(text: str, pool: dict, entries: list[dict], fields: dict, where: str) -> tuple[list[str], dict]:
-    """Layer 2 v2 on one rendered block. Authored numbers must sit in a verified sentinel or an allowlist span;
-    template text keeps the value-matching fallback. Returns (findings, counters)."""
-    clean, kinds, sents = parse_markers(text)
+def check_tagged(text: str, pool: dict, entries: list[dict], fields: dict, where: str,
+                 pair: str | None = None, approved: set | None = None) -> tuple[list[str], dict]:
+    """Layer 2 v2 on one rendered block. Authored numbers must sit in a verified sentinel, an approved definition
+    span or a path-bound allowlist span; template text keeps the value-matching fallback (sign-sensitive for
+    explicitly signed tokens). Returns (findings, counters)."""
+    clean, kinds, paths, sents, defs = parse_markers(text)
     out, cnt = [], {"authored_tokens": 0, "template_tokens": 0, "tagged_values": len(sents)}
-    for a, b, src, shown in sents:
-        r = verify_sentinel(src, shown, fields)
+    for a, b, src, unit, shown in sents:
+        r = verify_sentinel(src, unit, shown, fields, pair)
         if r:
             out.append(f"MISMATCH {where}: {r}")
+    for d in defs:
+        if approved is not None and d not in approved:
+            out.append(f"DEFINITION {where}: definition text not from an approved definition field — "
+                       f"\"{d[:100]}\"")
     body = strip_non_prose(clean)
+    for m in NONASCII_NUM.finditer(clean):
+        out.append(f"NUMERAL {where}: non-ASCII numeral {m.group(0)!r} — \"{_ctx(clean, m)}\"")
     spans = []
     for rx in (DATE, ORDINAL, NUM, WORD):
         for m in rx.finditer(body):
             if any(s <= m.start() < e for s, e in spans):
                 continue
             spans.append(m.span())
-            # classify by the token's DIGITS (a unit sign such as % or pp written after a tagged value is fine)
             digits = [kinds[i] for i in range(m.start(), m.end()) if body[i].isalnum()] or kinds[m.start():m.end()]
             k = set(digits)
             if k <= {"value"} or "definition" in k and k <= {"definition", "value"}:
                 continue
-            if rx is WORD and m.group(1).lower() in ("one", "a", "zero"):
+            if rx is WORD and m.group("small") and m.group("small").lower() in ("one", "zero") \
+                    and not UNIT_AFTER.match(body, m.end()):
+                continue                               # 'one of', 'near zero': not a quantity
+            kind = "authored" if "authored" in k else "template"
+            path = next((paths[i] for i in range(m.start(), m.end()) if paths[i]), None)
+            ents = _entries_for(entries, kind, path)
+            if _allowed(m.span(), clean, ents):
+                cnt[f"{kind}_tokens"] += 1
                 continue
-            if "authored" in k:
-                cnt["authored_tokens"] += 1
-                if not _allowed(m.span(), clean, entries):
-                    out.append(f"UNTAGGED {where}: authored number {m.group(0)!r} is not from a field or "
-                               f"artifact — \"{_ctx(body, m)}\"")
-            else:
-                cnt["template_tokens"] += 1
-                if not _allowed(m.span(), clean, entries) and not _resolve_token(m, rx, pool):
-                    out.append(f"UNRESOLVED {where}: template number {m.group(0)!r} — \"{_ctx(body, m)}\"")
+            cnt[f"{kind}_tokens"] += 1
+            if kind == "authored":
+                out.append(f"UNTAGGED {where}{f' [{path}]' if path else ''}: authored number {m.group(0)!r} is not "
+                           f"from a field or artifact — \"{_ctx(body, m)}\"")
+            elif not _resolve_token(m, rx, pool, body):
+                out.append(f"UNRESOLVED {where}: template number {m.group(0)!r} — \"{_ctx(body, m)}\"")
     return out, cnt
 
 
-def _resolve_token(m, rx, pool) -> bool:
-    """Value-matching fallback for template text (the v1 rule)."""
+def _resolve_token(m, rx, pool, body: str = "") -> bool:
+    """Value-matching fallback for template text (the v1 rule; explicit signs must agree)."""
     tok = m.group(0)
     if rx is DATE:
         return tok in pool["dates"]
     if rx is ORDINAL:
         return resolves(int(m.group(1)), 0, True, pool)
     if rx is WORD:
-        v = float(NUMBER_WORDS[m.group(1).lower()])
+        v = float(word_value(m))
         return resolves(v, 0 if v.is_integer() else 2, False, pool)
     val = _value(tok)
     if val is None:
         return True
     v, d, pct = val
+    pct = pct or bool(re.match(r"\s?pp\b", body[m.end():m.end() + 4]))
     if d == 0 and not pct and 1900 <= abs(v) <= 2100 and str(int(abs(v))) in pool["years"]:
         return True
-    return resolves(v, d, pct, pool)
+    return resolves(v, d, pct, pool, signed=tok.lstrip("$")[:1] in "+-−")
 
 
 # ------------------------------------------------------------------------------------------------- main
@@ -602,20 +779,21 @@ def check_pair(pair: str, pages: dict | None = None) -> tuple[list[str], dict]:
     entries = _allow_entries()
     pages = render_pages(pair) if pages is None else pages
     fields = json.loads((RESULTS / pair / "winner_summary.json").read_text()).get("winner_fields") or {}
+    approved = _APPROVED.get(pair)
     findings, tot = [], {"authored_tokens": 0, "template_tokens": 0, "tagged_values": 0}
     for sec, blocks in pages.items():
         for kind, b in blocks:
             if b.startswith("RENDER-EXCEPTION"):
                 findings.append(f"{pair}/{sec}: {b}")
                 continue
-            if kind == "table":
+            if kind in ("table", "chart"):      # sentinel-verified like prose; value fallback on current results
                 tpool = tpool or load_table_pool(pair, pool)
-                findings += check_text(parse_markers(b)[0], tpool, entries, f"{pair}/{sec} [table]")
+                f, c = check_tagged(b, tpool, entries, fields, f"{pair}/{sec} [{kind}]", pair, approved)
             else:
-                f, c = check_tagged(b, pool, entries, fields, f"{pair}/{sec}")
-                findings += f
-                for k in tot:
-                    tot[k] += c[k]
+                f, c = check_tagged(b, pool, entries, fields, f"{pair}/{sec}", pair, approved)
+            findings += f
+            for k in tot:
+                tot[k] += c[k]
     stats = {"tokens_pool": len(pool["nums"]), "coincidence_template": round(coincidence(pool), 3),
              "files": pool["files"], **tot}
     return findings, stats
@@ -641,7 +819,7 @@ def main(argv=None) -> int:
         for x in f:
             print("     ", x[:260])
         hard += len(f)
-    print(f"\nGATE-NUMBER-PROVENANCE: {hard} unresolved number(s)")
+    print(f"\nGATE-NUMBER-PROVENANCE: {hard} unresolved number(s). Charts: {CHART_SCOPE}.")
     return 1 if hard else 0
 
 
