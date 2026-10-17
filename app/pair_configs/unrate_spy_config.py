@@ -63,7 +63,7 @@ def _low(text: str) -> str:
 
 def _rule(prefix: str = "") -> str:
     """Plain-English rule of a track's winner, from its structured fields."""
-    g = lambda n: getattr(W, prefix + n)  # noqa: E731
+    g = lambda n: W.text(prefix + n)  # noqa: E731
     return (f"hold SPY when the {_low(g('signal_display'))} from {g('lead_word')} months earlier is "
             f"{SIDE.get(W.value(prefix + 'direction'), g('direction'))} {THRESHOLD_TEXT.get(g('threshold_code'), g('threshold_code'))}; "
             "otherwise hold cash")

@@ -57,7 +57,7 @@ LEAN = {"countercyclical": "countercyclical (the credit-stress prior: hold equit
 
 
 def _rule(prefix: str = "") -> str:
-    g = lambda n: getattr(W, prefix + n)  # noqa: E731
+    g = lambda n: W.text(prefix + n)  # noqa: E731
     return (f"hold SPY when the {SIGNAL_TEXT.get(g('signal_code'), g('signal_code'))} from {g('lead_word')} quarters "
             f"earlier is {SIDE.get(W.value(prefix + 'direction'), g('direction'))} "
             f"{THRESHOLD_TEXT.get(g('threshold_code'), g('threshold_code'))}; otherwise hold cash")

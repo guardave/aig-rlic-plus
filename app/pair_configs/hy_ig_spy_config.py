@@ -970,7 +970,7 @@ _DATA_SOURCES_MD = P.definition_text("""
 
 *Scope discipline.* Only HY-IG spread derivatives (and the causal regime probabilities built
 from the spread and VIX) are trading signals. VIX and the 10y-3m spread enter only as the HMM
-feature and as regression controls. Pre-2023 OAS history is spliced from the archived v1 data
+feature and as regression controls. The early OAS history is spliced from the archived v1 data
 (see `interpretation_metadata.json` caveats).
 """)
 

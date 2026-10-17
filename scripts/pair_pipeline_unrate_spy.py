@@ -357,7 +357,10 @@ NARRATIVE_SOURCES = ["regime_quartile_returns.csv", "granger_by_lag.csv",
 
 def write_narrative_provenance() -> None:
     """evidence_facts_<tag>.json: the evidence tables the page prose cites (scripts/gate_number_provenance.py)."""
-    write_evidence_facts(PAIR_ID, DATE_TAG, sources=NARRATIVE_SOURCES)
+    q = pd.read_csv(RES / "regime_quartile_returns.csv")
+    derived = {"regime_quartile_ann_return_pct": {r.quartile: round(float(r.mean_return) * 12 * 100, 6)
+                                                  for r in q.itertuples()}}   # the regime chart's return labels
+    write_evidence_facts(PAIR_ID, DATE_TAG, sources=NARRATIVE_SOURCES, derived=derived)
 
 
 def main() -> None:

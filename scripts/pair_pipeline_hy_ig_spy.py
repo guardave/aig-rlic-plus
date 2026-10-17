@@ -1588,7 +1588,8 @@ def stage_narrative_provenance():
 
     def regime(mask):
         r = spy[mask].dropna()
-        return {"sharpe": round(float(r.mean() * 252 / (r.std() * 252 ** 0.5)), 4), "ann_return": round(float(r.mean() * 252), 4)}
+        return {"sharpe": round(float(r.mean() * 252 / (r.std() * 252 ** 0.5)), 4), "ann_return": round(float(r.mean() * 252), 4),
+                "n_days": int(len(r))}
     t = _pd.read_csv(res / f"tournament_results_{DATE_TAG}.csv")
     t = t[(t["signal"] == "S6_hmm_stress") & (t["valid"].astype(str).str.lower() == "true")]
     best = t.sort_values("is_sharpe", ascending=False).iloc[0]

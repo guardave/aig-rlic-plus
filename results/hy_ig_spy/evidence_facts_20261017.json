@@ -141,11 +141,13 @@
     "hmm_regime_threshold": 0.5,
     "hmm_regime_calm": {
       "sharpe": 1.3801,
-      "ann_return": 0.1412
+      "ann_return": 0.1412,
+      "n_days": 3764
     },
     "hmm_regime_stress": {
       "sharpe": 0.1457,
-      "ann_return": 0.0377
+      "ann_return": 0.0377,
+      "n_days": 3097
     },
     "best_hmm_rule": {
       "strategy": "P2",

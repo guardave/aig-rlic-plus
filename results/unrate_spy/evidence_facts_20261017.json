@@ -6,5 +6,13 @@
     "core_models_20261017/quantile_regression.csv",
     "granger_by_lag.csv",
     "regime_quartile_returns.csv"
-  ]
+  ],
+  "derived": {
+    "regime_quartile_ann_return_pct": {
+      "Q1": 9.471915,
+      "Q2": 10.591795,
+      "Q3": 10.7175,
+      "Q4": 14.971411
+    }
+  }
 }
