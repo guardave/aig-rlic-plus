@@ -198,59 +198,28 @@ the 2021-23 wage surge + the 2022 tightening bear — exactly the episodes the c
 
 ---
 
-# Phase 1 addendum — Econometrics & Tournament (Evan, 20261016)
+# Phase 1 addendum — causal regime port + IS selection (Evan, 20261016)
 
-## Quarterly conventions (stated explicitly — first quarterly pair)
-- **Annualization: Sharpe = mean/std x sqrt(4); ann_return = mean x 4; ann_vol = std x sqrt(4).**
-- Lead grid **L2..L5 in QUARTERS** (L2 = strict pub-lag floor, BLS releases ~1 month after quarter end;
-  L8 = 2yr ceiling — wage->Fed->equity transmission has no rationale beyond ~2yr and deeper leads
-  eat the 101-obs sample). Tournament CSV lead column is `lead_quarters` (NOT lead_months).
-- Lookbacks LB12 (~3yr) / LB20 (~5yr) quarters. Correlation horizons spy_fwd_1q/2q/4q.
+## What changed
+- **Look-ahead removed.** The 20261008 winner (hmm_stress/T3_zscore_1.0/LB12/P1_long_cash_counter/L4q, OOS Sharpe 1.4089) traded a
+  2-state HMM probability fit on the FULL sample and read with forward-backward SMOOTHING (`predict_proba`), so each
+  quarter's value used later quarters. The Markov-switching signal also put `spy_ret` in its likelihood.
+- **Causal rule (scripts/_regime_causal.py):** fit on IS rows only, IS-only standardisation, forward-filtered
+  probabilities, no target return in the likelihood. A traded fit needs >= 100 IS rows; ECI has 72 IS quarters, so
+  `hmm_stress` and `markov_regime` are **excluded from the tournament** (core_models_20261016/regime_models.json).
+- A diagnostic causal HMM (IS-only, 72 quarters, override `min_is_rows=40`, NOT traded) is kept for the Evidence
+  chart and the audit. The superseded rule on it scores OOS Sharpe 1.0300
+  (HAC t 2.42) vs 1.4089 (HAC t 3.04) on the smoothed column
+  (hmm_lookahead_audit_20261016.json).
+- **Selection:** argmax IS Sharpe on the common IS window 2008-12-31..2019-12-31 (45
+  quarters; start set by yoy_zscore_20q/T3_zscore_1.0/LB20/L5, yoy_zscore_20q/T3_zscore_neg_1.0/LB20/L5); eligibility before alignment, MIN_IS_N=20; validity uses IS
+  rows only (exposure 0.05-0.95, turnover < 6/yr). The old validity rule (OOS Sharpe > 0.3) is kept only as
+  `oos_valid` for the legacy comparison.
+- Warm-up rows (lagged signal or rolling threshold undefined) are now NaN instead of cash/short.
 
-## Method coverage (Rule C1, macro) & quarterly adaptations
-- Correlations incl. distance (n-floor 40 quarters); horizons recorded as 63/126/252 horizon_days.
-- Pre-whitened CCF at quarterly lags -8..+8 (pre-whitening ESSENTIAL — YoY wage inflation near-I(1); AR order by AIC, max 4).
-- Toda-Yamamoto Granger, lags 1..4 quarters ONLY (101 obs cannot support deeper quarterly VARs), d_max=1.
-- Local projections fwd+rev at 1/2/4-quarter horizons, HAC SEs.
-- Quantile regression on 1q-fwd (tail taus on ~97 obs = ~5 effective tail points; interpret loosely).
-- Transfer entropy: tercile-binned, 500 permutations — LOW POWER at 97 obs; retained as a directional check with caveat.
-- HMM 2-state on YoY: attempted with a degeneracy guard (min 10% regime occupancy). NOTE: on a series this
-  persistent the HMM splits wage-inflation LEVEL regimes (high vs low), not volatility states — still
-  economically meaningful (2021-23 surge vs pre-COVID calm) but transition probabilities weakly identified.
-  HMM converged and retained: True.
-- Markov-switching regression spy_ret ~ yoy (2-state, switching variance).
-- Stationarity: Dana's tests (stationarity_tests_20261016.csv) reviewed and CONFIRMED, not re-run.
-  Growth family borderline-persistent; 20Q z-scores regime-contaminated (KPSS reject); accel family clean.
-  Each tournament row carries a `stationarity_class` flag.
-
-## Sparse grid (BINDING Dana small-sample constraint — do not explode combos on 101 points)
-- Thresholds: IS percentiles {25,50,75}, zero-cross ONLY on sign-meaningful signals (accel/yoy_accel/dev_trend
-  — wage growth itself never goes negative, nominal stickiness), rolling z-score +/-1.0 at LB12/LB20
-  (the +/-1.5 variants and Jenks/GMM/CUSUM thresholds dropped).
-- Strategies: P1 long/cash + P3 long/short x pro/counter (P2 signal-strength sizing dropped — a continuous
-  sizing rule has too many effective d.o.f. for 25 OOS quarters).
-- Eligibility: signal >= 60 non-NaN quarters; IS >= 40 quarters; OOS >= 20 quarters; validity
-  requires OOS Sharpe > 0.3 (equity threshold) and turnover < 6 position-changes/yr.
-
-## OOS split (ECON-OOS2, quarterly-translated)
-Policy v1_max36_25pct_cap120 in native quarterly units: span = min(max(12q, round(101 x 0.25)), 40q) =
-25 quarters -> OOS 2020-03-31..2026-03-31. OOS spans COVID +
-the 2021-23 wage surge + the 2022 tightening bear — exactly the episodes the countercyclical hypothesis concerns.
-**Found-in-search caveat is STRONGER than any monthly pair: only 25 OOS quarters.**
-
-## Lead-lag verdict (empirical — determined by Granger/CCF/LP, NOT the prior)
-- ECI->SPY TY-Granger significant lags (quarters): NONE
-- SPY->ECI TY-Granger significant lags (quarters): [1, 2, 3, 4]
-- Pre-whitened CCF significant lead(+) lags: NONE; lag(-) lags: NONE
-- LP forward significant: False; reverse-causality flag: False
-- **Classification: lagging.** Winner direction (empirical): countercyclical.
-- indicator_nature in interpretation_metadata set to the EMPIRICAL verdict (Dana's provisional prior was 'lagging').
-
-## Tournament conventions
-- Units in tournament_results CSV are RATIOS (decimal). Lead column `lead_quarters`. Both orientations tested.
-- GH #13 artifacts emitted from the start: lead_winner_curve_20261016.csv (published winner's own Sharpe per lead;
-  peak at L4q vs published L4q) and lead_clean_envelope_20261016.csv
-  (SA source -> envelope == clean envelope by construction; stated in the file's manifest entry).
-- CP2 skipped (regime_story: false). Returns gross of costs; cost grid in tournament_validation_20261016/.
-
-## New pair — no prior version; Rule C3 regression diff N/A.
+## Result
+- Winner: growth_2q / T1_fixed_p50 / LB_NA / P1_long_cash_counter / L2q.
+- IS Sharpe 1.1900 (B&H 0.7936); OOS Sharpe 0.6959
+  (B&H 0.8043), OOS HAC t 1.33 (p 0.184), 25 OOS quarters.
+- Grid 1180 combos, 1080 IS-valid, 1080 distinct position series; Spearman(IS, OOS) 0.520.
+- Lead-lag (empirical): ECI->SPY TY-Granger sig lags NONE; SPY->ECI [1, 2, 3, 4] -> lagging.

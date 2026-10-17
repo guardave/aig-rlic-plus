@@ -471,6 +471,16 @@
       "added_at": "2026-07-11",
       "first_pair": "petrol_inv_spy",
       "notes": "WTTSTUS1 from project Data Master.xlsx (public FRED API rejected the series 2026-06-17). Petroleum stocks are coincident physical inventories; an 11-month lead reads as a stale level-regime descriptor, not forward causality \u2014 carry the reverse/near-zero causality caveat. Registered when the full-grid re-selection crowned petrol_level_z60/T2_roll_p25/P1_long_cash_pro/L11 over the prior petrol_3m/L12 winner."
+    },
+    {
+      "signal_code": "nhs_contraction",
+      "display_name": "NHS contraction (New Home Sales (NSA))",
+      "parquet_column_pattern": "nhs_yoy_contraction_flag",
+      "description": "Binary flag: 1 when NHS YoY growth < 0 (housing-demand contraction).",
+      "source_method": "transform",
+      "added_at": "2026-10-16",
+      "first_pair": "nhs_spy",
+      "notes": "New Home Sales (NSA) growth transform; tested both procyclical and countercyclical in the tournament."
     }
   ]
 }

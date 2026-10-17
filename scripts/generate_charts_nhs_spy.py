@@ -1,35 +1,20 @@
 #!/usr/bin/env python3
-"""Chart generation: New Home Sales (NSA, HSN1FNSA) x SPY — Mode 2 (Vera hat).
+"""Chart generation: New Home Sales (NSA, HSN1FNSA) x SPY.
 
-Vera-owned producer for the nhs_spy standard chart set (20260703). Consumes
-Evan's artifacts (results/nhs_spy/) + Dana's monthly dataset + Evan's
-strategy_returns_20260703.csv. Strategy charts use Evan's saved return series;
-they do not re-run strategy selection.
+Producer for the nhs_spy chart set. 20261016 run (causal regime port + in-sample selection):
+  * The 20260703 winner (hmm_stress / T2_roll_p25 / LB60 / P1 pro / L0, OOS Sharpe 1.49) traded a
+    full-sample, forward-backward-smoothed HMM probability at L0, below the L2 lead floor. Regime
+    models are now fit on in-sample months only and read with a forward filter
+    (scripts/_regime_causal.py); the lead grid is [2, 3, 6, 9, 12]; the winner is the IS-valid row
+    with the highest in-sample Sharpe.
+  * Every number in a title or caption is read from the results artifacts at run time.
+  * NHS is NOT seasonally adjusted; charts never plot the raw NSA level as a signal.
 
-Framing (binding, per Evan handoff — DO NOT OVERSELL):
-  * Winner is the HMM high-variance regime probability on NHS YoY growth,
-    Long/Cash, procyclical, L0. OOS Sharpe 1.49 vs B&H 0.89, max DD -8.3% vs
-    -23.9%.
-  * NHS is NOT seasonally adjusted. Every signal is deseasonalised (YoY, STL,
-    z-score). Charts must NOT plot or describe the raw NSA level as a signal;
-    the hero shows YoY (deseasonalised), never the raw level.
-  * Causality is WEAK forward: Toda-Yamamoto NHS->SPY significant only at lag 11;
-    reverse SPY->NHS at lags 1,2. Read as a search-found regime signal, not a
-    validated forward forecaster.
-  * Housing history is vivid: the 2005-09 bubble-and-collapse (new home sales
-    led the GFC), the COVID spike/reversal, the 2022-23 rate-shock contraction.
-  * Fragility (binding honesty mandate): bootstrap p=0.071 (NOT significant at
-    5%), found_in_search, confidence LOW, conditionally_durable, short OOS.
-
-Charts produced (output/charts/nhs_spy/plotly/, bare names per VIZ-A3):
-    hero, regime_stats, correlation_heatmap, ccf_prewhitened,
-    granger_f_by_lag, local_projections, transfer_entropy, quantile_coef,
-    hmm_regime_probs, equity_curves, drawdown, tournament_scatter,
-    tournament_sharpe_dist, rolling_correlation, structural_break,
-    subperiod_sharpe, history_zoom_{dotcom,gfc,covid,inflation_2022}
-    + chart_skip_{rolling_sharpe_cp,rolling_granger}.json (CP2 absent).
-
-Author: Viz Vera (Mode 2). Date: 2026-07-03.
+Default run regenerates: correlation_heatmap, hmm_regime_probs, equity_curves, drawdown,
+tournament_scatter, tournament_sharpe_dist, rolling_correlation, structural_break,
+subperiod_sharpe, walk_forward. `--all` also rebuilds hero, regime_stats, ccf_prewhitened,
+granger_f_by_lag, local_projections, transfer_entropy, quantile_coef, history_zoom_* and the
+CP2 skip sidecars.
 """
 from __future__ import annotations
 
@@ -50,7 +35,7 @@ from _nber import add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart, QUARTILE_COLORS  # noqa: E402
 
 PAIR = "nhs_spy"
-DATE_TAG = "20260703"
+DATE_TAG = "20261016"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"
@@ -83,7 +68,7 @@ EVENTS_REG = json.loads(
     (REPO / "docs/schemas/history_zoom_events_registry.json").read_text())
 EVENTS_REG_VERSION = EVENTS_REG.get("x-version", "1.0.0")
 
-GENERATED_BY = "Viz Vera — scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)"
+GENERATED_BY = "Viz — scripts/generate_charts_nhs_spy.py (causal HMM port + IS selection, 20261016)"
 SRC_DATA = "data/nhs_spy_monthly_latest.parquet"
 
 
@@ -190,9 +175,13 @@ def save_chart(name: str, fig: go.Figure, *, caption: str, alignment: str,
     if extra_meta:
         meta.update(extra_meta)
     (OUT / f"{name}_meta.json").write_text(json.dumps(meta, indent=2) + "\n")
-    fig.write_image(str(OUT / f"_perceptual_check_{name}.png"),
-                    width=1100, height=600, scale=1)
-    print(f"  wrote {name}.json (+sidecar, +perceptual png)")
+    try:
+        fig.write_image(str(OUT / f"_perceptual_check_{name}.png"),
+                        width=1100, height=600, scale=1)
+        png = " +perceptual png"
+    except Exception as exc:  # Kaleido/Chrome may be unavailable; JSON is what the app reads.
+        png = f" (png skipped: {type(exc).__name__})"
+    print(f"  wrote {name}.json (+sidecar{png})")
 
 
 def nber_swatch(fig: go.Figure) -> None:
@@ -293,8 +282,8 @@ _SIGLBL = {
     "yoy_3m": "3-month-avg YoY", "sa_mom": "SA MoM growth",
     "sa_3m": "SA 3-month growth", "yoy_zscore_120m": "YoY z-score (120-month)",
     "contraction": "Contraction flag",
-    "hmm_stress": "HMM high-variance probability",
-    "markov_regime": "Markov high-variance probability",
+    "hmm_stress": "HMM higher-variance-state probability (causal)",
+    "markov_regime": "Markov higher-variance-regime probability (causal)",
 }
 
 
@@ -331,8 +320,8 @@ def chart_correlation_heatmap():
                         f"forward returns at 1/3/6/12-month horizons. The strongest cell "
                         f"is r = {best['value']:.3f} "
                         f"({best['pair_name'].replace('__',' vs ')}). Pairwise "
-                        f"correlations are modest and do not by themselves validate the "
-                        f"trading rule — the edge is a regime effect, not a linear one."),
+                        f"correlations are modest. Regime-probability rows use the in-sample-fitted, "
+                        f"forward-filtered HMM / Markov-switching models."),
                alignment="Modest linear evidence; best cell re-read from correlations.csv.",
                rules=["VIZ-IC1", "VIZ-NS1", "VIZ-O1"],
                sources=[f"results/{PAIR}/core_models_{DATE_TAG}/correlations.csv"],
@@ -524,40 +513,48 @@ def chart_quantile():
                nber_required=False)
 
 
-# ── 9. HMM regime probabilities (the winning signal) ──────────────────────
+# ── 9. HMM regime probabilities (causal: IS-only fit, forward filter) ─────
 def chart_hmm():
     h = pd.read_parquet(CORE / "hmm_states.parquet")
     summ = pd.read_csv(CORE / "hmm_summary.csv")
-    stress_pct = float(summ.loc[summ["state_label"] == "stress", "frequency_pct"].iloc[0])
+    reg = json.loads((CORE / "regime_models.json").read_text())
+    fit = reg["models"]["hmm_2state_prob_stress"]
+    st = summ.set_index("state_label")
+    stress_pct = float(st.loc["stress", "frequency_pct"])
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=h.index, y=h["prob_stress"], mode="lines",
-        name="P(high-variance NHS-growth regime)",
+        name="P(higher-variance state), forward-filtered",
         fill="tozeroy", fillcolor="rgba(213,94,0,0.25)",
         line=dict(color=C_IND, width=1.2)))
+    fig.add_vline(x=pd.Timestamp(reg["oos_start"]).timestamp() * 1000, line=dict(color=C_EVENT, dash="dot", width=1.3))
+    fig.add_annotation(x=reg["oos_start"], y=0.96, yref="paper", showarrow=False, xanchor="left",
+                       text="OOS begins (model frozen)", font=dict(size=11, color=C_EVENT),
+                       bgcolor=PAL["event_marker_label_bg"])
     add_nber_shading(fig, x_min=h.index.min(), x_max=h.index.max())
     nber_swatch(fig)
     fig.update_layout(
-        title=(f"Hidden Markov Model: The High-Variance {IND_SHORT} Regime Is the "
-               f"Winning Signal<br><sup>2-state HMM on YoY growth; the high-variance "
-               f"state covers {stress_pct:.0f}% of months and spikes around housing "
-               f"turning points</sup>"),
-        xaxis_title="Date", yaxis_title="Probability of high-variance regime",
+        title=(f"Hidden Markov Model on {IND_SHORT}: Probability of the Higher-Variance State<br><sup>"
+               f"Fit on {fit['n_fit']} in-sample months ({fit['fit_start'][:7]}–{fit['fit_end'][:7]}), "
+               f"forward filter; this state averages {float(st.loc['stress', 'mean_yoy_growth']):+.1f}% YoY "
+               f"and covers {stress_pct:.0f}% of months</sup>"),
+        xaxis_title="Date", yaxis_title="Probability of higher-variance state",
         template="plotly_white", height=420,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
     save_chart("hmm_regime_probs", fig,
-               caption=(f"Probability that {IND_SHORT} is in its high-variance regime "
-                        f"(2-state HMM). This regime probability IS the winning signal — "
-                        f"the strategy goes long SPY when the housing-growth regime is "
-                        f"favourable. The high-variance state covers {stress_pct:.0f}% of "
-                        f"months and spikes at housing turning points (GFC, COVID, 2022 "
-                        f"rate shock). Shaded bands mark NBER recessions."),
-               alignment=("Labels follow hmm_states_manifest.json semantics ('stress' = "
-                          "high-variance NHS-YoY-growth regime). This chart is the winner's "
-                          "signal, not just a backdrop."),
+               caption=(f"Probability that {IND_SHORT} is in the HMM state with the higher in-sample "
+                        f"variance (labelled 'stress' in the data files, as in the earlier version). The "
+                        f"model is fit on in-sample months only and each month's value uses data up to "
+                        f"that month. The two states differ mainly in their mean: the labelled state "
+                        f"averages {float(st.loc['stress', 'mean_yoy_growth']):+.1f}% YoY growth "
+                        f"({stress_pct:.0f}% of months), the other "
+                        f"{float(st.loc['calm', 'mean_yoy_growth']):+.1f}% (housing downturns). "
+                        f"Shaded bands mark NBER recessions."),
+               alignment="Causal HMM (IS-only fit, forward filter); state label semantics stated.",
                rules=["VIZ-IC1", "VIZ-NBER1", "VIZ-NS1", "VIZ-O1"],
                sources=[f"results/{PAIR}/core_models_{DATE_TAG}/hmm_states.parquet",
-                        f"results/{PAIR}/core_models_{DATE_TAG}/hmm_summary.csv"])
+                        f"results/{PAIR}/core_models_{DATE_TAG}/hmm_summary.csv",
+                        f"results/{PAIR}/core_models_{DATE_TAG}/regime_models.json"])
 
 
 # ── 10/11. Equity curves + drawdown ───────────────────────────────────────
@@ -573,14 +570,16 @@ def _strategy_returns() -> pd.DataFrame:
 def chart_equity_curves():
     d = _strategy_returns()
     w = load_winner()
+    oos = d[d["date"] >= w["oos_period_start"]]
+    expo = float(oos["position"].mean())
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=d["date"], y=d["strategy_equity"], mode="lines",
-        name=f"NHS regime Long/Cash rule (Sharpe {w['oos_sharpe']:.2f})",
+        name=f"NHS contraction-flag rule (OOS Sharpe {w['oos_sharpe']:.2f})",
         line=dict(color=C_IND, width=2.2)))
     fig.add_trace(go.Scatter(
         x=d["date"], y=d["bh_equity"], mode="lines",
-        name=f"Buy & Hold {TGT} (Sharpe {w['bh_sharpe']:.2f})",
+        name=f"Buy & Hold {TGT} (OOS Sharpe {w['bh_sharpe']:.2f})",
         line=dict(color=C_BENCH, width=1.8, dash="dash")))
     fig.add_vline(x=w["oos_period_start"], line=dict(color=C_EVENT, dash="dot", width=1.3))
     fig.add_annotation(x=w["oos_period_start"], y=0.96, yref="paper", showarrow=False,
@@ -590,21 +589,21 @@ def chart_equity_curves():
     add_nber_shading(fig, x_min=d["date"].min(), x_max=d["date"].max())
     nber_swatch(fig)
     fig.update_layout(
-        title=(f"Defensive Overlay With a Drawdown Win: NHS Regime Rule vs "
-               f"Buy & Hold {TGT}<br><sup>OOS {w['oos_period_start']} to "
-               f"{w['oos_period_end']}: {w['oos_ann_return']*100:.1f}% vs "
-               f"{w['bh_ann_return']*100:.1f}% annualized — short OOS, interpret with "
-               f"caution</sup>"),
+        title=(f"NHS Rule vs Buy & Hold {TGT}<br><sup>OOS {w['oos_period_start']} to "
+               f"{w['oos_period_end']} ({w['oos_n']} months): {w['oos_ann_return']*100:.1f}% vs "
+               f"{w['bh_ann_return']*100:.1f}% annualized; Sharpe {w['oos_sharpe']:.2f} vs "
+               f"{w['bh_sharpe']:.2f}</sup>"),
         xaxis_title="Date", yaxis_title="Growth of 1.00",
         template="plotly_white", height=480,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
     save_chart("equity_curves", fig,
-               caption=(f"Cumulative growth of 1.00 for Evan's saved strategy returns and "
-                        f"buy-and-hold. The OOS rule raises Sharpe ({w['oos_sharpe']:.2f} "
-                        f"vs {w['bh_sharpe']:.2f}) and cuts drawdown, but the OOS window is "
-                        f"short and the bootstrap p-value (0.07) is not significant at 5%. "
-                        f"Shaded bands mark NBER recessions."),
-               alignment="Strategy series from strategy_returns; metrics from winner_summary; fragility caveat in title.",
+               caption=(f"Cumulative growth of 1.00 for the selected rule and buy-and-hold {TGT}. Over the "
+                        f"{w['oos_n']}-month OOS window the rule averaged {expo:.0%} invested: "
+                        f"{w['oos_ann_return']*100:.1f}% annualized vs {w['bh_ann_return']*100:.1f}%, "
+                        f"Sharpe {w['oos_sharpe']:.2f} vs {w['bh_sharpe']:.2f} (HAC t {w['oos_hac_t']:.2f}), "
+                        f"maximum drawdown {w['oos_max_drawdown']*100:.1f}% vs "
+                        f"{w['bh_max_drawdown']*100:.1f}%. Shaded bands mark NBER recessions."),
+               alignment="Strategy series from strategy_returns; metrics from winner_summary.",
                rules=["VIZ-IC1", "VIZ-NBER1", "VIZ-NS1", "VIZ-O1"],
                sources=[f"results/{PAIR}/strategy_returns_{DATE_TAG}.csv",
                         f"results/{PAIR}/winner_summary.json"])
@@ -627,18 +626,16 @@ def chart_drawdown():
     add_nber_shading(fig, x_min=d["date"].min(), x_max=d["date"].max())
     nber_swatch(fig)
     fig.update_layout(
-        title=(f"Drawdown Protection: {w['oos_max_drawdown']*100:.1f}% vs "
-               f"{w['bh_max_drawdown']*100:.1f}% OOS"),
+        title=(f"Drawdown: Rule {w['oos_max_drawdown']*100:.1f}% vs Buy & Hold "
+               f"{w['bh_max_drawdown']*100:.1f}% (OOS maximum)"),
         xaxis_title="Date", yaxis_title="Drawdown (%)",
         template="plotly_white", height=430,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
     save_chart("drawdown", fig,
-               caption=(f"Drawdown path for the NHS regime Long/Cash rule and buy-and-hold "
-                        f"{TGT}. In OOS the strategy's max drawdown is "
-                        f"{w['oos_max_drawdown']*100:.1f}% versus "
-                        f"{w['bh_max_drawdown']*100:.1f}% for buy-and-hold — the rule sits "
-                        f"in cash through the worst housing-regime drawdowns."),
-               alignment="Drawdown computed directly from Evan's saved monthly return series.",
+               caption=(f"Drawdown path for the selected rule and buy-and-hold {TGT}. OOS maximum drawdown "
+                        f"{w['oos_max_drawdown']*100:.1f}% for the rule and {w['bh_max_drawdown']*100:.1f}% "
+                        f"for buy-and-hold. Shaded bands mark NBER recessions."),
+               alignment="Drawdown computed directly from the saved monthly return series.",
                rules=["VIZ-IC1", "VIZ-NBER1", "VIZ-NS1", "VIZ-O1"],
                sources=[f"results/{PAIR}/strategy_returns_{DATE_TAG}.csv",
                         f"results/{PAIR}/winner_summary.json"])
@@ -654,85 +651,84 @@ def _tournament_frames():
 
 def chart_tournament_scatter():
     t, valid, bench = _tournament_frames()
-    invalid = t[(~t["valid"]) & (t["signal"] != "BENCHMARK")]
+    w = load_winner()
+    sel = w["selection"]
+    rho = float(sel["grid_scanned"]["spearman_is_vs_oos"])
     fig = go.Figure()
+    for i, fam in enumerate(["P1_long_cash", "P2_signal_strength", "P3_long_short"]):
+        sub = valid[valid["strategy"].str.startswith(fam)]
+        fig.add_trace(go.Scatter(
+            x=sub["is_sharpe"], y=sub["oos_sharpe"], mode="markers",
+            marker=dict(size=4, color=C_EXT[i % len(C_EXT)], opacity=0.45), name=fam,
+            text=[f"{r['signal']}/{r['threshold']}/{r['strategy']}/L{r['lead_months']}/{r['lookback']}"
+                  for _, r in sub.iterrows()],
+            hovertemplate="%{text}<br>IS Sharpe: %{x:.2f}<br>OOS Sharpe: %{y:.2f}<extra></extra>"))
     fig.add_trace(go.Scatter(
-        x=invalid["annual_turnover"], y=invalid["oos_sharpe"], mode="markers",
-        marker=dict(size=3, color="rgba(153,153,153,0.45)"), name="Invalid combos"))
-    fig.add_trace(go.Scatter(
-        x=valid["annual_turnover"], y=valid["oos_sharpe"], mode="markers",
-        marker=dict(size=5, color=(valid["max_drawdown"] * 100),
-                    colorscale="RdYlGn", colorbar=dict(title="Max DD (%)"), opacity=0.6),
-        text=[f"{r['signal']}/{r['threshold']}/{r['strategy']}/L{r['lead_months']}"
-              for _, r in valid.iterrows()],
-        hovertemplate="%{text}<br>Sharpe: %{y:.2f}<br>Turnover: %{x:.1f}/yr<extra></extra>",
-        name="Valid strategies"))
-    fig.add_trace(go.Scatter(
-        x=[float(bench.iloc[0]["annual_turnover"])], y=[float(bench.iloc[0]["oos_sharpe"])],
-        mode="markers", marker=dict(size=14, color=C_BENCH, symbol="diamond"),
-        name=f"Buy & Hold {TGT} (Sharpe {float(bench.iloc[0]['oos_sharpe']):.2f})"))
-    top5 = valid.nlargest(5, "oos_sharpe")
-    fig.add_trace(go.Scatter(
-        x=top5["annual_turnover"], y=top5["oos_sharpe"], mode="markers",
-        marker=dict(size=12, color=C_POS, symbol="star", line=dict(width=1, color="#000000")),
-        name="Top 5 by OOS Sharpe"))
+        x=[float(w["is_sharpe"])], y=[float(w["oos_sharpe"])], mode="markers",
+        marker=dict(size=16, color=C_POS, symbol="star", line=dict(width=1, color="#000000")),
+        name=f"Selected (highest IS Sharpe {float(w['is_sharpe']):.2f}; OOS {float(w['oos_sharpe']):.2f})"))
+    fig.add_hline(y=float(bench.iloc[0]["oos_sharpe"]), line=dict(color=C_BENCH, dash="dash", width=1.2),
+                  annotation_text=f"B&H OOS {float(bench.iloc[0]['oos_sharpe']):.2f}", annotation_position="bottom right")
+    fig.add_vline(x=float(bench.iloc[0]["is_sharpe"]), line=dict(color=C_BENCH, dash="dot", width=1.2),
+                  annotation_text=f"B&H IS {float(bench.iloc[0]['is_sharpe']):.2f}", annotation_position="top left")
     fig.update_layout(
-        title=(f"Tournament: {len(t)-1:,} Strategy Combos ({len(valid):,} Valid) — "
-               f"Winner OOS Sharpe {valid['oos_sharpe'].max():.2f} vs Buy & Hold "
-               f"{float(bench.iloc[0]['oos_sharpe']):.2f}"),
-        xaxis_title="Annual turnover (trades per year)", yaxis_title="OOS Sharpe ratio",
+        title=(f"Tournament: {len(valid):,} IS-Valid Combos, In-Sample vs Out-of-Sample Sharpe "
+               f"(Spearman {rho:.2f})"),
+        xaxis_title="In-sample Sharpe (selection objective)", yaxis_title="OOS Sharpe",
         template="plotly_white", height=540, margin=dict(b=150),
-        legend=dict(orientation="h", yanchor="top", y=-0.22, xanchor="left", x=0))
+        legend=dict(orientation="h", yanchor="top", y=-0.18, xanchor="left", x=0))
     save_chart("tournament_scatter", fig,
-               caption=(f"All {len(t)-1:,} tournament combinations (OOS Sharpe vs annual "
-                        f"turnover; color = max drawdown). {len(valid):,} pass validity; "
-                        f"the Buy & Hold {TGT} diamond sits at Sharpe "
-                        f"{float(bench.iloc[0]['oos_sharpe']):.2f}. Winner identified by "
-                        f"the ECON-T3 cascade; see the distribution chart for the "
-                        f"search-selection disclosure."),
-               alignment="Standard tournament scatter; benchmark via signal=='BENCHMARK' (ECON-T4).",
+               caption=(f"Each dot is one of the {len(valid):,} IS-valid combinations ({len(t)-1:,} scanned), "
+                        f"plotted by in-sample Sharpe (common window {sel['is_window']['start']} to "
+                        f"{sel['is_window']['end']}) and OOS Sharpe ({w['oos_period_start']} to "
+                        f"{w['oos_period_end']}). The star is the selected rule: the highest in-sample Sharpe. "
+                        f"Spearman rank correlation between IS and OOS Sharpe: {rho:.2f}. Dashed lines: "
+                        f"buy-and-hold {TGT}."),
+               alignment="IS vs OOS scatter; selection by IS Sharpe; benchmark via signal=='BENCHMARK' (ECON-T4).",
                rules=["VIZ-IC1", "ECON-T4", "VIZ-NS1", "VIZ-O1"],
-               sources=[f"results/{PAIR}/tournament_results_{DATE_TAG}.csv"],
+               sources=[f"results/{PAIR}/tournament_results_{DATE_TAG}.csv",
+                        f"results/{PAIR}/winner_summary.json"],
                nber_required=False)
 
 
 def chart_tournament_dist():
     t, valid, bench = _tournament_frames()
+    w = load_winner()
     med = float(valid["oos_sharpe"].median())
-    wmax = float(valid["oos_sharpe"].max())
+    wsharpe = float(w["oos_sharpe"])
     bh = float(bench.iloc[0]["oos_sharpe"])
+    pct = float((valid["oos_sharpe"] < wsharpe).mean() * 100)
+    n_beat = int((valid["oos_sharpe"] > bh).sum())
     fig = go.Figure(go.Histogram(
         x=valid["oos_sharpe"], nbinsx=60, marker_color=C_TGT, opacity=0.75,
-        name=f"Valid strategies (n = {len(valid):,})"))
+        name=f"IS-valid strategies (n = {len(valid):,})"))
     fig.add_vline(x=med, line=dict(color=C_NEUTRAL, dash="dot", width=1.5))
     fig.add_vline(x=bh, line=dict(color=C_BENCH, dash="dash", width=2))
-    fig.add_vline(x=wmax, line=dict(color=C_IND, dash="dash", width=2))
-    fig.add_annotation(x=wmax, y=1.0, yref="paper", showarrow=False, xanchor="right",
-                       text=f"Winner = max of {len(valid):,} (median {med:.2f})",
+    fig.add_vline(x=wsharpe, line=dict(color=C_IND, dash="dash", width=2))
+    fig.add_annotation(x=wsharpe, y=1.0, yref="paper", showarrow=False, xanchor="left",
+                       text=f"Selected rule = {wsharpe:.2f} (median {med:.2f})",
                        font=dict(size=12, color=C_IND), bgcolor=PAL["event_marker_label_bg"])
-    bh_rel = "ABOVE" if bh >= med else "below"
-    fig.add_annotation(x=bh, y=0.85, yref="paper", showarrow=False, xanchor="left",
-                       text=f"Buy & Hold {TGT} = {bh:.2f} — {bh_rel} the median strategy",
+    fig.add_annotation(x=bh, y=0.85, yref="paper", showarrow=False, xanchor="right",
+                       text=f"Buy & Hold {TGT} = {bh:.2f}",
                        font=dict(size=12, color=C_BENCH), bgcolor=PAL["event_marker_label_bg"])
     fig.update_layout(
-        title=(f"Winner Is the Tail of a {len(valid):,}-Combo Search: OOS Sharpe "
-               f"Distribution"),
+        title=(f"OOS Sharpe Across {len(valid):,} IS-Valid Combos<br><sup>Selected rule {wsharpe:.2f} "
+               f"({pct:.0f}th percentile); median {med:.2f}; buy & hold {bh:.2f}; "
+               f"{n_beat:,} combos above buy & hold</sup>"),
         xaxis_title="OOS Sharpe ratio", yaxis_title="Number of strategies",
-        template="plotly_white", height=430,
+        template="plotly_white", height=440,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
     save_chart("tournament_sharpe_dist", fig,
-               caption=(f"Distribution of OOS Sharpe across the {len(valid):,} valid "
-                        f"strategy combos. The winner (Sharpe {wmax:.2f}) is the max of "
-                        f"{len(valid):,} with median {med:.2f}; buy & hold ({bh:.2f}) sits "
-                        f"{bh_rel} the median. Winner selection is a tail draw from a large "
-                        f"search; bootstrap p = 0.07 (NOT significant at 5%, no final "
-                        f"exam) — treat as a hypothesis, not a validated edge."),
-               alignment=("VIZ-SCD1 position disclosure + B&H line; numbers re-read from "
-                          "the tournament CSV; fragility (p=0.07) stated explicitly."),
+               caption=(f"Distribution of OOS Sharpe across the {len(valid):,} IS-valid combinations. The "
+                        f"selected rule (chosen by in-sample Sharpe, before looking at OOS) scores "
+                        f"{wsharpe:.2f}, the {pct:.0f}th percentile. Median {med:.2f}; buy & hold {bh:.2f}; "
+                        f"{n_beat:,} of {len(valid):,} combos have a higher OOS Sharpe than buy & hold."),
+               alignment="VIZ-SCD1 position disclosure + B&H line; percentile computed from the CSV.",
                rules=["VIZ-SCD1", "ECON-T4", "VIZ-IC1", "VIZ-NS1", "VIZ-O1"],
-               sources=[f"results/{PAIR}/tournament_results_{DATE_TAG}.csv"],
+               sources=[f"results/{PAIR}/tournament_results_{DATE_TAG}.csv",
+                        f"results/{PAIR}/winner_summary.json"],
                reconciliation={"valid_count": len(valid), "median_oos_sharpe": round(med, 4),
-                               "winner_oos_sharpe": round(wmax, 4), "bh_oos_sharpe": round(bh, 4)},
+                               "winner_oos_sharpe": round(wsharpe, 4), "bh_oos_sharpe": round(bh, 4)},
                nber_required=False)
 
 
@@ -740,31 +736,31 @@ def chart_tournament_dist():
 def chart_rolling_correlation():
     rc = pd.read_csv(RES / f"rolling_correlation_{PAIR}.csv", parse_dates=["date"])
     sb = json.loads((RES / f"structural_break_{PAIR}.json").read_text())
+    w = load_winner()
+    win = int(rc["n_obs"].iloc[0])
+    verdict = sb["rolling_corr_stability_verdict"]
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=rc["date"], y=rc["rolling_corr"], mode="lines",
-        name="24-month rolling correlation", line=dict(color=C_TGT, width=2)))
+        name=f"{win}-month rolling correlation", line=dict(color=C_TGT, width=2)))
     fig.add_hline(y=0, line_dash="dash", line_color=C_EVENT, line_width=1,
                   annotation_text="No correlation")
     add_nber_shading(fig, x_min=rc["date"].min(), x_max=rc["date"].max())
     nber_swatch(fig)
     fig.update_layout(
-        title=(f"The Sign Shifts Over Time: 24-Month Rolling Correlation, {IND_SHORT} "
-               f"vs {TGT} Returns<br><sup>Sign agreement "
-               f"{sb['rolling_corr_sign_stability']:.2f} — verdict: "
-               f"{sb['rolling_corr_stability_verdict'].replace('_', '-')}</sup>"),
+        title=(f"{win}-Month Rolling Correlation: Selected Signal (lagged {w['lead_value']}m) vs "
+               f"Next-Month {TGT} Return<br><sup>Share of windows with the full-sample sign "
+               f"{sb['rolling_corr_sign_stability']:.2f} ({verdict.replace('_', ' ')})</sup>"),
         xaxis_title="Date", yaxis_title="Rolling correlation (r)",
         template="plotly_white", height=420, yaxis=dict(range=[-1, 1]),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
     save_chart("rolling_correlation", fig,
-               caption=(f"24-month rolling correlation between {IND_SHORT} and {TGT} "
-                        f"monthly returns. The sign agrees with its full-sample value "
-                        f"{sb['rolling_corr_sign_stability']:.0%} of the time "
-                        f"(verdict: {sb['rolling_corr_stability_verdict'].replace('_',' ')}) "
-                        f"— the concurrent relationship is not stable, another reason the "
-                        f"edge rests on the regime signal rather than a simple correlation. "
+               caption=(f"{win}-month rolling correlation between the selected signal "
+                        f"({w['signal_display_name']}, lagged {w['lead_value']} months) and the next-month "
+                        f"{TGT} return. The sign matches the full-sample sign in "
+                        f"{sb['rolling_corr_sign_stability']:.0%} of windows ({verdict.replace('_',' ')}). "
                         f"Shaded bands mark NBER recessions."),
-               alignment="Stability verdict quoted from structural_break JSON, not hard-coded.",
+               alignment="Series and stability verdict read from the rolling-correlation CSV and structural_break JSON.",
                rules=["VIZ-CP1.2", "VIZ-NBER1", "VIZ-IC1", "VIZ-NS1", "VIZ-O1"],
                sources=[f"results/{PAIR}/rolling_correlation_{PAIR}.csv",
                         f"results/{PAIR}/structural_break_{PAIR}.json"])
@@ -773,10 +769,11 @@ def chart_rolling_correlation():
 # ── 15. Structural break ──────────────────────────────────────────────────
 def chart_structural_break():
     sb = json.loads((RES / f"structural_break_{PAIR}.json").read_text())
+    w = load_winner()
     df = load_monthly()
     sig = df.loc[sb["sample_start"]:sb["sample_end"], "nhs_pct_yoy"].dropna()
     flagged = bool(sb["flagged"])
-    verdict_txt = "A Structural Break IS Flagged" if flagged else "No Structural Break Detected"
+    verdict_txt = "Structural Break Flagged" if flagged else "No Structural Break Flagged"
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=sig.index, y=sig.values, mode="lines",
@@ -786,25 +783,25 @@ def chart_structural_break():
     fig.add_annotation(x=sb["break_date"], y=0.95, yref="paper", showarrow=False,
                        xanchor="left",
                        text=(f"Candidate break {sb['break_date'][:7]}: sup-F "
-                             f"{sb['f_stat']:.2f}, bootstrap p = {sb['p_value']:.2f} "
-                             f"— {'significant' if flagged else 'NOT significant'}"),
+                             f"{sb['f_stat']:.2f}, bootstrap p = {sb['p_value']:.2f}"),
                        font=dict(size=12, color=C_EVENT),
                        bgcolor=PAL["event_marker_label_bg"])
     add_nber_shading(fig, x_min=sig.index.min(), x_max=sig.index.max())
     nber_swatch(fig)
     fig.update_layout(
-        title=(f"{verdict_txt}: Quandt-Andrews sup-F Test on {IND_SHORT} "
-               f"(p = {sb['p_value']:.2f})"),
+        title=(f"{verdict_txt}: Quandt-Andrews sup-F Test, {TGT} Return on the Selected Signal "
+               f"(candidate {sb['break_date'][:7]}, p = {sb['p_value']:.2f})"),
         xaxis_title="Date", yaxis_title=f"{IND_SHORT} (%)",
         template="plotly_white", height=420,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
     save_chart("structural_break", fig,
-               caption=(f"{IND_SHORT} over the test sample ({sb['sample_start'][:7]}–"
-                        f"{sb['sample_end'][:7]}, n = {sb['n_obs']}) with the "
-                        f"Quandt-Andrews candidate break date ({sb['break_date'][:7]}). "
-                        f"sup-F {sb['f_stat']:.2f}, residual-bootstrap p = {sb['p_value']:.2f} "
-                        f"— {'a break is flagged' if flagged else 'no break is flagged'}. "
-                        f"Shaded bands mark NBER recessions."),
+               caption=(f"Quandt-Andrews unknown-breakpoint test on the regression of the monthly {TGT} return "
+                        f"on the selected signal ({w['signal_display_name']}) lagged {w['lead_value']} months "
+                        f"({sb['sample_start'][:7]}–{sb['sample_end'][:7]}, n = {sb['n_obs']}). The line plots "
+                        f"{IND_SHORT} for context; the dashed marker is the candidate break "
+                        f"{sb['break_date'][:7]}: sup-F {sb['f_stat']:.2f}, residual-bootstrap p = "
+                        f"{sb['p_value']:.2f} — {'flagged' if flagged else 'not flagged'} at 10%. Shaded bands "
+                        f"mark NBER recessions."),
                alignment="Annotation-driven; flagged state and values read from JSON.",
                rules=["VIZ-CP1.3", "VIZ-NBER1", "VIZ-IC1", "VIZ-NS1", "VIZ-O1"],
                sources=[f"results/{PAIR}/structural_break_{PAIR}.json", SRC_DATA],
@@ -819,6 +816,8 @@ _EP_LABEL = {"dot_com": "Dot-Com 2000–02", "gfc": "GFC 2008–09",
 
 def chart_subperiod_sharpe():
     rows = pd.read_csv(RES / "subperiod_sharpe.csv")
+    w = load_winner()
+    oos_y = w["oos_period_start"][:4]
     labels, values, colors, texts = [], [], [], []
     for _, r in rows.iterrows():
         lab = _EP_LABEL.get(r["episode"], r["episode"])
@@ -834,24 +833,22 @@ def chart_subperiod_sharpe():
             colors.append(C_POS if r["ann_sharpe"] >= 0 else C_IND)
             texts.append(f"{float(r['ann_sharpe']):+.2f}")
     n_eval = int(((rows["data_status"] == "validated") & rows["ann_sharpe"].notna()).sum())
+    verdict = rows["durability_verdict"].dropna()
+    verdict = verdict.iloc[-1] if len(verdict) else "n/a"
     fig = go.Figure(go.Bar(x=labels, y=values, marker_color=colors,
                            text=texts, textposition="outside",
                            name="Annualized Sharpe by episode"))
     fig.add_hline(y=0, line=dict(color=C_NEUTRAL, width=0.6, dash="dot"))
     fig.update_layout(
-        title=(f"Episode Durability Is Limited: Winner Strategy by Historical Episode "
-               f"<br><sup>{n_eval} of 4 canonical episodes fall inside the 2018+ OOS "
-               f"window — the rest predate the split (insufficient data)</sup>"),
+        title=(f"Selected Rule by Historical Episode<br><sup>{n_eval} of {len(rows)} canonical episodes "
+               f"fall inside the {oos_y}+ OOS window; the others predate the OOS split</sup>"),
         xaxis_title="Historical episode", yaxis_title="Annualized Sharpe ratio",
         template="plotly_white", height=430, margin=dict(b=110), showlegend=False)
     save_chart("subperiod_sharpe", fig,
-               caption=(f"Winner-strategy annualized Sharpe within each canonical stress "
-                        f"episode. Only {n_eval} of 4 fall inside the 2018+ OOS window; "
-                        f"Dot-Com, GFC and (mostly) China 2015 predate the OOS split and "
-                        f"are marked insufficient_data. This limited episode coverage is "
-                        f"why durability is only 'conditionally_durable'."),
-               alignment=("Three-state encoding (no data / in cash / value); the limited "
-                          "evaluable-episode count ties to the conditionally_durable verdict."),
+               caption=(f"Selected-rule annualized Sharpe within each canonical stress episode. {n_eval} of "
+                        f"{len(rows)} fall inside the {oos_y}+ OOS window; the others predate the OOS split and "
+                        f"are marked insufficient_data. Durability label: '{verdict}'."),
+               alignment="Three-state encoding; counts and verdict read from subperiod_sharpe.csv.",
                rules=["ECON-CP1", "VIZ-CP1.1", "VIZ-IC1", "VIZ-NS1", "VIZ-O1"],
                sources=[f"results/{PAIR}/subperiod_sharpe.csv"],
                nber_required=False)
@@ -930,6 +927,7 @@ def chart_walk_forward():
     r_b = oos["bh_return"].astype(float)
     roll_s = (r_s.rolling(window, min_periods=min_p).mean() * ann) / \
              (r_s.rolling(window, min_periods=min_p).std() * np.sqrt(ann) + 1e-12)
+    roll_s = roll_s.where(r_s.rolling(window, min_periods=min_p).std() > 0)
     roll_b = (r_b.rolling(window, min_periods=min_p).mean() * ann) / \
              (r_b.rolling(window, min_periods=min_p).std() * np.sqrt(ann) + 1e-12)
     reported = float(w["oos_sharpe"])
@@ -954,11 +952,9 @@ def chart_walk_forward():
         template="plotly_white", height=400,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
     save_chart("walk_forward", fig,
-               caption=(f"Rolling 12-month annualized Sharpe of the winner strategy vs "
+               caption=(f"Rolling 12-month annualized Sharpe of the selected rule vs "
                         f"buy-and-hold {TGT} over the out-of-sample window; the dashed "
-                        f"reference line marks the reported OOS Sharpe ({reported:.2f}). "
-                        f"The rolling Sharpe swings widely across the short OOS window — "
-                        f"another read on the fragility behind the headline number."),
+                        f"reference line marks the reported OOS Sharpe ({reported:.2f})."),
                alignment=("Rolling-Sharpe walk-forward for the Strategy page Confidence "
                           "tab; reference line reconciles with winner_summary OOS Sharpe."),
                rules=["ECON-SR1", "VIZ-IC1", "VIZ-NBER1", "VIZ-NS1", "VIZ-O1"],
@@ -981,16 +977,24 @@ def write_cp2_skips():
 
 
 # ── MAIN ──────────────────────────────────────────────────────────────────
+# Default: regenerate only the charts that depend on the winner, the tournament, the regime
+# models or the cross-period artifacts. The evidence charts (hero, regime_stats, ccf, granger,
+# local_projections, transfer_entropy, quantile_coef, history_zoom_*) carry later hand fixes
+# (#242/#243) and their inputs did not change in the 20261016 run; pass --all to rebuild them.
 if __name__ == "__main__":
-    print(f"Generating charts for {PAIR}...")
-    chart_hero()
-    chart_regime_stats()
+    print(f"Generating charts for {PAIR} (DATE_TAG {DATE_TAG})...")
+    if "--all" in sys.argv:
+        chart_hero()
+        chart_regime_stats()
+        chart_ccf()
+        chart_granger()
+        chart_local_projections()
+        chart_transfer_entropy()
+        chart_quantile()
+        for slug in ("dotcom", "gfc", "covid", "inflation_2022"):
+            chart_history_zoom(slug)
+        write_cp2_skips()
     chart_correlation_heatmap()
-    chart_ccf()
-    chart_granger()
-    chart_local_projections()
-    chart_transfer_entropy()
-    chart_quantile()
     chart_hmm()
     chart_equity_curves()
     chart_drawdown()
@@ -1000,7 +1004,4 @@ if __name__ == "__main__":
     chart_structural_break()
     chart_subperiod_sharpe()
     chart_walk_forward()
-    for slug in ("dotcom", "gfc", "covid", "inflation_2022"):
-        chart_history_zoom(slug)
-    write_cp2_skips()
     print("\nDone.")

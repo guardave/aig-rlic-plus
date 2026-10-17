@@ -1,0 +1,99 @@
+{
+  "oos_start": "2018-02-28",
+  "models": {
+    "hmm_2state_prob_stress": {
+      "status": "traded",
+      "kind": "GaussianHMM",
+      "fit_start": "1991-01-31",
+      "fit_end": "2018-01-31",
+      "n_fit": 325,
+      "loglik_is": -333.2771,
+      "labelled_state": "state_1",
+      "probability": "forward-filtered P(state_t | x_1..x_t) with in-sample-frozen params",
+      "params": {
+        "seed": 3,
+        "seeds_tried": [
+          42,
+          0,
+          1,
+          2,
+          3
+        ],
+        "features": [
+          "nhs_pct_yoy"
+        ],
+        "label_feature": "nhs_pct_yoy",
+        "label": "max_variance",
+        "standardize_mean_is": [
+          2.2313496230457726
+        ],
+        "standardize_std_is": [
+          17.427772482920567
+        ],
+        "label_key_sorted": [
+          0.36883152147044335,
+          0.39416172801745686
+        ],
+        "means": [
+          [
+            -1.584718165164109
+          ],
+          [
+            0.3854664358951078
+          ]
+        ],
+        "startprob": [
+          1.0,
+          9.530651092699651e-31
+        ],
+        "transmat": [
+          [
+            0.9369783618132509,
+            0.06302163818674912
+          ],
+          [
+            0.011548629224761629,
+            0.9884513707752384
+          ]
+        ],
+        "covariance_type": "full"
+      }
+    },
+    "markov_regime_2state": {
+      "status": "traded",
+      "kind": "MarkovRegression",
+      "fit_start": "1991-01-31",
+      "fit_end": "2018-01-31",
+      "n_fit": 325,
+      "loglik_is": -1263.8272,
+      "labelled_state": "state_1",
+      "probability": "forward-filtered P(state_t | x_1..x_t) with in-sample-frozen params",
+      "params": {
+        "param_names": [
+          "p[0->0]",
+          "p[1->0]",
+          "const[0]",
+          "const[1]",
+          "sigma2[0]",
+          "sigma2[1]"
+        ],
+        "params_is": [
+          0.9854444488784085,
+          0.051430829681273396,
+          8.964885468121187,
+          -25.332245010377445,
+          119.47037135451431,
+          112.59387434305971
+        ],
+        "label": "max_variance",
+        "label_key_sorted": [
+          112.59387434305971,
+          119.47037135451431
+        ],
+        "dependent": "nhs_pct_yoy",
+        "exog": [],
+        "switching_variance": true
+      }
+    }
+  }
+}

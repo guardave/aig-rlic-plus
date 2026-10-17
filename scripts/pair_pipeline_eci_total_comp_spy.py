@@ -17,8 +17,8 @@ Economic hypothesis (stated up front, per SOP):
 QUARTERLY conventions (first quarterly pair — deliberate template adaptations):
   * Annualization factor: sqrt(4) for Sharpe, x4 for mean return / variance-based vol
     (quarterly frequency; stated explicitly in every manifest).
-  * Lead grid L in QUARTERS, strict floor L2 (BLS releases quarter Q ~1 month after quarter end,
-    i.e. during Q+1, so it can first drive the window opening at the end of Q+1). Grid L2..L5 (pkg9 truncation of L1..L5): wage-inflation
+  * Lead grid L in QUARTERS, floor L1 (BLS releases quarter Q ~1 month after quarter end,
+    so the quarter-Q print is first tradable in Q+1). Grid L1..L8 (2 years): wage-inflation
     -> Fed-policy -> equity transmission is plausibly 1-8 quarters; deeper leads on 101 obs
     destroy effective sample (L8 already costs 8 obs) with no economic rationale.
   * Rolling windows in quarter counts: lookbacks LB12 (~3yr) / LB20 (~5yr).
@@ -52,6 +52,7 @@ Author: Econ Evan (Econometrics Agent). Date: 2026-07-06.
 import os
 import sys
 import json
+from pathlib import Path
 import time
 import hashlib
 import warnings
@@ -70,12 +71,13 @@ np.random.seed(42)
 PAIR_ID = "eci_total_comp_spy"
 INDICATOR_NAME = "Employment Cost Index (Total Compensation)"
 TARGET_SYMBOL = "SPY"
-DATE_TAG = "20261016"  # pkg9 strict lead floor rerun (2026-10-16): grid truncated from the bottom to the strict floor, top not extended; prior run 20261008 (L1..L5 quarters).
+DATE_TAG = "20261016"
+PREV_TAG = "20261008"   # previously published run (smoothed full-sample HMM winner); immutable
 COST_BPS = 5  # equity ETF per target-class table
 ANN = np.sqrt(4)   # QUARTERLY annualization factor (Sharpe); mean x4, vol x sqrt(4)
 PERIODS_PER_YEAR = 4
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # repo root (was hardcoded /workspaces/aig-rlic-plus; pkg9 runs from a worktree)
+BASE_DIR = str(Path(__file__).resolve().parents[1])
 DATA_PATH = os.path.join(BASE_DIR, "data", "eci_total_comp_spy_quarterly_latest.parquet")
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
 MODELS_DIR = os.path.join(RESULTS_DIR, f"core_models_{DATE_TAG}")
@@ -102,6 +104,13 @@ SIGNAL_COLS = {
     "hmm_stress": "hmm_2state_prob_stress",
     "markov_regime": "markov_regime_2state",
 }
+SIGNAL_DISPLAY = {
+    "qoq": "ECI quarter-on-quarter growth", "growth_2q": "ECI 2-quarter growth", "yoy": "ECI year-over-year growth",
+    "dev_trend": "ECI deviation from 8-quarter trend", "level_zscore_20q": "ECI level z-score (20 quarters)",
+    "yoy_zscore_20q": "ECI YoY growth z-score (20 quarters)", "accel": "ECI quarter-on-quarter acceleration",
+    "yoy_accel": "ECI YoY acceleration", "hmm_stress": "HMM wage-inflation stress probability",
+    "markov_regime": "Markov-switching regime probability",
+}
 # registry signal_code per key (ECON-DS3)
 REGISTRY_CODE = {
     "qoq": "eci_total_comp_qoq", "growth_2q": "eci_total_comp_2q", "yoy": "eci_total_comp_yoy",
@@ -121,7 +130,10 @@ FWD_COLS = ["spy_fwd_1q", "spy_fwd_2q", "spy_fwd_4q"]
 
 SIG_ELIGIBLE_MIN = 60          # min non-NaN QUARTERS for tournament eligibility
 LOOKBACKS = {"LB12": 12, "LB20": 20}   # quarters (~3yr / ~5yr)
-LEADS = list(range(2, 6))  # strict floor E2 (ECI ~30 d after quarter-end): sub-floor L1 truncated, top not extended (pkg9, protocol D2)
+LEADS = list(range(1, 6))  # #255 floor L1 shifted grid [1..5] (quarters)
+MIN_IS_N = 20                  # quarterly IS minimum (PORT_GUIDE: 5 years)
+MAX_TURNOVER = 6               # position changes per year (quarterly rebalance ceiling)
+REGIME_SEEDS = (42, 0, 1, 2, 3)
 CORR_N_FLOOR = 40              # quarters
 
 
@@ -192,87 +204,98 @@ def stage_load():
 # ===================================================================
 # STAGE 2: DERIVED REGIME SIGNALS (HMM + Markov-switching) + persistence
 # ===================================================================
+def compute_split(df):
+    """ECON-OOS2 policy v1_max36_25pct_cap120 in native quarterly units (unchanged rule).
+    Computed before the regime models so they can be fit on IS rows only."""
+    work = df.dropna(subset=["spy_ret"])
+    n_q = len(work)
+    oos_n = int(min(max(12, round(n_q * 0.25)), 40))
+    return {"n_q": n_q, "oos_n": oos_n, "oos_start": work.index[-oos_n],
+            "is_end": work.index[-(oos_n + 1)], "oos_end": work.index[-1]}
+
+
 @log_stage("2_signals")
-def stage_signals(df):
-    import statsmodels.api as sm
-    from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
+def stage_signals(df, oos_start):
+    """Regime signals, causal (scripts/_regime_causal.py): IS-only fit, IS-only standardisation,
+    forward-filtered P(state_t | x_1..x_t). The target return is not in any likelihood.
 
-    yoy = df["eci_total_comp_pct_yoy"].dropna()  # 97 obs
+    ECI has 97 YoY quarters; 72 fall before the OOS start. The helper's minimum for a traded
+    fit is 100 IS rows (HMM 50 x 2 states; MS 100), so both regime signals are EXCLUDED from
+    the tournament (PORT GUIDE step 5: accept the raise; report it). A 2-state HMM is still fit
+    on the 72 IS quarters with an explicit override as a DIAGNOSTIC (not traded) so the Evidence
+    page can show what a causal regime read looks like and the look-ahead audit can score the
+    superseded rule on it."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from _regime_causal import fit_hmm_causal, fit_ms_causal
 
-    # --- HMM 2-state on YoY wage growth (97 obs — attempted, honesty-flagged) ---
-    # Caveat stated up front: with wage YoY this persistent, the HMM will likely split
-    # high- vs low-wage-inflation REGIMES (level split), not volatility states. That is
-    # still an economically meaningful regime signal (post-COVID surge vs pre-COVID calm),
-    # but on 97 obs the transition-matrix estimate is weak — flagged in the manifest.
-    hmm_ok = False
+    yoy = df["eci_total_comp_pct_yoy"]
+    regime_log = {"oos_start": str(pd.Timestamp(oos_start).date()), "models": {}}
+
+    # --- traded attempt: HMM 2-state on YoY wage growth ("stress" = higher-mean state) ---
     try:
-        from hmmlearn.hmm import GaussianHMM
-        X = yoy.values.reshape(-1, 1)
-        hmm = GaussianHMM(n_components=2, covariance_type="full", n_iter=500, random_state=42)
-        hmm.fit(X)
-        means = [float(hmm.means_[i].ravel()[0]) for i in range(2)]
-        # "stress" = HIGH wage-inflation regime (wage-price-spiral / Fed-tightening pressure)
-        stress_state = int(np.argmax(means))
-        probs = hmm.predict_proba(X)
-        prob_stress = pd.Series(probs[:, stress_state], index=yoy.index, name="hmm_2state_prob_stress")
-        df["hmm_2state_prob_stress"] = prob_stress
-        states = pd.Series(hmm.predict(X), index=yoy.index)
-        # Degeneracy guard: both regimes must be occupied >= 10% of the sample
-        occ = states.value_counts(normalize=True)
-        if occ.min() < 0.10:
-            print(f"  HMM degenerate (min regime occupancy {occ.min():.2f}) — hmm_stress EXCLUDED")
-            df.drop(columns=["hmm_2state_prob_stress"], inplace=True)
-        else:
-            hmm_ok = True
-            hmm_states = pd.DataFrame({"hmm_state": states, "prob_stress": prob_stress,
-                                       "prob_calm": 1 - prob_stress})
-            hmm_states.to_parquet(os.path.join(MODELS_DIR, "hmm_states.parquet"))
-            spy = df["spy_ret"]
-            summ = []
-            for lbl, mask in [("high_wage_inflation", states == stress_state),
-                              ("low_wage_inflation", states != stress_state)]:
-                idx = hmm_states.index[mask]
-                rets = spy.reindex(idx).dropna()
-                summ.append({"state_label": lbl,
-                             "mean_return": round(rets.mean(), 6) if len(rets) else np.nan,
-                             "vol": round(rets.std(), 6) if len(rets) else np.nan,
-                             "duration_days": int(mask.sum()) * 63,  # quarters -> ~trading days
-                             "frequency_pct": round(mask.mean() * 100, 2),
-                             "mean_yoy_growth": round(yoy.reindex(idx).mean(), 3)})
-            pd.DataFrame(summ).to_csv(os.path.join(MODELS_DIR, "hmm_summary.csv"), index=False)
-            surge_p = prob_stress.loc["2021-12-31":"2023-06-30"].mean()
-            write_manifest(os.path.join(MODELS_DIR, "hmm_states.parquet"),
-                           {"hmm_state": "integer state; stress = HIGH-MEAN wage-inflation regime (level split, not vol split)",
-                            "prob_stress": "P(high wage-inflation regime); higher = wage-price-spiral / Fed-pressure regime",
-                            "prob_calm": "1 - prob_stress"},
-                           [{"description": "probabilities in [0,1]", "check": "prob_stress between 0 and 1"},
-                            {"description": "2021-23 wage surge = high regime", "filter": "2021-12..2023-06",
-                             "column": "prob_stress", "check": f"mean = {surge_p:.2f} (expect > 0.8)"},
-                            {"description": "states sum to 1", "check": "prob_stress + prob_calm == 1"}],
-                           extra={"small_sample_caveat": "97 quarterly obs; persistent series -> HMM splits wage-inflation LEVEL regimes; transition matrix weakly identified"})
-            print(f"  HMM 2-state converged (level-regime split); stress prob mean 2021Q4-2023Q2: {surge_p:.2f}")
-    except Exception as e:
-        print(f"  HMM failed on quarterly sample ({e}) — hmm_stress excluded from tournament")
+        r = fit_hmm_causal(yoy.to_frame(), oos_start, n_states=2, label_feature=yoy.name,
+                           label="max", seeds=REGIME_SEEDS)
+        df["hmm_2state_prob_stress"] = r.prob.reindex(df.index)
+        regime_log["models"]["hmm_2state_prob_stress"] = {"status": "traded", **r.summary()}
+    except ValueError as e:
+        regime_log["models"]["hmm_2state_prob_stress"] = {
+            "status": "excluded_from_tournament", "reason": str(e),
+            "rule": "helper minimum 100 IS rows for a traded 2-state HMM (50 x n_states)"}
+        print(f"  HMM excluded from the tournament: {e}")
 
-    # --- Markov-switching regression: spy_ret ~ yoy, 2 regimes ---
-    ms_data = pd.concat([df["spy_ret"], yoy], axis=1).dropna()
+    # --- traded attempt: Markov-switching on the indicator (YoY change), never spy_ret ---
     try:
-        ms = MarkovRegression(ms_data["spy_ret"], k_regimes=2,
-                              exog=sm.add_constant(ms_data["eci_total_comp_pct_yoy"]),
-                              switching_variance=True)
-        ms_fit = ms.fit(maxiter=500, disp=False)
-        smp = ms_fit.smoothed_marginal_probabilities
-        sig2 = [ms_fit.params[f"sigma2[{i}]"] for i in range(2)]
-        ms_stress = int(np.argmax(sig2))
-        df["markov_regime_2state"] = smp[ms_stress].reindex(df.index)
-        pd.DataFrame({"regime_stress_prob": smp[ms_stress], "regime_calm_prob": smp[1 - ms_stress]}
-                     ).to_csv(os.path.join(MODELS_DIR, "markov_regime_probs_2state.csv"))
-        pd.DataFrame({"parameter": ms_fit.params.index, "value": ms_fit.params.values,
-                      "se": ms_fit.bse.values}).to_csv(
-            os.path.join(MODELS_DIR, "markov_switching_2state.csv"), index=False)
-        print("  Markov-switching 2-state converged")
+        d_yoy = yoy.diff().rename("eci_total_comp_yoy_diff")
+        ms = fit_ms_causal(d_yoy, oos_start, k_regimes=2, switching_variance=True, label="max_variance")
+        df["markov_regime_2state"] = ms.prob.reindex(df.index)
+        regime_log["models"]["markov_regime_2state"] = {"status": "traded", **ms.summary()}
+    except ValueError as e:
+        regime_log["models"]["markov_regime_2state"] = {
+            "status": "excluded_from_tournament", "reason": str(e),
+            "rule": "helper minimum 100 IS rows for a traded Markov-switching fit"}
+        print(f"  Markov-switching excluded from the tournament: {e}")
+
+    # --- diagnostic (NOT traded): causal HMM on the 72 IS quarters, explicit override ---
+    hmm_diag = None
+    try:
+        hmm_diag = fit_hmm_causal(yoy.to_frame(), oos_start, n_states=2, label_feature=yoy.name,
+                                  label="max", seeds=REGIME_SEEDS, min_is_rows=40)
+        prob = hmm_diag.prob.reindex(df.index)
+        states = (prob > 0.5).astype(float).where(prob.notna())
+        hmm_states = pd.DataFrame({"hmm_state": states, "prob_stress": prob, "prob_calm": 1 - prob}).dropna()
+        hmm_states.to_parquet(os.path.join(MODELS_DIR, "hmm_states.parquet"))
+        spy = df["spy_ret"]
+        summ = []
+        for lbl, mask in [("high_wage_inflation", hmm_states["hmm_state"] == 1),
+                          ("low_wage_inflation", hmm_states["hmm_state"] == 0)]:
+            idx = hmm_states.index[mask]
+            rets = spy.reindex(idx).dropna()
+            summ.append({"state_label": lbl,
+                         "mean_return": round(rets.mean(), 6) if len(rets) else np.nan,
+                         "vol": round(rets.std(), 6) if len(rets) else np.nan,
+                         "duration_days": int(mask.sum()) * 63,  # quarters -> ~trading days
+                         "frequency_pct": round(mask.mean() * 100, 2),
+                         "mean_yoy_growth": round(yoy.reindex(idx).mean(), 3)})
+        pd.DataFrame(summ).to_csv(os.path.join(MODELS_DIR, "hmm_summary.csv"), index=False)
+        surge_p = prob.loc["2021-12-31":"2023-06-30"].mean()
+        write_manifest(os.path.join(MODELS_DIR, "hmm_states.parquet"),
+                       {"hmm_state": "1 if filtered prob_stress > 0.5 else 0 (stress = higher-mean wage-inflation state)",
+                        "prob_stress": "forward-filtered P(high wage-inflation state | ECI YoY up to t); params fit on IS quarters only",
+                        "prob_calm": "1 - prob_stress"},
+                       [{"description": "probabilities in [0,1]", "check": "prob_stress between 0 and 1"},
+                        {"description": "2021-23 wage surge", "filter": "2021-12..2023-06",
+                         "column": "prob_stress", "check": f"mean = {surge_p:.2f}"}],
+                       extra={"status": "DIAGNOSTIC ONLY - not a tournament signal",
+                              "fit": hmm_diag.summary(),
+                              "caveat": (f"fit on {hmm_diag.n_fit} IS quarters, below the 100-row minimum the helper "
+                                         "requires for a traded signal (override min_is_rows=40); transition matrix weakly identified")})
+        regime_log["models"]["hmm_diagnostic"] = {"status": "diagnostic_not_traded", **hmm_diag.summary()}
+        print(f"  Diagnostic causal HMM (not traded): n_fit={hmm_diag.n_fit}; filtered stress mean 2021Q4-2023Q2 {surge_p:.2f}")
     except Exception as e:
-        print(f"  Markov-switching failed: {e} — signal excluded from tournament")
+        regime_log["models"]["hmm_diagnostic"] = {"status": "failed", "reason": repr(e)}
+        print(f"  Diagnostic HMM failed: {e}")
+    with open(os.path.join(MODELS_DIR, "regime_models.json"), "w") as f:
+        json.dump(regime_log, f, indent=2, default=str)
 
     sig_cols = [c for c in SIGNAL_COLS.values() if c in df.columns]
     sig_path = os.path.join(RESULTS_DIR, f"signals_{DATE_TAG}.parquet")
@@ -285,8 +308,10 @@ def stage_signals(df):
                     {"description": "post-GFC deceleration", "filter": "2009-06..2010-12",
                      "column": "eci_total_comp_pct_yoy", "check": "min < 2.0"},
                     {"description": "wage growth never negative (nominal stickiness)",
-                     "column": "eci_total_comp_pct_yoy", "check": "min > 0"}])
-    return df, hmm_ok
+                     "column": "eci_total_comp_pct_yoy", "check": "min > 0"}],
+                   extra={"regime_signals": regime_log["models"]})
+    hmm_ok = "hmm_2state_prob_stress" in df.columns
+    return df, hmm_ok, hmm_diag
 
 
 # ===================================================================
@@ -575,7 +600,7 @@ def stage_core_models(df):
 def stage_lead_analysis(df):
     """ECON-LA1 quarterly adaptation: per-transform Pearson r vs 1-QUARTER-fwd return
     at leads L0..L8 QUARTERS. L0 is diagnostic-only (BLS ~1-month pub lag -> the
-    quarter-Q print is public only during Q+1, strict floor L2). Tradable grid = L2..L5."""
+    quarter-Q print is first tradable in Q+1). Tradable grid = L1..L8."""
     fwd1 = df["spy_fwd_1q"]
     transforms = [c for k, c in SIGNAL_COLS.items() if c in df.columns and not c.startswith(("hmm", "markov"))]
     rows = []
@@ -634,152 +659,291 @@ def stage_quartiles(df):
 # ===================================================================
 # STAGE 6: TOURNAMENT ENGINE (sparse quarterly grid)
 # ===================================================================
-def run_lead_grid(df, split, leads):
-    """Tournament evaluation over given leads (in QUARTERS). Sparse grid per Dana's
-    101-obs constraint: thresholds = IS percentiles {25,50,75} + zero-cross (sign-
-    meaningful signals) + rolling z-score +/-1.0 at LB12/LB20; strategies = P1 long/cash
-    and P3 long/short, each pro/counter. Returns strategy rows (NO benchmark)."""
+CTX = {}
+
+
+def paired_block_bootstrap_sharpe_diff(strat, bh, block, ppy, draws=5000, seed=42):
+    """Paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H): the same resampled
+    blocks are applied to both series, so their dependence is kept. Returns mean, 95% CI and
+    P(diff <= 0)."""
+    s, b = np.asarray(strat, float), np.asarray(bh, float)
+    n = len(s)
+    rng = np.random.default_rng(seed)
+
+    def _sh(x):
+        return x.mean() / x.std() * np.sqrt(ppy) if x.std() > 0 else np.nan
+
+    d = []
+    for _ in range(draws):
+        starts = rng.integers(0, n, size=int(np.ceil(n / block)))
+        idx = np.concatenate([np.arange(k, k + block) % n for k in starts])[:n]
+        d.append(_sh(s[idx]) - _sh(b[idx]))
+    d = np.array(d)
+    d = d[~np.isnan(d)]
+    return {"observed": round(float(_sh(s) - _sh(b)), 4), "mean": round(float(d.mean()), 4),
+            "ci_95": [round(float(np.percentile(d, 2.5)), 4), round(float(np.percentile(d, 97.5)), 4)],
+            "p_diff_le_0": round(float((d <= 0).mean()), 4), "block_length": block, "draws": int(len(d)),
+            "seed": seed, "method": "paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H)"}
+
+
+def hac_t_mean(r, horizon=1):
+    """HAC (Newey-West) t-stat of the mean; maxlags = max(floor(4*(n/100)^(2/9)), horizon-1)."""
+    import statsmodels.api as sm
+    y = pd.Series(r).dropna().values
+    nw = max(int(np.floor(4 * (len(y) / 100) ** (2 / 9))), horizon - 1)
+    m = sm.OLS(y, np.ones((len(y), 1))).fit(cov_type="HAC", cov_kwds={"maxlags": nw})
+    return float(m.tvalues[0]), float(m.pvalues[0]), nw
+
+
+def thresholds_for(code, sig, is_mask):
+    """Sparse quarterly threshold set for one lead-shifted signal: IS percentiles {25,50,75}
+    (IS rows only), zero-cross for sign-meaningful signals, rolling z +/-1.0 at LB12/LB20."""
+    out = {}
+    is_sig = sig[is_mask].dropna()
+    if len(is_sig) > 30:
+        for pct in [25, 50, 75]:
+            out[(f"T1_fixed_p{pct}", "LB_NA")] = is_sig.quantile(pct / 100)
+    if code in ZERO_CROSS:
+        out[("T4_zero", "LB_NA")] = 0.0
+    for lb_name, lb in LOOKBACKS.items():
+        roll = sig.rolling(lb, min_periods=max(int(lb * 0.6), 8))
+        rm, rs = roll.mean(), roll.std()
+        out[("T3_zscore_1.0", lb_name)] = rm + 1.0 * rs
+        out[("T3_zscore_neg_1.0", lb_name)] = rm - 1.0 * rs
+    return out
+
+
+def build_position(sig, thr_name, thr, strategy):
+    """Position on row t (accrues spy_ret of quarter t). Undefined (NaN) while the lagged
+    signal or its rolling threshold is still warming up; earlier code traded those rows as
+    cash/short because NaN comparisons evaluate to False."""
+    strat, orientation = strategy.rsplit("_", 1)
+    above = sig < thr if "neg_" in thr_name else sig > thr
+    defined = sig.notna() & (thr.notna() if isinstance(thr, pd.Series) else True)
+    pos_bool = ~above if orientation == "counter" else above
+    pos = pos_bool.astype(float) if strat == "P1_long_cash" else pos_bool.astype(float) * 2 - 1
+    return pos.where(defined)
+
+
+def replay(work, code, thr_name, lb_name, strategy, lead, is_mask):
+    sig = work[SIGNAL_COLS[code]].shift(lead)
+    thr = thresholds_for(code, sig, is_mask)[(thr_name, lb_name)]
+    pos = build_position(sig, thr_name, thr, strategy)
+    return pos, pos * work["spy_ret"], sig, thr
+
+
+def _trades(pos, mask):
+    p = pos[mask].dropna()
+    n = int((p.diff().abs() > 1e-9).sum())
+    years = len(p) / PERIODS_PER_YEAR
+    return n, (n / years if years > 0 else np.nan)
+
+
+def _exposure(pos, strategy):
+    p = pos.dropna()
+    if not len(p):
+        return np.nan
+    return float((p > 0).mean()) if strategy.startswith("P3") else float(p.mean())
+
+
+def run_grid(df, split, leads=LEADS):
+    """Full sparse quarterly grid with IS selection (PORT_GUIDE blocks 1-3, eligibility before
+    alignment). Pure: returns (tourn, selection-context); writes nothing."""
     work = df.dropna(subset=["spy_ret"]).copy()
-    is_end = split["in_sample_end"]; oos_start = split["oos_start"]; oos_end = split["oos_end"]
-    is_mask = work.index <= is_end
+    oos_start, oos_end, is_end = split["oos_start"], split["oos_end"], split["is_end"]
+    is_full = work.index <= is_end
     oos_mask = (work.index >= oos_start) & (work.index <= oos_end)
     spy_ret = work["spy_ret"]
-    strategies = ["P1_long_cash", "P3_long_short"]
-    results = []
-    for code, col in SIGNAL_COLS.items():
-        if col not in work.columns or work[col].notna().sum() < SIG_ELIGIBLE_MIN:
-            continue
-        base_sig = work[col]
+    strategies = [f"{s}_{o}" for s in ["P1_long_cash", "P3_long_short"] for o in ["pro", "counter"]]
+    avail = {k: v for k, v in SIGNAL_COLS.items() if v in work.columns and work[v].notna().sum() >= SIG_ELIGIBLE_MIN}
+
+    cands = []
+    for code, col in avail.items():
         for lead in leads:
-            sig = base_sig.shift(lead)
-            thr_static = {}
-            is_sig = sig[is_mask].dropna()
-            if len(is_sig) > 30:
-                for pct in [25, 50, 75]:
-                    thr_static[(f"T1_fixed_p{pct}", "LB_NA")] = is_sig.quantile(pct / 100)
-            if code in ZERO_CROSS:
-                thr_static[("T4_zero", "LB_NA")] = 0.0
-            thr_roll = {}
-            for lb_name, lb in LOOKBACKS.items():
-                minp = max(int(lb * 0.6), 8)
-                roll = sig.rolling(lb, min_periods=minp)
-                rm, rs = roll.mean(), roll.std()
-                thr_roll[("T3_zscore_1.0", lb_name)] = rm + 1.0 * rs
-                thr_roll[("T3_zscore_neg_1.0", lb_name)] = rm - 1.0 * rs
-            for (thr_name, lb_name), thr in {**thr_static, **thr_roll}.items():
-                above = sig < thr if "neg_" in thr_name else sig > thr
-                for strat in strategies:
-                    for orientation in ["pro", "counter"]:
-                        pos_bool = ~above if orientation == "counter" else above
-                        if strat == "P1_long_cash":
-                            position = pos_bool.astype(float)
-                        else:
-                            position = pos_bool.astype(float) * 2 - 1
-                        strat_ret = position * spy_ret
-                        is_r, oos_r = strat_ret[is_mask].dropna(), strat_ret[oos_mask].dropna()
-                        if len(is_r) < 40 or len(oos_r) < 20:
-                            continue
-                        m_is, m = ann_metrics(is_r), ann_metrics(oos_r)
-                        pos_oos = position[oos_mask]
-                        n_trades = int((pos_oos.diff().abs() > 1e-9).sum())
-                        years = len(pos_oos.dropna()) / PERIODS_PER_YEAR
-                        turnover = n_trades / years if years > 0 else 999
-                        # quarterly rebalance ceiling: < 6 position changes / year
-                        valid = bool(m["sharpe"] > 0.3 and turnover < 6 and len(oos_r) >= 20)
-                        results.append({
-                            "signal": code, "threshold": thr_name, "strategy": f"{strat}_{orientation}",
-                            "lead_quarters": lead, "lookback": lb_name,
-                            "is_sharpe": round(m_is["sharpe"], 4), "oos_sharpe": round(m["sharpe"], 4),
-                            "oos_sortino": round(m["sortino"], 4), "oos_calmar": round(m["calmar"], 4),
-                            "oos_ann_return": round(m["ann_return"], 4), "oos_ann_vol": round(m["ann_vol"], 4),
-                            "max_drawdown": round(m["max_dd"], 4), "win_rate": round(m["win_rate"], 4),
-                            "n_trades": n_trades, "annual_turnover": round(turnover, 2),
-                            "oos_n": len(oos_r), "valid": valid,
-                            "stationarity_class": ("clean" if code in STATIONARY_CLEAN else
-                                                   "regime_contaminated" if code in REGIME_CONTAMINATED else
-                                                   "borderline_persistent")})
-    return pd.DataFrame(results)
+            sig = work[col].shift(lead)
+            for (thr_name, lb_name), thr in thresholds_for(code, sig, is_full).items():
+                for strategy in strategies:
+                    pos = build_position(sig, thr_name, thr, strategy)
+                    cands.append((code, thr_name, lb_name, strategy, lead, pos, pos * spy_ret))
+
+    def _first(rets):
+        r = rets.dropna()
+        return r.index.min() if len(r) else pd.NaT
+
+    def _own_is_n(rets):
+        return int(((rets.index < oos_start) & rets.notna()).sum())
+
+    eligible = [_own_is_n(c[6]) >= MIN_IS_N for c in cands]
+    if not any(eligible):
+        raise RuntimeError("No IS-eligible candidate")
+    common_is_start = max(_first(c[6]) for c, ok in zip(cands, eligible) if ok)
+    is_mask = (work.index >= common_is_start) & (work.index < oos_start)
+    driver = sorted({f"{c[0]}/{c[1]}/{c[2]}/L{c[4]}" for c, ok in zip(cands, eligible)
+                     if ok and _first(c[6]) == common_is_start})[:3]
+    bh_is = ann_metrics(spy_ret[is_mask])
+    bh = ann_metrics(spy_ret[oos_mask])
+
+    rows = []
+    for (code, thr_name, lb_name, strategy, lead, pos, rets), elig in zip(cands, eligible):
+        is_r = rets[is_mask].dropna()
+        own_start = _first(rets)
+        own_mask = (work.index >= own_start) & (work.index < oos_start) if pd.notna(own_start) else is_mask & False
+        own_r = rets[own_mask].dropna()
+        oos_r = rets[oos_mask].fillna(0.0)                      # ECON-T4 deployable OOS
+        mi, mo, m = ann_metrics(is_r), ann_metrics(own_r), ann_metrics(oos_r)
+        is_tr, is_to = _trades(pos, is_mask)
+        oos_tr, oos_to = _trades(pos, oos_mask)
+        is_expo = _exposure(pos[is_mask], strategy)
+        own_expo = _exposure(pos[own_mask], strategy)
+        is_valid = bool(elig and len(is_r) >= MIN_IS_N and is_expo == is_expo and 0.05 <= is_expo <= 0.95
+                        and is_r.std() > 0 and is_to < MAX_TURNOVER)
+        own_valid = bool(len(own_r) >= MIN_IS_N and own_expo == own_expo and 0.05 <= own_expo <= 0.95
+                         and own_r.std() > 0)
+        # pre-#251 rule, comparison only: OOS Sharpe > 0.3, OOS turnover < 6, >= 20 OOS quarters
+        legacy_valid = bool(m["sharpe"] > 0.3 and oos_to < MAX_TURNOVER and len(oos_r) >= 20)
+        rows.append({
+            "signal": code, "threshold": thr_name, "strategy": strategy, "lead_quarters": lead, "lookback": lb_name,
+            "direction": ("procyclical" if (strategy.endswith("_pro") != ("neg_" in thr_name)) else "countercyclical"),
+            "is_sharpe": round(mi["sharpe"], 6), "is_ann_return": round(mi["ann_return"], 6),
+            "is_max_drawdown": round(mi["max_dd"], 6), "is_exposure": round(is_expo, 4) if is_expo == is_expo else np.nan,
+            "is_n_trades": is_tr, "is_annual_turnover": round(is_to, 3) if is_to == is_to else np.nan,
+            "is_start": is_r.index.min().date().isoformat() if len(is_r) else None,
+            "is_end": is_r.index.max().date().isoformat() if len(is_r) else None,
+            "common_is_start": common_is_start.date().isoformat(),
+            "own_is_start": own_r.index.min().date().isoformat() if len(own_r) else None,
+            "own_is_sharpe": round(mo["sharpe"], 6), "own_is_n": mo["n"], "own_is_valid": own_valid,
+            "oos_sharpe": round(m["sharpe"], 6), "oos_sortino": round(m["sortino"], 6),
+            "oos_calmar": round(m["calmar"], 6), "oos_ann_return": round(m["ann_return"], 6),
+            "oos_ann_vol": round(m["ann_vol"], 6), "max_drawdown": round(m["max_dd"], 6),
+            "win_rate": round(m["win_rate"], 4), "n_trades": oos_tr,
+            "annual_turnover": round(oos_to, 3) if oos_to == oos_to else np.nan,
+            "is_n": mi["n"], "oos_n": m["n"], "is_eligible": bool(elig),
+            "is_ineligible_reason": "" if elig else f"insufficient IS history: n_own={_own_is_n(rets)} < MIN_IS_N={MIN_IS_N}",
+            "is_valid": is_valid, "oos_valid": legacy_valid, "valid": is_valid,
+            "stationarity_class": ("clean" if code in STATIONARY_CLEAN else
+                                   "regime_contaminated" if code in REGIME_CONTAMINATED else "borderline_persistent")})
+    rows.append({
+        "signal": "BENCHMARK", "threshold": "BUY_HOLD", "strategy": "P0_buy_and_hold", "lead_quarters": 0,
+        "lookback": "LB_NA", "direction": "benchmark", "is_sharpe": round(bh_is["sharpe"], 6),
+        "is_ann_return": round(bh_is["ann_return"], 6), "is_max_drawdown": round(bh_is["max_dd"], 6),
+        "is_exposure": 1.0, "is_n_trades": 0, "is_annual_turnover": 0.0,
+        "is_start": common_is_start.date().isoformat(), "is_end": work.index[is_mask][-1].date().isoformat(),
+        "common_is_start": common_is_start.date().isoformat(), "own_is_start": None, "own_is_sharpe": np.nan,
+        "own_is_n": 0, "own_is_valid": False, "oos_sharpe": round(bh["sharpe"], 6),
+        "oos_sortino": round(bh["sortino"], 6), "oos_calmar": round(bh["calmar"], 6),
+        "oos_ann_return": round(bh["ann_return"], 6), "oos_ann_vol": round(bh["ann_vol"], 6),
+        "max_drawdown": round(bh["max_dd"], 6), "win_rate": round(bh["win_rate"], 4), "n_trades": 0,
+        "annual_turnover": 0.0, "is_n": bh_is["n"], "oos_n": bh["n"], "is_eligible": False,
+        "is_ineligible_reason": "benchmark", "is_valid": False, "oos_valid": False, "valid": False,
+        "stationarity_class": "n_a"})
+    tourn = pd.DataFrame(rows)
+    assert (tourn["signal"] == "BENCHMARK").sum() == 1, "exactly one benchmark row required (ECON-T4)"
+
+    nb = tourn["signal"] != "BENCHMARK"
+    valid = tourn[tourn["valid"] & nb]
+    if valid.empty:
+        raise RuntimeError("No valid tournament strategies")
+    # ECON-T3 cascade on the IS objective (explicit sort, not pandas-order dependent)
+    keys = ["is_sharpe", "is_ann_return", "is_max_drawdown", "is_n_trades", "signal", "threshold",
+            "strategy", "lookback", "lead_quarters"]
+    asc = [False, False, False, True, True, True, True, True, True]
+    ranked = valid.sort_values(keys, ascending=asc, kind="mergesort")
+    wi = ranked.index[0]
+    tied, tie_step = valid, 5
+    for step, k in enumerate(["is_sharpe", "is_ann_return", "is_max_drawdown", "is_n_trades"], 1):
+        tied = tied[(tied[k] - tourn.loc[wi, k]).abs() <= 1e-9]
+        if len(tied) == 1:
+            tie_step = step
+            break
+    own_pool = tourn[tourn["own_is_valid"] & nb]
+    oi = own_pool.sort_values(["own_is_sharpe", "signal", "threshold"], ascending=[False, True, True],
+                              kind="mergesort").index[0]
+    legacy_pool = tourn[tourn["oos_valid"] & nb]
+    li = (legacy_pool.sort_values(["oos_sharpe", "oos_ann_return", "signal", "threshold"],
+                                  ascending=[False, False, True, True], kind="mergesort").index[0]
+          if len(legacy_pool) else None)
+    tourn["is_rank"] = tourn["is_sharpe"].where(nb & tourn["valid"]).rank(ascending=False, method="min")
+    tourn["oos_rank"] = tourn["oos_sharpe"].where(nb & tourn["valid"]).rank(ascending=False, method="min")
+    distinct = valid.drop_duplicates(["signal", "strategy", "lead_quarters", "is_sharpe", "oos_sharpe"])
+    sp = stats.spearmanr(valid["is_sharpe"], valid["oos_sharpe"]).correlation
+    sel = dict(wi=wi, oi=oi, li=li, tie_step=tie_step, tied=tied, common_is_start=common_is_start,
+               n_cands=len(cands), n_eligible=int(sum(eligible)), n_inel=int(len(cands) - sum(eligible)),
+               bh_is=bh_is, bh=bh, n_distinct=len(distinct), spearman=float(sp), driver=driver,
+               ranked=ranked)
+    return tourn, sel
 
 
 @log_stage("6_tournament")
-def stage_tournament(df):
-    work = df.dropna(subset=["spy_ret"]).copy()
-    n_q = len(work)
+def stage_tournament(df, sp):
+    oos_n, n_q = sp["oos_n"], sp["n_q"]
+    oos_start, is_end, oos_end = sp["oos_start"], sp["is_end"], sp["oos_end"]
     n_months = n_q * 3
-    # ECON-OOS2 policy v1_max36_25pct_cap120 translated to native quarterly units:
-    # span_months = min(max(36, round(303*0.25)), 120) = 76 months -> 25 quarters (rounded).
-    oos_n = int(min(max(12, round(n_q * 0.25)), 40))
-    oos_start = work.index[-oos_n]
-    is_end = work.index[-(oos_n + 1)]
-    oos_end = work.index[-1]
-    print(f"  Sample: {n_q} quarters {work.index[0].date()} -> {oos_end.date()}")
-    print(f"  OOS (v1_max36_25pct_cap120, quarterly-translated): {oos_n} quarters, "
-          f"{oos_start.date()} -> {oos_end.date()} — {oos_n} OOS points is FEW; "
-          f"found-in-search caveat STRONGER than monthly pairs")
+    print(f"  Sample: {n_q} quarters -> {oos_end.date()}; OOS {oos_n} quarters {oos_start.date()} -> {oos_end.date()}")
     split = {
         "owner": "evan", "split_policy_id": "v1_max36_25pct_cap120",
         "in_sample_end": is_end.strftime("%Y-%m-%d"), "oos_start": oos_start.strftime("%Y-%m-%d"),
         "oos_end": oos_end.strftime("%Y-%m-%d"), "sample_size_months": n_months,
         "justification": (
-            f"Policy v1_max36_25pct_cap120 applied in native QUARTERLY units on the first quarterly pair: "
-            f"total sample {n_q} quarters ({n_months} months, 2001-Q1..2026-Q1). "
-            f"span = min(max(12q, round({n_q}*0.25)), 40q) = {oos_n} quarters (= {oos_n*3} months; the monthly "
-            f"formula min(max(36, round({n_months}*0.25)), 120) = {int(min(max(36, round(n_months*0.25)), 120))} months "
-            f"~= the same window). OOS {oos_start.date()}..{oos_end.date()} spans COVID, the 2021-23 wage-inflation "
-            f"surge and the 2022 tightening bear — the exact episodes the countercyclical hypothesis is about. "
-            f"CAVEAT: {oos_n} quarterly observations is a SMALL OOS sample; any winner is found-in-search with a "
-            f"high-variance Sharpe (stronger caveat than Cass's 36 monthly OOS points). IS = {n_q - oos_n} quarters "
-            f"(z-score transforms usable from 2003-Q4/2004-Q4 within IS). No structural-break exclusion applied."),
+            f"Policy v1_max36_25pct_cap120 applied in native QUARTERLY units: total sample {n_q} quarters "
+            f"({n_months} months). span = min(max(12q, round({n_q}*0.25)), 40q) = {oos_n} quarters. "
+            f"OOS {oos_start.date()}..{oos_end.date()} covers COVID, the 2021-23 wage-inflation surge and the 2022 "
+            f"tightening bear market. {oos_n} quarterly observations is a small OOS sample. IS = {n_q - oos_n} quarters; "
+            f"the regime models (HMM, Markov-switching) may only be fit on IS rows. No structural-break exclusion applied."),
     }
     with open(os.path.join(RESULTS_DIR, "oos_split_record.json"), "w") as f:
         json.dump(split, f, indent=2)
 
-    tstrat = run_lead_grid(df, split, LEADS)
-
-    # Benchmark row (ECON-T4: valid=False, signal=="BENCHMARK")
-    spy_ret = work["spy_ret"]
-    is_mask = work.index <= is_end
-    oos_mask = (work.index >= oos_start) & (work.index <= oos_end)
-    mb, mbi = ann_metrics(spy_ret[oos_mask].dropna()), ann_metrics(spy_ret[is_mask].dropna())
-    bench = {"signal": "BENCHMARK", "threshold": "BUY_HOLD", "strategy": "P0_buy_and_hold",
-             "lead_quarters": 0, "lookback": "LB_NA", "is_sharpe": round(mbi["sharpe"], 4),
-             "oos_sharpe": round(mb["sharpe"], 4), "oos_sortino": round(mb["sortino"], 4),
-             "oos_calmar": round(mb["calmar"], 4), "oos_ann_return": round(mb["ann_return"], 4),
-             "oos_ann_vol": round(mb["ann_vol"], 4), "max_drawdown": round(mb["max_dd"], 4),
-             "win_rate": round(mb["win_rate"], 4), "n_trades": 0, "annual_turnover": 0.0,
-             "oos_n": int(oos_mask.sum()), "valid": False, "stationarity_class": "n_a"}
-    tdf = pd.concat([tstrat, pd.DataFrame([bench])], ignore_index=True)
-    assert (tdf["signal"] == "BENCHMARK").sum() == 1, "exactly one benchmark row required (ECON-T4)"
+    split_ts = {"oos_start": oos_start, "oos_end": oos_end, "is_end": is_end}
+    tdf, sel = run_grid(df, split_ts)
+    CTX["selection"] = sel
     tpath = os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}.csv")
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from _tournament_io import write_tournament
     write_tournament(tdf, tpath)
+    side_cols = ["signal", "threshold", "strategy", "lookback", "direction", "lead_quarters", "is_start", "is_end",
+                 "is_n", "is_sharpe", "own_is_start", "own_is_n", "own_is_sharpe", "oos_sharpe", "oos_ann_return",
+                 "max_drawdown", "n_trades", "oos_n", "is_rank", "oos_rank"]
+    side = [dict(role="primary_is_selected_common_start", **tdf.loc[sel["wi"], side_cols].to_dict()),
+            dict(role="sensitivity_is_selected_own_start", **tdf.loc[sel["oi"], side_cols].to_dict())]
+    if sel["li"] is not None:
+        side.append(dict(role="legacy_oos_selected", **tdf.loc[sel["li"], side_cols].to_dict()))
+    pd.DataFrame(side).to_csv(os.path.join(RESULTS_DIR, f"legacy_oos_selection_{DATE_TAG}.csv"), index=False)
 
     strat_pop = tdf[tdf.signal != "BENCHMARK"]
     n_valid = int(strat_pop["valid"].sum())
-    print(f"  Combos evaluated: {len(strat_pop)} strategies + 1 benchmark; valid: {n_valid}")
-    print(f"  B&H OOS Sharpe {mb['sharpe']:.3f}, maxDD {mb['max_dd']:.3f}, ann ret {mb['ann_return']:.3f}")
+    w = tdf.loc[sel["wi"]]
+    print(f"  common IS start {sel['common_is_start'].date()} (set by {sel['driver']}); {sel['n_inel']} ineligible")
+    print(f"  Combos: {len(strat_pop)} + 1 benchmark; IS-valid {n_valid} ({sel['n_distinct']} distinct series)")
+    print(f"  WINNER (IS argmax): {w.signal}/{w.threshold}/{w.strategy}/L{w.lead_quarters}q/{w.lookback} "
+          f"IS {w.is_sharpe:.4f} OOS {w.oos_sharpe:.4f} (B&H IS {sel['bh_is']['sharpe']:.4f} OOS {sel['bh']['sharpe']:.4f}); "
+          f"tie step {sel['tie_step']}")
+    if sel["li"] is not None:
+        lw = tdf.loc[sel["li"]]
+        print(f"  legacy OOS-argmax on this grid: {lw.signal}/{lw.threshold}/{lw.strategy}/L{lw.lead_quarters}q/"
+              f"{lw.lookback} OOS {lw.oos_sharpe:.4f}")
+    print(f"  Spearman(IS, OOS) over IS-valid = {sel['spearman']:.3f}")
 
     manifest = {
         "file": os.path.basename(tpath), "pair_id": PAIR_ID,
-        "frequency": "QUARTERLY (first quarterly pair)",
+        "frequency": "QUARTERLY",
         "annualization": "Sharpe = mean/std*sqrt(4); ann_return = mean*4; ann_vol = std*sqrt(4)",
-        "grid": {"signals": [k for k, v in SIGNAL_COLS.items() if v in work.columns and work[v].notna().sum() >= SIG_ELIGIBLE_MIN],
-                 "thresholds": "T1_fixed_p{25,50,75}, T4_zero (sign-meaningful: accel/yoy_accel/dev_trend), T3_zscore_{+1.0,-1.0} x {LB12,LB20}",
+        "grid": {"signals": sorted(strat_pop["signal"].unique().tolist()),
+                 "thresholds": "T1_fixed_p{25,50,75} (IS percentiles), T4_zero (accel/yoy_accel/dev_trend), T3_zscore_{+1.0,-1.0} x {LB12,LB20}",
                  "strategies": ["P1_long_cash_{pro,counter}", "P3_long_short_{pro,counter}"],
                  "leads_quarters": LEADS, "lookbacks": list(LOOKBACKS.keys()) + ["LB_NA"],
-                 "sparse_grid_rationale": "101 quarterly obs — Dana Phase-0: no dense grids; P2 signal-strength and z-score +/-1.5 variants dropped; zero-cross restricted to sign-meaningful signals (wage growth never negative)"},
+                 "regime_signals": "hmm_stress and markov_regime EXCLUDED: a causal (IS-only) fit needs >= 100 IS rows; ECI has 72 IS quarters (core_models/regime_models.json)"},
+        "selection": "argmax IS Sharpe on the common IS window [common_is_start, oos_start); OOS never consulted (is_valid/valid). oos_valid = pre-#251 OOS rule, comparison only",
+        "validity": f"IS window only: eligible (own IS n >= {MIN_IS_N}), is_n >= {MIN_IS_N}, IS exposure in [0.05, 0.95] (P3: share of quarters long), IS std > 0, IS turnover < {MAX_TURNOVER}/yr",
+        "warmup": "positions are NaN (not traded, excluded from IS metrics) until the lagged signal and its rolling threshold are defined; OOS scored deployable (fillna 0)",
         "units": "oos_ann_return / oos_ann_vol / max_drawdown are RATIOS (decimal), not percent",
-        "lead_column_note": "lead_quarters (QUARTERS, not months) — quarterly adaptation of the ECON-LL1 monthly standard; L2=~6 months, L5=~15 months",
+        "lead_column_note": "lead_quarters (QUARTERS)",
         "total_strategy_rows": len(strat_pop), "valid_strategy_rows": n_valid,
-        "sampling": "exhaustive over the full tradable lead grid L2..L5 quarters (no coarse subset)",
+        "common_is_start": sel["common_is_start"].date().isoformat(), "common_is_start_set_by": sel["driver"],
+        "spearman_is_vs_oos": round(sel["spearman"], 4),
         "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
-        "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 1 quarter (BLS releases quarter Q ~1 month after quarter end -> Q print first tradable in Q+1)",
-        "small_sample_flag": f"OOS window {int(oos_mask.sum())} QUARTERS — few OOS points; winner is found-in-search / CANDIDATE, not validated (stronger caveat than monthly pairs)",
-        "stationarity_flag": "growth family (qoq/2q/yoy/dev_trend) borderline-persistent; 20Q z-scores regime-contaminated (KPSS reject); accel family clean — per-row stationarity_class column",
+        "execution_lag": "position_t = rule(signal_{t-lead}), lead >= 1 quarter",
+        "small_sample_flag": f"OOS window {oos_n} QUARTERS",
         "cost_note": "returns are gross of costs; cost sensitivity in tournament_validation",
-        "assertions": ["top strategy oos_sharpe > bottom strategy oos_sharpe", "all oos_sharpe finite",
-                       "exactly one BENCHMARK row, valid=False"],
         "generated_at": NOW_ISO,
     }
     with open(os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}_manifest.json"), "w") as f:
@@ -792,156 +956,103 @@ def stage_tournament(df):
 # ===================================================================
 @log_stage("6b_lead_tournament")
 def stage_lead_tournament(df, split, tdf, winner):
-    rows = []
+    """Per-lead summaries. best_oos_sharpe is an OOS-argmax (selection-biased context); the
+    is_best_* columns are the IS-selected row at each lead."""
+    valid = tdf[(tdf.signal != "BENCHMARK") & tdf.valid]
+    same = tdf[(tdf.signal == winner["signal"]) & (tdf.threshold == winner["threshold"]) &
+               (tdf.strategy == winner["strategy"]) & (tdf.lookback == winner["lookback"])]
+    rows, env_rows, wc_rows = [], [], []
     for L in LEADS:
-        cand = tdf[(tdf.signal != "BENCHMARK") & tdf.valid & (tdf.lead_quarters == L)]
-        if len(cand) == 0:
-            rows.append({"lead_quarters": L, "n_valid": 0, "best_oos_sharpe": np.nan,
-                         "median_oos_sharpe": np.nan, "p25_oos_sharpe": np.nan, "p75_oos_sharpe": np.nan,
-                         "best_signal": "", "best_threshold": "", "best_strategy": "", "best_max_dd": np.nan})
-            continue
-        top = cand.loc[cand.oos_sharpe.idxmax()]
-        rows.append({"lead_quarters": L, "n_valid": int(len(cand)),
-                     "best_oos_sharpe": round(float(top.oos_sharpe), 4),
-                     "median_oos_sharpe": round(float(cand.oos_sharpe.median()), 4),
-                     "p25_oos_sharpe": round(float(cand.oos_sharpe.quantile(0.25)), 4),
-                     "p75_oos_sharpe": round(float(cand.oos_sharpe.quantile(0.75)), 4),
-                     "best_signal": top.signal, "best_threshold": top.threshold,
-                     "best_strategy": top.strategy, "best_max_dd": round(float(top.max_drawdown), 4)})
+        g = valid[valid.lead_quarters == L]
+        wrow = same[same.lead_quarters == L]
+        wc_rows.append({"lead_quarters": L,
+                        "is_sharpe": round(float(wrow.iloc[0].is_sharpe), 4) if len(wrow) else np.nan,
+                        "oos_sharpe": round(float(wrow.iloc[0].oos_sharpe), 4) if len(wrow) else np.nan,
+                        "is_valid": bool(wrow.iloc[0].valid) if len(wrow) else False,
+                        "is_published_winner": bool(L == int(winner["lead_quarters"]))})
+        pool = pd.concat([g, wrow])
+        if len(g) == 0:
+            rows.append({"lead_quarters": L, "n_valid": 0})
+        else:
+            top, bi = g.loc[g.oos_sharpe.idxmax()], g.loc[g.is_sharpe.idxmax()]
+            rows.append({"lead_quarters": L, "n_valid": int(len(g)),
+                         "best_oos_sharpe": round(float(top.oos_sharpe), 4),
+                         "median_oos_sharpe": round(float(g.oos_sharpe.median()), 4),
+                         "p25_oos_sharpe": round(float(g.oos_sharpe.quantile(0.25)), 4),
+                         "p75_oos_sharpe": round(float(g.oos_sharpe.quantile(0.75)), 4),
+                         "best_signal": top.signal, "best_threshold": top.threshold,
+                         "best_strategy": top.strategy, "best_max_dd": round(float(top.max_drawdown), 4),
+                         "best_is_sharpe": round(float(bi.is_sharpe), 4),
+                         "median_is_sharpe": round(float(g.is_sharpe.median()), 4),
+                         "is_best_signal": bi.signal, "is_best_threshold": bi.threshold,
+                         "is_best_strategy": bi.strategy, "is_best_oos_sharpe": round(float(bi.oos_sharpe), 4)})
+        if len(pool):
+            b = pool.loc[pool.oos_sharpe.idxmax()]
+            env_rows.append({"lead_quarters": L, "best_oos_sharpe": round(float(b.oos_sharpe), 4),
+                             "best_signal": b.signal, "best_is_clean": True,
+                             "best_clean_oos_sharpe": round(float(b.oos_sharpe), 4), "best_clean_signal": b.signal,
+                             "note": "OOS-argmax over IS-valid rows plus the winner rule (context, selection-biased)"})
     lt = pd.DataFrame(rows)
     lt_path = os.path.join(RESULTS_DIR, f"lead_tournament_{DATE_TAG}.csv")
     lt.to_csv(lt_path, index=False)
-    valid_leads = lt[lt.n_valid > 0]
-    if len(valid_leads):
-        star_row = valid_leads.loc[valid_leads.best_oos_sharpe.idxmax()]
-        L_star = int(star_row.lead_quarters)
-        best_at_grid = float(star_row.best_oos_sharpe)
-    else:
-        L_star, best_at_grid = -1, np.nan
-    # Full L2..L5 grid is scanned by the main tournament -> published winner is already
-    # the global lead max; ECON-LT1 gate informational (no staleness possible).
-    gate = "CHARTS-ONLY (full grid scanned natively)"
-    print(f"  [ECON-LT1] lead_tournament -> {lt_path}; L*={L_star} best OOS Sharpe {best_at_grid} -> {gate}")
-
-    # --- GH #13 artifact 1: published winner's OWN Sharpe at each lead ---
-    # Re-evaluate the winner combo (signal/threshold/strategy/lookback fixed) across leads.
-    wc_rows = []
-    for L in LEADS:
-        match = tdf[(tdf.signal == winner["signal"]) & (tdf.threshold == winner["threshold"]) &
-                    (tdf.strategy == winner["strategy"]) & (tdf.lookback == winner["lookback"]) &
-                    (tdf.lead_quarters == L)]
-        wc_rows.append({"lead_quarters": L,
-                        "oos_sharpe": round(float(match.iloc[0].oos_sharpe), 4) if len(match) else np.nan,
-                        "is_published_winner": bool(L == int(winner["lead_quarters"]))})
     wc = pd.DataFrame(wc_rows)
     wc_path = os.path.join(RESULTS_DIR, f"lead_winner_curve_{DATE_TAG}.csv")
     wc.to_csv(wc_path, index=False)
-
-    # --- GH #13 artifact 2: clean envelope. SA source -> ALL signals admissible,
-    # so the envelope and the "clean" envelope COINCIDE by construction (stated). ---
-    env_rows = []
-    for L in LEADS:
-        cand = tdf[(tdf.signal != "BENCHMARK") & tdf.valid & (tdf.lead_quarters == L)]
-        if len(cand) == 0:
-            env_rows.append({"lead_quarters": L, "best_oos_sharpe": np.nan, "best_signal": "",
-                             "best_is_clean": True, "best_clean_oos_sharpe": np.nan, "best_clean_signal": ""})
-            continue
-        top = cand.loc[cand.oos_sharpe.idxmax()]
-        env_rows.append({"lead_quarters": L, "best_oos_sharpe": round(float(top.oos_sharpe), 4),
-                         "best_signal": top.signal, "best_is_clean": True,
-                         "best_clean_oos_sharpe": round(float(top.oos_sharpe), 4),
-                         "best_clean_signal": top.signal})
     env = pd.DataFrame(env_rows)
     env_path = os.path.join(RESULTS_DIR, f"lead_clean_envelope_{DATE_TAG}.csv")
     env.to_csv(env_path, index=False)
-    print(f"  [GH #13] lead_winner_curve -> {wc_path}; lead_clean_envelope -> {env_path} "
-          f"(SA source: envelope == clean envelope by construction)")
+    for L in LEADS:
+        a = wc.loc[wc.lead_quarters == L, "oos_sharpe"].iloc[0]
+        e = env.loc[env.lead_quarters == L, "best_oos_sharpe"]
+        if pd.notna(a) and len(e) and a > float(e.iloc[0]) + 1e-9:
+            raise SystemExit(f"COHERENCE VIOLATION at L{L}")
+    vl = lt[lt.n_valid > 0]
+    L_star = int(vl.loc[vl.best_oos_sharpe.idxmax(), "lead_quarters"]) if len(vl) else -1
+    best_at_grid = float(vl.best_oos_sharpe.max()) if len(vl) else np.nan
+    gate = "CHARTS-ONLY (full grid scanned natively; winner selected by IS Sharpe)"
     peak_lead = int(wc.loc[wc.oos_sharpe.idxmax(), "lead_quarters"]) if wc.oos_sharpe.notna().any() else -1
+    print(f"  [ECON-LT1] {lt_path}; winner curve OOS {dict(zip(wc.lead_quarters, wc.oos_sharpe))}")
     return lt, lt_path, L_star, best_at_grid, gate, wc, peak_lead
 
 
 # ===================================================================
-# STAGE 7: WINNER SELECTION (ECON-T3 cascade) + artifacts
+# STAGE 7: WINNER (IS-selected) + artifacts
 # ===================================================================
-def select_winner(tdf):
-    """Winner over the valid strategy population (ECON-T4 excludes BENCHMARK).
-    SA source -> no seasonal-cleanliness restriction; objective = plain max_oos_sharpe."""
-    cand = tdf[(tdf.signal != "BENCHMARK") & tdf.valid].copy()
-    if len(cand) == 0:
-        return None, None, None, cand
-    cascade = [("oos_sharpe", False), ("oos_ann_return", False),
-               ("abs_dd", True), ("n_trades", False), ("signal", True)]
-    cand["abs_dd"] = cand["max_drawdown"].abs()
-    pool = cand; resolved_at = 1; tie_pool_step1 = None
-    for i, (colname, ascending) in enumerate(cascade, start=1):
-        best_val = pool[colname].min() if ascending else pool[colname].max()
-        nxt = pool[pool[colname] == best_val]
-        if i == 1:
-            tie_pool_step1 = nxt.copy()
-        if len(nxt) == 1:
-            resolved_at = i; pool = nxt; break
-        pool = nxt; resolved_at = i
-    return pool.iloc[0], resolved_at, tie_pool_step1, cand
-
-
-def derive_winner_series(df, winner, split):
-    work = df.dropna(subset=["spy_ret"]).copy()
-    is_mask = work.index <= split["in_sample_end"]
-    sig = work[SIGNAL_COLS[winner["signal"]]].shift(int(winner["lead_quarters"]))
-    thr_name, lb_name = winner["threshold"], winner["lookback"]
-    if thr_name.startswith("T1_fixed_p"):
-        thr = sig[is_mask].dropna().quantile(int(thr_name.split("p")[-1]) / 100)
-    elif thr_name == "T4_zero":
-        thr = 0.0
-    elif thr_name.startswith("T3_zscore"):
-        lb = LOOKBACKS[lb_name]; roll = sig.rolling(lb, min_periods=max(int(lb * 0.6), 8))
-        thr = roll.mean() - 1.0 * roll.std() if "neg_" in thr_name else roll.mean() + 1.0 * roll.std()
-    else:
-        raise ValueError(thr_name)
-    above = sig < thr if "neg_" in thr_name else sig > thr
-    strat, orientation = winner["strategy"].rsplit("_", 1)
-    pos_bool = ~above if orientation == "counter" else above
-    if strat == "P1_long_cash":
-        position = pos_bool.astype(float)
-    else:
-        position = pos_bool.astype(float) * 2 - 1
-    return position, work["spy_ret"], sig, thr
-
-
 @log_stage("7_winner_artifacts")
 def stage_winner(df, tdf, split, tpath):
-    winner, resolved_at, tie_pool, cand = select_winner(tdf)
-    if winner is None:
-        raise RuntimeError("no valid strategies — null result; escalate to Lead")
+    sel = CTX["selection"]
+    winner = tdf.loc[sel["wi"]]
+    cand = tdf[(tdf.signal != "BENCHMARK") & tdf.valid]
     n_valid = len(cand)
-    median_sharpe = float(cand["oos_sharpe"].median())
-    n_tied = int((cand["oos_sharpe"] == winner["oos_sharpe"]).sum())
-    print(f"  Valid strategies: {n_valid}; winner: {winner['signal']}/{winner['threshold']}/"
-          f"{winner['strategy']}/L{winner['lead_quarters']}q/{winner['lookback']}")
-    print(f"  OOS Sharpe {winner['oos_sharpe']} | ties at step1: {n_tied} | resolved at step {resolved_at} "
-          f"| stationarity_class={winner['stationarity_class']}")
+    median_sharpe = float(cand["is_sharpe"].median())
+    resolved_at = sel["tie_step"]
+    n_tied = int((cand["is_sharpe"] - winner["is_sharpe"]).abs().le(1e-9).sum())
+    print(f"  IS-valid strategies: {n_valid}; winner: {winner['signal']}/{winner['threshold']}/"
+          f"{winner['strategy']}/L{winner['lead_quarters']}q/{winner['lookback']} (tie step {resolved_at})")
 
     if resolved_at > 1:
-        lines = [f"# Tournament Tie Note — {PAIR_ID} ({DATE_TAG})", "",
-                 f"Winner resolved at cascade step {resolved_at} (ECON-T3).", "",
-                 "## Candidates tied at step 1 (oos_sharpe)", "",
-                 tie_pool[["signal", "threshold", "strategy", "lead_quarters", "lookback",
-                           "oos_sharpe", "oos_ann_return", "max_drawdown", "n_trades"]].to_markdown(index=False),
-                 "", "Interpretation: candidates near-equivalent on the primary objective; the selected "
-                 "winner is preferred on the documented tie-break dimension."]
+        tie_pool = sel["tied"] if resolved_at < 5 else cand[(cand["is_sharpe"] - winner["is_sharpe"]).abs() <= 1e-9]
+        lines = [f"# Tournament Tie Note - {PAIR_ID} ({DATE_TAG})", "",
+                 f"Winner resolved at IS cascade step {resolved_at} (is_sharpe, is_ann_return, is_max_drawdown, "
+                 "is_n_trades, then names).", "",
+                 cand[(cand["is_sharpe"] - winner["is_sharpe"]).abs() <= 1e-9][
+                     ["signal", "threshold", "strategy", "lead_quarters", "lookback", "is_sharpe",
+                      "is_ann_return", "is_max_drawdown", "is_n_trades", "oos_sharpe"]].to_markdown(index=False)]
         with open(os.path.join(RESULTS_DIR, "tournament_tie_note.md"), "w") as f:
             f.write("\n".join(lines))
-        print("  Tie note written (cascade fired beyond step 1)")
 
-    position, spy_ret, sig_lagged, thr = derive_winner_series(df, winner, split)
+    work = df.dropna(subset=["spy_ret"])
+    is_full = work.index <= split["in_sample_end"]
+    position, strat_ret, sig_lagged, thr = replay(work, winner["signal"], winner["threshold"], winner["lookback"],
+                                                 winner["strategy"], int(winner["lead_quarters"]), is_full)
+    spy_ret = work["spy_ret"]
     oos_mask = (spy_ret.index >= split["oos_start"]) & (spy_ret.index <= split["oos_end"])
-    strat_ret = position * spy_ret
-    m = ann_metrics(strat_ret[oos_mask])
+    m = ann_metrics(strat_ret[oos_mask].fillna(0.0))
     rec = {}
     for key, computed, reported, tol in [
-            ("oos_sharpe", m["sharpe"], float(winner["oos_sharpe"]), 0.01),
-            ("oos_max_drawdown", m["max_dd"], float(winner["max_drawdown"]), 0.005),
-            ("oos_ann_return", m["ann_return"], float(winner["oos_ann_return"]), 0.005)]:
+            ("oos_sharpe", m["sharpe"], float(winner["oos_sharpe"]), 1e-5),
+            ("oos_max_drawdown", m["max_dd"], float(winner["max_drawdown"]), 1e-5),
+            ("oos_ann_return", m["ann_return"], float(winner["oos_ann_return"]), 1e-5)]:
         diff = computed - reported
         rec[key] = {"computed": round(float(computed), 6), "reported_tournament": reported,
                     "diff": round(float(diff), 6), "tolerance": tol,
@@ -949,46 +1060,42 @@ def stage_winner(df, tdf, split, tpath):
     assert all(v["verdict"] == "PASS" for v in rec.values()), f"ECON-SR1 reconciliation FAILED: {rec}"
     print("  ECON-SR1 reconciliation: PASS on all three headline metrics")
 
-    sr = pd.DataFrame({"date": spy_ret.index.strftime("%Y-%m-%d"),
-                       "position": position.reindex(spy_ret.index).fillna(0.0).values,
-                       "strategy_return": strat_ret.reindex(spy_ret.index).fillna(0.0).values,
-                       "bh_return": spy_ret.values})
+    pos_f = position.reindex(spy_ret.index).fillna(0.0)
+    sr_f = strat_ret.reindex(spy_ret.index).fillna(0.0)
+    sr = pd.DataFrame({"date": spy_ret.index.strftime("%Y-%m-%d"), "position": pos_f.values,
+                       "strategy_return": sr_f.values, "bh_return": spy_ret.values})
     sr_path = os.path.join(RESULTS_DIR, f"strategy_returns_{DATE_TAG}.csv")
     sr.to_csv(sr_path, index=False)
     with open(os.path.join(RESULTS_DIR, f"strategy_returns_{DATE_TAG}_meta.json"), "w") as f:
         json.dump({"pair_id": PAIR_ID, "artifact": os.path.basename(sr_path),
                    "produced_by": "scripts/pair_pipeline_eci_total_comp_spy.py", "rule": "ECON-SR1",
-                   "source": "pipeline_native_derivation (same code path as tournament evaluation)",
-                   "returns_file": DATA_PATH, "coverage_start": str(spy_ret.index[0].date()),
+                   "source": "pipeline_native_derivation (same replay() as the tournament)",
+                   "returns_file": os.path.relpath(DATA_PATH, BASE_DIR), "coverage_start": str(spy_ret.index[0].date()),
                    "coverage_end": str(spy_ret.index[-1].date()), "frequency": "quarterly",
                    "annualization": "Sharpe sqrt(4); ann_return mean*4",
                    "oos_start": split["oos_start"], "oos_end": split["oos_end"],
                    "position_semantics": (f"position on row t = return-accrual weight for quarter t; signal lagged "
-                                          f"{int(winner['lead_quarters'])} quarter(s); strategy_return = position * bh_return"),
+                                          f"{int(winner['lead_quarters'])} quarter(s); strategy_return = position * bh_return; "
+                                          "warm-up rows (signal or threshold undefined) written as 0"),
                    "reconciliation": {k: {"computed": v["computed"], "reported_winner_summary": v["reported_tournament"],
                                           "diff": v["diff"], "tolerance": v["tolerance"], "verdict": v["verdict"]}
                                       for k, v in rec.items()},
-                   "generated_at": NOW_ISO, "generated_by": "Econ Evan (feat260705_eci_spy)"}, f, indent=2)
+                   "generated_at": NOW_ISO, "generated_by": "Econ Evan (fix261016_hmm_port_eci_nhs)"}, f, indent=2)
 
-    # winner_trade_log.csv
     log = pd.DataFrame({"date": spy_ret.index.strftime("%Y-%m-%d"),
                         "signal_value": sig_lagged.reindex(spy_ret.index).round(4),
                         "threshold": (thr.reindex(spy_ret.index).round(4) if isinstance(thr, pd.Series) else np.round(thr, 4)),
-                        "position": position.reindex(spy_ret.index).fillna(0.0),
-                        "spy_return": spy_ret.round(6),
-                        "strategy_return": strat_ret.reindex(spy_ret.index).fillna(0.0).round(6)})
+                        "position": pos_f, "spy_return": spy_ret.round(6), "strategy_return": sr_f.round(6)})
     log["cumulative_return"] = ((1 + log["strategy_return"]).cumprod() - 1).round(6)
     log.to_csv(os.path.join(RESULTS_DIR, "winner_trade_log.csv"), index=False)
 
-    # broker-style trade log (Rule C4)
     spy_px = df["spy"].reindex(spy_ret.index)
     broker_rows = []
-    cum = (1 + strat_ret.reindex(spy_ret.index).fillna(0.0)).cumprod()
+    cum = (1 + sr_f).cumprod()
     prev = 0.0; capital = 10000.0
     sig_disp = f"{winner['signal']} ({SIGNAL_COLS[winner['signal']]})"
-    posf = position.reindex(spy_ret.index).fillna(0.0)
     for dt in spy_ret.index:
-        p = float(posf.loc[dt])
+        p = float(pos_f.loc[dt])
         if abs(p - prev) > 1e-9:
             side = "BUY" if p > prev else "SELL"
             notional = abs(p - prev) * capital
@@ -1000,7 +1107,7 @@ def stage_winner(df, tdf, split, tpath):
                                 "commission_usd": round(notional * COST_BPS / 10000, 2),
                                 "cum_pnl_pct": round((cum.loc[dt] - 1) * 100, 4),
                                 "reason": (f"{winner['strategy']}: {sig_disp} = {sv:.3f} vs threshold "
-                                           f"{th:.3f} — position {prev*100:.0f}% -> {p*100:.0f}%"
+                                           f"{th:.3f} - position {prev*100:.0f}% -> {p*100:.0f}%"
                                            if pd.notna(sv) and pd.notna(th) else "position change")})
             prev = p
     broker_path = os.path.join(RESULTS_DIR, "winner_trades_broker_style.csv")
@@ -1011,9 +1118,77 @@ def stage_winner(df, tdf, split, tpath):
                 f"lead L{winner['lead_quarters']} quarters, {winner['lookback']}.\n")
         pd.DataFrame(broker_rows).to_csv(f, index=False)
     print(f"  Trade logs written ({len(log)} rows, {len(broker_rows)} broker events)")
-
+    CTX["winner_series"] = dict(position=position, strat_ret=strat_ret, work=work, is_full=is_full)
     return (winner, rec, n_valid, median_sharpe, n_tied, resolved_at,
-            position, strat_ret, sig_lagged, thr, cand)
+            pos_f, sr_f, sig_lagged, thr, cand)
+
+
+# ===================================================================
+# STAGE 7b: LOOK-AHEAD AUDIT (superseded smoothed-HMM rule vs causal)
+# ===================================================================
+@log_stage("7b_lookahead_audit")
+def stage_lookahead_audit(df, split, hmm_diag):
+    """Score the PREVIOUSLY PUBLISHED rule (hmm_stress / T3_zscore_1.0 / LB12 / P1_long_cash_counter /
+    L4q) on (a) the committed smoothed full-sample HMM column (signals_{PREV_TAG}.parquet, immutable,
+    not re-fitted) with the old warm-up semantics, which must reproduce the published OOS Sharpe,
+    and (b) the diagnostic causal HMM (IS-only fit on 72 quarters, forward-filtered; not traded)."""
+    prev_ws = json.load(open(os.path.join(RESULTS_DIR, "winner_summary.json")))
+    prev_sel = prev_ws.get("selection", {})
+    if prev_sel.get("objective") == "max_is_sharpe":           # rerun on an already-ported tree
+        prev = {k: prev_sel["previously_published"][k]
+                for k in ("signal", "threshold", "strategy", "lead_quarters", "lookback", "oos_sharpe", "source")}
+    else:
+        rw = prev_sel["raw_winner_row"]
+        prev = {"signal": rw["signal"], "threshold": rw["threshold"], "strategy": rw["strategy"],
+                "lead_quarters": int(rw["lead_value"]), "lookback": prev_ws["lookback"],
+                "oos_sharpe": float(prev_ws["oos_sharpe"]), "source": f"winner_summary.json ({PREV_TAG})"}
+    work = df.dropna(subset=["spy_ret"]).copy()
+    old = pd.read_parquet(os.path.join(RESULTS_DIR, f"signals_{PREV_TAG}.parquet"))["hmm_2state_prob_stress"]
+    work["smoothed_fullsample"] = old.reindex(work.index)
+    work["causal_filtered_diag"] = hmm_diag.prob.reindex(work.index) if hmm_diag is not None else np.nan
+    is_full = work.index <= split["in_sample_end"]
+    oos = (work.index >= split["oos_start"]) & (work.index <= split["oos_end"])
+
+    def score(col, lead, legacy_warmup):
+        sig = work[col].shift(lead)
+        thr = thresholds_for("hmm_stress", sig, is_full)[(prev["threshold"], prev["lookback"])]
+        pos = build_position(sig, prev["threshold"], thr, prev["strategy"])
+        if legacy_warmup:   # pre-port semantics: undefined comparisons -> False -> counter = long
+            above = sig > thr
+            pos = (~above).astype(float) if prev["strategy"].endswith("counter") else above.astype(float)
+        r = (pos * work["spy_ret"])[oos].fillna(0.0)
+        a = ann_metrics(r)
+        t, p, nw = hac_t_mean(r)
+        return {"oos_sharpe": round(a["sharpe"], 6), "oos_ann_return": round(a["ann_return"], 6),
+                "oos_max_drawdown": round(a["max_dd"], 6), "hac_t": round(t, 3), "hac_p": round(p, 4),
+                "hac_maxlags": nw, "oos_exposure": round(float(pos[oos].mean()), 4)}
+
+    rows = []
+    for col in ["smoothed_fullsample", "causal_filtered_diag"]:
+        for lead in sorted({int(prev["lead_quarters"])} | {1}):
+            rows.append({"probabilities": col, "lead_quarters": lead, **score(col, lead, legacy_warmup=True)})
+    rep = next(r for r in rows if r["probabilities"] == "smoothed_fullsample" and r["lead_quarters"] == int(prev["lead_quarters"]))
+    reproduced = abs(rep["oos_sharpe"] - float(prev["oos_sharpe"])) < 1e-4
+    assert reproduced, f"old smoothed replay {rep['oos_sharpe']} != published {prev['oos_sharpe']} (data drift)"
+    bh = ann_metrics(work["spy_ret"][oos])
+    out = {"rule": (f"{prev['signal']} / {prev['threshold']} / {prev['lookback']} / {prev['strategy']} / "
+                    f"L{prev['lead_quarters']}q; strat_ret = position_t * spy_ret_t"),
+           "previously_published": prev, "oos_window": [split["oos_start"], split["oos_end"]],
+           "published_reproduced_from_committed_smoothed_column": bool(reproduced),
+           "reproduction_note": "published value is rounded to 4 d.p.; replay matches to < 1e-4",
+           "causal_fit": hmm_diag.summary() if hmm_diag is not None else None,
+           "causal_status": ("DIAGNOSTIC ONLY: the causal HMM is fit on the 72 IS quarters with an explicit override "
+                             "(min_is_rows=40); the helper requires 100 IS rows for a traded signal, so hmm_stress is "
+                             "not in the 20261016 tournament"),
+           "rows": rows, "bh_oos_sharpe": round(bh["sharpe"], 6)}
+    d = (work["smoothed_fullsample"] - work["causal_filtered_diag"])[oos]
+    out["corr_smoothed_minus_filtered_vs_same_quarter_spy_ret_oos"] = round(float(d.corr(work["spy_ret"][oos])), 4)
+    with open(os.path.join(RESULTS_DIR, f"hmm_lookahead_audit_{DATE_TAG}.json"), "w") as f:
+        json.dump(out, f, indent=2, default=str)
+    for r in rows:
+        print(f"  {r['probabilities']:22s} L{r['lead_quarters']}: OOS Sharpe {r['oos_sharpe']:.4f}  HAC t {r['hac_t']:.2f}")
+    CTX["audit"] = out
+    return out
 
 
 # ===================================================================
@@ -1102,15 +1277,21 @@ def stage_cross_period(df, winner, split, position, strat_ret, sig_lagged):
 def stage_validation(df, tdf, split, strat_ret):
     spy_oos = df["spy_ret"][(df.index >= split["oos_start"]) & (df.index <= split["oos_end"])].dropna()
     cand = tdf[(tdf.signal != "BENCHMARK") & tdf.valid]
-    top5 = cand.nlargest(min(5, len(cand)), "oos_sharpe")
+    # winner + next four DISTINCT IS-ranked candidates (no OOS ranking)
+    wi = CTX["selection"]["wi"]
+    distinct = CTX["selection"]["ranked"].drop_duplicates(["signal", "strategy", "lead_quarters", "is_sharpe", "oos_sharpe"])
+    top5 = pd.concat([tdf.loc[[wi]], distinct.drop(index=wi, errors="ignore").head(4)])
     rng = np.random.default_rng(42); boot = np.zeros(5000)
     for b in range(5000):
         s = rng.choice(spy_oos.values, size=len(spy_oos), replace=True)
         boot[b] = (s.mean() / s.std()) * ANN if s.std() > 0 else 0
     rows = [{"signal": r.signal, "threshold": r.threshold, "strategy": r.strategy,
              "lead_quarters": r.lead_quarters, "lookback": r.lookback, "oos_sharpe": r.oos_sharpe,
+             "is_sharpe": r.is_sharpe,
              "bootstrap_p_value": round(float((boot >= r.oos_sharpe).mean()), 4),
-             "significant_at_5pct": bool((boot >= r.oos_sharpe).mean() < 0.05)} for r in top5.itertuples()]
+             "significant_at_5pct": bool((boot >= r.oos_sharpe).mean() < 0.05),
+             "note": "share of iid-resampled B&H OOS Sharpes >= this row's OOS Sharpe; not a selection-bias test"}
+            for r in top5.itertuples()]
     pd.DataFrame(rows).to_csv(os.path.join(VALID_DIR, "bootstrap.csv"), index=False)
 
     stress = {"COVID": ("2020-01-01", "2020-12-31"), "Rate_Hike_2022": ("2022-01-01", "2023-06-30"),
@@ -1145,15 +1326,17 @@ def stage_validation(df, tdf, split, strat_ret):
 def main():
     t0 = time.time()
     df = stage_load()
-    df, hmm_ok = stage_signals(df)
+    sp = compute_split(df)
+    df, hmm_ok, hmm_diag = stage_signals(df, sp["oos_start"])
     corr_df = stage_correlations(df)
     ccf_df, ty_df, lp_df, reg_df, rev_flag, fwd_lp_flag = stage_core_models(df)
     lc, lc_path = stage_lead_analysis(df)
     qdf = stage_quartiles(df)
-    tdf, split, tpath = stage_tournament(df)
+    tdf, split, tpath = stage_tournament(df, sp)
     (winner, rec, n_valid, median_sharpe, n_tied, resolved_at,
      position, strat_ret, sig_lagged, thr, cand) = stage_winner(df, tdf, split, tpath)
     lt, lt_path, L_star, best_at_grid, gate, wc, peak_lead = stage_lead_tournament(df, split, tdf, winner)
+    stage_lookahead_audit(df, split, hmm_diag)
     verdict, stab, sb, full_r = stage_cross_period(df, winner, split, position, strat_ret, sig_lagged)
     boot_rows = stage_validation(df, tdf, split, strat_ret)
     winner_boot_p = boot_rows[0]["bootstrap_p_value"] if boot_rows else np.nan
@@ -1166,7 +1349,9 @@ def main():
     long_when_high = (orientation == "pro") != neg_thr
     direction = "procyclical" if long_when_high else "countercyclical"
     thr_value = float(thr.dropna().iloc[-1]) if isinstance(thr, pd.Series) else float(thr)
-    thr_rule = "lt" if neg_thr else "gt"
+    # long-entry relation of the (lagged) signal to its threshold (schema: entry = signal satisfies relation)
+    thr_rule = {(False, "pro"): "gt", (False, "counter"): "lte",
+                (True, "pro"): "lt", (True, "counter"): "gte"}[(neg_thr, orientation)]
     strat_family = winner["strategy"].rsplit("_", 1)[0]
 
     # --- lead-lag verdict (empirical) ---
@@ -1183,71 +1368,122 @@ def main():
     else:
         leadlag = "coincident_or_none"
 
-    # ================= ECON-T5 selection provenance =================
+    # ================= ECON-T5 selection provenance (IS-selected) =================
+    sel = CTX["selection"]
+    audit = CTX["audit"]
+    wi, oi, li = sel["wi"], sel["oi"], sel["li"]
     tdf_read = tdf.reset_index(drop=True)
-    def _row_id(w):
-        mask = ((tdf_read.signal == w["signal"]) & (tdf_read.threshold == w["threshold"]) &
-                (tdf_read.strategy == w["strategy"]) & (tdf_read.lead_quarters == w["lead_quarters"]) &
-                (tdf_read.lookback == w["lookback"]))
-        idxs = list(tdf_read.index[mask])
-        return idxs[0] if idxs else -1
     all_valid = tdf_read[(tdf_read.signal != "BENCHMARK") & tdf_read.valid].copy()
-    pop_max = float(all_valid["oos_sharpe"].max())
-    ru = all_valid.sort_values("oos_sharpe", ascending=False)
-    runner = ru.iloc[1] if len(ru) > 1 else None
-    winner_row_idx = _row_id(winner)
-    n_sig = len([k for k, v in SIGNAL_COLS.items() if v in df.columns and df[v].notna().sum() >= SIG_ELIGIBLE_MIN])
+    winner_row_idx = int(wi)
+    n_sig = int(tdf[tdf.signal != "BENCHMARK"]["signal"].nunique())
+    distinct_rank = sel["ranked"].drop_duplicates(["signal", "strategy", "lead_quarters", "is_sharpe", "oos_sharpe"])
+    runner = sel["ranked"].drop(index=wi).iloc[0] if len(sel["ranked"]) > 1 else None
+    runner_d = distinct_rank.drop(index=wi, errors="ignore")
+    runner_d = runner_d.iloc[0] if len(runner_d) else None
+
+    def _ro(r):
+        return None if r is None else {
+            "signal": r["signal"], "threshold": r["threshold"], "strategy": r["strategy"],
+            "lead_value": int(r["lead_quarters"]), "objective_value": round(float(r["is_sharpe"]), 6),
+            "oos_sharpe": round(float(r["oos_sharpe"]), 6)}
+
+    oos_r = strat_ret[(strat_ret.index >= split["oos_start"]) & (strat_ret.index <= split["oos_end"])]
+    t_oos, p_oos, nw_oos = hac_t_mean(oos_r)
+    ws_meta = CTX["winner_series"]
+    is_r = ws_meta["strat_ret"][(ws_meta["work"].index >= sel["common_is_start"]) &
+                                (ws_meta["work"].index < pd.Timestamp(split["oos_start"]))].dropna()
+    t_is, p_is, nw_is = hac_t_mean(is_r)
+    from scipy.stats import norm
+    exp_max_z = float(norm.ppf(1 - 0.5 / max(sel["n_distinct"], 1)))
+    is_window = {"start": str(winner["is_start"]), "end": str(winner["is_end"]), "n": int(winner["is_n"]),
+                 "common_is_start": sel["common_is_start"].date().isoformat(), "oos_start": split["oos_start"],
+                 "min_is_n": MIN_IS_N, "n_candidates": sel["n_cands"], "n_eligible": sel["n_eligible"],
+                 "n_ineligible_short_history": sel["n_inel"], "common_start_set_by": sel["driver"],
+                 "rule": (f"eligibility before alignment: a candidate is IS-eligible only if its own first valid return "
+                          f"leaves >= {MIN_IS_N} IS quarters; common_is_start = latest first-valid-return date among "
+                          "eligible candidates; IS metrics for every candidate computed on [common_is_start, oos_start)"),
+                 "validity": (f"IS window only: is_n >= {MIN_IS_N}, IS exposure in [0.05, 0.95] (P3: share of quarters "
+                              f"long), IS std > 0, IS turnover < {MAX_TURNOVER}/yr; OOS never consulted"),
+                 "bh_is_sharpe": round(float(sel["bh_is"]["sharpe"]), 6)}
+    prev = audit["previously_published"]
+    rep_rows = {(r["probabilities"], r["lead_quarters"]): r for r in audit["rows"]}
+    prev_l = int(prev["lead_quarters"])
     selection = {
-        "objective": "max_oos_sharpe",
-        "objective_formula": ("oos_ret.mean()/oos_ret.std()*sqrt(4) — QUARTERLY annualization — maximised over the "
-                              "full valid strategy population (SA source: no seasonal-cleanliness restriction; "
-                              "ECON-T4 benchmark excluded); ties resolved by the ECON-T3 cascade"),
-        "grid_scanned": {"leads": LEADS, "n_signals": n_sig,
-                         "n_thresholds": 8, "n_strategies": 4,
-                         "n_valid_combos": int(len(all_valid)),
-                         "median_valid_objective": round(float(all_valid["oos_sharpe"].median()), 4)},
-        "tie_break_step": int(resolved_at) - 1,
+        "objective": "max_is_sharpe",
+        "objective_formula": ("in-sample (common window [common_is_start, OOS start)) quarterly mean/std*sqrt(4) of "
+                              "position_t*spy_ret_t; winner evaluated on the OOS window with ECON-T4 deployable scoring (fillna 0)"),
+        "is_window": is_window,
+        "grid_scanned": {"leads": LEADS, "n_signals": n_sig, "n_thresholds": 8, "n_strategies": 4,
+                         "n_combos": int(len(tdf) - 1), "n_valid_combos": int(len(all_valid)),
+                         "n_distinct_position_series": int(sel["n_distinct"]),
+                         "median_valid_objective": round(float(all_valid["is_sharpe"].median()), 6),
+                         "spearman_is_vs_oos": round(sel["spearman"], 4)},
+        "tie_break_step": int(resolved_at),
         "raw_winner_row": {"signal": winner["signal"], "threshold": winner["threshold"],
                            "strategy": winner["strategy"], "lead_column": "lead_quarters",
                            "lead_value": int(winner["lead_quarters"]),
                            "source_tournament_file": os.path.basename(tpath),
-                           "source_row_index": int(winner_row_idx),
+                           "source_row_index": winner_row_idx,
                            "display_alias": (f"signal_code={REGISTRY_CODE[winner['signal']]} (raw signal={winner['signal']}); "
                                              f"strategy_family={strat_family} (raw strategy={winner['strategy']})")},
-        "runner_up": (None if runner is None else
-                      {"signal": runner["signal"], "threshold": runner["threshold"], "strategy": runner["strategy"],
-                       "lead_value": int(runner["lead_quarters"]), "objective_value": round(float(runner["oos_sharpe"]), 4)}),
-        "rationale": (f"Maximiser of OOS Sharpe over the full tradable QUARTERLY lead grid L2..L5 "
-                      f"({len(all_valid)} valid combos; median valid OOS Sharpe "
-                      f"{round(float(all_valid['oos_sharpe'].median()),4)}). FIRST QUARTERLY PAIR: leads in quarters "
-                      f"(L2 = strict pub-lag floor, L5 = 15 months), Sharpe annualized by sqrt(4). ECON-LT1 gate: full grid scanned "
-                      f"natively -> no staleness possible. SMALL-SAMPLE CAVEAT (STRONG): OOS = "
-                      f"{int(winner['oos_n'])} QUARTERS only -> the winner is found-in-search / CANDIDATE, never a "
-                      f"validated edge; the caveat is stronger than any monthly pair to date."),
+        "runner_up": _ro(runner),
+        "runner_up_distinct_series": _ro(runner_d),
+        "rationale": ("Winner is the IS-valid row with the highest IN-SAMPLE Sharpe (common IS window) over the floored "
+                      "quarterly grid L1..L5; OOS metrics are reported for that row only (no OOS look-ahead in selection). "
+                      "Regime signals (HMM, Markov-switching) are not in the grid: a causal IS-only fit needs >= 100 IS rows "
+                      "and ECI has 72 IS quarters."),
+        "legacy_oos_selected_row": (None if li is None else {
+            "signal": str(tdf.loc[li, "signal"]), "threshold": str(tdf.loc[li, "threshold"]),
+            "strategy": str(tdf.loc[li, "strategy"]), "direction": str(tdf.loc[li, "direction"]),
+            "lead_value": int(tdf.loc[li, "lead_quarters"]), "oos_sharpe": round(float(tdf.loc[li, "oos_sharpe"]), 6),
+            "note": f"OOS-argmax on this grid (pre-GH#251 rule), comparison only; see legacy_oos_selection_{DATE_TAG}.csv"}),
+        "sensitivity_own_is_start_row": {
+            "signal": str(tdf.loc[oi, "signal"]), "threshold": str(tdf.loc[oi, "threshold"]),
+            "strategy": str(tdf.loc[oi, "strategy"]), "direction": str(tdf.loc[oi, "direction"]),
+            "lead_value": int(tdf.loc[oi, "lead_quarters"]), "own_is_start": str(tdf.loc[oi, "own_is_start"]),
+            "own_is_sharpe": round(float(tdf.loc[oi, "own_is_sharpe"]), 6),
+            "oos_sharpe": round(float(tdf.loc[oi, "oos_sharpe"]), 6),
+            "note": "IS argmax without common-start alignment; sensitivity only"},
+        "previously_published": {
+            **{k: prev[k] for k in ("signal", "threshold", "strategy", "lead_quarters", "lookback", "oos_sharpe")},
+            "combo": f"{prev['signal']}/{prev['threshold']}/{prev['lookback']}/{prev['strategy']}/L{prev_l}q",
+            "hac_t": rep_rows[("smoothed_fullsample", prev_l)]["hac_t"],
+            "causal_same_rule_oos_sharpe": rep_rows[("causal_filtered_diag", prev_l)]["oos_sharpe"],
+            "causal_same_rule_hac_t": rep_rows[("causal_filtered_diag", prev_l)]["hac_t"],
+            "source": prev.get("source", f"winner_summary.json ({PREV_TAG})"),
+            "status": ("superseded: relied on full-sample, forward-backward smoothed HMM probabilities (look-ahead) and "
+                       "was selected by OOS Sharpe"),
+            "audit_file": f"hmm_lookahead_audit_{DATE_TAG}.json"},
+        "inference": {"oos_sharpe_diff_vs_bh_bootstrap": dict(paired_block_bootstrap_sharpe_diff(
+                          oos_r.values, ws_meta["work"]["spy_ret"].reindex(oos_r.index).values, 2, PERIODS_PER_YEAR),
+                          block_unit="quarters"),
+                      "oos_hac_t": round(t_oos, 3), "oos_hac_p": round(p_oos, 4), "oos_hac_maxlags": nw_oos,
+                      "is_hac_t": round(t_is, 3), "is_hac_maxlags": nw_is,
+                      "n_distinct_candidates": int(sel["n_distinct"]),
+                      "expected_max_abs_z_under_null": round(exp_max_z, 2),
+                      "note": "expected max |z| = Phi^-1(1 - 0.5/N) over N distinct position series (two-sided, independence approximation)"},
         "objective_runner_up_divergence": None,
     }
-    # ECON-T5 validations
-    assert winner_row_idx >= 0, "raw winner row must resolve to exactly one tournament row"
-    assert abs(float(winner["oos_sharpe"]) - pop_max) <= 1e-6, \
-        "divergence is null -> winner must equal the population max (ECON-T5 §5c)"
-    if runner is not None:
-        assert float(runner["oos_sharpe"]) <= float(winner["oos_sharpe"]) + 1e-9, "runner-up must be 2nd best"
+    assert tdf.loc[wi, "valid"] and abs(float(winner["is_sharpe"]) - float(all_valid["is_sharpe"].max())) <= 1e-9, \
+        "winner must be the IS-valid population max"
 
     winner_summary = {
         "pair_id": PAIR_ID, "generated_at": NOW_ISO,
         "signal_column": SIGNAL_COLS[winner["signal"]],
         "signal_code": REGISTRY_CODE[winner["signal"]],
-        "signal_display_name": f"ECI Total Compensation {winner['signal']}",
+        "signal_display_name": SIGNAL_DISPLAY[winner["signal"]],
         "target_symbol": TARGET_SYMBOL, "threshold_code": winner["threshold"],
         "threshold_value": round(thr_value, 4), "threshold_rule": thr_rule,
-        "threshold_note": ("threshold is rolling (window per lookback, in QUARTERS); threshold_value is the latest rolling value — "
-                           "see winner_trade_log.csv for the full path" if isinstance(thr, pd.Series) else "static threshold (IS-calibrated)"),
+        "threshold_note": (f"Moving boundary: rolling {LOOKBACKS.get(winner['lookback'], '')}-quarter mean "
+                           f"{'-' if neg_thr else '+'} 1.0 std of the lead-shifted signal; threshold_value is its latest value"
+                           if isinstance(thr, pd.Series) else
+                           "static threshold: percentile of the lead-shifted signal over the IS quarters"),
         "strategy_family": strat_family, "strategy_code": strat_family.split("_")[0],
         "strategy_display_name": {"P1_long_cash": "Long/Cash", "P3_long_short": "Long/Short"}[strat_family],
         "strategy_description": "",
         "lead_value": int(winner["lead_quarters"]), "lead_unit": "quarters",
-        "lead_description": (f"Signal lead = {int(winner['lead_quarters'])} QUARTER(S) (~{int(winner['lead_quarters'])*3} months); "
-                             f"L2 is the strict floor (BLS releases quarter Q's ECI ~1 month after quarter end, during Q+1)"),
+        "lead_description": (f"Signal lead = {int(winner['lead_quarters'])} quarter(s) (~{int(winner['lead_quarters'])*3} months); "
+                             f"L1 is the registry floor (BLS releases quarter Q's ECI ~1 month after quarter end)"),
         "lookback": winner["lookback"], "direction": direction,
         "oos_sharpe": round(float(winner["oos_sharpe"]), 4), "oos_sortino": round(float(winner["oos_sortino"]), 4),
         "oos_calmar": round(float(winner["oos_calmar"]), 4), "oos_ann_return": round(float(winner["oos_ann_return"]), 4),
@@ -1255,34 +1491,46 @@ def main():
         "oos_win_rate": round(float(winner["win_rate"]), 4), "oos_n_trades": int(winner["n_trades"]),
         "annual_turnover": round(float(winner["annual_turnover"]), 2), "oos_n": int(winner["oos_n"]),
         "oos_period_start": split["oos_start"], "oos_period_end": split["oos_end"],
+        "oos_hac_t": round(t_oos, 3),
+        "is_sharpe": round(float(winner["is_sharpe"]), 6), "is_n": int(winner["is_n"]),
+        "is_period_start": is_window["start"], "is_period_end": is_window["end"],
         "bh_sharpe": round(float(bh["oos_sharpe"]), 4), "bh_ann_return": round(float(bh["oos_ann_return"]), 4),
-        "bh_max_drawdown": round(float(bh["max_drawdown"]), 4), "cost_assumption_bps": COST_BPS,
-        "total_combos": int(len(tdf) - 1), "valid_combos": n_valid, "schema_version": "1.1.0",
+        "bh_max_drawdown": round(float(bh["max_drawdown"]), 4), "bh_is_sharpe": round(float(sel["bh_is"]["sharpe"]), 4),
+        "cost_assumption_bps": COST_BPS,
+        "total_combos": int(len(tdf) - 1), "valid_combos": n_valid, "schema_version": "1.2.0",
         "selection": selection,
-        "notes": (f"Mode 1, feat260705_eci_spy — FIRST QUARTERLY PAIR (annualization sqrt(4); leads/lookbacks/oos_n in "
-                  f"QUARTERS). Tournament: {len(tdf)-1} strategy combos (+1 benchmark, valid=False per ECON-T4), "
-                  f"{n_valid} valid, sparse grid over full tradable lead grid L2..L5 quarters. Winner by ECON-T3 "
-                  f"cascade (resolved at step {resolved_at}; {n_tied} tied at step 1). "
-                  f"SMALL-SAMPLE / FOUND-IN-SEARCH (STRONG): OOS window is {int(winner['oos_n'])} QUARTERS "
-                  f"-> the winner is a CANDIDATE, not a validated edge; OOS Sharpe is high-variance. "
-                  f"Winner stationarity class: {winner['stationarity_class']}. "
-                  f"Lead-lag verdict (empirical): ECI->SPY TY-Granger sig lags(q) {fwd_sig_lags or 'NONE'}, "
-                  f"SPY->ECI sig lags(q) {rev_sig_lags or 'NONE'}; pre-whitened CCF sig lead(+) lags {ccf_lead or 'NONE'}, "
-                  f"lag(-) lags {ccf_lag or 'NONE'} -> classified '{leadlag}'. "
-                  f"Winner's own lead-curve peaks at L{peak_lead}q (published L{int(winner['lead_quarters'])}q). "
-                  f"Robustness: winner bootstrap p={winner_boot_p} (vs resampled B&H); IS Sharpe {float(winner['is_sharpe']):.2f} "
-                  f"vs OOS {float(winner['oos_sharpe']):.2f}; CP1 durability '{verdict}'; corr sign-stability '{stab}'. "
-                  f"Gross of costs; sensitivity in tournament_validation_{DATE_TAG}/."),
+        "notes": (f"Quarterly pair (annualization sqrt(4); leads/lookbacks/oos_n in quarters). {DATE_TAG} rerun: "
+                  f"tournament of {len(tdf)-1} strategy combos (+1 benchmark), {n_valid} IS-valid. Winner selected by "
+                  f"in-sample Sharpe on the common IS window {is_window['start']}..{is_window['end']} "
+                  f"({is_window['n']} quarters) and evaluated on the held-out OOS window "
+                  f"{split['oos_start']}..{split['oos_end']} ({int(winner['oos_n'])} quarters): IS Sharpe "
+                  f"{float(winner['is_sharpe']):.2f} (B&H {sel['bh_is']['sharpe']:.2f}), OOS Sharpe "
+                  f"{float(winner['oos_sharpe']):.2f} (B&H {float(bh['oos_sharpe']):.2f}), OOS HAC t {t_oos:.2f}. "
+                  f"The HMM and Markov-switching regime signals are not in the grid: a causal (IS-only, forward-filtered) "
+                  f"fit needs at least 100 IS rows and ECI has 72 IS quarters. The previously published winner "
+                  f"({selection['previously_published']['combo']}, OOS Sharpe {float(prev['oos_sharpe']):.2f}) used full-sample "
+                  f"smoothed HMM probabilities; the same rule on a causal diagnostic HMM scores "
+                  f"{selection['previously_published']['causal_same_rule_oos_sharpe']:.2f} (hmm_lookahead_audit_{DATE_TAG}.json). "
+                  f"Lead-lag (empirical): ECI->SPY TY-Granger sig lags(q) {fwd_sig_lags or 'NONE'}, SPY->ECI {rev_sig_lags or 'NONE'} "
+                  f"-> '{leadlag}'. Gross of costs; sensitivity in tournament_validation_{DATE_TAG}/."),
     }
-    sd = ("Long SPY when the lagged ECI wage signal is {} its threshold; otherwise {}."
-          .format("below" if thr_rule == "lt" else "above",
+    sd = ("Long SPY when the {}-quarter-lagged {} is {} its threshold; otherwise {}."
+          .format(int(winner["lead_quarters"]), SIGNAL_DISPLAY[winner["signal"]],
+                  {"gt": "above", "gte": "at or above", "lt": "below", "lte": "at or below"}[thr_rule],
                   "cash" if strat_family == "P1_long_cash" else "short SPY"))
     if not long_when_high:
         sd += " (Countercyclical orientation: low/decelerating wage inflation = risk-on.)"
     else:
         sd += " (Procyclical orientation: high/accelerating wage inflation = risk-on.)"
-    sd += " Rebalanced QUARTERLY (first quarterly pair)."
+    sd += " Rebalanced quarterly."
     winner_summary["strategy_description"] = sd
+    # Sortino / Calmar are undefined when the OOS window has no losing quarter (ann_metrics reports
+    # 0.0 by fleet convention; ticketed). Publish null with the reason instead of a false 0.0.
+    oos_q = strat_ret[(strat_ret.index >= split["oos_start"]) & (strat_ret.index <= split["oos_end"])]
+    if not (oos_q < 0).any():
+        winner_summary["oos_sortino"] = None
+        winner_summary["oos_calmar"] = None
+        winner_summary["oos_ratio_note"] = "oos_sortino / oos_calmar: n/a, no losing quarter in the OOS window"
 
     wpath = os.path.join(RESULTS_DIR, "winner_summary.json")
     with open(wpath, "w") as f:
@@ -1323,11 +1571,11 @@ def main():
         f"Granger ECI->SPY significant lags(q) {fwd_sig_lags or 'NONE'}; SPY->ECI significant lags(q) "
         f"{rev_sig_lags or 'NONE'}; pre-whitened CCF significant lead(+) lags {ccf_lead or 'NONE'}, lag(-) "
         f"{ccf_lag or 'NONE'}. Tournament winner ({winner['signal']}/{winner['threshold']}/{strat_family} "
-        f"{orientation}/L{winner['lead_quarters']}q/{winner['lookback']}) is {direction}: OOS Sharpe "
-        f"{winner_summary['oos_sharpe']:.2f} vs B&H {winner_summary['bh_sharpe']:.2f} (sqrt(4) annualization). "
-        f"SMALL-SAMPLE CANDIDATE: {int(winner['oos_n'])}-QUARTER OOS -> found-in-search, not a validated edge; "
-        f"bootstrap p={winner_boot_p}, durability '{verdict}'. Winner's own lead-curve peaks at L{peak_lead}q "
-        f"(published L{int(winner['lead_quarters'])}q).")
+        f"{orientation}/L{winner['lead_quarters']}q/{winner['lookback']}, selected by IS Sharpe) is {direction}: "
+        f"IS Sharpe {float(winner['is_sharpe']):.2f} vs B&H {sel['bh_is']['sharpe']:.2f}; OOS Sharpe "
+        f"{winner_summary['oos_sharpe']:.2f} vs B&H {winner_summary['bh_sharpe']:.2f} (sqrt(4) annualization), "
+        f"OOS HAC t {t_oos:.2f} on {int(winner['oos_n'])} quarters. HMM/Markov-switching regime signals are not "
+        f"traded (causal fit needs >= 100 IS rows; 72 available).")
     interp["confidence"] = "low"
     interp["last_updated_by"] = "evan"; interp["last_updated_at"] = NOW_ISO
     with open(interp_path, "w") as f:
@@ -1365,10 +1613,7 @@ def main():
         ("eci_total_comp_yoy_zscore_20q", "rolling 20Q z-score of YoY growth (regime-contaminated; KPSS reject)", "(yoy_t-mean20q)/sd20q", "derivative"),
         ("eci_total_comp_accel_pct", "QoQ acceleration (pp; cleanly stationary)", "qoq_t - qoq_{t-1}", "derivative"),
         ("eci_total_comp_yoy_accel_pct", "YoY acceleration (pp; cleanly stationary)", "yoy_t - yoy_{t-1}", "derivative"),
-        ("hmm_2state_prob_stress", "P(high wage-inflation regime) from 2-state HMM on YoY growth (level-regime split)", "GaussianHMM(yoy)", "regime_state"),
-        ("markov_regime_2state", "P(high-variance regime) from Markov-switching regression spy_ret~yoy", "MarkovRegression", "regime_state")]]
-    if not hmm_ok:
-        ind_der = [d for d in ind_der if d["name"] != "hmm_2state_prob_stress"]
+        ("hmm_2state_prob_stress", "DIAGNOSTIC, not traded: forward-filtered P(high wage-inflation state) from a 2-state HMM on YoY growth fit on IS quarters only (72 < 100-row minimum for a traded signal)", "GaussianHMM(yoy), IS-only fit, forward filter (scripts/_regime_causal.py)", "regime_state")]]
     tgt_der = [{"name": c, "definition": d, "formula": s, "role": r, "appears_in_charts": []} for c, d, s, r in [
         ("spy", "SPY adjusted quarter-end close", "Yahoo Finance", "raw"),
         ("spy_ret", "SPY quarterly return (decimal)", "P_t/P_{t-1}-1", "derivative"),
@@ -1389,11 +1634,12 @@ def main():
     # kpis.json
     kpis = [
         {"metric": "OOS Sharpe (winner)", "value": f"{winner_summary['oos_sharpe']:.2f}", "unit": "ratio", "delta": f"{tw['delta_sharpe']:+.2f} vs B&H"},
+        {"metric": "IS Sharpe (winner, selection objective)", "value": f"{float(winner['is_sharpe']):.2f}", "unit": "ratio", "delta": f"{float(winner['is_sharpe']) - sel['bh_is']['sharpe']:+.2f} vs B&H"},
         {"metric": "OOS Sharpe (buy & hold)", "value": f"{winner_summary['bh_sharpe']:.2f}", "unit": "ratio", "delta": None},
         {"metric": "OOS Annual Return (winner)", "value": f"{winner_summary['oos_ann_return']*100:.1f}%", "unit": "percent", "delta": f"{tw['delta_ann_return']*100:+.1f}pp vs B&H"},
         {"metric": "OOS Max Drawdown (winner)", "value": f"{winner_summary['oos_max_drawdown']*100:.1f}%", "unit": "percent", "delta": f"{tw['delta_max_drawdown']*100:+.1f}pp vs B&H"},
-        {"metric": "Valid strategy combos", "value": f"{n_valid}", "unit": "count", "delta": None},
-        {"metric": "OOS window", "value": f"{split['oos_start']} → {split['oos_end']} ({int(winner['oos_n'])} quarters, candidate)", "unit": "dates", "delta": None},
+        {"metric": "IS-valid strategy combos", "value": f"{n_valid}", "unit": "count", "delta": None},
+        {"metric": "OOS window", "value": f"{split['oos_start']} → {split['oos_end']} ({int(winner['oos_n'])} quarters)", "unit": "dates", "delta": None},
     ]
     with open(os.path.join(RESULTS_DIR, "kpis.json"), "w") as f:
         json.dump(kpis, f, indent=2)
@@ -1403,25 +1649,25 @@ def main():
         input_sha = "sha256:" + hashlib.sha256(f.read()).hexdigest()[:16]
     lead_manifest = {
         "pair": PAIR_ID, "run_date": DATE_TAG, "frozen": False,
-        "granularity": "QUARTERS L2..5 tradable (L0/L1 diagnostic-only in lead_correlation; quarterly adaptation of ECON-LL1)",
+        "granularity": "QUARTERS L1..5 tradable (L0..8 diagnostic in lead_correlation; quarterly adaptation of ECON-LL1)",
         "freq_native": "Q",
-        "design_note": ("FIRST QUARTERLY pair; lead L = quarter shift on quarter-end signals. L0 excluded from the "
-                        "tradable grid (BLS ~1-month publication lag: quarter Q's print is first tradable in Q+1). "
-                        "Grid ceiling L8 (2 years) — deeper leads on 101 obs destroy effective sample."),
-        "oos_start": split["oos_start"], "is_end": split["in_sample_end"], "input_file": DATA_PATH,
+        "design_note": ("Quarterly pair; lead L = quarter shift on quarter-end signals. Registry floor L1, grid "
+                        "L1..L5 (#255). Winner selected by IS Sharpe; lead summaries are context."),
+        "oos_start": split["oos_start"], "is_end": split["in_sample_end"], "input_file": os.path.relpath(DATA_PATH, BASE_DIR),
         "input_sha256": input_sha, "lead_correlation_file": f"{PAIR_ID}/lead_correlation_{DATE_TAG}.csv",
         "lead_tournament_file": f"{PAIR_ID}/lead_tournament_{DATE_TAG}.csv",
         "lead_winner_curve_file": f"{PAIR_ID}/lead_winner_curve_{DATE_TAG}.csv",
         "lead_clean_envelope_file": f"{PAIR_ID}/lead_clean_envelope_{DATE_TAG}.csv",
         "clean_envelope_note": "SA source: all signals admissible -> envelope and clean envelope COINCIDE by construction",
         "published_winner": {"signal": SIGNAL_COLS[winner["signal"]], "lead": int(winner["lead_quarters"]),
-                             "lead_unit": "quarters", "oos_sharpe": round(float(winner["oos_sharpe"]), 4)},
+                             "lead_unit": "quarters", "oos_sharpe": round(float(winner["oos_sharpe"]), 4),
+                             "is_sharpe": round(float(winner["is_sharpe"]), 4), "selection": "max_is_sharpe"},
         "winner_curve_peak_lead": peak_lead,
         "L_star": L_star, "best_oos_sharpe_at_grid": round(float(best_at_grid), 4) if pd.notna(best_at_grid) else None,
         "gate_decision": gate,
-        "assertions": ["tradable lead grid is L2..5 QUARTERS (L0/L1 non-tradable, strict pub-lag floor)",
-                       "main tournament scans the full L2..5 grid -> published winner is the global lead max",
-                       f"ECON-LT1 gate: L*={L_star} -> {gate}"],
+        "assertions": ["tradable lead grid is L1..5 QUARTERS (registry floor L1)",
+                       "main tournament scans the full L1..5 grid; winner = IS-Sharpe argmax",
+                       f"ECON-LT1: OOS-best lead L*={L_star} (context only) -> {gate}"],
         "small_sample_caveat": f"OOS = {int(winner['oos_n'])} quarters -> winner is found-in-search; lead-sweep peaks are high-variance."}
     with open(os.path.join(RESULTS_DIR, f"lead_sweep_manifest_{DATE_TAG}.json"), "w") as f:
         json.dump(lead_manifest, f, indent=2)
@@ -1429,66 +1675,40 @@ def main():
     # design_note.md — APPEND Phase-1 sections to Dana's Phase-0 note (preserve her content)
     with open(os.path.join(RESULTS_DIR, "design_note.md")) as f:
         dana_note = f.read().rstrip()
+    # idempotent rerun: drop this DATE_TAG's addendum if it is already there
+    marker = f"\n\n---\n\n# Phase 1 addendum — causal regime port + IS selection (Evan, {DATE_TAG})"
+    if marker in dana_note:
+        dana_note = dana_note[:dana_note.index(marker)].rstrip()
+    pp = selection["previously_published"]
     phase1 = f"""
 
 ---
 
-# Phase 1 addendum — Econometrics & Tournament (Evan, {DATE_TAG})
+# Phase 1 addendum — causal regime port + IS selection (Evan, {DATE_TAG})
 
-## Quarterly conventions (stated explicitly — first quarterly pair)
-- **Annualization: Sharpe = mean/std x sqrt(4); ann_return = mean x 4; ann_vol = std x sqrt(4).**
-- Lead grid **L2..L5 in QUARTERS** (L2 = strict pub-lag floor, BLS releases ~1 month after quarter end;
-  L8 = 2yr ceiling — wage->Fed->equity transmission has no rationale beyond ~2yr and deeper leads
-  eat the 101-obs sample). Tournament CSV lead column is `lead_quarters` (NOT lead_months).
-- Lookbacks LB12 (~3yr) / LB20 (~5yr) quarters. Correlation horizons spy_fwd_1q/2q/4q.
+## What changed
+- **Look-ahead removed.** The {PREV_TAG} winner ({pp['combo']}, OOS Sharpe {float(pp['oos_sharpe']):.4f}) traded a
+  2-state HMM probability fit on the FULL sample and read with forward-backward SMOOTHING (`predict_proba`), so each
+  quarter's value used later quarters. The Markov-switching signal also put `spy_ret` in its likelihood.
+- **Causal rule (scripts/_regime_causal.py):** fit on IS rows only, IS-only standardisation, forward-filtered
+  probabilities, no target return in the likelihood. A traded fit needs >= 100 IS rows; ECI has 72 IS quarters, so
+  `hmm_stress` and `markov_regime` are **excluded from the tournament** (core_models_{DATE_TAG}/regime_models.json).
+- A diagnostic causal HMM (IS-only, 72 quarters, override `min_is_rows=40`, NOT traded) is kept for the Evidence
+  chart and the audit. The superseded rule on it scores OOS Sharpe {pp['causal_same_rule_oos_sharpe']:.4f}
+  (HAC t {pp['causal_same_rule_hac_t']:.2f}) vs {float(pp['oos_sharpe']):.4f} (HAC t {pp['hac_t']:.2f}) on the smoothed column
+  (hmm_lookahead_audit_{DATE_TAG}.json).
+- **Selection:** argmax IS Sharpe on the common IS window {is_window['start']}..{is_window['end']} ({is_window['n']}
+  quarters; start set by {', '.join(sel['driver'])}); eligibility before alignment, MIN_IS_N={MIN_IS_N}; validity uses IS
+  rows only (exposure 0.05-0.95, turnover < {MAX_TURNOVER}/yr). The old validity rule (OOS Sharpe > 0.3) is kept only as
+  `oos_valid` for the legacy comparison.
+- Warm-up rows (lagged signal or rolling threshold undefined) are now NaN instead of cash/short.
 
-## Method coverage (Rule C1, macro) & quarterly adaptations
-- Correlations incl. distance (n-floor {CORR_N_FLOOR} quarters); horizons recorded as 63/126/252 horizon_days.
-- Pre-whitened CCF at quarterly lags -8..+8 (pre-whitening ESSENTIAL — YoY wage inflation near-I(1); AR order by AIC, max 4).
-- Toda-Yamamoto Granger, lags 1..4 quarters ONLY (101 obs cannot support deeper quarterly VARs), d_max=1.
-- Local projections fwd+rev at 1/2/4-quarter horizons, HAC SEs.
-- Quantile regression on 1q-fwd (tail taus on ~97 obs = ~5 effective tail points; interpret loosely).
-- Transfer entropy: tercile-binned, 500 permutations — LOW POWER at 97 obs; retained as a directional check with caveat.
-- HMM 2-state on YoY: attempted with a degeneracy guard (min 10% regime occupancy). NOTE: on a series this
-  persistent the HMM splits wage-inflation LEVEL regimes (high vs low), not volatility states — still
-  economically meaningful (2021-23 surge vs pre-COVID calm) but transition probabilities weakly identified.
-  HMM converged and retained: {hmm_ok}.
-- Markov-switching regression spy_ret ~ yoy (2-state, switching variance).
-- Stationarity: Dana's tests (stationarity_tests_{DATE_TAG}.csv) reviewed and CONFIRMED, not re-run.
-  Growth family borderline-persistent; 20Q z-scores regime-contaminated (KPSS reject); accel family clean.
-  Each tournament row carries a `stationarity_class` flag.
-
-## Sparse grid (BINDING Dana small-sample constraint — do not explode combos on 101 points)
-- Thresholds: IS percentiles {{25,50,75}}, zero-cross ONLY on sign-meaningful signals (accel/yoy_accel/dev_trend
-  — wage growth itself never goes negative, nominal stickiness), rolling z-score +/-1.0 at LB12/LB20
-  (the +/-1.5 variants and Jenks/GMM/CUSUM thresholds dropped).
-- Strategies: P1 long/cash + P3 long/short x pro/counter (P2 signal-strength sizing dropped — a continuous
-  sizing rule has too many effective d.o.f. for 25 OOS quarters).
-- Eligibility: signal >= {SIG_ELIGIBLE_MIN} non-NaN quarters; IS >= 40 quarters; OOS >= 20 quarters; validity
-  requires OOS Sharpe > 0.3 (equity threshold) and turnover < 6 position-changes/yr.
-
-## OOS split (ECON-OOS2, quarterly-translated)
-Policy v1_max36_25pct_cap120 in native quarterly units: span = min(max(12q, round(101 x 0.25)), 40q) =
-{int(min(max(12, round(101*0.25)), 40))} quarters -> OOS {split['oos_start']}..{split['oos_end']}. OOS spans COVID +
-the 2021-23 wage surge + the 2022 tightening bear — exactly the episodes the countercyclical hypothesis concerns.
-**Found-in-search caveat is STRONGER than any monthly pair: only {int(winner['oos_n'])} OOS quarters.**
-
-## Lead-lag verdict (empirical — determined by Granger/CCF/LP, NOT the prior)
-- ECI->SPY TY-Granger significant lags (quarters): {fwd_sig_lags or 'NONE'}
-- SPY->ECI TY-Granger significant lags (quarters): {rev_sig_lags or 'NONE'}
-- Pre-whitened CCF significant lead(+) lags: {ccf_lead or 'NONE'}; lag(-) lags: {ccf_lag or 'NONE'}
-- LP forward significant: {fwd_lp_flag}; reverse-causality flag: {rev_flag}
-- **Classification: {leadlag}.** Winner direction (empirical): {direction}.
-- indicator_nature in interpretation_metadata set to the EMPIRICAL verdict (Dana's provisional prior was 'lagging').
-
-## Tournament conventions
-- Units in tournament_results CSV are RATIOS (decimal). Lead column `lead_quarters`. Both orientations tested.
-- GH #13 artifacts emitted from the start: lead_winner_curve_{DATE_TAG}.csv (published winner's own Sharpe per lead;
-  peak at L{peak_lead}q vs published L{int(winner['lead_quarters'])}q) and lead_clean_envelope_{DATE_TAG}.csv
-  (SA source -> envelope == clean envelope by construction; stated in the file's manifest entry).
-- CP2 skipped (regime_story: false). Returns gross of costs; cost grid in tournament_validation_{DATE_TAG}/.
-
-## New pair — no prior version; Rule C3 regression diff N/A.
+## Result
+- Winner: {winner['signal']} / {winner['threshold']} / {winner['lookback']} / {winner['strategy']} / L{int(winner['lead_quarters'])}q.
+- IS Sharpe {float(winner['is_sharpe']):.4f} (B&H {sel['bh_is']['sharpe']:.4f}); OOS Sharpe {float(winner['oos_sharpe']):.4f}
+  (B&H {float(bh['oos_sharpe']):.4f}), OOS HAC t {t_oos:.2f} (p {p_oos:.3f}), {int(winner['oos_n'])} OOS quarters.
+- Grid {len(tdf)-1} combos, {n_valid} IS-valid, {sel['n_distinct']} distinct position series; Spearman(IS, OOS) {sel['spearman']:.3f}.
+- Lead-lag (empirical): ECI->SPY TY-Granger sig lags {fwd_sig_lags or 'NONE'}; SPY->ECI {rev_sig_lags or 'NONE'} -> {leadlag}.
 """
     with open(os.path.join(RESULTS_DIR, "design_note.md"), "w") as f:
         f.write(dana_note + phase1)
@@ -1513,21 +1733,21 @@ the 2021-23 wage surge + the 2022 tightening bear — exactly the episodes the c
     with open(os.path.join(RESULTS_DIR, "analyst_suggestions.json"), "w") as f:
         json.dump(sugg, f, indent=2)
 
-    # evidence_status.json
-    ev = {"pair_id": PAIR_ID, "generated_at": NOW_ISO, "generated_by": "evan",
-          "blocks": {
-              "correlations": "ready", "lead_correlation": "ready", "lead_tournament": "ready",
-              "lead_winner_curve": "ready", "lead_clean_envelope": "ready",
-              "ccf_prewhitened": "ready", "granger_causality": "ready", "transfer_entropy": "ready",
-              "local_projections": "ready", "quantile_regression": "ready", "regime_quartile_returns": "ready",
-              "hmm_states": "ready" if hmm_ok else "skipped_degenerate_small_sample",
-              "subperiod_sharpe": "ready", "structural_break": "ready", "rolling_correlation": "ready",
-              "tournament": "ready", "winner_summary": "ready"},
-          "caveats": [f"OOS = {int(winner['oos_n'])} QUARTERS -> winner is a found-in-search CANDIDATE (high-variance Sharpe; STRONGER caveat than monthly pairs)",
-                      "FIRST QUARTERLY pair: sqrt(4) annualization; leads/lookbacks in quarters",
-                      "growth-family signals borderline-persistent; 20Q z-scores regime-contaminated (KPSS reject)",
-                      "transfer entropy low-power at ~97 obs (directional check only)",
-                      f"empirical lead-lag class: {leadlag}"]}
+    # evidence_status.json (docs/schemas/evidence_status.schema.json)
+    ev = {"pair_id": PAIR_ID, "schema_version": "1.0.0", "status": "found_in_search", "updated_at": NOW_ISO,
+          "technical_note": (f"Winner selected by in-sample Sharpe (common pre-OOS window {is_window['start']}.."
+                             f"{is_window['end']}) from the {DATE_TAG} quarterly tournament ({n_valid} IS-valid combos) and "
+                             f"evaluated on the held-out OOS window {split['oos_start']}..{split['oos_end']} "
+                             f"({int(winner['oos_n'])} quarters): OOS Sharpe {float(winner['oos_sharpe']):.2f} vs B&H "
+                             f"{float(bh['oos_sharpe']):.2f}, HAC t {t_oos:.2f}. No frozen-rule confirmation test has been run."),
+          "plain_english": (f"This is the rule with the highest in-sample Sharpe among {n_valid} valid combinations. "
+                            f"On the {int(winner['oos_n'])}-quarter out-of-sample window its Sharpe is "
+                            f"{'below' if float(winner['oos_sharpe']) < float(bh['oos_sharpe']) else 'above'} "
+                            f"buy-and-hold: {float(winner['oos_sharpe']):.2f} versus {float(bh['oos_sharpe']):.2f}; "
+                            f"annualized return {float(winner['oos_ann_return'])*100:.1f}% versus "
+                            f"{float(bh['oos_ann_return'])*100:.1f}%. It has not been tested on data released after it was chosen."),
+          "next_step": "Freeze the rule and evaluate it on quarters released after the freeze date.",
+          "owner": "evan"}
     with open(os.path.join(RESULTS_DIR, "evidence_status.json"), "w") as f:
         json.dump(ev, f, indent=2)
 
@@ -1541,7 +1761,7 @@ the 2021-23 wage surge + the 2022 tightening bear — exactly the episodes the c
     print("\n" + "=" * 70)
     print("  PIPELINE COMPLETE — HANDOFF NUMBERS (DPS-SCD1)")
     print("=" * 70)
-    print(f"  Strategy combos: {len(tdf)-1} | valid: {n_valid} | median OOS Sharpe (valid): {median_sharpe:.3f}")
+    print(f"  Strategy combos: {len(tdf)-1} | IS-valid: {n_valid} | median IS Sharpe (valid): {median_sharpe:.3f}")
     print(f"  Winner: {tw['winner_label']} | stationarity_class={winner['stationarity_class']}")
     print(f"  OOS Sharpe {winner_summary['oos_sharpe']} vs B&H {winner_summary['bh_sharpe']} | "
           f"DD {winner_summary['oos_max_drawdown']} vs {winner_summary['bh_max_drawdown']} | "

@@ -1,0 +1,54 @@
+{
+  "file": "tournament_results_20261016.csv",
+  "pair_id": "nhs_spy",
+  "grid": {
+    "signals": [
+      "contraction",
+      "hmm_stress",
+      "markov_regime",
+      "sa_3m",
+      "sa_mom",
+      "yoy",
+      "yoy_3m",
+      "yoy_accel",
+      "yoy_zscore_120m"
+    ],
+    "thresholds": "T1_fixed_p{25,50,75} (IS percentiles), T2_roll_p{25,75}, T3_zscore_{\u00b11.0,\u00b11.5}, T4_zero (growth signals)",
+    "strategies": [
+      "P1_long_cash_{pro,counter}",
+      "P2_signal_strength_{pro,counter}",
+      "P3_long_short_{pro,counter}"
+    ],
+    "leads_months": [
+      2,
+      3,
+      6,
+      9,
+      12
+    ],
+    "lookbacks": [
+      "LB36",
+      "LB60",
+      "LB120",
+      "LB_NA"
+    ]
+  },
+  "selection": "argmax IS Sharpe on the common IS window [common_is_start, oos_start); OOS never consulted (is_valid/valid). oos_valid = pre-#251 OOS rule, comparison only",
+  "validity": "IS window only: eligible (own IS n >= 60), is_n >= 60, IS exposure in [0.05, 0.95] (P3: share of months long), IS std > 0, IS turnover < 24/yr",
+  "warmup": "positions are NaN (not traded, excluded from IS metrics) until the lagged signal and its rolling threshold are defined; OOS scored deployable (fillna 0)",
+  "regime_signals": "hmm_stress / markov_regime: IS-only fit, forward-filtered (scripts/_regime_causal.py); core_models/regime_models.json",
+  "units": "oos_ann_return / oos_ann_vol / max_drawdown are RATIOS (decimal), not percent",
+  "total_strategy_rows": 5500,
+  "valid_strategy_rows": 5344,
+  "common_is_start": "2002-11-30",
+  "common_is_start_set_by": [
+    "yoy_zscore_120m/T2_roll_p25/LB120/L12",
+    "yoy_zscore_120m/T2_roll_p75/LB120/L12",
+    "yoy_zscore_120m/T3_zscore_1.0/LB120/L12"
+  ],
+  "spearman_is_vs_oos": 0.6912,
+  "benchmark_row": "signal==BENCHMARK, valid=False per ECON-T4",
+  "execution_lag": "position_t = rule(signal_{t-lead}); registry lead floor L2 (Census publishes month M near the end of M+1); grid bottom truncated to the floor",
+  "cost_note": "returns are gross of costs; 5bps sensitivity in tournament_validation",
+  "generated_at": "2026-10-17T09:03:52Z"
+}

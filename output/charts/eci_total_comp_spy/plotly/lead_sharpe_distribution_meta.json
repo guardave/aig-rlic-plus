@@ -8,8 +8,8 @@
     "VIZ-TX1",
     "VIZ-O1"
   ],
-  "caption": "OOS Sharpe across the floored quarterly lead grid L2\u2013L5. Bars are the best valid combo at each lead; the vermillion line traces the winner's own signal (the HMM wage-stress probability). The published winner (star) sits at L4q with OOS Sharpe 1.41 and is the grid maximum. Unlike the old look-ahead-tainted winner (which was negative at short leads), this signal's curve is POSITIVE at every scanned lead and peaks at L4q \u2014 internally consistent. But the grid is short (only L2\u2013L5), every point is search-conditioned on a 25-quarter window, and the causality tests say the indicator is lagging \u2014 treat the ridge as descriptive, not a forecasting edge.",
-  "narrative_alignment_note": "Published L4q winner is the grid maximum and its own lead-curve peaks there; honest note that the grid is short and search-conditioned.",
+  "caption": "The selected rule (ECI 2-quarter growth, T1_fixed_p50, Long/Cash) evaluated at every lead of the floored quarterly grid L1\u2013L5. In-sample Sharpe: L1 0.93, L2 1.19, L3 1.12, L4 0.88, L5 1.02. OOS Sharpe: L1 0.70, L2 0.70, L3 -0.07, L4 0.68, L5 0.43. Bars are the best OOS Sharpe of any IS-valid combo at each lead; they are picked after seeing OOS results and are shown as context only. Buy & hold OOS Sharpe 0.80.",
+  "narrative_alignment_note": "Winner rule IS and OOS Sharpe per lead; OOS envelope labelled as OOS-picked context.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/eci_total_comp_spy/lead_tournament_20261016.csv",
@@ -17,12 +17,12 @@
     "results/eci_total_comp_spy/winner_summary.json"
   ],
   "reconciliation": {
-    "winner_lead": 4,
-    "winner_oos_sharpe": 1.4089,
+    "winner_lead": 2,
+    "winner_oos_sharpe": 0.6959,
     "bh_sharpe": 0.8043
   },
-  "generated_at": "2026-10-16T18:42:42.766140+00:00",
-  "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (#255 floored re-run)",
+  "generated_at": "2026-10-16T22:29:28.146148+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_eci_total_comp_spy.py (causal HMM port + IS selection, 20261016)",
   "method_name": "lead_sharpe_distribution",
   "expected_chart_type": "bar",
   "gh_issue": "13"

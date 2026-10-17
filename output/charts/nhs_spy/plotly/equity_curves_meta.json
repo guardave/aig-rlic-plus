@@ -8,14 +8,14 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Cumulative growth of 1.00 for Evan's saved strategy returns and buy-and-hold. The OOS rule raises Sharpe (1.49 vs 0.89) and cuts drawdown, but the OOS window is short and the bootstrap p-value (0.07) is not significant at 5%. Shaded bands mark NBER recessions.",
-  "narrative_alignment_note": "Strategy series from strategy_returns; metrics from winner_summary; fragility caveat in title.",
+  "caption": "Cumulative growth of 1.00 for the selected rule and buy-and-hold SPY. Over the 100-month OOS window the rule averaged 62% invested: 11.9% annualized vs 14.8%, Sharpe 0.93 vs 0.89 (HAC t 3.26), maximum drawdown -13.5% vs -23.9%. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Strategy series from strategy_returns; metrics from winner_summary.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/nhs_spy/strategy_returns_20260703.csv",
+    "results/nhs_spy/strategy_returns_20261016.csv",
     "results/nhs_spy/winner_summary.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-03T03:08:59.327512+00:00",
-  "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)"
+  "generated_at": "2026-10-16T22:36:20.572846+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_nhs_spy.py (causal HMM port + IS selection, 20261016)"
 }

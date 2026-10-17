@@ -1,0 +1,73 @@
+{
+  "oos_start": "2020-03-31",
+  "models": {
+    "hmm_2state_prob_stress": {
+      "status": "excluded_from_tournament",
+      "reason": "too few in-sample rows to fit HMM (72)",
+      "rule": "helper minimum 100 IS rows for a traded 2-state HMM (50 x n_states)"
+    },
+    "markov_regime_2state": {
+      "status": "excluded_from_tournament",
+      "reason": "too few in-sample rows to fit MS (71)",
+      "rule": "helper minimum 100 IS rows for a traded Markov-switching fit"
+    },
+    "hmm_diagnostic": {
+      "status": "diagnostic_not_traded",
+      "kind": "GaussianHMM",
+      "fit_start": "2002-03-31",
+      "fit_end": "2019-12-31",
+      "n_fit": 72,
+      "loglik_is": -53.7773,
+      "labelled_state": "state_1",
+      "probability": "forward-filtered P(state_t | x_1..x_t) with in-sample-frozen params",
+      "params": {
+        "seed": 42,
+        "seeds_tried": [
+          42,
+          0,
+          1,
+          2,
+          3
+        ],
+        "features": [
+          "eci_total_comp_pct_yoy"
+        ],
+        "label_feature": "eci_total_comp_pct_yoy",
+        "label": "max",
+        "standardize_mean_is": [
+          2.6472984097165835
+        ],
+        "standardize_std_is": [
+          0.707236178708537
+        ],
+        "label_key_sorted": [
+          -0.8976990881893033,
+          0.8480702394970075
+        ],
+        "means": [
+          [
+            -0.8976990881893033
+          ],
+          [
+            0.8480702394970075
+          ]
+        ],
+        "startprob": [
+          1.420974295852452e-265,
+          1.0
+        ],
+        "transmat": [
+          [
+            0.9713292222559903,
+            0.028670777744009786
+          ],
+          [
+            0.02797325038252089,
+            0.9720267496174791
+          ]
+        ],
+        "covariance_type": "full"
+      }
+    }
+  }
+}

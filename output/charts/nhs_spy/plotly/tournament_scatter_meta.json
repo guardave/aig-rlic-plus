@@ -8,13 +8,14 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "All 7,700 tournament combinations (OOS Sharpe vs annual turnover; color = max drawdown). 5,297 pass validity; the Buy & Hold SPY diamond sits at Sharpe 0.89. Winner identified by the ECON-T3 cascade; see the distribution chart for the search-selection disclosure.",
-  "narrative_alignment_note": "Standard tournament scatter; benchmark via signal=='BENCHMARK' (ECON-T4).",
+  "caption": "Each dot is one of the 5,344 IS-valid combinations (5,500 scanned), plotted by in-sample Sharpe (common window 2002-11-30 to 2018-01-31) and OOS Sharpe (2018-02-28 to 2026-05-31). The star is the selected rule: the highest in-sample Sharpe. Spearman rank correlation between IS and OOS Sharpe: 0.69. Dashed lines: buy-and-hold SPY.",
+  "narrative_alignment_note": "IS vs OOS scatter; selection by IS Sharpe; benchmark via signal=='BENCHMARK' (ECON-T4).",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/nhs_spy/tournament_results_20260703.csv"
+    "results/nhs_spy/tournament_results_20261016.csv",
+    "results/nhs_spy/winner_summary.json"
   ],
   "reconciliation": null,
-  "generated_at": "2026-07-03T03:09:05.398562+00:00",
-  "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)"
+  "generated_at": "2026-10-16T22:36:28.341047+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_nhs_spy.py (causal HMM port + IS selection, 20261016)"
 }

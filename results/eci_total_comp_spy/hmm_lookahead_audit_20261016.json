@@ -1,0 +1,124 @@
+{
+  "rule": "hmm_stress / T3_zscore_1.0 / LB12 / P1_long_cash_counter / L4q; strat_ret = position_t * spy_ret_t",
+  "previously_published": {
+    "signal": "hmm_stress",
+    "threshold": "T3_zscore_1.0",
+    "strategy": "P1_long_cash_counter",
+    "lead_quarters": 4,
+    "lookback": "LB12",
+    "oos_sharpe": 1.4089,
+    "source": "winner_summary.json (20261008)"
+  },
+  "oos_window": [
+    "2020-03-31",
+    "2026-03-31"
+  ],
+  "published_reproduced_from_committed_smoothed_column": true,
+  "reproduction_note": "published value is rounded to 4 d.p.; replay matches to < 1e-4",
+  "causal_fit": {
+    "kind": "GaussianHMM",
+    "fit_start": "2002-03-31",
+    "fit_end": "2019-12-31",
+    "n_fit": 72,
+    "loglik_is": -53.7773,
+    "labelled_state": "state_1",
+    "probability": "forward-filtered P(state_t | x_1..x_t) with in-sample-frozen params",
+    "params": {
+      "seed": 42,
+      "seeds_tried": [
+        42,
+        0,
+        1,
+        2,
+        3
+      ],
+      "features": [
+        "eci_total_comp_pct_yoy"
+      ],
+      "label_feature": "eci_total_comp_pct_yoy",
+      "label": "max",
+      "standardize_mean_is": [
+        2.6472984097165835
+      ],
+      "standardize_std_is": [
+        0.707236178708537
+      ],
+      "label_key_sorted": [
+        -0.8976990881893033,
+        0.8480702394970075
+      ],
+      "means": [
+        [
+          -0.8976990881893033
+        ],
+        [
+          0.8480702394970075
+        ]
+      ],
+      "startprob": [
+        1.420974295852452e-265,
+        1.0
+      ],
+      "transmat": [
+        [
+          0.9713292222559903,
+          0.028670777744009786
+        ],
+        [
+          0.02797325038252089,
+          0.9720267496174791
+        ]
+      ],
+      "covariance_type": "full"
+    }
+  },
+  "causal_status": "DIAGNOSTIC ONLY: the causal HMM is fit on the 72 IS quarters with an explicit override (min_is_rows=40); the helper requires 100 IS rows for a traded signal, so hmm_stress is not in the 20261016 tournament",
+  "rows": [
+    {
+      "probabilities": "smoothed_fullsample",
+      "lead_quarters": 1,
+      "oos_sharpe": 0.859124,
+      "oos_ann_return": 0.13178,
+      "oos_max_drawdown": -0.043706,
+      "hac_t": 2.533,
+      "hac_p": 0.0113,
+      "hac_maxlags": 2,
+      "oos_exposure": 0.68
+    },
+    {
+      "probabilities": "smoothed_fullsample",
+      "lead_quarters": 4,
+      "oos_sharpe": 1.408892,
+      "oos_ann_return": 0.166689,
+      "oos_max_drawdown": -0.043706,
+      "hac_t": 3.037,
+      "hac_p": 0.0024,
+      "hac_maxlags": 2,
+      "oos_exposure": 0.64
+    },
+    {
+      "probabilities": "causal_filtered_diag",
+      "lead_quarters": 1,
+      "oos_sharpe": 0.804277,
+      "oos_ann_return": 0.144989,
+      "oos_max_drawdown": -0.239272,
+      "hac_t": 2.125,
+      "hac_p": 0.0335,
+      "hac_maxlags": 2,
+      "oos_exposure": 1.0
+    },
+    {
+      "probabilities": "causal_filtered_diag",
+      "lead_quarters": 4,
+      "oos_sharpe": 1.029957,
+      "oos_ann_return": 0.143847,
+      "oos_max_drawdown": -0.239272,
+      "hac_t": 2.424,
+      "hac_p": 0.0153,
+      "hac_maxlags": 2,
+      "oos_exposure": 0.92
+    }
+  ],
+  "bh_oos_sharpe": 0.804277,
+  "corr_smoothed_minus_filtered_vs_same_quarter_spy_ret_oos": -0.1363
+}

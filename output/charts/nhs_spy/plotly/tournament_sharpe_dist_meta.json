@@ -9,18 +9,19 @@
     "VIZ-NS1",
     "VIZ-O1"
   ],
-  "caption": "Distribution of OOS Sharpe across the 5,297 valid strategy combos. The winner (Sharpe 1.49) is the max of 5,297 with median 0.76; buy & hold (0.89) sits ABOVE the median. Winner selection is a tail draw from a large search; bootstrap p = 0.07 (NOT significant at 5%, no final exam) \u2014 treat as a hypothesis, not a validated edge.",
-  "narrative_alignment_note": "VIZ-SCD1 position disclosure + B&H line; numbers re-read from the tournament CSV; fragility (p=0.07) stated explicitly.",
+  "caption": "Distribution of OOS Sharpe across the 5,344 IS-valid combinations. The selected rule (chosen by in-sample Sharpe, before looking at OOS) scores 0.93, the 89th percentile. Median 0.63; buy & hold 0.89; 852 of 5,344 combos have a higher OOS Sharpe than buy & hold.",
+  "narrative_alignment_note": "VIZ-SCD1 position disclosure + B&H line; percentile computed from the CSV.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/nhs_spy/tournament_results_20260703.csv"
+    "results/nhs_spy/tournament_results_20261016.csv",
+    "results/nhs_spy/winner_summary.json"
   ],
   "reconciliation": {
-    "valid_count": 5297,
-    "median_oos_sharpe": 0.7637,
-    "winner_oos_sharpe": 1.4851,
+    "valid_count": 5344,
+    "median_oos_sharpe": 0.6267,
+    "winner_oos_sharpe": 0.9318,
     "bh_oos_sharpe": 0.8935
   },
-  "generated_at": "2026-07-03T03:09:09.125867+00:00",
-  "generated_by": "Viz Vera \u2014 scripts/generate_charts_nhs_spy.py (Mode 2, nhs_spy)"
+  "generated_at": "2026-10-16T22:36:32.763874+00:00",
+  "generated_by": "Viz \u2014 scripts/generate_charts_nhs_spy.py (causal HMM port + IS selection, 20261016)"
 }

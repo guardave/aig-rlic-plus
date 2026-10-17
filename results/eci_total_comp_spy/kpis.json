@@ -1,9 +1,15 @@
 [
   {
     "metric": "OOS Sharpe (winner)",
-    "value": "1.41",
+    "value": "0.70",
     "unit": "ratio",
-    "delta": "+0.60 vs B&H"
+    "delta": "-0.11 vs B&H"
+  },
+  {
+    "metric": "IS Sharpe (winner, selection objective)",
+    "value": "1.19",
+    "unit": "ratio",
+    "delta": "+0.40 vs B&H"
   },
   {
     "metric": "OOS Sharpe (buy & hold)",
@@ -13,25 +19,25 @@
   },
   {
     "metric": "OOS Annual Return (winner)",
-    "value": "16.7%",
+    "value": "4.3%",
     "unit": "percent",
-    "delta": "+2.2pp vs B&H"
+    "delta": "-10.2pp vs B&H"
   },
   {
     "metric": "OOS Max Drawdown (winner)",
-    "value": "-4.4%",
+    "value": "0.0%",
     "unit": "percent",
-    "delta": "+19.6pp vs B&H"
+    "delta": "+23.9pp vs B&H"
   },
   {
-    "metric": "Valid strategy combos",
-    "value": "648",
+    "metric": "IS-valid strategy combos",
+    "value": "1080",
     "unit": "count",
     "delta": null
   },
   {
     "metric": "OOS window",
-    "value": "2020-03-31 \u2192 2026-03-31 (25 quarters, candidate)",
+    "value": "2020-03-31 \u2192 2026-03-31 (25 quarters)",
     "unit": "dates",
     "delta": null
   }

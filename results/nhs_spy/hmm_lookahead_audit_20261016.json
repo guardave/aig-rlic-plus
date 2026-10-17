@@ -1,0 +1,123 @@
+{
+  "rule": "hmm_stress / T2_roll_p25 / LB60 / P1_long_cash_pro / L0; strat_ret = position_t * spy_ret_t",
+  "previously_published": {
+    "signal": "hmm_stress",
+    "threshold": "T2_roll_p25",
+    "strategy": "P1_long_cash_pro",
+    "lead_months": 0,
+    "lookback": "LB60",
+    "oos_sharpe": 1.4851,
+    "source": "winner_summary.json (20260703)"
+  },
+  "oos_window": [
+    "2018-02-28",
+    "2026-05-31"
+  ],
+  "published_reproduced_from_committed_smoothed_column": true,
+  "reproduction_note": "published value is rounded to 4 d.p.; replay matches to < 1e-4 (monthly SPY returns re-pulled from yfinance differ from the 20260703 file by <= 1.6e-6)",
+  "causal_fit": {
+    "kind": "GaussianHMM",
+    "fit_start": "1991-01-31",
+    "fit_end": "2018-01-31",
+    "n_fit": 325,
+    "loglik_is": -333.2771,
+    "labelled_state": "state_1",
+    "probability": "forward-filtered P(state_t | x_1..x_t) with in-sample-frozen params",
+    "params": {
+      "seed": 3,
+      "seeds_tried": [
+        42,
+        0,
+        1,
+        2,
+        3
+      ],
+      "features": [
+        "nhs_pct_yoy"
+      ],
+      "label_feature": "nhs_pct_yoy",
+      "label": "max_variance",
+      "standardize_mean_is": [
+        2.2313496230457726
+      ],
+      "standardize_std_is": [
+        17.427772482920567
+      ],
+      "label_key_sorted": [
+        0.36883152147044335,
+        0.39416172801745686
+      ],
+      "means": [
+        [
+          -1.584718165164109
+        ],
+        [
+          0.3854664358951078
+        ]
+      ],
+      "startprob": [
+        1.0,
+        9.530651092699651e-31
+      ],
+      "transmat": [
+        [
+          0.9369783618132509,
+          0.06302163818674912
+        ],
+        [
+          0.011548629224761629,
+          0.9884513707752384
+        ]
+      ],
+      "covariance_type": "full"
+    }
+  },
+  "rows": [
+    {
+      "probabilities": "smoothed_fullsample",
+      "lead_months": 0,
+      "oos_sharpe": 1.485076,
+      "oos_ann_return": 0.158979,
+      "oos_max_drawdown": -0.083258,
+      "hac_t": 4.527,
+      "hac_p": 0.0,
+      "hac_maxlags": 4,
+      "oos_exposure": 0.67
+    },
+    {
+      "probabilities": "smoothed_fullsample",
+      "lead_months": 2,
+      "oos_sharpe": 0.930531,
+      "oos_ann_return": 0.113558,
+      "oos_max_drawdown": -0.194477,
+      "hac_t": 2.619,
+      "hac_p": 0.0088,
+      "hac_maxlags": 4,
+      "oos_exposure": 0.67
+    },
+    {
+      "probabilities": "causal_filtered",
+      "lead_months": 0,
+      "oos_sharpe": 1.363024,
+      "oos_ann_return": 0.150609,
+      "oos_max_drawdown": -0.083258,
+      "hac_t": 4.151,
+      "hac_p": 0.0,
+      "hac_maxlags": 4,
+      "oos_exposure": 0.67
+    },
+    {
+      "probabilities": "causal_filtered",
+      "lead_months": 2,
+      "oos_sharpe": 0.85498,
+      "oos_ann_return": 0.11152,
+      "oos_max_drawdown": -0.194477,
+      "hac_t": 2.803,
+      "hac_p": 0.0051,
+      "hac_maxlags": 4,
+      "oos_exposure": 0.67
+    }
+  ],
+  "bh_oos_sharpe": 0.893483,
+  "corr_smoothed_minus_filtered_vs_same_month_spy_ret_oos": 0.074
+}

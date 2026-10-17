@@ -1,0 +1,6 @@
+signal,threshold,strategy,lead_months,lookback,oos_sharpe,is_sharpe,bootstrap_p_value,significant_at_5pct,note
+contraction,T2_roll_p25,P2_signal_strength_counter,9,LB36,0.931838,1.462847,0.4686,False,share of iid-resampled B&H OOS Sharpes >= this row's OOS Sharpe; not a selection-bias test
+contraction,T1_fixed_p25,P1_long_cash_counter,9,LB_NA,0.931838,1.415622,0.4686,False,share of iid-resampled B&H OOS Sharpes >= this row's OOS Sharpe; not a selection-bias test
+contraction,T2_roll_p25,P1_long_cash_counter,9,LB120,0.931838,1.415622,0.4686,False,share of iid-resampled B&H OOS Sharpes >= this row's OOS Sharpe; not a selection-bias test
+contraction,T2_roll_p25,P2_signal_strength_counter,9,LB120,0.931838,1.415622,0.4686,False,share of iid-resampled B&H OOS Sharpes >= this row's OOS Sharpe; not a selection-bias test
+contraction,T2_roll_p25,P2_signal_strength_counter,9,LB60,0.931838,1.415622,0.4686,False,share of iid-resampled B&H OOS Sharpes >= this row's OOS Sharpe; not a selection-bias test

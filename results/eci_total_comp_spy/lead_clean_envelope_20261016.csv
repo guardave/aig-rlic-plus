@@ -1,5 +1,6 @@
-lead_quarters,best_oos_sharpe,best_signal,best_is_clean,best_clean_oos_sharpe,best_clean_signal
-2,1.229,yoy_zscore_20q,True,1.229,yoy_zscore_20q
-3,1.1615,accel,True,1.1615,accel
-4,1.4089,hmm_stress,True,1.4089,hmm_stress
-5,1.3627,hmm_stress,True,1.3627,hmm_stress
+lead_quarters,best_oos_sharpe,best_signal,best_is_clean,best_clean_oos_sharpe,best_clean_signal,note
+1,1.1373,yoy_zscore_20q,True,1.1373,yoy_zscore_20q,"OOS-argmax over IS-valid rows plus the winner rule (context, selection-biased)"
+2,1.229,yoy_zscore_20q,True,1.229,yoy_zscore_20q,"OOS-argmax over IS-valid rows plus the winner rule (context, selection-biased)"
+3,1.1615,accel,True,1.1615,accel,"OOS-argmax over IS-valid rows plus the winner rule (context, selection-biased)"
+4,1.2378,accel,True,1.2378,accel,"OOS-argmax over IS-valid rows plus the winner rule (context, selection-biased)"
+5,1.3003,growth_2q,True,1.3003,growth_2q,"OOS-argmax over IS-valid rows plus the winner rule (context, selection-biased)"

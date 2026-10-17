@@ -160,3 +160,25 @@ def test_ms_refuses_target_return(data):
         rc.fit_ms_causal(X["spread_change"].rename("spy_ret"), OOS)
     with pytest.raises(ValueError):
         rc.fit_hmm_causal(X.rename(columns={"vix": "spy_ret"}), OOS)
+
+
+def test_min_is_rows_guard_and_override(data):
+    X, _ = data
+    short = X.iloc[:120]                                    # 80 IS rows before 2010-05-01 (< 50*2)
+    with pytest.raises(ValueError, match="too few in-sample rows"):
+        rc.fit_hmm_causal(short, "2010-05-01", label_feature="spread_change")
+    r = rc.fit_hmm_causal(short, "2010-05-01", label_feature="spread_change", min_is_rows=40)
+    assert r.n_fit < 100 and r.prob.notna().all()
+    with pytest.raises(ValueError, match="too few in-sample rows"):
+        rc.fit_ms_causal(short["spread_change"], "2010-05-01")
+
+
+def test_hmm_variance_labelling(data):
+    X, s = data
+    r = rc.fit_hmm_causal(X[["spread_change"]], OOS, label_feature="spread_change", label="max_variance")
+    assert r.params["label_key_sorted"][1] > r.params["label_key_sorted"][0]
+    # the high-variance state is the true regime 1 (sd 1.5 vs 0.6)
+    agree = ((r.prob > 0.5).astype(int) == s)[r.prob.notna()].mean()
+    assert agree > 0.8
+    r_min = rc.fit_hmm_causal(X[["spread_change"]], OOS, label_feature="spread_change", label="min_variance")
+    assert np.allclose((r.prob + r_min.prob).dropna(), 1.0)

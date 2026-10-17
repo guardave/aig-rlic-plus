@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-16T18:33:11Z",
+  "last_updated_at": "2026-10-17T09:03:25Z",
   "indicator_axis": {
     "canonical_column": "eci_total_comp_idx",
     "display_name": "Employment Cost Index (Total Compensation)",
@@ -80,15 +80,8 @@
       },
       {
         "name": "hmm_2state_prob_stress",
-        "definition": "P(high wage-inflation regime) from 2-state HMM on YoY growth (level-regime split)",
-        "formula": "GaussianHMM(yoy)",
-        "role": "regime_state",
-        "appears_in_charts": []
-      },
-      {
-        "name": "markov_regime_2state",
-        "definition": "P(high-variance regime) from Markov-switching regression spy_ret~yoy",
-        "formula": "MarkovRegression",
+        "definition": "DIAGNOSTIC, not traded: forward-filtered P(high wage-inflation state) from a 2-state HMM on YoY growth fit on IS quarters only (72 < 100-row minimum for a traded signal)",
+        "formula": "GaussianHMM(yoy), IS-only fit, forward filter (scripts/_regime_causal.py)",
         "role": "regime_state",
         "appears_in_charts": []
       }

@@ -1,0 +1,22 @@
+{
+  "pair_id": "nhs_spy",
+  "date": "20261016",
+  "pipeline_seconds": 72.8,
+  "stage_times": {
+    "1_load_verify": 0.0,
+    "2_signals": 1.7,
+    "3_exploratory_correlations": 0.3,
+    "4_core_models": 4.9,
+    "5_regime_quartiles": 0.0,
+    "6_tournament": 31.9,
+    "7_winner_artifacts": 0.1,
+    "7b_lookahead_audit": 0.0,
+    "8_cross_period": 31.3,
+    "9_validation": 0.3
+  },
+  "tournament_strategy_rows": 5500,
+  "valid_strategies": 5344,
+  "oos_n_months": 100,
+  "oos_start": "2018-02-28",
+  "oos_end": "2026-05-31"
+}

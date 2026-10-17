@@ -2,12 +2,12 @@
   "file": "hmm_states.parquet",
   "pair_id": "eci_total_comp_spy",
   "produced_by": "scripts/pair_pipeline_eci_total_comp_spy.py",
-  "generated_at": "2026-10-16T18:33:11Z",
+  "generated_at": "2026-10-17T09:03:25Z",
   "frequency": "quarterly",
   "annualization": "Sharpe = mean/std * sqrt(4); ann_return = mean*4 (quarterly data)",
   "columns": {
-    "hmm_state": "integer state; stress = HIGH-MEAN wage-inflation regime (level split, not vol split)",
-    "prob_stress": "P(high wage-inflation regime); higher = wage-price-spiral / Fed-pressure regime",
+    "hmm_state": "1 if filtered prob_stress > 0.5 else 0 (stress = higher-mean wage-inflation state)",
+    "prob_stress": "forward-filtered P(high wage-inflation state | ECI YoY up to t); params fit on IS quarters only",
     "prob_calm": "1 - prob_stress"
   },
   "assertions": [
@@ -16,15 +16,69 @@
       "check": "prob_stress between 0 and 1"
     },
     {
-      "description": "2021-23 wage surge = high regime",
+      "description": "2021-23 wage surge",
       "filter": "2021-12..2023-06",
       "column": "prob_stress",
-      "check": "mean = 1.00 (expect > 0.8)"
-    },
-    {
-      "description": "states sum to 1",
-      "check": "prob_stress + prob_calm == 1"
+      "check": "mean = 1.00"
     }
   ],
-  "small_sample_caveat": "97 quarterly obs; persistent series -> HMM splits wage-inflation LEVEL regimes; transition matrix weakly identified"
+  "status": "DIAGNOSTIC ONLY - not a tournament signal",
+  "fit": {
+    "kind": "GaussianHMM",
+    "fit_start": "2002-03-31",
+    "fit_end": "2019-12-31",
+    "n_fit": 72,
+    "loglik_is": -53.7773,
+    "labelled_state": "state_1",
+    "probability": "forward-filtered P(state_t | x_1..x_t) with in-sample-frozen params",
+    "params": {
+      "seed": 42,
+      "seeds_tried": [
+        42,
+        0,
+        1,
+        2,
+        3
+      ],
+      "features": [
+        "eci_total_comp_pct_yoy"
+      ],
+      "label_feature": "eci_total_comp_pct_yoy",
+      "label": "max",
+      "standardize_mean_is": [
+        2.6472984097165835
+      ],
+      "standardize_std_is": [
+        0.707236178708537
+      ],
+      "label_key_sorted": [
+        -0.8976990881893033,
+        0.8480702394970075
+      ],
+      "means": [
+        [
+          -0.8976990881893033
+        ],
+        [
+          0.8480702394970075
+        ]
+      ],
+      "startprob": [
+        1.420974295852452e-265,
+        1.0
+      ],
+      "transmat": [
+        [
+          0.9713292222559903,
+          0.028670777744009786
+        ],
+        [
+          0.02797325038252089,
+          0.9720267496174791
+        ]
+      ],
+      "covariance_type": "full"
+    }
+  },
+  "caveat": "fit on 72 IS quarters, below the 100-row minimum the helper requires for a traded signal (override min_is_rows=40); transition matrix weakly identified"
 }
