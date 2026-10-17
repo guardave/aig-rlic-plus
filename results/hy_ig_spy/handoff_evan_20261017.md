@@ -11,4 +11,4 @@
 Files: tournament_results_20261017.csv, null_tournament_20261017.csv, lead_curve_20261017.csv, track_summary.json, signals_20261017.parquet,
 strategy_returns_20261017.csv, lead_*_20261017.csv, core_models_20261017/, exploratory_20261017/,
 tournament_validation_20261017/, regime_quartile_forward_tests_20261017.csv, hmm_lookahead_audit_20261017.json.
-Generated: 2026-10-17T14:30:44Z
+Generated: 2026-10-17T15:25:42Z

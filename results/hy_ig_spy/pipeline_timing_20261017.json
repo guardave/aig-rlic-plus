@@ -1,19 +1,20 @@
 {
   "pair_id": "hy_ig_spy",
   "date_tag": "20261017",
-  "total_seconds": 1075.2,
+  "total_seconds": 1570.7,
   "stage_times": {
-    "1_data_load": 0.0,
+    "1_data_load": 0.1,
     "2_features": 0.0,
-    "4_core_models": 7.6,
+    "4_core_models": 16.6,
     "3_signals": 0.0,
-    "5_exploratory": 0.4,
-    "6_tournament": 1050.9,
-    "8_lookahead_audit": 0.0,
-    "7_validation": 8.8,
-    "9_winner_artifacts": 7.2,
-    "10_lead_artifacts": 0.3,
+    "5_exploratory": 0.8,
+    "6_tournament": 1522.7,
+    "8_lookahead_audit": 0.1,
+    "7_validation": 16.4,
+    "9_winner_artifacts": 13.0,
+    "10_lead_artifacts": 0.6,
+    "10b_evidence_facts": 0.4,
     "11_metadata": 0.0
   },
-  "generated_at": "2026-10-17T14:30:44Z"
+  "generated_at": "2026-10-17T15:25:42Z"
 }

@@ -15,7 +15,7 @@ from pathlib import Path
 import pandas as pd
 
 from components.page_templates import MethodologyConfig
-from components.winner_fields import load
+from components.winner_fields import lead_grid, load
 
 W = load("hy_ig_spy")
 _RES = Path(__file__).resolve().parents[2] / "results" / "hy_ig_spy"
@@ -38,6 +38,25 @@ _RSH = pd.read_csv(_RES / "rolling_sharpe_hy_ig_spy.csv")["rolling_sharpe_24m"]
 _RCO = pd.read_csv(_RES / "rolling_correlation_hy_ig_spy.csv")["rolling_corr_24m"]
 _RGR = pd.read_csv(_RES / "rolling_granger_hy_ig_spy.csv")["p_value_24m"]
 _SIGCOL = _WS["signal_column"]
+_EF = json.loads((_RES / f"evidence_facts_{_TAG}.json").read_text())
+_H = _EF["history"]
+_PREV_HMM = next((p for p in _WS["selection"].get("previously_published", []) if "combo" in p), {})
+_GRID = lead_grid("hy_ig_spy")
+_MAN = json.loads((_RES / f"candidates_manifest_{_TAG}.json").read_text())
+_GRID_SET = "{" + ", ".join(str(x) for x in _GRID) + "}"
+_N_THR = len({t for r in _MAN["rules"].values() for t in r})
+_N_STRAT = len(_MAN["strategies"])
+_QR_H = _EF["quantile_horizon_days"]
+_OOS_A, _OOS_B = pd.Timestamp(_WS["oos_period_start"]), pd.Timestamp(_WS["oos_period_end"])
+_OOS_MONTHS = (_OOS_B.year - _OOS_A.year) * 12 + _OOS_B.month - _OOS_A.month + 1
+
+
+def _pct(v, nd=1):
+    return f"{abs(v) * 100:.{nd}f}%"
+
+
+def _yrs():
+    return f"{int(_TAG[:4]) - 2000}"
 _HP = pd.read_parquet(_RES / f"signals_{_TAG}.parquet")["hmm_2state_prob_stress"]
 _SPY = pd.read_parquet(Path(__file__).resolve().parents[2] / "data" / "hy_ig_spy_daily_20000101_20260422.parquet")["spy_ret"]
 _HP = _HP.reindex(_SPY.index, method="ffill")
@@ -131,14 +150,15 @@ record. The Methodology page is the technical appendix.
         f"{W.bh_oos_sharpe} for SPY buy-and-hold."
     )
 
-    HERO_TITLE = "26 Years of the HY-IG Credit Spread and SPY"
+    HERO_TITLE = f"{_yrs()} Years of the HY-IG Credit Spread and SPY"
     HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
         "How to read it: HY-IG spread (left axis, inverted, orange) and SPY price (right "
-        "axis, blue), 2000-01-03 to 2026-04-22. Shaded bands mark NBER recessions. The "
-        "spread's highest peaks (8.5 pp in 2002, 15.3 in 2008, 6.9 in 2020) fell inside the "
-        "three largest SPY drawdowns. The 2016 energy-sector peak (6.7) came with a much "
-        "smaller SPY decline."
+        "axis, blue), 2000-01-03 to 2026-04-22. Shaded bands mark NBER recessions. The spread's highest peaks "
+        f"({_H['peaks']['dotcom'][0]:.1f} pp on {_H['peaks']['dotcom'][1]}, {_H['peaks']['gfc'][0]:.1f} on "
+        f"{_H['peaks']['gfc'][1]}, {_H['peaks']['covid'][0]:.1f} on {_H['peaks']['covid'][1]}) fell inside the "
+        "largest SPY drawdowns. The energy-sector peak "
+        f"({_H['peaks']['energy'][0]:.1f} on {_H['peaks']['energy'][1]}) came with a much smaller SPY decline."
     )
 
     REGIME_TITLE = "SPY Returns in Calm and Stress Regimes of a Causal HMM"
@@ -148,8 +168,8 @@ record. The Methodology page is the technical appendix.
         f"only, forward-filtered) puts the stress probability at or below 0.5 (calm, regime Sharpe {_CALM[0]:.2f}, "
         f"{_CALM[1] * 100:.1f}% a year) versus above 0.5 (stress, regime Sharpe {_STRESS[0]:.2f}, {_STRESS[1] * 100:.1f}% a year). "
         "These are concurrent returns: the chart describes the regimes, it is not a "
-        "forecast. As a trading signal the same probability did not beat buy-and-hold "
-        "out of sample (Evidence page, HMM block)."
+        "forecast. As a trading signal the same probability's out-of-sample record is on the Evidence page "
+        "(HMM block)."
     )
 
     NARRATIVE_SECTION_1 = """
@@ -181,7 +201,7 @@ equity risk together, so spread widening and SPY selling arrive close together.
 **What this would mean for an SPY holder:** the two series move on the same days, which
 leaves little time to react.
 
-**Channel 3: Financial conditions (1-6 months).** Credit spreads are a large component
+**Channel 3: Financial conditions (several months).** Credit spreads are a large component
 of financial-conditions indices. Tighter conditions weigh on both expected earnings and
 valuation multiples. **What this would mean for an SPY holder:** returns would be weaker
 for some months after conditions tighten.
@@ -191,17 +211,17 @@ SPY returns.
 
 ### What This Pair's Data Show
 
-- **Same day:** strong. The daily spread change and the same-day SPY return have a
-  correlation of -0.44.
-- **Forward, at daily to quarterly horizons:** weak. Predictive regressions of SPY
-  forward returns on the spread level are insignificant at 1 to 126 trading days with
-  overlap-robust (HAC) errors, and the local projections are insignificant at 5, 21 and
-  63 days.
-- **Monthly Granger test:** rejects "no predictive content" at lags of 3 to 12 months
-  (homoskedastic F-test).
-- **Next-month return by spread quartile:** lower in the widest-spread quartile, but the
-  differences are not statistically significant and not monotonic.
 """
+    NARRATIVE_SECTION_1 += (
+        f"- **Same day:** the daily spread change and the same-day SPY return have a correlation of "
+        f"{_EF['ccf']['lag0']:+.2f}.\n"
+        "- **Forward, at daily to quarterly horizons:** predictive regressions of SPY forward returns on the spread "
+        "level and the local projections are not significant with overlap-robust (HAC) errors (Evidence page).\n"
+        f"- **Monthly Granger test:** rejects \"no predictive content\" at {_EF['granger_monthly']['n_sig']} of "
+        f"{_EF['granger_monthly']['n_lags']} monthly lags (homoskedastic F-test).\n"
+        "- **Next-month return by spread quartile:** lower in the widest-spread quartile, but the differences are "
+        "not statistically significant and not monotonic.\n"
+    )
     NARRATIVE_SECTION_1 += (
         f"- **Tradable rule:** the rule selected on in-sample data (stable lead range {W.plateau_range}) has an "
         f"out-of-sample Sharpe of {W.oos_sharpe} versus {W.bh_oos_sharpe} for SPY buy-and-hold.\n"
@@ -210,11 +230,11 @@ SPY returns.
     NARRATIVE_SECTION_2 = f"""
 ### Nuance and Limits
 
-**Corrections.** This page previously reported a winner built on an HMM stress probability (S6_hmm_stress, L0) with an out-of-sample Sharpe of {_f(_AUD[('smoothed_fullsample', 0)]['oos_sharpe'])} (HAC t {_f(_AUD[('smoothed_fullsample', 0)]['hac_t'])}). That probability came from a model fitted on the full 2000-2026 sample with forward-backward smoothing, so the value on each day used later data; rebuilt causally, the same rule scores {_f(_AUD[('causal_filtered', 0)]['oos_sharpe'])} at L0 and {_f(_AUD[('causal_filtered', 1)]['oos_sharpe'])} at the L1 floor (file `hmm_lookahead_audit_{_TAG}.json`). The page then reported the since superseded rule {W.previous_rule} (out-of-sample Sharpe {W.previous_oos_sharpe}, published {W.previous_tag}), which was the single highest in-sample Sharpe in the grid, at the top edge of the lead grid; it was superseded on 2026-10-17 by the stable-lead-range selection.
+**Corrections.** This page previously reported a winner built on an HMM stress probability ({_PREV_HMM.get('combo')}) with an out-of-sample Sharpe of {_f(_AUD[('smoothed_fullsample', 0)]['oos_sharpe'])} (HAC t {_f(_AUD[('smoothed_fullsample', 0)]['hac_t'])}). That probability came from a model fitted on the full sample with forward-backward smoothing, so the value on each day used later data; rebuilt causally, that superseded rule scores {_f(_AUD[('causal_filtered', 0)]['oos_sharpe'])} as published and {_f(_AUD[('causal_filtered', 1)]['oos_sharpe'])} at the lowest grid lead L{_GRID[0]} (file `hmm_lookahead_audit_{_TAG}.json`). The page then reported the since superseded rule {W.previous_rule} (out-of-sample Sharpe {W.previous_oos_sharpe}, published {W.previous_tag}), which was the single highest in-sample Sharpe in the grid, at the top edge of the lead grid; it was superseded on 2026-10-17 by the stable-lead-range selection.
 
-**Publication lag.** ICE BofA OAS values appear on FRED about one business day after their value date. Every traded rule therefore reads the spread at least one day back, then trades the next day, so the effective lag is at least two trading days.
+**Publication lag.** ICE BofA OAS values appear on FRED about one business day after their value date. Every traded rule therefore reads the spread at least one day back, and the effective lag is at least two trading days.
 
-**2022.** SPY fell 24.5% between 2022-01-03 and 2022-10-12, during the fastest Federal Reserve tightening in 40 years. Over the same window the HY-IG spread rose from 2.08 to a peak of 4.32 percentage points. In the 2022 sub-period the selected rule's Sharpe was {_f(_SUB.loc['2022 Rates Shock', 'sharpe'])} (SPY {_f(_SUB.loc['2022 Rates Shock', 'bh_sharpe'])}).
+**2022.** SPY fell {_pct(_H['spy_drawdown']['rates_2022'])} from its peak during the 2022 Federal Reserve tightening, while the HY-IG spread rose from {_H['spread_at']['2022-01-03']:.2f} (2022-01-03) to a peak of {_H['peaks']['rates'][0]:.2f} percentage points ({_H['peaks']['rates'][1]}). In the 2022 sub-period the selected rule's Sharpe was {_f(_SUB.loc['2022 Rates Shock', 'sharpe'])} (SPY {_f(_SUB.loc['2022 Rates Shock', 'bh_sharpe'])}).
 
 **Selection.** The winner comes from {W.n_valid} in-sample-valid rules ({W.n_distinct} distinct position series). The best in-sample Sharpe from that many candidates overstates what a rule can be expected to deliver; across {W.null_draws} contests run on time-shifted spread data, the winner's stable-range score ranks at the {W.null_percentile} point.
 """
@@ -237,48 +257,40 @@ SPY returns.
             "slug": "dotcom",
             "title": "The Dot-Com Crash (2000-2002)",
             "narrative": (
-                "SPY (adjusted) fell 47.5% from its 2000-03-24 peak to its 2002-10-09 trough. "
-                "The HY-IG spread was already 3.52 percentage points on 2000-01-03. It widened "
-                "through 2000, reaching 6.97 by year-end, and peaked at 8.50 on 2002-10-09, the "
-                "same day as the SPY trough. Telecom and technology issuers that had financed "
-                "network build-outs with high-yield debt were at the centre of the credit "
-                "deterioration."
+                f"SPY (adjusted) fell {_pct(_H['spy_drawdown']['dotcom'])} from its 2000 peak to its 2002 trough. The "
+                f"HY-IG spread was already {_H['spread_at']['2000-01-03']:.2f} percentage points on 2000-01-03. It "
+                f"widened through 2000, reaching {_H['spread_at']['2000-12-29']:.2f} by year-end, and peaked at "
+                f"{_H['peaks']['dotcom'][0]:.2f} on {_H['peaks']['dotcom'][1]}. Telecom and technology issuers that had "
+                "financed network build-outs with high-yield debt were at the centre of the credit deterioration."
             ),
-            "caption": (
-                "The spread widened through 2000 while SPY was falling, and peaked on the day of "
-                "the SPY low (2002-10-09)."
-            ),
+            "caption": "The spread widened through 2000 while SPY was falling, and peaked near the SPY low.",
         },
         {
             "slug": "gfc",
             "title": "The Global Financial Crisis (2007-2009)",
             "narrative": (
-                "The HY-IG spread reached a low of 1.47 percentage points on 2007-06-01. It rose "
-                "to 2.90 by the end of July and 3.10 by the end of August 2007, months before SPY "
-                "peaked on 2007-10-09. SPY then fell 55.2% to its 2009-03-09 trough, while the "
-                "spread peaked at 15.31 on 2008-12-15. In this episode the spread moved before "
-                "the equity peak. This episode is in-sample: the selected rule was chosen on data "
-                "that include it (its sub-period result is on the Strategy page)."
+                f"The HY-IG spread reached a low of {_H['spread_low_2007'][0]:.2f} percentage points on "
+                f"{_H['spread_low_2007'][1]}. It rose to {_H['spread_at']['2007-07-31']:.2f} by the end of July and "
+                f"{_H['spread_at']['2007-08-31']:.2f} by the end of August 2007, months before SPY peaked on "
+                f"2007-10-09. SPY then fell {_pct(_H['spy_drawdown']['gfc'])} to its 2009 trough, while the spread "
+                f"peaked at {_H['peaks']['gfc'][0]:.2f} on {_H['peaks']['gfc'][1]}. In this episode the spread moved "
+                "before the equity peak. This episode lies in the in-sample period, so the selected rule was chosen on "
+                "data that include it (its sub-period result is on the Strategy page)."
             ),
-            "caption": (
-                "The spread rose from 1.47 (June 2007) to 3.10 (August 2007) before the SPY peak "
-                "on 2007-10-09, and peaked at 15.31 in December 2008."
-            ),
+            "caption": "The spread rose from its mid-2007 low before the SPY peak and peaked in late 2008.",
         },
         {
             "slug": "covid",
             "title": "The COVID Shock (2020)",
             "narrative": (
-                "SPY fell 33.7% between 2020-02-19 and 2020-03-23. The HY-IG spread rose from "
-                "2.39 percentage points (2020-01-20) to 6.86 on 2020-03-23, the same day as the "
-                "SPY low, then eased to about 4.9 by the end of May after the Federal Reserve's "
-                "corporate-credit facilities. The spread and SPY moved together rather than one "
-                "leading the other. This episode is out-of-sample for the selected rule (its "
-                "sub-period result is on the Strategy page)."
+                f"SPY fell {_pct(_H['spy_drawdown']['covid'])} from its February 2020 peak to its March low. The "
+                f"HY-IG spread rose from {_H['spread_at']['2020-01-20']:.2f} percentage points (2020-01-20) to "
+                f"{_H['peaks']['covid'][0]:.2f} on {_H['peaks']['covid'][1]}, then eased to "
+                f"{_H['spread_at']['2020-05-29']:.2f} by the end of May after the Federal Reserve's corporate-credit "
+                "facilities. The spread and SPY moved together rather than one leading the other. The selected rule's "
+                "result in this episode (its test period) is in the sub-period table on the Strategy page."
             ),
-            "caption": (
-                "Spread and SPY moved together: both extremes fell on 2020-03-23."
-            ),
+            "caption": "Spread and SPY moved together: both extremes fell on the same day in March 2020.",
         },
     ]
 
@@ -289,44 +301,53 @@ STORY_CONFIG = StoryConfig()
 # =========================================================================
 # EVIDENCE PAGE — 8-element method blocks
 # =========================================================================
+_LPC = pd.read_csv(_RES / f"core_models_{_TAG}" / "local_projections.csv")
+_QRC = pd.read_csv(_RES / f"core_models_{_TAG}" / "quantile_regression.csv").set_index("quantile")
+_FT = pd.read_csv(_RES / f"regime_quartile_forward_tests_{_TAG}.csv").set_index("horizon_months")
+_GM, _GD, _CC, _HM = _EF["granger_monthly"], _EF["granger_daily_lag1"], _EF["ccf"], _EF["hmm"]
+_SC = _EF["static_corr_level_fwd"]
+_TE = _EF["transfer_entropy_proxy_mean"]
+
+
+def _ann(m):
+    return f"{m * 12 * 100:.1f}%"
+
+
 CORRELATION_BLOCK = dict(
     chart_status="ready",
     method_name="Correlation Analysis",
     method_theory=(
-        "A **Pearson correlation** measures linear co-movement on a -1 to +1 scale. The chart "
-        "shows a rolling 252-day correlation between the spread LEVEL and the SAME-DAY SPY "
-        "return. The downloadable table adds static correlations of each spread signal with "
-        "SPY forward returns at 1 to 252 trading days."
+        "A **Pearson correlation** measures linear co-movement on a scale from minus one to plus one. The chart "
+        "shows a rolling 252-day correlation between the spread LEVEL and the SAME-DAY SPY return. The downloadable "
+        "table adds static correlations of each spread signal with SPY forward returns."
     ),
     question=(
-        "How do the spread and SPY returns co-move, and do spread signals correlate with "
-        "future SPY returns?"
+        "How do the spread and SPY returns co-move, and do spread signals correlate with future SPY returns?"
     ),
     how_to_read=(
-        "Values below zero mean that a higher spread coincides with lower same-day SPY "
-        "returns. Gray bands are NBER recessions. Forward-return correlations use "
-        "overlapping windows, so their iid p-values overstate significance."
+        "Values below zero mean that a higher spread coincides with lower same-day SPY returns. Gray bands are NBER "
+        "recessions. Forward-return correlations use overlapping windows, so their iid p-values overstate "
+        "significance."
     ),
     chart_name="correlations",
     chart_caption=(
-        "Rolling 252-day Pearson correlation between the spread level and same-day SPY daily "
-        "returns. It is negative in 58% of windows."
+        "Rolling 252-day Pearson correlation between the spread level and same-day SPY daily returns. It is "
+        f"negative in {_pct(_EF['rolling_corr_same_day_neg_share'], 0)} of windows."
     ),
     observation=(
-        "The rolling same-day correlation is negative in 58% of windows and changes sign over "
-        "time. Static correlations of the spread level with SPY forward returns are small: "
-        "-0.033 at 63 trading days, +0.024 at 126 and +0.070 at 252. These are iid p-values "
-        "on overlapping windows, which are not reliable."
+        f"The rolling same-day correlation is negative in {_pct(_EF['rolling_corr_same_day_neg_share'], 0)} of "
+        "windows and changes sign over time. Static correlations of the spread level with SPY forward returns are "
+        f"small: {'; '.join(f'{v:+.3f} at {h} trading days' for h, v in _SC.items())}. Their iid "
+        "p-values on overlapping windows are not reliable."
     ),
     interpretation=(
-        "The level of the spread has little linear relationship with future SPY returns at "
-        "the horizons tested. The sign at 252 days is positive, the opposite of the "
-        "countercyclical hypothesis. The strongest co-movement is same-day (see the "
-        "cross-correlation block)."
+        "The level of the spread has little linear relationship with future SPY returns at the horizons tested. The "
+        "sign at the longest horizon is positive, the opposite of the countercyclical hypothesis. The strongest "
+        "co-movement is same-day (see the cross-correlation block)."
     ),
     key_message=(
-        "Spread-level correlations with SPY forward returns are small (|r| ≤ 0.07) and change "
-        "sign across horizons; the clear relationship is same-day, not forward."
+        "Spread-level correlations with SPY forward returns are small and change sign across horizons; the clear "
+        "relationship is same-day, not forward."
     ),
 )
 
@@ -335,44 +356,40 @@ GRANGER_BLOCK = dict(
     chart_status="ready",
     method_name="Granger Causality",
     method_theory=(
-        "**Granger causality** tests whether past values of one series improve forecasts of "
-        "another beyond its own past. The chart tests month-end changes in the HY-IG spread "
-        "against the compounded monthly SPY return, at lags 1-12 months. The spread enters "
-        "as a monthly change because its level is highly persistent. The downloadable daily "
-        "table tests both directions on daily spread changes and SPY returns, at lags 1-5 "
-        "days."
+        "**Granger causality** tests whether past values of one series improve forecasts of another beyond its own "
+        "past. The chart tests month-end changes in the HY-IG spread against the compounded monthly SPY return, at "
+        "lags 1-12 months. The spread enters as a monthly change because its level is highly persistent. The "
+        "downloadable daily table tests both directions on daily spread changes and SPY returns, at lags 1-5 days."
     ),
     question=(
-        "Do past spread changes help predict SPY returns beyond SPY's own history, and does "
-        "the reverse also hold?"
+        "Do past spread changes help predict SPY returns beyond SPY's own history, and does the reverse also hold?"
     ),
     how_to_read=(
-        "Each bar is the F-statistic at that lag, with its p-value. The dashed line is the 5% "
-        "critical value for that lag, which falls as the lag count rises. Vermillion bars "
-        "have p < 0.05. These are homoskedastic F-tests; monthly equity returns are "
+        "Each bar is the F-statistic at that lag, with its p-value. The dashed line is the 5% critical value for "
+        "that lag. Vermillion bars have p < 0.05. These are homoskedastic F-tests; monthly equity returns are "
         "heteroskedastic, so the p-values are approximate."
     ),
     chart_name="granger_f_by_lag",
     chart_caption=(
-        "Monthly Granger F-tests, spread change → SPY monthly return, 315 months. p < 0.05 at "
-        "10 of 12 lags (lags 3-12); lags 1 and 2 are not significant (p = 0.59 and 0.56)."
+        f"Monthly Granger F-tests, spread change to SPY monthly return, {_GM['n_months']} monthly observations. "
+        f"p < 0.05 at {_GM['n_sig']} of {_GM['n_lags']} lags (lags {_GM['sig_lag_min']}-{_GM['sig_lag_max']}); "
+        + ", ".join(f"lag {x['lag']} is not significant (p = {x['p']:.2f})" for x in _GM["nonsig"]) + "."
     ),
     observation=(
-        "Monthly: lagged spread changes add predictive content for SPY monthly returns at lags "
-        "3 to 12 (p from 0.0007 to 0.0064). Daily: the test rejects in both directions, but "
-        "much more strongly from SPY to the spread (F = 166.5 at lag 1) than from the spread "
-        "to SPY (F = 4.18, p = 0.041)."
+        f"Monthly: lagged spread changes add predictive content for SPY monthly returns at lags {_GM['sig_lag_min']} "
+        f"to {_GM['sig_lag_max']} (p from {_GM['sig_p_min']:.4f} to {_GM['sig_p_max']:.4f}). Daily: the test rejects "
+        f"in both directions, but much more strongly from SPY to the spread (F = {_GD['spy_to_spread_f']:.1f} at lag "
+        f"1) than from the spread to SPY (F = {_GD['spread_to_spy_f']:.2f}, p = {_GD['spread_to_spy_p']:.3f})."
     ),
     interpretation=(
-        "At a monthly frequency the test is consistent with the credit-cycle channel: spread "
-        "changes carry some information about SPY returns several months later. At a daily "
-        "frequency the feedback runs mainly from equities to credit. Neither is causal "
-        "identification. The forward-return regressions and local projections, which use "
-        "overlap-robust errors, do not find a significant effect of the spread level."
+        "At a monthly frequency the test is consistent with the credit-cycle channel: spread changes carry some "
+        "information about SPY returns several months later. At a daily frequency the feedback runs mainly from "
+        "equities to credit. Neither is causal identification. The forward-return regressions and local projections, "
+        "which use overlap-robust errors, do not find a significant effect of the spread level."
     ),
     key_message=(
-        "Monthly spread changes Granger-cause SPY monthly returns at lags 3-12 (p < 0.01). "
-        "Daily, SPY returns predict spread changes far more strongly than the reverse."
+        f"Monthly spread changes Granger-cause SPY monthly returns at lags {_GM['sig_lag_min']}-{_GM['sig_lag_max']} "
+        "(p < 0.01). Daily, SPY returns predict spread changes far more strongly than the reverse."
     ),
 )
 
@@ -381,229 +398,224 @@ CCF_BLOCK = dict(
     chart_status="ready",
     method_name="Cross-Correlation Function (daily changes)",
     method_theory=(
-        "The **cross-correlation function** correlates the daily change in the HY-IG spread "
-        "with the SPY daily return at lags of -20 to +20 trading days. SPY returns are close "
-        "to serially uncorrelated, so they are used as they are; the spread is differenced "
-        "because its level is persistent. (An earlier version differenced the returns too, "
-        "which creates an artificial negative lag-1 pattern.)"
+        "The **cross-correlation function** correlates the daily change in the HY-IG spread with the SPY daily "
+        "return at lags -20 to +20 trading days. SPY returns are close to serially uncorrelated, so they are used "
+        "as they are; the spread is differenced because its level is persistent. (An earlier version differenced the "
+        "returns too, which creates an artificial negative pattern at the first lag.)"
     ),
-    question=(
-        "Do spread changes come before SPY moves, after them, or on the same day?"
-    ),
+    question="Do spread changes come before SPY moves, after them, or on the same day?",
     how_to_read=(
-        "Negative lags (e.g. -5) pair today's SPY return with the spread change at lag -5 "
-        "(spread first). Positive lags pair today's spread change with the SPY "
-        "return k days earlier (SPY first). The dashed lines are iid ±95% bands."
+        "Negative lags pair today's SPY return with an earlier spread change (spread first). Positive lags pair "
+        "today's spread change with an earlier SPY return (SPY first). The dashed lines are iid ±95% bands."
     ),
     chart_name="ccf",
     chart_caption=(
-        "Daily spread change vs SPY daily return, lags -20 to +20 trading days. Lag 0: r = "
-        "-0.444. SPY-first lags +1 and +2: -0.215 and -0.090. Spread-first lags outside the "
-        "band: -1 (+0.061), -6 (+0.026), -13 (+0.029)."
+        f"Daily spread change vs SPY daily return, lags -20 to +20 trading days. Same day: r = {_CC['lag0']:+.3f}. "
+        f"SPY-first lags +1 and +2: {_CC['lag1']:+.3f} and {_CC['lag2']:+.3f}. Spread-first lags outside the band: "
+        + ", ".join(f"{x['lag']} ({x['r']:+.3f})" for x in _CC["spread_first_outside_band"]) + "."
     ),
     observation=(
-        "The dominant correlation is same-day (r = -0.444). The next largest are at lags +1 "
-        "and +2 (-0.215, -0.090), where the SPY return comes first and the spread widens "
-        "afterwards. Three spread-first lags fall outside the iid band, all small and "
-        "positive (+0.026 to +0.061)."
+        f"The dominant correlation is same-day (r = {_CC['lag0']:+.3f}). The next largest are at lags +1 and +2 "
+        f"({_CC['lag1']:+.3f}, {_CC['lag2']:+.3f}), where the SPY return comes first and the spread widens afterwards. "
+        "The spread-first lags outside the iid band are small: "
+        + ", ".join(f"{x['r']:+.3f}" for x in _CC["spread_first_outside_band"]) + "."
     ),
     interpretation=(
-        "At a daily frequency the spread does not lead SPY. The relationship is same-day, "
-        "with the spread catching up to equity moves over the following one to two days. "
-        "That matches the daily Granger result and the publication lag: by the time the OAS "
-        "value is published, the same-day co-movement has already happened."
+        "At a daily frequency the spread does not lead SPY. The relationship is same-day, with the spread catching up "
+        "to equity moves over the following days. That matches the daily Granger result and the publication lag: by "
+        "the time the OAS value is published, the same-day co-movement has already happened."
     ),
     key_message=(
-        "Daily spread changes and SPY returns move together on the same day (r = -0.44); "
-        "spread widening tends to follow SPY declines by 1-2 days rather than precede them."
+        f"Daily spread changes and SPY returns move together on the same day (r = {_CC['lag0']:+.2f}); spread "
+        "widening tends to follow SPY declines rather than precede them."
     ),
 )
 
 
 HMM_BLOCK = dict(
     chart_status="ready",
-    method_name="Hidden Markov Model (HMM) Regime Analysis",
+    method_name="Hidden Markov Model (causal)",
     method_theory=(
-        "A 2-state Gaussian **Hidden Markov Model** is fitted to two daily features: the "
-        "change in the HY-IG spread and the VIX level. It is estimated on in-sample data only "
-        "(2000-01-05 to 2019-09-30), standardised with in-sample means and standard "
-        "deviations. The stress probability on each day is the forward-filtered probability "
-        "given data up to that day. The stress state is the one with the higher in-sample "
-        "mean spread change. The probability enters the tournament as signal S6_hmm_stress."
+        "A 2-state Gaussian **Hidden Markov Model** is fitted to the daily change in the HY-IG spread and the VIX "
+        f"level. It is estimated on in-sample data only (to {W.is_end}), standardised with in-sample means and "
+        "standard deviations. The stress probability on each day is the forward-filtered probability given data up "
+        "to that day. The stress state is the state with the higher in-sample mean spread change. The probability "
+        "enters the tournament as signal S6_hmm_stress."
     ),
     question=(
-        "Do the HMM regimes separate good and bad SPY periods, and is the stress probability "
-        "a useful trading signal once it is computed without future data?"
+        "Do the HMM regimes separate good and bad SPY periods, and is the stress probability a useful trading signal "
+        "once it is computed without future data?"
     ),
     how_to_read=(
-        "The shaded area is the stress probability (left axis) and the line is SPY (right "
-        "axis). Pink bands mark days with probability above 0.5. Gray bands are NBER "
-        "recessions."
+        "The shaded area is the stress probability (left axis) and the line is SPY (right axis). Pink bands mark days "
+        "with probability above 0.5. Gray bands are NBER recessions."
     ),
     regime_context=(
-        "The filtered stress probability is above 0.5 on 45.1% of days (43.5% in-sample, "
-        "50.1% out-of-sample). The superseded version of this signal was a full-sample, "
-        "forward-backward smoothed probability. On 2020-02-21 it read 0.085, while the "
-        "causal filter read 0.001; both read 1.00 on 2020-02-24."
+        f"The filtered stress probability is above 0.5 on {_HM['pct_stress_days']:.1f}% of days "
+        f"({_HM['pct_is']:.1f}% in-sample, {_HM['pct_oos']:.1f}% out-of-sample). The superseded version of this "
+        "signal was a full-sample, forward-backward smoothed probability. "
+        + " ".join(f"On {x['date']} it read {x['smoothed']:.3f} while the causal filter read {x['causal']:.3f}."
+                   for x in _HM["smoothed_vs_causal"])
     ),
     chart_name="hmm_regime_probs",
     chart_caption=(
-        "Causal HMM stress probability (fit 2000-01 to 2019-09, forward-filtered) and SPY. "
-        "Probability above 0.5 on 45% of days."
+        "Causal HMM stress probability (fit on in-sample data only, forward-filtered) and SPY. Probability above 0.5 "
+        f"on {_HM['pct_stress_days']:.0f}% of days."
     ),
     observation=(
         f"Same-day SPY performance differs sharply between the regimes (Story page): regime Sharpe {_CALM[0]:.2f} "
         f"in the calm state and {_STRESS[0]:.2f} in the stress state. As a trading signal, the best "
-        f"in-sample-valid HMM rule ({_HMM['strategy'].iloc[0]}, {int(_HMM['lead_days'].iloc[0])}-day lead) has an "
+        f"in-sample-valid HMM rule ({_HMM['strategy'].iloc[0]}, lead L{int(_HMM['lead_days'].iloc[0])}) has an "
         f"in-sample Sharpe of {_f(_HMM['is_sharpe'].iloc[0])} and an out-of-sample Sharpe of "
-        f"{_f(_HMM['oos_sharpe'].iloc[0])}. The previously published HMM rule (P2, L0) scores "
-        f"{_f(_AUD[('causal_filtered', 0)]['oos_sharpe'])} at L0 and {_f(_AUD[('causal_filtered', 1)]['oos_sharpe'])} "
-        "at the L1 floor when computed causally, against "
-        f"{_f(_AUD[('smoothed_fullsample', 0)]['oos_sharpe'])} with the smoothed full-sample probabilities."
+        f"{_f(_HMM['oos_sharpe'].iloc[0])}. The previously published HMM rule scores "
+        f"{_f(_AUD[('causal_filtered', 0)]['oos_sharpe'])} as published and {_f(_AUD[('causal_filtered', 1)]['oos_sharpe'])} "
+        f"at the lowest grid lead when computed causally, against {_f(_AUD[('smoothed_fullsample', 0)]['oos_sharpe'])} "
+        "with the smoothed full-sample probabilities."
     ),
     interpretation=(
-        "The HMM describes the regimes well on the same day, but a causal reading of it "
-        "does not beat SPY buy-and-hold out of sample. Most of the earlier 1.41 came from "
-        "smoothing. In the out-of-sample window, the gap between the smoothed and filtered "
-        "probabilities is correlated with the next day's SPY return (r = -0.087), so the "
-        "smoothed series contained information about returns that had not yet happened."
+        "The HMM describes the regimes on the same day, but a causal reading of it does not exceed SPY buy-and-hold "
+        "out of sample. Most of the previously published result came from smoothing. In the out-of-sample window, the "
+        "gap between the smoothed and filtered probabilities is correlated with the next day's SPY return "
+        f"(r = {_HM['gap_corr_next_day_oos']:+.3f}), so the smoothed series contained information about returns that "
+        "had not yet happened."
     ),
     key_message=(
-        f"The causal HMM stress probability separates same-day regimes (regime Sharpe {_CALM[0]:.2f} vs {_STRESS[0]:.2f}), "
-        f"but as a traded signal its best in-sample rule has an out-of-sample Sharpe of {_f(_HMM['oos_sharpe'].iloc[0])} "
-        f"against SPY's {W.bh_oos_sharpe}. The earlier published HMM result depended on look-ahead smoothing."
+        f"The causal HMM stress probability separates same-day regimes (regime Sharpe {_CALM[0]:.2f} vs "
+        f"{_STRESS[0]:.2f}), but as a traded signal its best in-sample rule has an out-of-sample Sharpe of "
+        f"{_f(_HMM['oos_sharpe'].iloc[0])} against SPY's {W.bh_oos_sharpe}. The previously published HMM result "
+        "depended on look-ahead smoothing."
     ),
 )
 
 
 REGIME_QUARTILE_BLOCK = dict(
     chart_status="ready",
-    method_name="Regime Quartile Returns Analysis",
+    method_name="Regime Quartile Returns (forward)",
     method_theory=(
-        "Month-end HY-IG spreads are split into four equal-count quartiles (Q1 = tightest, "
-        "Q4 = widest). The test then measures SPY's return over the **next** 1, 3 and 6 "
-        "months after each month-end, so it is a forward test. The Q4 minus Q1 difference "
-        "and a joint test that all four quartile means are equal use HAC standard errors. "
-        "Quartile breakpoints come from the full-sample distribution: they are descriptive "
-        "bins, not a trading rule."
+        "Month-end HY-IG spreads are split into four equal-count quartiles (Q1 = tightest, Q4 = widest). The test "
+        "then measures SPY's return over the **next** 1, 3 and 6 months after each month-end, so it is a forward "
+        "test. The Q4 minus Q1 difference and a joint test that all four quartile means are equal use HAC standard "
+        "errors. Quartile breakpoints come from the full-sample distribution: they are descriptive bins, not a "
+        "trading rule."
     ),
     question=(
-        "Are SPY's subsequent returns lower after wide-spread months than after tight-spread "
-        "months, and is the pattern monotonic?"
+        "Are SPY's subsequent returns lower after wide-spread months than after tight-spread months, and is the "
+        "pattern monotonic?"
     ),
     how_to_read=(
-        "Bars show annualised next-month SPY returns per quartile (labelled with each "
-        "quartile's spread range in percentage points) and the Sharpe ratio. The title gives "
-        "the Q4-Q1 difference per month and its HAC t-statistic."
+        "Bars show annualised next-month SPY returns per quartile and the Sharpe ratio. The title gives the Q4-Q1 "
+        "difference per month and its HAC t-statistic."
     ),
     regime_context=(
-        "The same quartiles look very different on a same-day basis: daily SPY returns run "
-        "at 17.1% a year in Q1 and -1.5% a year in Q4. That concurrent gradient reflects "
-        "spreads widening while equities fall. It is not a forecast, which is why this block "
-        "uses forward returns."
+        "The same quartiles look very different on a same-day basis: daily SPY returns run at "
+        f"{_EF['quartile_concurrent_ann_return_pct']['Q1']:.1f}% a year in Q1 and "
+        f"{_EF['quartile_concurrent_ann_return_pct']['Q4']:.1f}% a year in Q4. That concurrent gradient reflects "
+        "spreads widening while equities fall. It is not a forecast, which is why this block uses forward returns."
     ),
     chart_name="regime_quartile_returns",
     chart_caption=(
-        "SPY next-month return by month-end spread quartile, 315 months. Annualised: Q1 7.9%, "
-        "Q2 13.2%, Q3 11.3%, Q4 4.1%. Q4-Q1 = -0.32 pp per month (HAC t -0.40)."
+        f"SPY next-month return by month-end spread quartile, {int(_FT.loc[1, 'n_months'])} months. Annualised: "
+        f"Q1 {_ann(_FT.loc[1, 'mean_Q1'])}, Q2 {_ann(_FT.loc[1, 'mean_Q2'])}, Q3 {_ann(_FT.loc[1, 'mean_Q3'])}, "
+        f"Q4 {_ann(_FT.loc[1, 'mean_Q4'])}. Q4-Q1 = {_FT.loc[1, 'q4_minus_q1'] * 100:+.2f} pp per month (HAC t "
+        f"{_FT.loc[1, 'q4_minus_q1_hac_t']:.2f})."
     ),
     observation=(
-        "Annualised next-month SPY returns are 7.9% (Q1), 13.2% (Q2), 11.3% (Q3) and 4.1% (Q4). "
-        "The Q4-Q1 difference is -0.32 pp a month (HAC t -0.40) at 1 month, -1.18 pp (t -0.59) "
-        "at 3 months and -1.65 pp (t -0.44) at 6 months. The joint test of equal means has "
-        "p = 0.71, 0.56 and 0.48. The pattern is not monotonic at any horizon."
+        f"Annualised next-month SPY returns are {_ann(_FT.loc[1, 'mean_Q1'])} (Q1), {_ann(_FT.loc[1, 'mean_Q2'])} (Q2), "
+        f"{_ann(_FT.loc[1, 'mean_Q3'])} (Q3) and {_ann(_FT.loc[1, 'mean_Q4'])} (Q4). The Q4-Q1 difference is "
+        + "; ".join(f"{_FT.loc[h, 'q4_minus_q1'] * 100:+.2f} pp (HAC t {_FT.loc[h, 'q4_minus_q1_hac_t']:.2f}) at "
+                    f"{h} month(s)" for h in _FT.index)
+        + ". The joint tests of equal means have p = "
+        + ", ".join(f"{_FT.loc[h, 'joint_wald_p']:.2f}" for h in _FT.index)
+        + (". The pattern is not monotonic at any horizon." if not _FT["monotonic_decreasing"].any() else ".")
     ),
     interpretation=(
-        "After the widest-spread months SPY's next-month return was lowest on average. The "
-        "difference from the tightest quartile is small relative to its uncertainty, and "
-        "Q1 is not the best quartile. The forward test does not show a reliable gradient."
+        "After the widest-spread months SPY's next-month return was lowest on average in this sample. The difference "
+        "from the tightest quartile is small relative to its uncertainty, and Q1 is not the best quartile. The forward "
+        "test does not show a reliable gradient."
     ),
     key_message=(
-        "SPY returns after wide-spread months are lower on average (Q4 4.1% vs Q1 7.9% "
-        "annualised, next month), but the difference is not significant (HAC t -0.40) and "
-        "the quartiles are not monotonic."
+        f"SPY returns after wide-spread months are lower on average (Q4 {_ann(_FT.loc[1, 'mean_Q4'])} vs Q1 "
+        f"{_ann(_FT.loc[1, 'mean_Q1'])} annualised, next month), but the difference is not significant (HAC t "
+        f"{_FT.loc[1, 'q4_minus_q1_hac_t']:.2f}) and the quartiles are not monotonic."
     ),
 )
 
 
 TRANSFER_ENTROPY_BLOCK = dict(
     chart_status="ready",
-    method_name="Information Flow (transfer-entropy proxy)",
+    method_name="Transfer Entropy (proxy)",
     method_theory=(
-        "The chart is a **proxy**, not a full transfer-entropy estimate. Both series are "
-        "converted to quintile ranks. Over rolling 504-day windows, stepped monthly, it "
-        "measures how much the lagged other series adds to the squared correlation with "
-        "today's value, beyond the series' own lag (lag 1 day), in each direction. It "
-        "reports no bits and runs no surrogate or significance test."
+        "The chart is a **proxy**, not a full transfer-entropy estimate. Both series are converted to quintile ranks. "
+        "Over rolling 504-day windows, stepped monthly, it measures how much the lagged other series adds to the "
+        "squared correlation with today's value, beyond the series' own lag, in each direction. It reports no bits "
+        "and runs no surrogate or significance test."
     ),
     question=(
-        "In the proxy measure, is lagged information flow larger from the spread to SPY or "
-        "from SPY to the spread?"
+        "In the proxy measure, is lagged information flow larger from the spread to SPY or from SPY to the spread?"
     ),
     how_to_read=(
-        "Orange: spread → SPY. Blue dashed: SPY → spread. Higher values mean the lagged "
-        "series adds more to the squared correlation. Values are small, and without a "
-        "significance test the lines are descriptive."
+        "Orange: spread to SPY. Blue dashed: SPY to spread. Higher values mean the lagged series adds more to the "
+        "squared correlation. Values are small, and without a significance test the lines are descriptive."
     ),
     chart_name="transfer_entropy",
     chart_caption=(
-        "Transfer-entropy proxy over rolling 504-day windows: mean 0.0011 for spread → SPY "
-        "and 0.0001 for SPY → spread. No significance test."
+        f"Transfer-entropy proxy over rolling 504-day windows: mean {_TE['spread_to_spy']:.4f} for spread to SPY and "
+        f"{_TE['spy_to_spread']:.4f} for SPY to spread. No significance test."
     ),
     observation=(
-        "Over the sample the proxy averages 0.0011 from the spread to SPY and 0.0001 in the "
-        "other direction. Both are small (squared-correlation increments near zero) and the "
-        "series is noisy across windows."
+        f"Over the sample the proxy averages {_TE['spread_to_spy']:.4f} from the spread to SPY and "
+        f"{_TE['spy_to_spread']:.4f} in the other direction. Both are small (squared-correlation increments near zero) "
+        "and the series is noisy across windows."
     ),
     interpretation=(
-        "The proxy shows a slightly larger one-day-lagged increment from the spread to SPY "
-        "than the reverse. It runs on quintile ranks and does not test significance, so it "
-        "adds little beyond the Granger and cross-correlation results."
+        "The proxy shows a slightly larger lagged increment from the spread to SPY than the reverse. It runs on "
+        "quintile ranks and does not test significance, so it adds little beyond the Granger and cross-correlation "
+        "results."
     ),
     key_message=(
-        "A rank-based transfer-entropy proxy is small in both directions (0.0011 vs 0.0001) "
-        "and has no significance test; read it as descriptive."
+        f"A rank-based transfer-entropy proxy is small in both directions ({_TE['spread_to_spy']:.4f} vs "
+        f"{_TE['spy_to_spread']:.4f}) and has no significance test; read it as descriptive."
     ),
 )
 
 
 LOCAL_PROJECTIONS_BLOCK = dict(
     chart_status="ready",
-    method_name="Local Projections (Jordà)",
+    method_name="Local Projections",
     method_theory=(
-        "**Local projections** (Jordà, 2005) regress the SPY forward return over h trading "
-        "days on today's spread level, with the VIX and the 10y-3m Treasury spread as "
-        "controls. Horizons are h = 5, 21 and 63 trading days. Forward windows overlap, so "
-        "standard errors are Newey-West HAC with maxlags = max(0.75·n^(1/3), h-1): 14, 20 "
-        "and 62."
+        "**Local projections** (Jordà, 2005) regress the SPY forward return over h trading days on today's spread "
+        "level, with the VIX and the 10y-3m Treasury spread as controls, at horizons of "
+        + ", ".join(str(int(h)) for h in _LPC["horizon_days"]) + " trading days. Forward windows overlap, so "
+        "standard errors are Newey-West HAC with maxlags = max(0.75·n^(1/3), h-1): "
+        + ", ".join(str(int(x)) for x in _LPC["hac_maxlags"]) + "."
     ),
     question=(
-        "After controlling for VIX and the yield curve, does a higher spread level predict "
-        "lower SPY returns over the next week, month or quarter?"
+        "After controlling for VIX and the yield curve, does a higher spread level predict lower SPY returns over the "
+        "next week, month or quarter?"
     ),
     how_to_read=(
-        "The line is the coefficient (return per percentage point of spread) at each "
-        "horizon. The band is the 95% HAC confidence interval. A band that excludes zero "
-        "would indicate significance."
+        "The line is the coefficient (return per percentage point of spread) at each horizon. The band is the 95% HAC "
+        "confidence interval. A band that excludes zero would indicate significance."
     ),
     chart_name="local_projections",
     chart_caption=(
-        "Local projections of SPY forward returns on the spread level (controls: VIX, 10y-3m), "
-        "HAC maxlags ≥ h-1. h = 5d: t -0.99; 21d: t -1.37; 63d: t -1.35. None significant."
+        "Local projections of SPY forward returns on the spread level (controls: VIX, 10y-3m), HAC maxlags ≥ h-1. "
+        + "; ".join(f"h = {int(r.horizon_days)}d: t {r.t_stat:.2f}" for r in _LPC.itertuples())
+        + (". None significant." if (_LPC["p_value"] >= 0.05).all() else ".")
     ),
     observation=(
-        "The coefficients are negative at all three horizons, -0.0008 (5 days), -0.0032 "
-        "(21 days) and -0.0083 (63 days) per percentage point, with p = 0.32, 0.17 and 0.18. "
-        "The earlier reading of a significant 63-day effect (p = 0.038) used a HAC lag of 14 "
-        "for 63-day overlapping returns. With the lag set to 62, it is not significant."
+        "The coefficients are "
+        + ", ".join(f"{r.coef:+.4f} ({int(r.horizon_days)} days, p = {r.p_value:.2f})" for r in _LPC.itertuples())
+        + " per percentage point. An earlier version of this table used too short a HAC lag for the overlapping "
+        "long-horizon returns and reported a significant effect; with the lag set to at least h-1 it is not."
     ),
     interpretation=(
-        "The point estimates have the countercyclical sign, but the data do not distinguish "
-        "them from zero once the overlap in forward returns is accounted for."
+        "The point estimates have the countercyclical sign, but the data do not distinguish them from zero once the "
+        "overlap in forward returns is accounted for."
     ),
     key_message=(
-        "The spread level's effect on SPY forward returns is negative but not statistically "
-        "significant at 5, 21 or 63 trading days (HAC t between -0.99 and -1.37)."
+        "The spread level's effect on SPY forward returns is negative but not statistically significant at any "
+        f"horizon tested (HAC t between {_LPC['t_stat'].min():.2f} and {_LPC['t_stat'].max():.2f})."
     ),
 )
 
@@ -612,37 +624,36 @@ QUANTILE_BLOCK = dict(
     chart_status="ready",
     method_name="Quantile Regression",
     method_theory=(
-        "**Quantile regression** estimates the slope of the SPY 21-trading-day forward return "
-        "on the spread level at quantiles 5% to 95% of the return distribution. The aim is to "
-        "see whether the spread shifts the whole distribution, or mainly one tail."
+        "**Quantile regression** estimates the slope of the SPY 21-trading-day forward return on the spread level at "
+        "quantiles across the return distribution. The aim is to see whether the spread shifts the whole "
+        "distribution, or mainly one tail."
     ),
     question=(
-        "Does a wider spread mainly lower the worst outcomes, or does it widen the "
-        "distribution in both directions?"
+        "Does a wider spread mainly lower the worst outcomes, or does it widen the distribution in both directions?"
     ),
     how_to_read=(
-        "Each point is the slope at that quantile; the band is its 95% interval. Negative "
-        "slopes in the low quantiles and positive slopes in the high quantiles of similar "
-        "size mean the spread widens the distribution symmetrically."
+        "Each point is the slope at that quantile; the band is its 95% interval. Negative slopes in the low quantiles "
+        "and positive slopes in the high quantiles of similar size mean the spread widens the distribution "
+        "symmetrically."
     ),
     chart_name="quantile_regression",
     chart_caption=(
-        "Quantile slopes of the 21-day forward SPY return on the spread level: q05 -0.0117, "
-        "q25 -0.0050, q50 +0.0003 (p = 0.27), q75 +0.0047, q95 +0.0118."
+        "Quantile slopes of the 21-day forward SPY return on the spread level: "
+        + ", ".join(f"tau={q:.2f} {r.coef:+.4f}" for q, r in _QRC.iterrows()) + "."
     ),
     observation=(
-        "The slopes are close to mirror images: -0.0117 at the 5th percentile and +0.0118 at "
-        "the 95th, -0.0091 at the 10th and +0.0084 at the 90th. The median slope is about "
-        "zero (+0.0003, p = 0.27). Every slope except the median is significant."
+        f"The lowest and highest quantile slopes are {_QRC['coef'].iloc[0]:+.4f} and {_QRC['coef'].iloc[-1]:+.4f}; the "
+        f"median slope is {_QRC.loc[0.5, 'coef']:+.4f} (p = {_QRC.loc[0.5, 'p_value']:.2f}). Slopes other than the "
+        f"median have p < 0.05 at {int((_QRC.drop(index=0.5)['p_value'] < 0.05).sum())} of "
+        f"{len(_QRC) - 1} quantiles."
     ),
     interpretation=(
-        "A wider spread goes with a wider spread of 21-day SPY outcomes in both directions, "
-        "a volatility effect, rather than a lower median or a mainly left-tail effect. The "
-        "data do not show an asymmetric downside effect."
+        f"A wider spread goes with a wider spread of {_QR_H}-day SPY outcomes in both directions, a volatility effect, rather "
+        "than a lower median or a mainly left-tail effect. The data do not show an asymmetric downside effect."
     ),
     key_message=(
-        "Wider HY-IG spreads widen the 21-day SPY return distribution about equally in both "
-        "tails (q05 -0.0117, q95 +0.0118); the median effect is near zero."
+        f"Wider HY-IG spreads widen the {_QR_H}-day SPY return distribution about equally in both tails (lowest quantile "
+        f"{_QRC['coef'].iloc[0]:+.4f}, highest {_QRC['coef'].iloc[-1]:+.4f}); the median effect is near zero."
     ),
 )
 
@@ -651,8 +662,8 @@ CORRELATION_LEAD_VIEW_BLOCK = dict(
     chart_status="ready",
     method_name="Lead Analysis",
     method_theory=(
-        "Each spread signal is lagged L trading days, for L in the traded grid {1, 5, 21, 63, "
-        "126, 252}, and correlated with SPY's next-day return. The grid starts at 1 because "
+        f"Each spread signal is shifted by every lead in the traded grid {_GRID_SET} (trading days) and "
+        "correlated with SPY's next-day return. The grid starts at the first lead because "
         "ICE BofA OAS values are published about one business day late. The axis is the "
         "pair's native daily axis."
     ),
@@ -666,7 +677,7 @@ CORRELATION_LEAD_VIEW_BLOCK = dict(
     ),
     chart_name="correlations_lead_view",
     chart_caption=(
-        "Pearson r between each signal lagged L trading days and SPY's next-day return. Stars mark iid p < 0.05."
+        "Pearson r between each signal, shifted by each lead in the grid, and SPY's next-day return. Stars mark iid p < 0.05."
     ),
     observation=(
         f"The winner's signal ({_SIGCOL}) has r "
@@ -679,7 +690,7 @@ CORRELATION_LEAD_VIEW_BLOCK = dict(
         "from position rules (thresholds, sizing) rather than a linear lead relationship."
     ),
     key_message=(
-        "On the daily lead grid (1 to 252 trading days) the spread signals' linear correlation with SPY's "
+        f"On the daily lead grid ({_GRID[0]} to {_GRID[-1]} trading days) the spread signals' linear correlation with SPY's "
         "next-day return is small."
     ),
 )
@@ -739,11 +750,11 @@ EVIDENCE_METHOD_BLOCKS = {
          "path": f"results/hy_ig_spy/core_models_{_TAG}/granger_causality.csv"},
         {"label": "Predictive regressions, HAC",
          "path": f"results/hy_ig_spy/core_models_{_TAG}/predictive_regressions.csv"},
-        {"label": "Quantile regression (7 quantiles of 21-day forward SPY)",
+        {"label": "Quantile regression of forward SPY returns",
          "path": f"results/hy_ig_spy/core_models_{_TAG}/quantile_regression.csv"},
-        {"label": "Local projections, HAC (3 horizons)",
+        {"label": "Local projections, HAC",
          "path": f"results/hy_ig_spy/core_models_{_TAG}/local_projections.csv"},
-        {"label": "Regime quartile forward tests (1/3/6 months)",
+        {"label": "Regime quartile forward tests",
          "path": f"results/hy_ig_spy/regime_quartile_forward_tests_{_TAG}.csv"},
         {"label": "Diagnostics summary",
          "path": f"results/hy_ig_spy/core_models_{_TAG}/diagnostics_summary.csv"},
@@ -774,18 +785,18 @@ EVIDENCE_METHOD_BLOCKS = {
         "Quantile Regression",
     ],
     "tournament_intro": (
-        "The tournament combined 15 signals (spread level, z-scores, percentile ranks, rates of change, momentum, "
-        "acceleration, the CCC-BB spread, and causal HMM and Markov-switching stress probabilities) with their "
-        "threshold labels, 3 strategies (Long/Cash, Signal-Strength, Long/Short; Signal-Strength ignores the "
-        "threshold and is declared once per signal) and 6 leads {1, 5, 21, 63, 126, 252} trading days: "
+        f"The tournament combined {len(_MAN['signals'])} signals (spread level, z-scores, percentile ranks, rates of "
+        "change, momentum, acceleration, the CCC-BB spread, and causal HMM and Markov-switching stress probabilities) "
+        f"with their threshold labels, {_N_STRAT} strategies (Long/Cash, Signal-Strength, Long/Short; Signal-Strength "
+        f"ignores the threshold and is declared once per signal) and the lead grid {_GRID_SET} (trading days): "
         f"{W.n_candidates} combinations, {W.n_valid} in-sample-valid ({W.n_distinct} distinct position series). Each "
         "window of three neighbouring leads was scored by its lowest in-sample Sharpe; the winner is the highest "
         f"in-sample Sharpe inside the best window: **{W.signal_code} / {W.threshold_code} / {W.strategy_family} / "
         f"L{W.lead}** (stable lead range {W.plateau_range}), in-sample Sharpe {W.is_sharpe} against {W.bh_is_sharpe} "
         f"for SPY over {W.is_start} to {W.is_end}. On the held-out {W.oos_start} to {W.oos_end} window it scored "
         f"{W.oos_sharpe}, against {W.bh_oos_sharpe} for SPY buy-and-hold. The single highest in-sample Sharpe in the "
-        f"grid (lead L{W.raw_argmax_lead}, {W.raw_argmax_is_sharpe}) is an isolated-peak sensitivity row, not the "
-        "selection rule."
+        f"grid ({W.raw_argmax_rule} at L{W.raw_argmax_lead}, {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, "
+        f"{W.raw_argmax_position}; it is shown for reference and is not the selection rule."
     ),
     "transition": (
         "**Transition:** the tests show a strong same-day link and weak forward "
@@ -817,6 +828,35 @@ class StrategyConfig:
     PLAIN_ENGLISH = (
         f"The rule moves between SPY and cash: {_RULE}. This section explains the rule, its numbers and its "
         "limitations."
+    )
+
+    # Status and badge rule come from track_summary.json (components.two_track.badge_status); this text states
+    # facts only.
+    EXECUTIVE_CONFIDENCE_SUMMARY = dict(
+        status="",
+        status_detail=(
+            "Selected on the training period from market data (one track: credit spreads are not revised); it has "
+            "not faced a frozen-rule hold-out test."
+        ),
+        strengths=[
+            f"Long daily history: training period {W.is_start} to {W.is_end}.",
+            f"The chosen lead sits in a stable lead range ({W.plateau_range}).",
+            f"Chance check: the winner's stable-range score ranks at the {W.null_percentile} point of {W.null_draws} "
+            "scrambled contests.",
+        ],
+        risks=[
+            f"Test-period Sharpe difference versus buy-and-hold {W.sharpe_gap}, 95% interval {W.ci_low} to "
+            f"{W.ci_high}.",
+            f"Forward predictability: daily Granger p-value {_GD['spread_to_spy_p']:.3f} from spread to SPY, "
+            f"against F {_GD['spy_to_spread_f']:.1f} from SPY to spread (the market moves the spread more than the "
+            "reverse).",
+            f"Costs: at 5 bps per unit of position change the test-period Sharpe is {W.oos_sharpe_net_5bp}.",
+        ],
+        conclusion=(
+            f"Rule {W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}: test-period Sharpe "
+            f"{W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold ({W.oos_start} to {W.oos_end}), maximum "
+            f"drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}."
+        ),
     )
 
     SIGNAL_RULE_MD = (
@@ -907,7 +947,7 @@ class StrategyConfig:
 
 1. **Simulated, not executed.** All performance statistics are hypothetical, from rules applied to historical data. Returns are gross of costs. At 5 bps per unit of position change the out-of-sample Sharpe is {W.oos_sharpe_net_5bp} (higher cost levels: `tournament_validation_{_TAG}/transaction_costs.csv`).
 
-2. **Superseded results.** The earlier HMM rule (S6_hmm_stress / P2 / L0, previously published out-of-sample Sharpe {_f(_AUD[('smoothed_fullsample', 0)]['oos_sharpe'])}) relied on full-sample, forward-backward smoothed HMM probabilities (look-ahead); its causal rebuild scores {_f(_AUD[('causal_filtered', 0)]['oos_sharpe'])} at L0 and {_f(_AUD[('causal_filtered', 1)]['oos_sharpe'])} at the L1 lead floor. The rule previously published on {W.previous_tag} ({W.previous_rule}, out-of-sample Sharpe {W.previous_oos_sharpe}) was an isolated top-edge peak.
+2. **Superseded results.** The earlier HMM rule ({_PREV_HMM.get('combo')}, previously published out-of-sample Sharpe {_f(_AUD[('smoothed_fullsample', 0)]['oos_sharpe'])}) relied on full-sample, forward-backward smoothed HMM probabilities (look-ahead); its causal rebuild scores {_f(_AUD[('causal_filtered', 0)]['oos_sharpe'])} as published and {_f(_AUD[('causal_filtered', 1)]['oos_sharpe'])} at the lowest grid lead L{_GRID[0]}. The rule previously published on {W.previous_tag} ({W.previous_rule}, out-of-sample Sharpe {W.previous_oos_sharpe}) was an isolated top-edge peak.
 
 3. **Selection.** The winner comes from {W.n_valid} valid rules ({W.n_distinct} distinct position series). The test-period Sharpe difference versus buy-and-hold is {W.sharpe_gap} (95% interval {W.ci_low} to {W.ci_high}); across {W.null_draws} contests on time-shifted spread data its stable-range score ranks at the {W.null_percentile} point.
 
@@ -951,7 +991,7 @@ _INDICATOR_CONSTRUCTION_MD = (
     "Index option-adjusted spread (FRED: BAMLC0A0CM), in percentage points. From it the "
     "pipeline derives the level, 252/504-day rolling z-scores, 504/1260-day percentile ranks, "
     "21/63/126-day percent changes, 21/63/252-day changes, an acceleration term and the "
-    "CCC-BB quality spread. It also builds two causal regime probabilities: a 2-state "
+    "CCC-BB quality spread. It also builds causal regime probabilities: a 2-state "
     "Gaussian HMM on [daily spread change, VIX], and a 2-state Markov-switching model of "
     "the daily spread change. Both are fitted on in-sample data only (to 2019-09-30) and "
     "forward-filtered, so the value on day t uses data up to t only "
@@ -975,17 +1015,19 @@ _METHODS_TABLE_MD = """
 | Quantile Regression | Effect across the 21-day forward return distribution | Quantiles 5%-95% |
 """
 
-_TOURNAMENT_DESIGN_MD = f"""
+_GRID_TABLE_MD = f"""
 | Dimension | Values |
 |:----------|:-------|
-| **Signals (15)** | spread level; z-score 252d/504d; percentile rank 504d/1260d; % change 21d/63d/126d; change 21d/63d/252d; acceleration; CCC-BB spread; causal HMM stress prob (S6); causal Markov-switching prob (S7) |
-| **Thresholds (13 labels)** | T1 in-sample percentile p75/p85/p95 (expanding over the in-sample readings before each day, 400-day warm-up, frozen at the in-sample end); T2 rolling-504d percentile rp75/rp85/rp95; T3 rolling-504d z-score 1.5/2.0/2.5; T4/T5 probability 0.5/0.7 (S6/S7 only) |
-| **Strategies (3)** | Long/Cash (P1), Signal-Strength sizing on the trailing-504d range (P2; ignores the threshold, declared once per signal and lead), Long/Short (P3) |
-| **Lead times (trading days)** | 1, 5, 21, 63, 126, 252, the standard daily grid floored at 1 for the OAS publication lag; plus a 1-day execution lag |
+| **Signals ({len(_MAN['signals'])})** | {"; ".join(SIGNAL_TEXT.get(k, k) for k in _MAN['signals'])} |
+| **Thresholds ({_N_THR} labels)** | T1 in-sample percentile p75/p85/p95 (expanding over the in-sample readings before each day, 400-day warm-up, frozen at the in-sample end); T2 rolling-504d percentile rp75/rp85/rp95; T3 rolling-504d z-score 1.5/2.0/2.5; T4/T5 probability 0.5/0.7 (S6/S7 only) |
+| **Strategies ({_N_STRAT})** | Long/Cash (P1), Signal-Strength sizing on the trailing-504d range (P2; ignores the threshold, declared once per signal and lead), Long/Short (P3) |
+| **Lead times (trading days)** | {", ".join(str(x) for x in _MAN['leads'])}, the standard daily grid floored for the OAS publication lag; plus a {_MAN['position_shift']}-day execution lag |
 | **Orientation** | Countercyclical (high signal -> reduce SPY exposure) |
-| **Selection** | Stable lead range (D9): each window of three neighbouring leads scored by its lowest in-sample Sharpe on the common window, winner = highest in-sample Sharpe inside the best window, among in-sample-valid rules (>= 1,260 IS days, IS exposure 5-95%, IS turnover < 24/yr, >= 10 IS trades; undefined positions held as cash) |
+| **Selection** | Stable lead range (D9): each window of three neighbouring leads scored by its lowest in-sample Sharpe on the common window, winner = highest in-sample Sharpe inside the best window, among in-sample-valid rules (>= {_MAN['min_is_n']:,} IS days, IS exposure {_MAN['exposure_bounds'][0]:.0%}-{_MAN['exposure_bounds'][1]:.0%}, IS turnover < {_MAN['max_is_turnover']}/yr, >= {_MAN['min_is_trades']} IS trades; undefined positions held as cash) |
+"""
 
-{W.n_candidates} combinations, {W.n_valid} in-sample-valid ({W.n_distinct} distinct position series). Winner: **{W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}**, stable lead range {W.plateau_range}, in-sample Sharpe {W.is_sharpe} (SPY {W.bh_is_sharpe}). Out of sample ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} vs SPY {W.bh_oos_sharpe}, annual return {W.oos_ann_return} vs {W.bh_oos_ann_return}, maximum drawdown {W.oos_max_drawdown} vs {W.bh_oos_max_drawdown}. Isolated-peak sensitivity row (not the selection rule): L{W.raw_argmax_lead}, in-sample Sharpe {W.raw_argmax_is_sharpe}.
+_TOURNAMENT_DESIGN_MD = _GRID_TABLE_MD + f"""
+{W.n_candidates} combinations, {W.n_valid} in-sample-valid ({W.n_distinct} distinct position series). Winner: **{W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}**, stable lead range {W.plateau_range}, in-sample Sharpe {W.is_sharpe} (SPY {W.bh_is_sharpe}). Out of sample ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} vs SPY {W.bh_oos_sharpe}, annual return {W.oos_ann_return} vs {W.bh_oos_ann_return}, maximum drawdown {W.oos_max_drawdown} vs {W.bh_oos_max_drawdown}. Highest single in-sample Sharpe in the grid (reference only, not the selection rule): {W.raw_argmax_rule} at L{W.raw_argmax_lead}, in-sample Sharpe {W.raw_argmax_is_sharpe}, {W.raw_argmax_is_winner}, {W.raw_argmax_position}.
 """
 
 _REFERENCES_MD = """
@@ -1021,9 +1063,9 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     references_md=_REFERENCES_MD,
     sample_period_note=(
         "Data run from 2000-01-03 to 2026-04-22 (business days). The OOS window follows the ECON-OOS2 formula: "
-        f"79 months ({W.oos_start} -> {W.oos_end}). In-sample selection uses the common window {W.is_start} -> "
+        f"{_OOS_MONTHS} months ({W.oos_start} -> {W.oos_end}). In-sample selection uses the common window {W.is_start} -> "
         f"{W.is_end}, which starts when the longest-warm-up eligible candidate has its first return. The dot-com bust "
-        "and the GFC are in-sample; COVID 2020 and the 2022 rate shock are out-of-sample. Regime models are fitted on "
+        "and the GFC are in-sample; the COVID shock and the post-pandemic rate shock are out-of-sample. Regime models are fitted on "
         "data up to 2019-09-30 only."
     ),
     plain_english=(

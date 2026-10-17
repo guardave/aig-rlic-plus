@@ -748,7 +748,9 @@ def chart_equity_curves():
         xaxis_title="Date", yaxis_title="Growth of $1", template=TEMPLATE, height=480,
         legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"), margin=dict(r=180, b=80),
     )
-    _note(fig, f"OOS {oos_start} to {w['oos_period_end']}. Rule selected on in-sample Sharpe. Gross of costs.")
+    _net = ((w.get("winner_fields") or {}).get("oos_sharpe_net_5bp") or {}).get("text", "n/a")
+    _note(fig, f"OOS {oos_start} to {w['oos_period_end']}. Rule selected on in-sample data. Returns gross of costs; "
+               f"at the trade log's 5 bp per position change the OOS Sharpe is {_net}.")
     _save_chart(fig, "equity_curves",
                 narrative_note=f"OOS growth of $1: winner {strat_cum.iloc[-1]:.2f}, SPY {bh_cum.iloc[-1]:.2f}.",
                 method_name="Strategy Backtest", expected_chart_type="line")

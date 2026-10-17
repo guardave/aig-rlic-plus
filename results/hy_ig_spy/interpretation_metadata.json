@@ -87,7 +87,7 @@
     "splice_note": "FRED BAMLH0A0HYM2/BAMLC0A0CM truncated to 2023-04-24 onward as of fetch date; pre-2023 history back-filled from hy_ig_spy_v1 parquet (Wave 10G.1 archive). Splice method: combine_first (live FRED overrides on overlap)."
   },
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-17T14:30:44Z",
+  "last_updated_at": "2026-10-17T15:25:42Z",
   "observed_direction": "countercyclical",
   "direction_consistent": true,
   "confidence": "low",

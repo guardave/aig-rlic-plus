@@ -3,7 +3,7 @@
   "track": "market",
   "role": "main",
   "winner_key": "S3b_pctrank_1260d|T1_p85|P1|countercyclical|21",
-  "generated_at": "2026-10-17T14:30:26.707486+00:00",
+  "generated_at": "2026-10-17T15:25:08.831748+00:00",
   "vintage_policy": {
     "alignment": "pit_asof",
     "release_series": "rule:next_business_day",

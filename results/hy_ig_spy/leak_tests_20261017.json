@@ -183,6 +183,7 @@
       "timing_sharpe_se_bandwidth": 11,
       "timing_sharpe_effective_draws": 37.1,
       "r71_tolerance": 0.1,
+      "timing_sharpe_mean_all_valid_candidates": -0.0162,
       "r71_pass": true,
       "null_scores_hist": {
         "bins": [

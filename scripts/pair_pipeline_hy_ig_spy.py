@@ -76,6 +76,7 @@ DATA_TAG       = "20260422"   # input data vintage (committed parquet)
 # OOS window — ECON-OOS2: span = min(max(36, round(316*0.25)), 120) = 79 months.
 IS_END    = "2019-09-30"
 OOS_START = "2019-10-01"
+QR_HORIZON = 21  # trading days of forward SPY return in the quantile regression
 OOS_END   = END_DATE
 
 # Traded lead grid (trading days): standard daily points {0,1,5,21,63,126,252} that are
@@ -514,9 +515,9 @@ def stage_core_models(df: pd.DataFrame):
 
     # ── 4. Quantile regression (21-day forward SPY return) ────
     qr_results = []
-    valid_qr = work[["hy_ig_spread_pct", "spy_fwd_21d"]].dropna()
+    valid_qr = work[["hy_ig_spread_pct", f"spy_fwd_{QR_HORIZON}d"]].dropna()
     for tau in [0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95]:
-        qr = smf.quantreg("spy_fwd_21d ~ hy_ig_spread_pct", data=valid_qr).fit(q=tau)
+        qr = smf.quantreg(f"spy_fwd_{QR_HORIZON}d ~ hy_ig_spread_pct", data=valid_qr).fit(q=tau)
         qr_results.append({"quantile": tau, "coef": round(qr.params["hy_ig_spread_pct"], 6),
                            "p_value": round(qr.pvalues["hy_ig_spread_pct"], 4),
                            "ci_lower": round(qr.conf_int().loc["hy_ig_spread_pct", 0], 6),
@@ -1293,6 +1294,87 @@ def stage_lead_artifacts(tourn: pd.DataFrame):
 
 
 # ─────────────────────────────────────────────────────────────
+# EVIDENCE FACTS (every number the pair's prose cites, Phase B structural prose rule)
+# ─────────────────────────────────────────────────────────────
+
+@timed("10b_evidence_facts")
+def stage_evidence_facts(df: pd.DataFrame):
+    """results/hy_ig_spy/evidence_facts_<tag>.json: the evidence and market-history numbers the narrative cites,
+    computed here (same formulas as the charts) so the config renders them instead of typing them."""
+    sp, spy = df["hy_ig_spread_pct"], df["spy"]
+    ret = spy.pct_change()
+    r = lambda v, nd=4: None if v is None or pd.isna(v) else round(float(v), nd)  # noqa: E731
+    out = {"pair_id": PAIR_ID, "date_tag": DATE_TAG, "generated_at": iso_utc_now()}
+    rc = sp.rolling(252).corr(ret).dropna()
+    out["quantile_horizon_days"] = QR_HORIZON
+    out["rolling_corr_same_day_neg_share"] = r((rc < 0).mean())
+    out["static_corr_level_fwd"] = {str(h): r(sp.corr(df[f"spy_fwd_{h}d"])) for h in (63, 126, 252)}
+    g = pd.read_csv(os.path.join(RESULTS_DIR, "granger_by_lag.csv"))
+    sig = g[g["p_value"] < 0.05]
+    out["granger_monthly"] = {"n_months": int(g["df_den"].iloc[0] + 2 * g["df_num"].iloc[0] + 1),
+                              "n_sig": int(len(sig)), "n_lags": int(len(g)),
+                              "sig_lag_min": int(sig["lag"].min()) if len(sig) else None,
+                              "sig_lag_max": int(sig["lag"].max()) if len(sig) else None,
+                              "sig_p_min": r(sig["p_value"].min()), "sig_p_max": r(sig["p_value"].max()),
+                              "nonsig": [{"lag": int(x.lag), "p": r(x.p_value, 2)} for x in g[g["p_value"] >= 0.05].itertuples()]}
+    gd = pd.read_csv(os.path.join(MODELS_DIR, "granger_causality.csv"))
+    a = gd[(gd["direction"] == "HY_IG->SPY") & (gd["lag"] == 1)].iloc[0]
+    b = gd[(gd["direction"] != "HY_IG->SPY") & (gd["lag"] == 1)].iloc[0]
+    out["granger_daily_lag1"] = {"spread_to_spy_f": r(a["f_stat"], 2), "spread_to_spy_p": r(a["p_value"], 3),
+                                 "spy_to_spread_f": r(b["f_stat"], 1)}
+    d = pd.DataFrame({"ds": sp.diff(), "r": spy.pct_change()}).dropna()
+    lags = list(range(-20, 21))
+    cc = {k: d["ds"].shift(-k).corr(d["r"]) for k in lags}
+    band = 1.96 / np.sqrt(len(d))
+    lead = [(k, v) for k, v in cc.items() if k < 0 and abs(v) > band]
+    out["ccf"] = {"lag0": r(cc[0], 3), "lag1": r(cc[1], 3), "lag2": r(cc[2], 3), "band": r(band, 3),
+                  "spread_first_outside_band": [{"lag": k, "r": r(v, 3)} for k, v in lead]}
+    hs = json.loads(Path(MODELS_DIR, "hmm_summary.csv").read_text())
+    out["hmm"] = {"pct_stress_days": hs["pct_stress_days"], "pct_is": hs["pct_stress_days_is"],
+                  "pct_oos": hs["pct_stress_days_oos"]}
+    old = pd.read_parquet(os.path.join(RESULTS_DIR, "_superseded", f"signals_{DATA_TAG}.parquet"))["hmm_2state_prob_stress"]
+    new = pd.read_parquet(os.path.join(SIGNALS_DIR, f"signals_{DATE_TAG}.parquet"))["hmm_2state_prob_stress"]
+    out["hmm"]["smoothed_vs_causal"] = [{"date": dt, "smoothed": r(old.get(pd.Timestamp(dt)), 3),
+                                         "causal": r(new.get(pd.Timestamp(dt)), 3)} for dt in ("2020-02-21", "2020-02-24")]
+    out["hmm"]["gap_corr_next_day_oos"] = CTX["audit"]["corr_smoothed_minus_filtered_vs_next_day_spy_ret_oos"]
+    q = pd.read_csv(os.path.join(EXPLORE_DIR, "regime_descriptive_stats.csv")).set_index("regime")
+    out["quartile_concurrent_ann_return_pct"] = {"Q1": r(q.loc["Q1_low", "ann_return_pct"], 1),
+                                                 "Q4": r(q.loc["Q4_high", "ann_return_pct"], 1)}
+    rr, sq = ret.dropna(), sp.reindex(ret.dropna().index)
+    rq, sqq = pd.qcut(rr, 5, labels=False, duplicates="drop"), pd.qcut(sq, 5, labels=False, duplicates="drop")
+    te_a, te_b = [], []
+    for i in range(504, len(rr), 21):
+        x, y = sqq.iloc[i - 504:i].to_numpy(), rq.iloc[i - 504:i].to_numpy()
+
+        def _te(u, v):
+            n = len(u) - 1
+            return max(0.0, np.corrcoef(u[:n], v[1:])[0, 1] ** 2 - np.corrcoef(v[:n], v[1:])[0, 1] ** 2)
+        te_a.append(_te(x, y))
+        te_b.append(_te(y, x))
+    out["transfer_entropy_proxy_mean"] = {"spread_to_spy": r(np.mean(te_a)), "spy_to_spread": r(np.mean(te_b))}
+
+    def dd(a_, b_):
+        w = spy.loc[a_:b_]
+        return r(w.min() / w.loc[:w.idxmin()].max() - 1, 3)
+    at = lambda dt: r(sp.loc[:dt].iloc[-1], 2)  # noqa: E731
+    pk = lambda a_, b_: (r(sp.loc[a_:b_].max(), 2), sp.loc[a_:b_].idxmax().date().isoformat())  # noqa: E731
+    out["history"] = {
+        "peaks": {k: pk(*v) for k, v in {"dotcom": ("2000-01-01", "2003-12-31"), "gfc": ("2007-01-01", "2009-12-31"),
+                                          "energy": ("2015-06-01", "2016-06-30"), "covid": ("2020-01-01", "2020-12-31"),
+                                          "rates": ("2022-01-01", "2022-12-31")}.items()},
+        "spread_at": {dt: at(dt) for dt in ("2000-01-03", "2000-12-29", "2007-06-01", "2007-07-31", "2007-08-31",
+                                            "2020-01-20", "2020-03-23", "2020-05-29", "2022-01-03")},
+        "spread_low_2007": (r(sp.loc["2007-01-01":"2007-12-31"].min(), 2),
+                            sp.loc["2007-01-01":"2007-12-31"].idxmin().date().isoformat()),
+        "spy_drawdown": {"dotcom": dd("2000-03-01", "2002-10-31"), "gfc": dd("2007-10-01", "2009-03-31"),
+                         "covid": dd("2020-02-01", "2020-03-31"), "rates_2022": dd("2022-01-01", "2022-10-31")},
+    }
+    with open(os.path.join(RESULTS_DIR, f"evidence_facts_{DATE_TAG}.json"), "w") as f:
+        json.dump(out, f, indent=2)
+    return out
+
+
+# ─────────────────────────────────────────────────────────────
 # METADATA, SCOPE, SUGGESTIONS, HANDOFFS
 # ─────────────────────────────────────────────────────────────
 
@@ -1501,6 +1583,7 @@ def main():
     vinfo = stage_validation(tourn)
     stage_winner_artifacts(tourn, vinfo)
     stage_lead_artifacts(tourn)
+    stage_evidence_facts(df)
     stage_metadata()
     elapsed = time.time() - t0_total
     with open(os.path.join(RESULTS_DIR, f"pipeline_timing_{DATE_TAG}.json"), "w") as f:

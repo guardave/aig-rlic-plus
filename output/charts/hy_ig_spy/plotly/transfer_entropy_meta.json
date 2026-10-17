@@ -11,7 +11,7 @@
   ],
   "disposition": "consumed",
   "narrative_alignment_note": "Proxy (squared-correlation difference) of lagged information flow in both directions; no significance test.",
-  "created_at": "2026-10-17T14:30:50Z",
+  "created_at": "2026-10-17T15:32:24Z",
   "method_name": "Transfer Entropy",
   "expected_chart_type": "line"
 }
