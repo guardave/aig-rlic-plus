@@ -144,11 +144,12 @@ def _add_recessions(fig, idx_min, idx_max, row=None, col=None):
             fig.add_vrect(**kwargs)
 
 
-def _note(fig, text):
+def _note(fig, text, y=-0.12, size=9, yanchor="auto"):
     fig.add_annotation(
         text=text, xref="paper", yref="paper",
-        x=0, y=-0.12, showarrow=False,
-        font=dict(size=9, color="#888888"), xanchor="left",
+        x=0, y=y, showarrow=False,
+        font=dict(size=size, color="#666666" if size > 9 else "#888888"), xanchor="left", yanchor=yanchor,
+        align="left",
     )
 
 
@@ -746,11 +747,12 @@ def chart_equity_curves():
     fig.update_layout(
         title=dict(text=f"OOS Growth of $1: Winner Sharpe {w['oos_sharpe']:.2f} vs SPY Buy-and-Hold {w['bh_sharpe']:.2f} (from {oos_start})"),
         xaxis_title="Date", yaxis_title="Growth of $1", template=TEMPLATE, height=480,
-        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"), margin=dict(r=180, b=80),
+        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"), margin=dict(r=180, b=130),
     )
     _net = ((w.get("winner_fields") or {}).get("oos_sharpe_net_5bp") or {}).get("text", "n/a")
-    _note(fig, f"OOS {oos_start} to {w['oos_period_end']}. Rule selected on in-sample data. Returns gross of costs; "
-               f"at the trade log's 5 bp per position change the OOS Sharpe is {_net}.")
+    _note(fig, f"OOS {oos_start} to {w['oos_period_end']}. Rule selected on in-sample data.<br>Returns gross of costs; "
+               f"at the trade log's 5 bp per position change the OOS Sharpe is {_net}.",
+          y=-0.2, size=12, yanchor="top")
     _save_chart(fig, "equity_curves",
                 narrative_note=f"OOS growth of $1: winner {strat_cum.iloc[-1]:.2f}, SPY {bh_cum.iloc[-1]:.2f}.",
                 method_name="Strategy Backtest", expected_chart_type="line")

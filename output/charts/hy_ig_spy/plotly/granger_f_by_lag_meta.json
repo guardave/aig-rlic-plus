@@ -11,7 +11,7 @@
   ],
   "disposition": "consumed",
   "narrative_alignment_note": "Monthly Granger test (spread change -> SPY return): p<0.05 at 10 of 12 lags.",
-  "created_at": "2026-10-17T15:32:22Z",
+  "created_at": "2026-10-17T16:50:41Z",
   "method_name": "Granger Causality",
   "expected_chart_type": "bar"
 }
