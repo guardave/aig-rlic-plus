@@ -1,5 +1,5 @@
 {
-  "chart_name": "history_zoom_dot_com",
+  "chart_name": "history_zoom_dotcom",
   "pair_id": "umcsent_xlv",
   "palette_id": "okabe_ito_2026",
   "rules_applied": [
@@ -11,6 +11,6 @@
   "source_artifacts": [
     "data/umcsent_xlv_monthly_latest.parquet"
   ],
-  "generated_at": "2026-10-17T23:09:36.779856+00:00",
+  "generated_at": "2026-10-17T23:33:03.952065+00:00",
   "generated_by": "Viz Vera - scripts/generate_charts_umcsent_xlv.py"
 }

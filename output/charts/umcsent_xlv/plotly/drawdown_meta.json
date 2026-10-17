@@ -15,6 +15,6 @@
     "results/umcsent_xlv/strategy_returns_20261017.csv",
     "results/umcsent_xlv/winner_summary.json"
   ],
-  "generated_at": "2026-10-17T23:09:36.284370+00:00",
+  "generated_at": "2026-10-17T23:32:30.202239+00:00",
   "generated_by": "Viz Vera - scripts/generate_charts_umcsent_xlv.py"
 }

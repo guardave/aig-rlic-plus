@@ -145,10 +145,10 @@ PAIR_TEMPLATE_CHARTS: dict[str, list[str]] = {
         # Story
         "hero",
         "regime_stats",
-        "history_zoom_dot_com",
+        "history_zoom_dotcom",
         "history_zoom_gfc",
         "history_zoom_covid",
-        "history_zoom_rates_2022",
+        "history_zoom_inflation_2022",
         # Evidence method blocks
         "correlation_scatter",
         "ccf",

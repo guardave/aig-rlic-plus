@@ -16,6 +16,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.io as pio
 from plotly.subplots import make_subplots
 
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -84,7 +85,8 @@ def save_chart(fig, name, *, caption=None, rules=None, sources=None, alignment=N
     }
     Path(CHART_DIR, f"{name}_meta.json").write_text(json.dumps(meta, indent=2) + "\n")
     try:
-        fig.write_image(os.path.join(CHART_DIR, f"_perceptual_check_{name}.png"), width=1200, height=600)
+        # render from the written JSON (the in-memory figure may hold Timestamps kaleido cannot serialise)
+        pio.read_json(path).write_image(os.path.join(CHART_DIR, f"_perceptual_check_{name}.png"), width=1200, height=600)
     except Exception as _exc:
         print(f"  (perceptual PNG skipped: {_exc.__class__.__name__})")
     print(f"  Saved: {name}.json")
@@ -110,26 +112,29 @@ def load_strategy_returns():
     return df
 
 
+def vband(fig, x0, x1, color):
+    """Shaded x-range on the full plot height. fig.add_vrect adds nothing on make_subplots(secondary_y)
+    figures, so the band is a paper-referenced shape."""
+    fig.add_shape(type="rect", xref="x", yref="paper", x0=x0, x1=x1, y0=0, y1=1, fillcolor=color,
+                  line_width=0, layer="below")
+
+
 def add_nber_bands(fig, name="NBER recession period"):
-    """Add NBER recession shading plus one legend entry."""
+    """NBER recession shading clipped to the plotted date range (shapes would otherwise widen the x-axis),
+    plus one legend entry when a band is drawn."""
+    xs = [pd.Timestamp(v) for tr in fig.data if tr.x is not None for v in tr.x if v is not None]
+    if not xs:
+        return
+    lo, hi = min(xs), max(xs)
+    drawn = False
     for start, end in NBER_RECESSIONS:
-        fig.add_vrect(
-            x0=start,
-            x1=end,
-            fillcolor=C_NBER,
-            layer="below",
-            line_width=0,
-        )
-    fig.add_trace(
-        go.Scatter(
-            x=[None],
-            y=[None],
-            mode="markers",
-            marker=dict(size=12, color="rgba(120,120,120,0.35)", symbol="square"),
-            name=name,
-            hoverinfo="skip",
-        )
-    )
+        a, b = max(pd.Timestamp(start), lo), min(pd.Timestamp(end), hi)
+        if a < b:
+            vband(fig, a.strftime("%Y-%m-%d"), b.strftime("%Y-%m-%d"), C_NBER)
+            drawn = True
+    if drawn:
+        fig.add_trace(go.Scatter(x=[None], y=[None], mode="markers", name=name, hoverinfo="skip",
+                                 marker=dict(size=12, color="rgba(120,120,120,0.35)", symbol="square")))
 
 
 # ===================================================================
@@ -163,8 +168,7 @@ def chart_hero():
         starts = pessimism.index[pessimism & ~pessimism.shift(1, fill_value=False)]
         ends = pessimism.index[pessimism & ~pessimism.shift(-1, fill_value=False)]
         for s, e in zip(starts, ends):
-            fig.add_vrect(x0=s, x1=e, fillcolor=C_CONTRACTION,
-                          layer="below", line_width=0)
+            vband(fig, s, e, C_CONTRACTION)
         fig.add_trace(
             go.Scatter(
                 x=[None],
@@ -237,6 +241,7 @@ def chart_correlation_scatter():
         yaxis_title="XLV 6-Month Forward Return (%)",
         template="plotly_white",
         height=470,
+        margin=dict(b=120),
         legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
     )
     fig.add_annotation(
@@ -366,7 +371,7 @@ def chart_ccf():
         fig.add_hline(y=-1.96 * se, line_dash="dash", line_color="gray", line_width=0.8)
 
     fig.update_layout(
-        title="Cross-Correlation: UMCSENT YoY Change vs XLV Monthly Return<br><sup>Red bars = statistically significant at 95%</sup>",
+        title="Cross-Correlation: UMCSENT YoY Change vs XLV Monthly Return<br><sup>Highlighted bars are significant at 95% confidence</sup>",
         xaxis_title="Lag (months; positive = UMCSENT leads XLV returns)",
         yaxis_title="Cross-Correlation",
         template="plotly_white",
@@ -535,7 +540,8 @@ def chart_signal_dist():
 # Winner charts (MAIN track: as known at the time)
 # ===================================================================
 def winner_label(w):
-    return f"Winner: {w['signal_code']} / {w['threshold_code']} / {w['strategy_code']} / L{w['lead_value']}"
+    thr = "" if w["threshold_code"] in ("-", None) else f" / {w['threshold_code']}"
+    return f"Winner: {w['signal_code']}{thr} / {w['strategy_code']} / L{w['lead_value']}"
 
 
 def oos_slice(w):
@@ -571,11 +577,12 @@ def chart_drawdown():
     w = load_winner()
     oos = oos_slice(w)
     fig = go.Figure()
-    for col, name, color, fill, dash in (("benchmark_return", "Buy & Hold XLV", C_BENCHMARK, "rgba(108,122,137,0.15)", "dash"),
-                                         ("strategy_return", winner_label(w), C_STRATEGY, C_DD_FILL, None)):
+    for col, name, color, fill, dash in (("benchmark_return", "Buy & Hold XLV", C_BENCHMARK, None, "dash"),
+                                         ("strategy_return", winner_label(w), C_STRATEGY, "rgba(0,114,178,0.15)", None)):
         eq = (1 + oos[col]).cumprod()
-        fig.add_trace(go.Scatter(x=eq.index, y=(eq / eq.cummax() - 1) * 100, name=name, fill="tozeroy",
-                                 fillcolor=fill, line=dict(color=color, width=2, dash=dash)))
+        fig.add_trace(go.Scatter(x=eq.index, y=(eq / eq.cummax() - 1) * 100, name=name,
+                                 fill="tozeroy" if fill else None, fillcolor=fill,
+                                 line=dict(color=color, width=2, dash=dash)))
     add_nber_bands(fig)
     fig.update_layout(title=f"Test-Period Drawdown: {w['oos_max_drawdown']:.1%} vs {w['bh_max_drawdown']:.1%} buy-and-hold",
                       xaxis_title="Date", yaxis_title="Drawdown (%)", template="plotly_white", height=400,
@@ -613,6 +620,7 @@ def chart_rolling_sharpe():
 
 def chart_tournament_scatter():
     t = load_tournament()
+    t = t[t["signal"] != "BENCHMARK"]
     w = load_winner()
     valid = t[t["valid"].astype(bool)]
     invalid = t[~t["valid"].astype(bool)]
@@ -634,7 +642,8 @@ def chart_tournament_scatter():
                   annotation_text=f"Buy-and-hold XLV test Sharpe {w['bh_sharpe']:.2f}")
     fig.update_layout(title=f"Tournament (as known at the time): {len(t):,} Combinations, {len(valid):,} Valid",
                       xaxis_title="Training-period Sharpe", yaxis_title="Test-period Sharpe", template="plotly_white",
-                      height=500)
+                      height=520, margin=dict(b=120),
+                      legend=dict(orientation="h", x=0, xanchor="left", y=-0.18, yanchor="top"))
     save_chart(fig, "tournament_scatter",
                caption=(f"Training versus test-period Sharpe for {len(t):,} combinations ({len(valid):,} valid) on "
                         "UMCSENT as known at the time. The star is the rule selected on training data by the stable "
@@ -664,6 +673,11 @@ def chart_wf_sharpe():
                       yaxis_title="Annualized Sharpe Ratio", template="plotly_white", height=430,
                       legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"))
     save_chart(fig, "wf_sharpe",
+               caption=(f"Calendar-year test-period Sharpe of the rule against buy-and-hold XLV (years with at least "
+                        f"eight months); full-window test-period Sharpe {w['oos_sharpe']:.2f}."),
+               rules=["ECON-SR1", "VIZ-O1", "VIZ-V5"], sources=WINNER_SOURCES,
+               alignment="Rendered from the harness MAIN-track strategy returns.")
+    save_chart(fig, "walk_forward",
                caption=(f"Calendar-year test-period Sharpe of the rule against buy-and-hold XLV (years with at least "
                         f"eight months); full-window test-period Sharpe {w['oos_sharpe']:.2f}."),
                rules=["ECON-SR1", "VIZ-O1", "VIZ-V5"], sources=WINNER_SOURCES,
@@ -717,20 +731,94 @@ def chart_rolling_sharpe_cp():
 def chart_history_zoom(slug, title, start, end):
     df = load_monthly().loc[start:end]
     fig = make_subplots(specs=[[{"secondary_y": True}]])
+    drawn = False
     for s, e in NBER_RECESSIONS:
         if pd.Timestamp(e) >= pd.Timestamp(start) and pd.Timestamp(s) <= pd.Timestamp(end):
-            fig.add_vrect(x0=max(s, start), x1=min(e, end), fillcolor=C_NBER, layer="below", line_width=0)
+            vband(fig, max(s, start), min(e, end), C_NBER)
+            drawn = True
     fig.add_trace(go.Scatter(x=df.index, y=df["umcsent"], name="UMCSENT (revised)", line=dict(color=C_INDICATOR, width=2)),
                   secondary_y=False)
     fig.add_trace(go.Scatter(x=df.index, y=df["xlv"], name="XLV price ($)", line=dict(color=C_EQUITY, width=1.6)),
                   secondary_y=True)
-    fig.add_trace(go.Scatter(x=[None], y=[None], mode="markers", name="NBER recession period", hoverinfo="skip",
-                             marker=dict(size=12, color="rgba(120,120,120,0.35)", symbol="square")))
+    if drawn:
+        fig.add_trace(go.Scatter(x=[None], y=[None], mode="markers", name="NBER recession period", hoverinfo="skip",
+                                 marker=dict(size=12, color="rgba(120,120,120,0.35)", symbol="square")))
     fig.update_layout(title=title, template="plotly_white", height=430, hovermode="x unified")
     fig.update_yaxes(title_text="UMCSENT index", secondary_y=False)
     fig.update_yaxes(title_text="XLV price ($)", secondary_y=True)
-    save_chart(fig, f"history_zoom_{slug}", caption=f"{title}; gray bands are NBER recessions.",
+    save_chart(fig, f"history_zoom_{slug}", caption=f"{title}" + ("; gray bands are NBER recessions." if drawn else "."),
                sources=["data/umcsent_xlv_monthly_latest.parquet"])
+
+
+def chart_rolling_correlation():
+    rc = pd.read_csv(os.path.join(RESULTS_DIR, f"rolling_correlation_{PAIR_ID}.csv"), parse_dates=["date"])
+    fig = go.Figure(go.Scatter(x=rc["date"], y=rc["rolling_corr_24m"], mode="lines", name="Rolling 24M correlation",
+                               line=dict(color=C_INDICATOR, width=2)))
+    add_nber_bands(fig)
+    fig.add_hline(y=0, line_dash="dash", line_color="grey", line_width=1)
+    share = float((rc["rolling_corr_24m"] > 0).mean())
+    fig.update_layout(title="Rolling 24-Month Correlation: UMCSENT YoY Change vs XLV Monthly Return",
+                      xaxis_title="Date", yaxis_title="Pearson correlation", template="plotly_white", height=420,
+                      legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"))
+    save_chart(fig, "rolling_correlation",
+               caption=(f"Rolling 24-month Pearson correlation of the year-over-year change in UMCSENT with the same-month "
+                        f"XLV return (revised data); positive in {share:.0%} of the {len(rc)} windows."),
+               sources=[f"results/{PAIR_ID}/rolling_correlation_{PAIR_ID}.csv"])
+
+
+def chart_structural_break():
+    sb = json.loads(Path(RESULTS_DIR, f"structural_break_{PAIR_ID}.json").read_text())
+    rc = pd.read_csv(os.path.join(RESULTS_DIR, f"rolling_correlation_{PAIR_ID}.csv"), parse_dates=["date"])
+    fig = go.Figure(go.Scatter(x=rc["date"], y=rc["rolling_corr_24m"], mode="lines", name="Rolling 24M correlation",
+                               line=dict(color=C_INDICATOR, width=1.5)))
+    add_nber_bands(fig)
+    fig.add_hline(y=0, line_dash="dash", line_color="grey", line_width=1)
+    fig.add_vline(x=pd.Timestamp(sb["breakpoint_date"]), line_dash="dot", line_color=C_STRATEGY, line_width=2)
+    fig.update_layout(title=f"Break Test (Quandt-Andrews sup-F {sb['sup_f']:.2f}, bootstrap p {sb['p_value']:.2f})",
+                      xaxis_title="Date", yaxis_title="Rolling 24M correlation", template="plotly_white", height=420,
+                      legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"))
+    save_chart(fig, "structural_break",
+               caption=(f"Quandt-Andrews sup-F test (15% trimming) for a break in the regression of the XLV return on the "
+                        f"lagged year-over-year change in UMCSENT: sup-F {sb['sup_f']:.2f} at {sb['breakpoint_date']} "
+                        f"(dotted line), bootstrap p-value {sb['p_value']:.2f}."),
+               sources=[f"results/{PAIR_ID}/structural_break_{PAIR_ID}.json",
+                        f"results/{PAIR_ID}/rolling_correlation_{PAIR_ID}.csv"])
+
+
+def chart_local_projections():
+    lp = pd.read_csv(os.path.join(MODELS_DIR, "local_projections.csv"))
+    x = lp["horizon_months"].astype(str) + "m"
+    fig = go.Figure(go.Bar(x=x, y=lp["coef_umcsent_yoy"] * 100, marker_color=C_INDICATOR, name="Coefficient (95% CI)",
+                           error_y=dict(type="data", symmetric=False,
+                                        array=(lp["ci_upper"] - lp["coef_umcsent_yoy"]) * 100,
+                                        arrayminus=(lp["coef_umcsent_yoy"] - lp["ci_lower"]) * 100,
+                                        visible=True, thickness=1.5, color="#4D4D4D")))
+    fig.add_hline(y=0, line_color="#4D4D4D")
+    fig.update_layout(title="Local Projections: XLV Forward Return per Point of UMCSENT YoY Change",
+                      xaxis_title="Forward horizon", yaxis_title="Percentage points per point of YoY change",
+                      template="plotly_white", height=430)
+    save_chart(fig, "local_projections",
+               caption=("Coefficient of the XLV forward return on the year-over-year change in UMCSENT with VIX and "
+                        "the 10-year yield as controls; whiskers are 95% HAC intervals (lags at least horizon - 1)."),
+               sources=[f"results/{PAIR_ID}/core_models_{DATE_TAG}/local_projections.csv"])
+
+
+def chart_quantile_coef():
+    q = pd.read_csv(os.path.join(MODELS_DIR, "quantile_regression.csv"))
+    fig = go.Figure(go.Scatter(x=q["quantile"], y=q["coef_umcsent_yoy"] * 100, mode="lines+markers",
+                               name="Coefficient (95% CI)", line=dict(color=C_INDICATOR),
+                               error_y=dict(type="data", symmetric=False,
+                                            array=(q["ci_upper"] - q["coef_umcsent_yoy"]) * 100,
+                                            arrayminus=(q["coef_umcsent_yoy"] - q["ci_lower"]) * 100,
+                                            visible=True, thickness=1.5, color="#4D4D4D")))
+    fig.add_hline(y=0, line_color="#4D4D4D")
+    fig.update_layout(title="Quantile Regression: XLV 3-Month Forward Return on UMCSENT YoY Change",
+                      xaxis_title="Quantile of the XLV 3-month forward return",
+                      yaxis_title="Percentage points per point of YoY change", template="plotly_white", height=430)
+    save_chart(fig, "quantile_coef",
+               caption=("Quantile-regression slope of the XLV 3-month forward return on the year-over-year change in "
+                        "UMCSENT at each return quantile, with 95% intervals."),
+               sources=[f"results/{PAIR_ID}/core_models_{DATE_TAG}/quantile_regression.csv"])
 
 
 # ===================================================================
@@ -743,6 +831,8 @@ if __name__ == "__main__":
     chart_correlations()
     chart_regime_stats()
     chart_ccf()
+    chart_local_projections()
+    chart_quantile_coef()
     chart_equity_curves()
     chart_drawdown()
     chart_rolling_sharpe()
@@ -752,8 +842,10 @@ if __name__ == "__main__":
     chart_subperiod_sharpe()
     chart_rolling_sharpe_cp()
     chart_rolling_granger()
-    chart_history_zoom("dot_com", "Dot-Com Bust (2000-2002)", "1999-01-31", "2003-12-31")
+    chart_rolling_correlation()
+    chart_structural_break()
+    chart_history_zoom("dotcom", "Dot-Com Bust (2000-2002)", "1999-01-31", "2003-12-31")
     chart_history_zoom("gfc", "Global Financial Crisis (2007-2009)", "2006-01-31", "2010-12-31")
     chart_history_zoom("covid", "COVID Crash (2020)", "2018-01-31", "2021-12-31")
-    chart_history_zoom("rates_2022", "Fed Hiking Cycle (2022)", "2021-01-31", "2023-12-31")
+    chart_history_zoom("inflation_2022", "Fed Hiking Cycle (2022)", "2021-01-31", "2023-12-31")
     print(f"\nDone. Charts saved to {CHART_DIR}")

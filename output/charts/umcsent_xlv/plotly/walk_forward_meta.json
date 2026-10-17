@@ -1,0 +1,19 @@
+{
+  "chart_name": "walk_forward",
+  "pair_id": "umcsent_xlv",
+  "palette_id": "okabe_ito_2026",
+  "rules_applied": [
+    "ECON-SR1",
+    "VIZ-O1",
+    "VIZ-V5"
+  ],
+  "caption": "Calendar-year test-period Sharpe of the rule against buy-and-hold XLV (years with at least eight months); full-window test-period Sharpe 0.58.",
+  "narrative_alignment_note": "Rendered from the harness MAIN-track strategy returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/umcsent_xlv/strategy_returns_20261017.csv",
+    "results/umcsent_xlv/winner_summary.json"
+  ],
+  "generated_at": "2026-10-17T23:32:44.838449+00:00",
+  "generated_by": "Viz Vera - scripts/generate_charts_umcsent_xlv.py"
+}
