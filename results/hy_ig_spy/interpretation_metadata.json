@@ -9,7 +9,7 @@
   "strategy_objective": "countercyclical_protection",
   "expected_direction": "countercyclical",
   "mechanism": "Wider HY-IG credit spreads signal rising default risk and tightening financial conditions \u2014 historically bearish for equities. Spread compression indicates risk appetite recovery and is bullish for SPY. The spread leads equity drawdowns because credit markets price in distress before equity mark-to-market catches up.",
-  "key_finding": "Winner selected on in-sample data (D9 lead plateau [1, 5, 21]) S1_spread_level/T2_rp75/P1/L21 (lead 21 trading day(s) + 1-day execution lag): IS Sharpe 0.92 (SPY 0.52), OOS Sharpe 0.31 vs SPY buy-and-hold 0.81. Spread level vs 63-day forward SPY return: coef -0.0013, HAC t -0.31 (p=0.758). The previously published 1.41 (S6_hmm_stress/P2/L0) used smoothed full-sample HMM probabilities (look-ahead).",
+  "key_finding": "Winner selected on in-sample data (D9 lead plateau [5, 21, 63]) S3b_pctrank_1260d/T1_p85/P1/L21 (lead 21 trading day(s) + 1-day execution lag): IS Sharpe 0.89 (SPY 0.51), OOS Sharpe 0.57 vs SPY buy-and-hold 0.81. Spread level vs 63-day forward SPY return: coef -0.0013, HAC t -0.31 (p=0.758). The previously published 1.41 (S6_hmm_stress/P2/L0) used smoothed full-sample HMM probabilities (look-ahead).",
   "caveats": [
     "FRED BAMLH0A0HYM2 series observation_start was 2023-04-24 as of 2026-04-22; pre-2023 OAS history sourced from hy_ig_spy_v1 parquet (v1+FRED splice). Data quality verified against v2 parquet.",
     "OAS data starts 1997 on FRED; effective pair start date is 2000-01-03 (limited by SPY availability).",
@@ -87,7 +87,7 @@
     "splice_note": "FRED BAMLH0A0HYM2/BAMLC0A0CM truncated to 2023-04-24 onward as of fetch date; pre-2023 history back-filled from hy_ig_spy_v1 parquet (Wave 10G.1 archive). Splice method: combine_first (live FRED overrides on overlap)."
   },
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-17T13:22:58Z",
+  "last_updated_at": "2026-10-17T14:30:44Z",
   "observed_direction": "countercyclical",
   "direction_consistent": true,
   "confidence": "low",

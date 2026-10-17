@@ -1,26 +1,26 @@
 {
   "pair_id": "hy_ig_spy",
   "schema_version": "1.0.0",
-  "generated_at": "2026-10-17T13:22:39.372578+00:00",
+  "generated_at": "2026-10-17T14:30:26.717902+00:00",
   "track_state": "single_market",
   "track_policy": "single_market",
   "main": {
     "track": "market",
     "eligible": true,
     "window": [
-      "2006-05-02",
+      "2006-05-03",
       "2026-04-22"
     ],
-    "n_obs": 5212,
+    "n_obs": 5211,
     "winner": {
-      "signal": "S1_spread_level",
-      "threshold": "T2_rp75",
+      "signal": "S3b_pctrank_1260d",
+      "threshold": "T1_p85",
       "strategy": "P1",
       "direction": "countercyclical",
       "lead": 21
     },
-    "is_sharpe": 0.920678,
-    "oos_sharpe": 0.312307,
+    "is_sharpe": 0.888035,
+    "oos_sharpe": 0.574558,
     "recessions_covered": [
       "2008-09 recession",
       "2020 recession"
@@ -33,9 +33,9 @@
   "insufficient_reason": null,
   "plateau": {
     "leads": [
-      1,
       5,
-      21
+      21,
+      63
     ],
     "winner_lead": 21,
     "global_max_lead": 21,
@@ -43,107 +43,107 @@
     "scores": [
       {
         "lead": 1,
-        "score": 0.862624
+        "score": 0.860784
       },
       {
         "lead": 5,
-        "score": 0.845035
+        "score": 0.882944
       },
       {
         "lead": 21,
-        "score": 0.920678
+        "score": 0.888035
       },
       {
         "lead": 63,
-        "score": 0.744682
+        "score": 0.861351
       },
       {
         "lead": 126,
-        "score": 0.746681
+        "score": 0.742607
       },
       {
         "lead": 252,
-        "score": 0.531412
+        "score": 0.612809
       }
     ],
-    "score": 0.845035
+    "score": 0.861351
   },
   "null_tournament": {
     "n_draws": 100,
-    "winner_percentile": 0.82,
-    "p_selection_stat": 0.18,
-    "is_max_percentile": 0.68,
-    "winner_oos_percentile": 0.0,
+    "winner_percentile": 0.89,
+    "p_selection_stat": 0.11,
+    "is_max_percentile": 0.79,
+    "winner_oos_percentile": 0.17,
     "null_scores_hist": {
       "bins": [
-        0.4803,
-        0.5047,
-        0.529,
-        0.5533,
-        0.5776,
-        0.602,
-        0.6263,
-        0.6506,
-        0.6749,
-        0.6993,
-        0.7236,
-        0.7479,
-        0.7722,
-        0.7966,
-        0.8209,
-        0.8452,
-        0.8695,
-        0.8939,
-        0.9182,
-        0.9425,
-        0.9668
+        0.4522,
+        0.4762,
+        0.5003,
+        0.5243,
+        0.5484,
+        0.5724,
+        0.5964,
+        0.6205,
+        0.6445,
+        0.6686,
+        0.6926,
+        0.7167,
+        0.7407,
+        0.7647,
+        0.7888,
+        0.8128,
+        0.8369,
+        0.8609,
+        0.885,
+        0.909,
+        0.9331
       ],
       "counts": [
+        1,
         5,
-        0,
-        8,
-        2,
-        8,
-        8,
         4,
-        2,
-        7,
-        8,
-        5,
-        8,
+        6,
         10,
-        4,
-        3,
         9,
-        0,
-        3,
+        10,
+        7,
+        2,
+        2,
+        5,
         4,
-        2
+        7,
+        6,
+        5,
+        2,
+        4,
+        3,
+        5,
+        3
       ]
     },
-    "method": "circular shift of the raw input (revised/market) or vintage block (real-time); same selection rule; R7.1",
+    "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period values inside every vintage), pipeline rebuilt per draw, same selection rule; distinct offsets; R7.1",
     "r71_pass": true,
     "edge_flag": false
   },
   "vs_buy_hold": {
-    "sharpe_diff": -0.5007,
+    "sharpe_diff": -0.2383,
     "ci_95": [
-      -0.8806,
-      -0.0969
+      -0.4802,
+      -0.0218
     ],
-    "p_diff_le_0": 0.9902,
+    "p_diff_le_0": 0.9842,
     "block_length": 21,
     "draws": 5000,
     "ann_return": {
-      "strat": 0.038547,
+      "strat": 0.093027,
       "bh": 0.151595
     },
     "ann_vol": {
-      "strat": 0.164843,
+      "strat": 0.184569,
       "bh": 0.197818
     },
     "max_dd": {
-      "strat": -0.370024,
+      "strat": -0.337173,
       "bh": -0.337173
     }
   },

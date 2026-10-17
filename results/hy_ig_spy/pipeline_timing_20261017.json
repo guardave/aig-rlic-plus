@@ -1,19 +1,19 @@
 {
   "pair_id": "hy_ig_spy",
   "date_tag": "20261017",
-  "total_seconds": 825.0,
+  "total_seconds": 1075.2,
   "stage_times": {
     "1_data_load": 0.0,
     "2_features": 0.0,
-    "4_core_models": 6.1,
+    "4_core_models": 7.6,
     "3_signals": 0.0,
     "5_exploratory": 0.4,
-    "6_tournament": 801.4,
+    "6_tournament": 1050.9,
     "8_lookahead_audit": 0.0,
-    "7_validation": 8.3,
-    "9_winner_artifacts": 8.5,
+    "7_validation": 8.8,
+    "9_winner_artifacts": 7.2,
     "10_lead_artifacts": 0.3,
     "11_metadata": 0.0
   },
-  "generated_at": "2026-10-17T13:22:58Z"
+  "generated_at": "2026-10-17T14:30:44Z"
 }

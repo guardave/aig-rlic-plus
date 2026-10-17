@@ -11,7 +11,7 @@
   ],
   "disposition": "consumed",
   "narrative_alignment_note": "Pearson r of HY-IG signals vs SPY forward returns (overlapping windows; iid p-values overstate significance).",
-  "created_at": "2026-10-17T13:23:04Z",
+  "created_at": "2026-10-17T14:30:50Z",
   "method_name": "Correlation Analysis",
   "expected_chart_type": "heatmap"
 }

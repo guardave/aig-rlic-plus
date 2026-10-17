@@ -1,18 +1,18 @@
 {
   "pair_id": "hy_ig_spy",
-  "generated_at": "2026-10-17T13:22:39.372578+00:00",
+  "generated_at": "2026-10-17T14:30:26.717902+00:00",
   "schema_version": "1.3.0",
   "target_symbol": "SPY",
   "track_policy": "single_market",
   "main_eligible": true,
   "cost_assumption_bps": 5,
-  "signal_column": "hy_ig_spread_pct",
-  "signal_code": "S1_spread_level",
-  "signal_display_name": "HY-IG Spread Level",
-  "threshold_code": "T2_rp75",
-  "threshold_value": 2.28,
+  "signal_column": "hy_ig_pctrank_1260d",
+  "signal_code": "S3b_pctrank_1260d",
+  "signal_display_name": "HY-IG Percentile Rank (1260d)",
+  "threshold_code": "T1_p85",
+  "threshold_value": 0.825397,
   "threshold_rule": "lt",
-  "threshold_note": "T2_rp75 threshold; threshold_value is the value in force at the last row",
+  "threshold_note": "T1_p85 threshold; threshold_value is the value in force at the last row",
   "strategy_family": "P1_long_cash",
   "strategy_code": "P1",
   "strategy_display_name": "Long/Cash",
@@ -21,42 +21,42 @@
   "lead_unit": "days",
   "lead_description": "21 trading day(s) signal lead + 1-day execution lag = 22 trading days effective",
   "direction": "countercyclical",
-  "oos_sharpe": 0.312307,
-  "oos_sortino": 0.22766,
-  "oos_calmar": 0.104173,
-  "oos_ann_return": 0.038547,
-  "oos_ann_vol": 0.164843,
-  "oos_max_drawdown": -0.370024,
-  "oos_win_rate": 0.398364,
-  "oos_n_trades": 56,
-  "annual_turnover": 8.242991,
+  "oos_sharpe": 0.574558,
+  "oos_sortino": 0.569807,
+  "oos_calmar": 0.275903,
+  "oos_ann_return": 0.093027,
+  "oos_ann_vol": 0.184569,
+  "oos_max_drawdown": -0.337173,
+  "oos_win_rate": 0.488902,
+  "oos_n_trades": 32,
+  "annual_turnover": 4.71028,
   "oos_n": 1712,
   "oos_period_start": "2019-10-01",
   "oos_period_end": "2026-04-22",
   "bh_sharpe": 0.81286,
   "bh_ann_return": 0.151595,
   "bh_max_drawdown": -0.337173,
-  "is_sharpe": 0.920678,
-  "is_n": 3500,
-  "is_period_start": "2006-05-02",
+  "is_sharpe": 0.888035,
+  "is_n": 3499,
+  "is_period_start": "2006-05-03",
   "is_period_end": "2019-09-30",
   "total_combos": 1542,
-  "valid_combos": 1354,
+  "valid_combos": 1327,
   "notes": "Single track: ICE BofA OAS is market data and is not revised. Winner selected on in-sample data by the lead-plateau rule (D9); OOS evaluation only.",
   "selection": {
     "objective": "max_is_sharpe_lead_plateau_w3",
     "objective_formula": "D9: min IS Sharpe over 3 adjacent grid leads (edge-clamped); best window = plateau; winner = highest raw IS Sharpe inside it. IS = deployable returns on [common_is_start, oos_start); OOS never consulted",
     "is_window": {
-      "start": "2006-05-02",
+      "start": "2006-05-03",
       "end": "2019-09-30",
-      "n": 3500,
-      "common_is_start": "2006-05-02",
+      "n": 3499,
+      "common_is_start": "2006-05-03",
       "oos_start": "2019-10-01",
       "min_is_n": 1260,
       "n_candidates": 1542,
       "n_eligible": 1542,
       "rule": "R3.3 eligibility before alignment; common_is_start = latest first-valid return among eligible candidates",
-      "bh_is_sharpe": 0.515
+      "bh_is_sharpe": 0.512213
     },
     "grid_scanned": {
       "leads": [
@@ -71,34 +71,41 @@
       "n_thresholds": 14,
       "n_strategies": 3,
       "n_combos": 1542,
-      "n_valid_combos": 1354,
-      "n_distinct_position_series": 1354,
-      "median_valid_objective": 0.5125970993383675
+      "n_valid_combos": 1327,
+      "n_distinct_position_series": 1327,
+      "median_valid_objective": 0.5192104822734873
     },
     "tie_break_step": null,
     "raw_winner_row": {
-      "signal": "S1_spread_level",
-      "threshold": "T2_rp75",
+      "signal": "S3b_pctrank_1260d",
+      "threshold": "T1_p85",
       "strategy": "P1",
       "lead_column": "lead_days",
       "lead_value": 21,
       "source_tournament_file": "tournament_results_20261017.csv",
-      "source_row_index": 45
+      "source_row_index": 497
     },
     "runner_up": {
-      "signal": "S4b_roc_63d",
-      "threshold": "T2_rp75",
+      "signal": "S3a_pctrank_504d",
+      "threshold": "T1_p75",
       "strategy": "P1",
-      "lead_value": 252,
-      "objective_value": 0.961997,
-      "oos_sharpe": 0.344228
+      "lead_value": 5,
+      "objective": "plateau_score_J",
+      "objective_value": 0.849315,
+      "window_leads": [
+        1,
+        5,
+        21
+      ],
+      "is_sharpe": 0.863984,
+      "oos_sharpe": 0.506831
     },
     "window_leads": [
-      1,
       5,
-      21
+      21,
+      63
     ],
-    "J": 0.845035,
+    "J": 0.861351,
     "raw_is_argmax": {
       "key": "S4b_roc_63d|T2_rp75|P1|countercyclical|252",
       "signal": "S4b_roc_63d",
@@ -106,48 +113,48 @@
       "strategy": "P1",
       "direction": "countercyclical",
       "lead": 252,
-      "is_sharpe": 0.961997,
+      "is_sharpe": 0.962135,
       "oos_sharpe": 0.344228,
       "note": "isolated-peak sensitivity; not the selection rule"
     },
     "rationale": "Winner selected on IS data only by the D9 lead-plateau rule; OOS reported for it only.",
     "inference": {
       "oos_sharpe_diff_vs_bh_bootstrap": {
-        "observed": -0.5007,
-        "mean": -0.4901,
+        "observed": -0.2383,
+        "mean": -0.2347,
         "ci_95": [
-          -0.8806,
-          -0.0969
+          -0.4802,
+          -0.0218
         ],
-        "p_diff_le_0": 0.9902,
+        "p_diff_le_0": 0.9842,
         "block_length": 21,
         "draws": 5000,
         "seed": 42,
         "method": "paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H)",
-        "sharpe_diff": -0.5007,
+        "sharpe_diff": -0.2383,
         "ann_return": {
-          "strat": 0.038547,
+          "strat": 0.093027,
           "bh": 0.151595
         },
         "ann_vol": {
-          "strat": 0.164843,
+          "strat": 0.184569,
           "bh": 0.197818
         },
         "max_dd": {
-          "strat": -0.370024,
+          "strat": -0.337173,
           "bh": -0.337173
         }
       },
       "hac": {
         "oos_strategy_mean": {
-          "t": 0.8714,
-          "p_value": 0.3835,
+          "t": 1.6884,
+          "p_value": 0.0913,
           "nw_lag": 7,
           "n": 1712
         },
         "oos_excess_mean": {
-          "t": -2.9618,
-          "p_value": 0.0031,
+          "t": -2.3049,
+          "p_value": 0.0212,
           "nw_lag": 7,
           "n": 1712
         }
@@ -177,8 +184,8 @@
       "lead_column": "lead_days",
       "n_candidates": 1542,
       "n_eligible": 1542,
-      "n_valid": 1354,
-      "n_distinct": 1354,
+      "n_valid": 1327,
+      "n_distinct": 1327,
       "sample": {
         "alignment": "pit_asof",
         "release_series": "rule:next_business_day",
@@ -186,40 +193,40 @@
       },
       "eligible": true,
       "winner": {
-        "key": "S1_spread_level|T2_rp75|P1|countercyclical|21",
-        "signal": "S1_spread_level",
-        "signal_column": "hy_ig_spread_pct",
-        "signal_display": "HY-IG Spread Level",
-        "threshold": "T2_rp75",
-        "threshold_value": 2.28,
+        "key": "S3b_pctrank_1260d|T1_p85|P1|countercyclical|21",
+        "signal": "S3b_pctrank_1260d",
+        "signal_column": "hy_ig_pctrank_1260d",
+        "signal_display": "Percentile Rank (1260d)",
+        "threshold": "T1_p85",
+        "threshold_value": 0.825397,
         "threshold_rule": "lt",
         "direction": "countercyclical",
         "strategy": "P1",
         "strategy_family": "P1_long_cash",
         "lead": 21,
-        "is_sharpe": 0.920678,
-        "oos_sharpe": 0.312307,
-        "oos_sortino": 0.22766,
-        "oos_calmar": 0.104173,
-        "oos_ann_return": 0.038547,
-        "oos_ann_vol": 0.164843,
-        "oos_max_drawdown": -0.370024,
-        "oos_win_rate": 0.398364,
-        "oos_n_trades": 56,
-        "annual_turnover": 8.242991,
-        "oos_exposure": 0.754089,
-        "source_row_index": 45,
-        "oos_sharpe_net_5bp": 0.287226
+        "is_sharpe": 0.888035,
+        "oos_sharpe": 0.574558,
+        "oos_sortino": 0.569807,
+        "oos_calmar": 0.275903,
+        "oos_ann_return": 0.093027,
+        "oos_ann_vol": 0.184569,
+        "oos_max_drawdown": -0.337173,
+        "oos_win_rate": 0.488902,
+        "oos_n_trades": 32,
+        "annual_turnover": 4.71028,
+        "oos_exposure": 0.919393,
+        "source_row_index": 497,
+        "oos_sharpe_net_5bp": 0.561661
       },
       "bh_is": {
-        "sharpe": 0.515,
-        "sortino": 0.52439,
-        "calmar": 0.148881,
-        "ann_return": 0.082167,
-        "ann_vol": 0.187444,
+        "sharpe": 0.512213,
+        "sortino": 0.520823,
+        "calmar": 0.147868,
+        "ann_return": 0.081608,
+        "ann_vol": 0.187461,
         "max_drawdown": -0.551894,
-        "win_rate": 0.530286,
-        "n": 3500.0
+        "win_rate": 0.530151,
+        "n": 3499.0
       },
       "bh_oos": {
         "sharpe": 0.81286,
@@ -232,31 +239,31 @@
         "n": 1712.0
       },
       "is_window": [
-        "2006-05-02",
+        "2006-05-03",
         "2019-09-30"
       ],
       "oos_window": [
         "2019-10-01",
         "2026-04-22"
       ],
-      "is_n": 3500,
+      "is_n": 3499,
       "oos_n": 1712,
       "objective": "max_is_sharpe_lead_plateau_w3",
       "plateau": {
         "leads": [
-          1,
           5,
-          21
+          21,
+          63
         ],
-        "score": 0.845035,
+        "score": 0.861351,
         "winner_lead": 21,
         "global_max_lead": 21,
         "global_max_inside_plateau": true,
         "grid_edge": false,
         "single_window_grid": false,
         "family": {
-          "signal": "S1_spread_level",
-          "threshold": "T2_rp75",
+          "signal": "S3b_pctrank_1260d",
+          "threshold": "T1_p85",
           "strategy": "P1",
           "direction": "countercyclical"
         }
@@ -268,127 +275,141 @@
         "strategy": "P1",
         "direction": "countercyclical",
         "lead": 252,
-        "is_sharpe": 0.961997,
+        "is_sharpe": 0.962135,
         "oos_sharpe": 0.344228,
         "note": "isolated-peak sensitivity; not the selection rule"
       },
       "runner_up": {
-        "signal": "S4b_roc_63d",
-        "threshold": "T2_rp75",
+        "signal": "S3a_pctrank_504d",
+        "threshold": "T1_p75",
         "strategy": "P1",
-        "lead_value": 252,
-        "objective_value": 0.961997,
-        "oos_sharpe": 0.344228
-      },
-      "spearman_is_oos": 0.2745,
-      "vs_buy_hold": {
-        "observed": -0.5007,
-        "mean": -0.4901,
-        "ci_95": [
-          -0.8806,
-          -0.0969
+        "lead_value": 5,
+        "objective": "plateau_score_J",
+        "objective_value": 0.849315,
+        "window_leads": [
+          1,
+          5,
+          21
         ],
-        "p_diff_le_0": 0.9902,
+        "is_sharpe": 0.863984,
+        "oos_sharpe": 0.506831
+      },
+      "spearman_is_oos": 0.2679,
+      "vs_buy_hold": {
+        "observed": -0.2383,
+        "mean": -0.2347,
+        "ci_95": [
+          -0.4802,
+          -0.0218
+        ],
+        "p_diff_le_0": 0.9842,
         "block_length": 21,
         "draws": 5000,
         "seed": 42,
         "method": "paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H)",
-        "sharpe_diff": -0.5007,
+        "sharpe_diff": -0.2383,
         "ann_return": {
-          "strat": 0.038547,
+          "strat": 0.093027,
           "bh": 0.151595
         },
         "ann_vol": {
-          "strat": 0.164843,
+          "strat": 0.184569,
           "bh": 0.197818
         },
         "max_dd": {
-          "strat": -0.370024,
+          "strat": -0.337173,
           "bh": -0.337173
         }
       },
       "hac": {
         "oos_strategy_mean": {
-          "t": 0.8714,
-          "p_value": 0.3835,
+          "t": 1.6884,
+          "p_value": 0.0913,
           "nw_lag": 7,
           "n": 1712
         },
         "oos_excess_mean": {
-          "t": -2.9618,
-          "p_value": 0.0031,
+          "t": -2.3049,
+          "p_value": 0.0212,
           "nw_lag": 7,
           "n": 1712
         }
       },
       "null_tournament": {
         "n_draws": 100,
-        "method": "circular shift of the raw input (revised/market) or vintage block (real-time); same selection rule; R7.1",
+        "n_unique_offsets": 100,
+        "n_admissible_offsets": 4118,
+        "span": 6863,
+        "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period values inside every vintage), pipeline rebuilt per draw, same selection rule; distinct offsets; R7.1",
         "seed_base": 20261016,
-        "is_max_percentile": 0.68,
-        "p_is": 0.32,
-        "selection_stat_percentile": 0.82,
-        "p_selection_stat": 0.18,
-        "winner_oos_percentile": 0.0,
-        "p_oos": 1.0,
+        "is_max_percentile": 0.79,
+        "p_is": 0.21,
+        "selection_stat_percentile": 0.89,
+        "p_selection_stat": 0.11,
+        "winner_oos_percentile": 0.17,
+        "p_oos": 0.83,
         "null_is_max_p5_p50_p95": [
-          0.6795,
-          0.8776,
-          1.0641
+          0.6584,
+          0.8633,
+          1.0246
         ],
-        "null_winner_oos_median": 0.7159,
-        "edge_share": 0.26,
+        "null_winner_oos_median": 0.7109,
+        "edge_share": 0.23,
         "edge_share_uniform": 0.3333,
         "edge_share_bound": 0.4748,
         "edge_flag": false,
-        "timing_sharpe_mean": -0.0157,
-        "timing_sharpe_sd": 0.3078,
+        "timing_sharpe_mean": -0.0523,
+        "timing_sharpe_sd": 0.2827,
+        "timing_sharpe_se_dependent": 0.0464,
+        "timing_sharpe_se_bandwidth": 11,
+        "timing_sharpe_effective_draws": 37.1,
+        "r71_tolerance": 0.1,
         "r71_pass": true,
         "null_scores_hist": {
           "bins": [
-            0.4803,
-            0.5047,
-            0.529,
-            0.5533,
-            0.5776,
-            0.602,
-            0.6263,
-            0.6506,
-            0.6749,
-            0.6993,
-            0.7236,
-            0.7479,
-            0.7722,
-            0.7966,
-            0.8209,
-            0.8452,
-            0.8695,
-            0.8939,
-            0.9182,
-            0.9425,
-            0.9668
+            0.4522,
+            0.4762,
+            0.5003,
+            0.5243,
+            0.5484,
+            0.5724,
+            0.5964,
+            0.6205,
+            0.6445,
+            0.6686,
+            0.6926,
+            0.7167,
+            0.7407,
+            0.7647,
+            0.7888,
+            0.8128,
+            0.8369,
+            0.8609,
+            0.885,
+            0.909,
+            0.9331
           ],
           "counts": [
+            1,
             5,
-            0,
-            8,
-            2,
-            8,
-            8,
             4,
-            2,
-            7,
-            8,
-            5,
-            8,
+            6,
             10,
-            4,
-            3,
             9,
-            0,
-            3,
+            10,
+            7,
+            2,
+            2,
+            5,
             4,
-            2
+            7,
+            6,
+            5,
+            2,
+            4,
+            3,
+            5,
+            3
           ]
         }
       }
@@ -408,20 +429,20 @@
       "text": "Market data (not revised)"
     },
     "signal_code": {
-      "value": "S1_spread_level",
-      "text": "S1_spread_level"
+      "value": "S3b_pctrank_1260d",
+      "text": "S3b_pctrank_1260d"
     },
     "signal_display": {
-      "value": "S1_spread_level",
-      "text": "HY-IG Spread Level"
+      "value": "S3b_pctrank_1260d",
+      "text": "Percentile Rank (1260d)"
     },
     "threshold_code": {
-      "value": "T2_rp75",
-      "text": "T2_rp75"
+      "value": "T1_p85",
+      "text": "T1_p85"
     },
     "threshold_value": {
-      "value": 2.28,
-      "text": "2.28"
+      "value": 0.825397,
+      "text": "0.83"
     },
     "direction": {
       "value": "countercyclical",
@@ -444,32 +465,32 @@
       "text": "21"
     },
     "is_sharpe": {
-      "value": 0.920678,
-      "text": "0.92"
+      "value": 0.888035,
+      "text": "0.89"
     },
     "oos_sharpe": {
-      "value": 0.312307,
-      "text": "0.31"
+      "value": 0.574558,
+      "text": "0.57"
     },
     "oos_ann_return": {
-      "value": 0.038547,
-      "text": "3.9%"
+      "value": 0.093027,
+      "text": "9.3%"
     },
     "oos_sharpe_net_5bp": {
-      "value": 0.287226,
-      "text": "0.29"
+      "value": 0.561661,
+      "text": "0.56"
     },
     "oos_max_drawdown": {
-      "value": -0.370024,
-      "text": "-37.0%"
+      "value": -0.337173,
+      "text": "-33.7%"
     },
     "oos_n_trades": {
-      "value": 56,
-      "text": "56"
+      "value": 32,
+      "text": "32"
     },
     "bh_is_sharpe": {
-      "value": 0.515,
-      "text": "0.52"
+      "value": 0.512213,
+      "text": "0.51"
     },
     "bh_oos_sharpe": {
       "value": 0.81286,
@@ -484,12 +505,12 @@
       "text": "-33.7%"
     },
     "sharpe_gap": {
-      "value": -0.500553,
-      "text": "-0.50"
+      "value": -0.238302,
+      "text": "-0.24"
     },
     "is_start": {
-      "value": "2006-05-02",
-      "text": "2006-05-02"
+      "value": "2006-05-03",
+      "text": "2006-05-03"
     },
     "is_end": {
       "value": "2019-09-30",
@@ -504,8 +525,8 @@
       "text": "2026-04-22"
     },
     "is_n": {
-      "value": 3500,
-      "text": "3500"
+      "value": 3499,
+      "text": "3499"
     },
     "oos_n": {
       "value": 1712,
@@ -516,12 +537,12 @@
       "text": "1542"
     },
     "n_valid": {
-      "value": 1354,
-      "text": "1354"
+      "value": 1327,
+      "text": "1327"
     },
     "n_distinct": {
-      "value": 1354,
-      "text": "1354"
+      "value": 1327,
+      "text": "1327"
     },
     "selection_objective": {
       "value": "max_is_sharpe_lead_plateau_w3",
@@ -529,59 +550,59 @@
     },
     "plateau_leads": {
       "value": [
-        1,
         5,
-        21
+        21,
+        63
       ],
-      "text": "1, 5, 21"
+      "text": "5, 21, 63"
     },
     "plateau_score": {
-      "value": 0.845035,
-      "text": "0.85"
+      "value": 0.861351,
+      "text": "0.86"
     },
     "plateau_range": {
       "value": [
-        1,
         5,
-        21
+        21,
+        63
       ],
-      "text": "L1-L21"
+      "text": "L5-L63"
     },
     "annual_turnover": {
-      "value": 8.242991,
-      "text": "8.24"
+      "value": 4.71028,
+      "text": "4.71"
     },
     "oos_exposure": {
-      "value": 0.754089,
-      "text": "75%"
+      "value": 0.919393,
+      "text": "92%"
     },
     "raw_argmax_lead": {
       "value": 252,
       "text": "252"
     },
     "raw_argmax_is_sharpe": {
-      "value": 0.961997,
+      "value": 0.962135,
       "text": "0.96"
     },
     "ci_low": {
-      "value": -0.8806,
-      "text": "-0.88"
+      "value": -0.4802,
+      "text": "-0.48"
     },
     "ci_high": {
-      "value": -0.0969,
-      "text": "-0.10"
+      "value": -0.0218,
+      "text": "-0.02"
     },
     "p_diff_le_0": {
-      "value": 0.9902,
-      "text": "0.99"
+      "value": 0.9842,
+      "text": "0.98"
     },
     "null_percentile": {
-      "value": 0.82,
-      "text": "82%"
+      "value": 0.89,
+      "text": "89%"
     },
     "null_p_is": {
-      "value": 0.32,
-      "text": "0.32"
+      "value": 0.21,
+      "text": "0.21"
     },
     "null_draws": {
       "value": 100,
@@ -616,14 +637,12 @@
       "text": "2026-10-16"
     }
   },
-  "threshold_display_name": "75th pct (rolling 504d)",
-  "threshold_window_days": 504,
-  "threshold_min_periods": 400,
-  "oos_hac_t": 0.87,
-  "oos_annual_turnover": 8.24,
-  "full_sample_n_trades": 124,
-  "full_sample_annual_turnover": 4.85,
-  "bh_is_sharpe": 0.515,
+  "threshold_display_name": "85th percentile (IS, fixed)",
+  "oos_hac_t": 1.71,
+  "oos_annual_turnover": 4.71,
+  "full_sample_n_trades": 71,
+  "full_sample_annual_turnover": 3.29,
+  "bh_is_sharpe": 0.5122,
   "max_acceptable_delay_days": 5,
   "max_delay_beating_bh_days": null,
   "breakeven_cost_bps": 50.0,

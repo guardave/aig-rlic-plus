@@ -11,7 +11,7 @@
   ],
   "disposition": "consumed",
   "narrative_alignment_note": "Concurrent SPY Sharpe/return in the causal HMM calm vs stress states (descriptive). VIZ-QR1 dual-panel.",
-  "created_at": "2026-10-17T13:22:59Z",
+  "created_at": "2026-10-17T14:30:46Z",
   "method_name": "HMM 2-State",
   "expected_chart_type": "bar"
 }

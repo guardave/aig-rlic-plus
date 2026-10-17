@@ -17,7 +17,8 @@ def _w(pair):
 
 
 def test_rolling_window_comes_from_artifacts():
-    assert rolling_pct_spec(_w("hy_ig_spy"))["window"] == 504
+    # hy_ig_spy's Phase B winner is a T1 rule; the recorded-window path is checked on a T2 record of its shape
+    assert rolling_pct_spec({"threshold_code": "T2_rp75", "threshold_window_days": 504})["window"] == 504
     assert rolling_pct_spec(_w("vix_vix3m_spy"))["window"] == 252
 
 

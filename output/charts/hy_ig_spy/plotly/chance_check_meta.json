@@ -1,10 +1,10 @@
 {
   "chart_name": "chance_check",
   "pair_id": "hy_ig_spy",
-  "generated_at": "2026-10-17T13:28:52.114699+00:00",
+  "generated_at": "2026-10-17T14:30:28.382101+00:00",
   "generated_by": "scripts/harness/charts.py",
-  "caption": "Real winner ranks at the 82nd percentile of 100 scrambled-signal contests.",
-  "narrative_alignment_note": "Real winner ranks at the 82nd percentile of 100 scrambled-signal contests.",
+  "caption": "Real winner ranks at the 89th percentile of 100 scrambled-signal contests.",
+  "narrative_alignment_note": "Real winner ranks at the 89th percentile of 100 scrambled-signal contests.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/hy_ig_spy/null_tournament_20261017.csv",

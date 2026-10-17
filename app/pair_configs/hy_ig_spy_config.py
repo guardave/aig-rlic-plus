@@ -67,7 +67,17 @@ THRESHOLD_TEXT = {
     "T5_ms_0.7": "0.7", "-": "its trailing 504-day range (sizing; no threshold)",
 }
 _THR = THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)
-_SIG = (W.signal_display if W.signal_display[:2].isupper() else W.signal_display[:1].lower() + W.signal_display[1:])
+SIGNAL_TEXT = {
+    "S1_spread_level": "HY-IG spread level", "S2a_zscore_252d": "HY-IG spread's 252-day z-score",
+    "S2b_zscore_504d": "HY-IG spread's 504-day z-score", "S3a_pctrank_504d": "HY-IG spread's 504-day percentile rank",
+    "S3b_pctrank_1260d": "HY-IG spread's 1260-day percentile rank", "S4a_roc_21d": "HY-IG spread's 21-day % change",
+    "S4b_roc_63d": "HY-IG spread's 63-day % change", "S4c_roc_126d": "HY-IG spread's 126-day % change",
+    "S5_ccc_bb_spread": "CCC-BB quality spread", "S6_hmm_stress": "causal HMM stress probability",
+    "S7_ms_stress": "causal Markov-switching stress probability", "S10_mom_21d": "HY-IG spread's 21-day change",
+    "S11_mom_63d": "HY-IG spread's 63-day change", "S12_mom_252d": "HY-IG spread's 252-day change",
+    "S13_acceleration": "HY-IG spread acceleration",
+}
+_SIG = SIGNAL_TEXT.get(W.signal_code, W.signal_display)
 _RULE = (f"each day, take the {_SIG} as it stood {W.lead_text} earlier and compare it with {_THR}; hold 100% SPY "
          "when it is below, otherwise hold cash")
 
@@ -200,7 +210,7 @@ SPY returns.
     NARRATIVE_SECTION_2 = f"""
 ### Nuance and Limits
 
-**Corrections.** This page previously reported a winner built on an HMM stress probability (S6_hmm_stress, L0) with an out-of-sample Sharpe of {_f(_AUD[('smoothed_fullsample', 0)]['oos_sharpe'])} (HAC t {_f(_AUD[('smoothed_fullsample', 0)]['hac_t'])}). That probability came from a model fitted on the full 2000-2026 sample with forward-backward smoothing, so the value on each day used later data; rebuilt causally, the same rule scores {_f(_AUD[('causal_filtered', 0)]['oos_sharpe'])} at L0 and {_f(_AUD[('causal_filtered', 1)]['oos_sharpe'])} at the L1 floor (file `hmm_lookahead_audit_{_TAG}.json`). The page then reported the rule {W.previous_rule} (out-of-sample Sharpe {W.previous_oos_sharpe}, published {W.previous_tag}), which was the single highest in-sample Sharpe in the grid, at the top edge of the lead grid; it was superseded on 2026-10-17 by the stable-lead-range selection.
+**Corrections.** This page previously reported a winner built on an HMM stress probability (S6_hmm_stress, L0) with an out-of-sample Sharpe of {_f(_AUD[('smoothed_fullsample', 0)]['oos_sharpe'])} (HAC t {_f(_AUD[('smoothed_fullsample', 0)]['hac_t'])}). That probability came from a model fitted on the full 2000-2026 sample with forward-backward smoothing, so the value on each day used later data; rebuilt causally, the same rule scores {_f(_AUD[('causal_filtered', 0)]['oos_sharpe'])} at L0 and {_f(_AUD[('causal_filtered', 1)]['oos_sharpe'])} at the L1 floor (file `hmm_lookahead_audit_{_TAG}.json`). The page then reported the since superseded rule {W.previous_rule} (out-of-sample Sharpe {W.previous_oos_sharpe}, published {W.previous_tag}), which was the single highest in-sample Sharpe in the grid, at the top edge of the lead grid; it was superseded on 2026-10-17 by the stable-lead-range selection.
 
 **Publication lag.** ICE BofA OAS values appear on FRED about one business day after their value date. Every traded rule therefore reads the spread at least one day back, then trades the next day, so the effective lag is at least two trading days.
 

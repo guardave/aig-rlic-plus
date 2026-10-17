@@ -1,10 +1,10 @@
 {
   "chart_name": "lead_plateau",
   "pair_id": "hy_ig_spy",
-  "generated_at": "2026-10-17T13:22:40.882661+00:00",
+  "generated_at": "2026-10-17T14:30:28.352463+00:00",
   "generated_by": "scripts/harness/charts.py",
-  "caption": "The winner L21 sits in a stable range L1-L21.",
-  "narrative_alignment_note": "The winner L21 sits in a stable range L1-L21.",
+  "caption": "The winner L21 sits in a stable range L5-L63.",
+  "narrative_alignment_note": "The winner L21 sits in a stable range L5-L63.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/hy_ig_spy/lead_curve_20261017.csv"
