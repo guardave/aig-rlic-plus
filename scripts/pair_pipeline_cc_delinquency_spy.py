@@ -106,7 +106,7 @@ def source_data() -> pd.DataFrame:
          "Transformation": "Quarterly level (NSA)",
          "Direction Convention": "Higher = more household credit stress (bearish equities)",
          "Effective Start": str(df["ccdelinq"].first_valid_index().date()),
-         "Known Quirks": "Bounded rate ~[1.5,7]%, mean-reverting; lagging-to-coincident credit measure; NOT seasonally adjusted (FRED DRCCLACBN) - quarterly seasonal swings of up to ~0.15 pp vs the seasonally adjusted series (DRCCLACBS)",
+         "Known Quirks": "Bounded rate ~[1.5,7]%, mean-reverting; lagging-to-coincident credit measure; NOT seasonally adjusted (FRED DRCCLACBN) - quarterly seasonal swings of up to ~0.15 pp vs the seasonally adjusted series",
          "Display Note": "Rising credit-card delinquency accompanies household stress and equity weakness.",
          "Refresh Freq.": "Quarterly", "Refresh Source": "Data Master"},
         {"Column Name": "spy", "Display Name": "SPY adjusted close",
@@ -494,7 +494,7 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
         "confidence": "low",
         "key_finding": f"IS-selected rule uses {winner['signal_code']} at L{winner['lead_value']}q with OOS Sharpe "
                        f"{winner['oos_sharpe']:.2f} versus buy-and-hold {winner['bh_sharpe']:.2f}.",
-        "caveats": ["Quarterly survey with a small OOS window — winner is search-selected, needs holdout validation.", "Delinquency is lagging; leads should be read with care.", "Few distinct stress cycles in the sample.", "Series is DRCCLACBN, NOT seasonally adjusted: its quarterly seasonal swings of up to ~0.15 pp vs the seasonally adjusted series (DRCCLACBS) can affect level-vs-rolling-percentile signals."],
+        "caveats": ["Quarterly survey with a small OOS window — winner is search-selected, needs holdout validation.", "Delinquency is lagging; leads should be read with care.", "Few distinct stress cycles in the sample.", "Series is DRCCLACBN, NOT seasonally adjusted: its quarterly seasonal swings of up to ~0.15 pp vs the seasonally adjusted series can affect level-vs-rolling-percentile signals."],
         "narrative_summary": "Credit-card delinquency is tested as a countercyclical household-credit-stress overlay for SPY — reduce exposure when delinquency is high.",
         "known_stress_episodes": [{"label": "Dot-Com recession", "start": "2001-03-01", "end": "2001-11-30", "note": "NBER recession."}, {"label": "Global Financial Crisis", "start": "2007-12-01", "end": "2009-06-30", "note": "Delinquencies spiked."}, {"label": "COVID shock", "start": "2020-02-01", "end": "2020-04-30", "note": "NBER recession."}, {"label": "2022 drawdown", "start": "2022-01-01", "end": "2022-12-31", "note": "Rate-hike bear market."}],
         "data_provenance": {"source": "Data Master.xlsx (FRB)", "series_id": "DRCCLACBN", "accessed_at": NOW_ISO}}
