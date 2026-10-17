@@ -433,6 +433,70 @@ def swapped_placeholders(cfg_path: Path) -> list[str]:
     return out
 
 
+# Numeric literals in schema-1.3 config modules (Codex B0r): a number typed in Python code can reach prose through
+# an f-string, str()/repr()/format()/%/+ or a named constant, all invisible to the authored-text scan. So a
+# numeric literal is allowed ONLY in these contexts, each of which selects or converts artifact data and cannot
+# itself be rendered:
+#   - subscript / slice positions (row, column or key selection, e.g. parents[2], iloc[0], _AUD[("x", 1)]);
+#   - a precision argument: the `nd` / `ndigits` default of a formatting helper, or argument 2 of round() /
+#     the helpers in PRECISION_HELPERS (an int <= 6);
+#   - a comparison operand from COMPARE_CONSTANTS (sign tests, conventional p-value cut-offs, a two-state
+#     probability midpoint), compared with a non-literal expression;
+#   - an arithmetic operand from UNIT_CONSTANTS (percent, periods per year, square root, +/- one period),
+#     combined with a non-literal expression (a constant-only expression such as 1 * 12 fails).
+PRECISION_HELPERS = {"round", "_pct", "_f", "_num", "_fmt"}
+COMPARE_CONSTANTS = {0, 1, 0.05, 0.01, 0.1, 0.5}
+UNIT_CONSTANTS = {1, 4, 12, 100, 252, 0.5}
+
+
+def _is_num(n) -> bool:
+    return isinstance(n, ast.Constant) and type(n.value) in (int, float)
+
+
+def numeric_literals(cfg_path: Path) -> list[str]:
+    """NUMLIT (hard, schema-1.3 pairs): numeric literals outside the enumerated contexts above."""
+    tree = ast.parse(cfg_path.read_text())
+    parent = {c: n for n in ast.walk(tree) for c in ast.iter_child_nodes(n)}
+    out = []
+
+    def in_subscript(n) -> bool:
+        while n in parent:
+            p = parent[n]
+            if isinstance(p, ast.Subscript) and n is p.slice or isinstance(p, ast.Slice):
+                return True
+            if not isinstance(p, (ast.Tuple, ast.UnaryOp)):
+                return False
+            n = p
+        return False
+
+    for n in ast.walk(tree):
+        if not _is_num(n):
+            continue
+        v, node = n.value, n
+        if isinstance(parent.get(node), ast.UnaryOp):
+            node = parent[node]
+        p = parent.get(node)
+        ok = in_subscript(n)
+        if not ok and isinstance(p, ast.arguments):
+            names = [a.arg for a in p.args[len(p.args) - len(p.defaults):]] if node in p.defaults else []
+            ok = isinstance(v, int) and v <= 6 and \
+                names[p.defaults.index(node)] in ("nd", "ndigits", "digits", "decimals")
+        if not ok and isinstance(p, ast.Call) and isinstance(v, int) and v <= 6:
+            fn = p.func.id if isinstance(p.func, ast.Name) else getattr(p.func, "attr", "")
+            ok = fn in PRECISION_HELPERS and len(p.args) >= 2 and node is p.args[1]
+        if not ok and isinstance(p, ast.Compare):
+            others = [p.left] + list(p.comparators)
+            ok = v in COMPARE_CONSTANTS and any(not isinstance(o, ast.Constant) and o is not node for o in others)
+        if not ok and isinstance(p, ast.BinOp) and not isinstance(p.op, ast.Mod):
+            other = p.right if node is p.left else p.left
+            ok = v in UNIT_CONSTANTS and not isinstance(other, ast.Constant) and \
+                not (isinstance(other, ast.UnaryOp) and isinstance(other.operand, ast.Constant))
+        if not ok:
+            out.append(f"NUMLIT (line {n.lineno}): numeric literal {v!r} in config code — "
+                       f"\"{ast.unparse(p)[:100] if p is not None else v}\"; read it from an artifact")
+    return out
+
+
 def check_pair_files(cfg: Path, ws_path: Path, hard: bool) -> list[str]:
     ws = json.loads(ws_path.read_text())
     f = fields_from_summary(ws)
@@ -444,7 +508,7 @@ def check_pair_files(cfg: Path, ws_path: Path, hard: bool) -> list[str]:
             findings += [x for x in (f"VERDICT {where}: \"{m.group(0)}\"" for pat in BANNED
                                      for m in [re.search(pat, text, re.I)] if m)]
     if hard:
-        findings += structural(cfg) + swapped_placeholders(cfg)
+        findings += structural(cfg) + swapped_placeholders(cfg) + numeric_literals(cfg)
     return findings
 
 

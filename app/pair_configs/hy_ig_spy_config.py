@@ -24,7 +24,7 @@ _TAG = _WS["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-
 _T = pd.read_csv(_RES / f"tournament_results_{_TAG}.csv")
 _T = _T[_T["signal"] != "BENCHMARK"]
 _TV = _T[_T["valid"].astype(str).str.lower() == "true"]
-_HMM = _TV[_TV["signal"] == "S6_hmm_stress"].sort_values("is_sharpe", ascending=False).head(1)
+_HMM = _TV[_TV["signal"] == "S6_hmm_stress"].sort_values("is_sharpe", ascending=False).iloc[:1]
 _AUD = {(r["probabilities"], r["lead_days"]): r for r in json.loads((_RES / f"hmm_lookahead_audit_{_TAG}.json").read_text())["rows"]}
 _LC = pd.read_csv(_RES / f"lead_correlation_{_TAG}.csv").set_index("transform")
 _WC = pd.read_csv(_RES / f"lead_winner_curve_{_TAG}.csv")
@@ -43,6 +43,7 @@ _H = _EF["history"]
 _PREV_HMM = next((p for p in _WS["selection"].get("previously_published", []) if "combo" in p), {})
 _GRID = lead_grid("hy_ig_spy")
 _MAN = json.loads((_RES / f"candidates_manifest_{_TAG}.json").read_text())
+_PPY = _MAN["ppy"]
 _GRID_SET = "{" + ", ".join(str(x) for x in _GRID) + "}"
 _N_THR = len({t for r in _MAN["rules"].values() for t in r})
 _N_STRAT = len(_MAN["strategies"])
@@ -56,7 +57,7 @@ def _pct(v, nd=1):
 
 
 def _yrs():
-    return f"{int(_TAG[:4]) - 2000}"
+    return f"{int(_TAG[:4]) - _SPY.index[0].year}"
 _HP = pd.read_parquet(_RES / f"signals_{_TAG}.parquet")["hmm_2state_prob_stress"]
 _SPY = pd.read_parquet(Path(__file__).resolve().parents[2] / "data" / "hy_ig_spy_daily_20000101_20260422.parquet")["spy_ret"]
 _HP = _HP.reindex(_SPY.index, method="ffill")
@@ -64,13 +65,13 @@ _HP = _HP.reindex(_SPY.index, method="ffill")
 
 def _regime(mask):
     r = _SPY[mask].dropna()
-    return (r.mean() * 252) / (r.std() * 252 ** 0.5), r.mean() * 252
+    return (r.mean() * _PPY) / (r.std() * _PPY ** 0.5), r.mean() * _PPY
 
 
 _CALM = _regime((_HP <= 0.5) & _HP.notna())
 _STRESS = _regime(_HP > 0.5)
 _LCW = _LC.loc[_SIGCOL] if _SIGCOL in _LC.index else None
-_LEADS = [1, 5, 21, 63, 126, 252]
+_LEADS = _GRID
 
 
 def _f(v, nd=2):
@@ -644,7 +645,7 @@ QUANTILE_BLOCK = dict(
     observation=(
         f"The lowest and highest quantile slopes are {_QRC['coef'].iloc[0]:+.4f} and {_QRC['coef'].iloc[-1]:+.4f}; the "
         f"median slope is {_QRC.loc[0.5, 'coef']:+.4f} (p = {_QRC.loc[0.5, 'p_value']:.2f}). Slopes other than the "
-        f"median have p < 0.05 at {int((_QRC.drop(index=0.5)['p_value'] < 0.05).sum())} of "
+        f"median have p < 0.05 at {int((_QRC[_QRC.index != 0.5]['p_value'] < 0.05).sum())} of "
         f"{len(_QRC) - 1} quantiles."
     ),
     interpretation=(
@@ -700,7 +701,7 @@ LEAD_TOURNAMENT_BLOCK = dict(
     method_name="Lead Tournament",
     method_theory=(
         f"The orange line takes the winning rule ({W.signal_code} / {W.threshold_code} / {W.strategy_family}) "
-        "and shows its out-of-sample Sharpe at each lead in the daily grid {1, 5, 21, 63, 126, 252} trading days. "
+        f"and shows its out-of-sample Sharpe at each lead in the daily grid {_GRID_SET} trading days. "
         "The winner was chosen on IN-SAMPLE data. The grey bars show the highest out-of-sample Sharpe that any "
         "in-sample-valid rule reached at each lead; that is an out-of-sample maximum, so it is biased upward."
     ),

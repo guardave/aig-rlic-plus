@@ -121,3 +121,47 @@ def test_component_rule_flags_new_pair_branch(tmp_path, monkeypatch):
     snippets = sorted(x["snippet"] for x in v)
     assert "pair_id == 'unrate_spy'" in snippets and "'unrate' in pair_id" in snippets
     assert all(x["line"] != 1 for x in v)
+
+
+# Codex B0r: numeric literals inside Python expressions reach prose without appearing in authored text.
+CODE_EVASIONS = {
+    "str_call": 'QA_STALE_PROSE = "The model\'s test score was " + str(0.73) + "."',
+    "fstring_format_spec": 'QA_STALE_PROSE = f"Its annual return was {0.094:.1%}."',
+    "fstring_int": 'QA_STALE_PROSE = f"The rule consults the observation from {3} calendar months back."',
+    "repr_call": 'QA_STALE_PROSE = "Sharpe " + repr(0.73)',
+    "percent_format": 'QA_STALE_PROSE = "Out-of-sample Sharpe %.2f" % 0.73',
+    "dot_format": 'QA_STALE_PROSE = "Out-of-sample Sharpe {:.2f}".format(0.73)',
+    "concatenation_of_constants": 'QA_STALE_PROSE = "Lead L" + str(1 + 2)',
+    "named_constant": '_OLD = 0.73\nQA_STALE_PROSE = f"Out-of-sample Sharpe {_OLD}"',
+    "unit_constant_only": 'QA_STALE_PROSE = f"It waits {1 * 12} months."',
+    "list_index_smuggle": 'QA_STALE_PROSE = f"Sharpe {[0.73][0]}"',
+    "format_builtin": 'QA_STALE_PROSE = "Sharpe " + format(0.73, ".2f")',
+}
+
+
+@pytest.mark.parametrize("name", sorted(CODE_EVASIONS))
+def test_codex_numeric_literal_evasion_fails_hard_mode(tmp_path, name):
+    d = tmp_path / name
+    shutil.copytree(REWRITTEN, d)
+    cfg = d / "retail_inv_sales_spy_config.py.txt"
+    cfg.write_text(cfg.read_text() + "\n" + CODE_EVASIONS[name] + "\n")
+    assert any(r.startswith("NUMLIT") for r in findings(d, hard=True)), name
+
+
+def test_numeric_literal_allowed_contexts(tmp_path):
+    d = tmp_path / "allowed"
+    shutil.copytree(REWRITTEN, d)
+    cfg = d / "retail_inv_sales_spy_config.py.txt"
+    cfg.write_text(cfg.read_text() + '''
+_ROOT = Path(__file__).resolve().parents[2]
+_LAST = sorted([W.value("lead")])[-1]
+
+
+def _pct(v, nd=1):
+    return f"{abs(v) * 100:.{nd}f}%"
+
+
+_SHARE = _pct(W.value("oos_sharpe"), 0)
+_POS = W.value("oos_sharpe") > 0
+''')
+    assert findings(d, hard=True) == []
