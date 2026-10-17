@@ -139,7 +139,7 @@ def track_record(res: TrackResult, signal_display: dict, null_summary: dict | No
         "raw_argmax": {"key": raw["key"], "signal": raw["signal"], "threshold": raw["threshold"],
                        "strategy": raw["strategy"], "direction": raw["direction"], "lead": int(raw["lead"]),
                        "is_sharpe": _r(raw["is_sharpe"]), "oos_sharpe": _r(raw["oos_sharpe"]),
-                       "note": "isolated-peak sensitivity; not the selection rule"},
+                       "note": "highest single in-sample Sharpe in the grid; reference only, not the selection rule"},
         "runner_up": _runner_up(tab, res.selection.get("runner_up")),
         "spearman_is_oos": _r(tab.loc[tab["valid"], ["is_sharpe", "oos_sharpe"]].corr("spearman").iloc[0, 1], 4)
         if tab["valid"].sum() > 2 else None,

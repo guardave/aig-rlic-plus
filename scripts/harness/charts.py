@@ -92,6 +92,8 @@ def lead_plateau(pair: str, tag: str, lead_unit: str) -> str | None:
                       xaxis=dict(title=f"Lead ({unit})", tickmode="array", tickvals=x, ticktext=[f"L{L}" for L in leads]),
                       yaxis=dict(title="Score (training-period Sharpe)"), legend=dict(orientation="h", y=-0.2))
     rng = f"L{min(band)}-L{max(band)}" if band else f"L{wl}"
+    if band and band != list(range(min(band), max(band) + 1)):
+        rng += f" (adjacent grid points {', '.join(str(x) for x in band)} {unit})"
     cap = f"The winner L{wl} sits in a stable range {rng}."
     if off:
         cap += f" The highest single point, L{gl}, was not chosen because its neighbours score lower."
@@ -112,7 +114,9 @@ def chance_check(pair: str, tag: str) -> str | None:
     pct = ts["null_tournament"]["winner_percentile"]
     fig = go.Figure(go.Histogram(x=nd["selection_stat"].dropna(), marker_color=C_NULL, nbinsx=20,
                                  name="Scrambled-signal contests"))
-    fig.add_vline(x=real, line_color=C_REV, line_width=3, annotation_text="Real winner", annotation_position="top")
+    fig.add_vline(x=real, line_color=C_REV, line_width=3,
+                  annotation_text="Real winner's plateau score (the statistic the null compares)",
+                  annotation_position="top")
     q95 = float(np.nanpercentile(nd["selection_stat"], 95))
     fig.add_vline(x=q95, line_color=C_TEXT, line_width=1, line_dash="dot", annotation_text="95th",
                   annotation_position="top right")
@@ -120,9 +124,10 @@ def chance_check(pair: str, tag: str) -> str | None:
     if pct is None:
         cap = "Chance check not yet run for this pair."
     elif pct >= 1:
-        cap = f"Real winner scores above all {k:,} scrambled-signal contests."
+        cap = f"The real winner's plateau score is above all {k:,} scrambled-signal contests."
     else:
-        cap = f"Real winner ranks at the {ordinal(round(pct * 100))} percentile of {k:,} scrambled-signal contests."
+        cap = (f"The real winner's plateau score ranks at the {ordinal(round(pct * 100))} percentile of {k:,} "
+               "scrambled-signal contests.")
     fig.update_layout(template="plotly_white", height=380, title="Chance check: real winner vs scrambled signals",
                       xaxis_title="Best score in a contest (training-period Sharpe, stable lead range)",
                       yaxis_title="Number of contests", showlegend=False)

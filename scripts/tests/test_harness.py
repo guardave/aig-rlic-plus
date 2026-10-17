@@ -257,6 +257,20 @@ def test_run_null_reproducible():
     assert summ["n_draws"] == 4 and 0 <= summ["edge_share_bound"] <= 1.5
 
 
+def test_run_null_permuted_returns_diagnostic():
+    spec = make_spec(leads=[1, 2, 3])
+    lv, ret = toy_data(5)
+    s, e = null.data_span(lv)
+    make = lambda k: legacy_inputs(spec, null.roll_span(lv, k, s, e), ret)  # noqa: E731
+    a = null.run_null(spec, make, e - s, K=4)
+    b = null.run_null(spec, make, e - s, K=4, shuffle_returns_seed=7)
+    pd.testing.assert_frame_equal(b, null.run_null(spec, make, e - s, K=4, shuffle_returns_seed=7))
+    assert list(a["offset"]) == list(b["offset"])                    # same shifts, only the returns permuted
+    assert "timing_sharpe_all_valid" in a and not a["timing_sharpe"].equals(b["timing_sharpe"])
+    summ = null.summarize(a, {"is_max": 0.5, "selection_stat": 0.4, "winner_oos": 0.3}, 3)
+    assert "timing_sharpe_mean_all_valid_candidates" in summ
+
+
 def test_bootstrap_deterministic_shape_and_nw_lag():
     rng = np.random.default_rng(1)
     s, b = rng.normal(0.01, 0.04, 120), rng.normal(0.008, 0.045, 120)

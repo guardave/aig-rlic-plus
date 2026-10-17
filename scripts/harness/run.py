@@ -114,6 +114,30 @@ def null_maker(mod, which: str, ti):
     return (lambda k: revised_inputs(spec, NL.roll_span(lv, k, s, e), ti.index, ti.ret, name=ti.name)), e - s
 
 
+def r71_diagnosis(spec, make, n_span: int, summ: dict, log=print, K: int = 30) -> dict:
+    """When the R7.1 check fails, separate a lookahead from a selection effect: (a) the timing Sharpe averaged
+    over ALL valid candidates of each draw (no selection) and (b) the selected winner's timing Sharpe when the
+    target returns are also randomly permuted (no return path). A lookahead would survive both; a selection
+    effect on the real return path shows up only in the selected winner with the real returns."""
+    log(f"  R7.1 diagnosis: {K} draws with permuted returns")
+    sh = NL.run_null(spec, make, n_span, K, shuffle_returns_seed=NL.SEED_BASE)
+    st = sh["timing_sharpe"].dropna()
+    se, _ = NL.dependent_se(st.to_numpy(), sh.loc[st.index, "offset"].to_numpy(), spec.ppy)
+    a, b = summ["timing_sharpe_mean_all_valid_candidates"], round(float(st.mean()), 4)
+    return {"timing_mean_selected_winner": summ["timing_sharpe_mean"], "timing_mean_all_valid_candidates": a,
+            "timing_mean_selected_winner_returns_permuted": b, "returns_permuted_se": round(se, 4),
+            "returns_permuted_draws": int(len(st)),
+            "selection_effect": bool(abs(a) <= 0.05 and abs(b) <= max(0.10, 2 * se)),
+            "reading": (f"Selected winners average a timing Sharpe of {summ['timing_sharpe_mean']} in the null; all valid "
+                        f"candidates average {a}; with the returns permuted the selected winners average {b} "
+                        f"(SE {se:.3f}). "
+                        + ("The bias appears only after in-sample selection on the real return path (a selection "
+                           "effect), not in unselected candidates or without the return path."
+                           if abs(a) <= 0.05 and abs(b) <= max(0.10, 2 * se) else
+                           "The pattern is not explained by selection alone; investigate before relying on the null.")
+                        + " The leak tests are reported separately.")}
+
+
 def leak_makers(mod, ti):
     spec = mod.SPEC
     if ti.name == "real_time":
@@ -169,6 +193,8 @@ def run_pair(pair_id: str, tag: str, K: int = 100, write: bool = True, leak: boo
             actual = {"is_max": float(valid["is_sharpe"].max()), "selection_stat": res.selection["score"],
                       "winner_oos": float(res.table.loc[res.selection["winner"], "oos_sharpe"])}
             summ = NL.summarize(nd, actual, len(spec.leads), spec.ppy)
+            if not summ["r71_pass"]:
+                summ["r71_diagnosis"] = r71_diagnosis(spec, make, n_span, summ, log)
         else:
             nulls[role] = None
         records[role] = A.track_record(res, mod.SIGNAL_DISPLAY, summ)
@@ -375,8 +401,13 @@ def track_summary(mod, out: dict, ws: dict) -> dict:
               "p_selection_stat": n["p_selection_stat"], "is_max_percentile": n["is_max_percentile"],
               "winner_oos_percentile": n["winner_oos_percentile"], "null_scores_hist": n["null_scores_hist"],
               "method": n["method"], "r71_pass": n["r71_pass"], "edge_flag": n["edge_flag"]}
+        if n.get("r71_diagnosis"):
+            nt["r71_diagnosis"] = n["r71_diagnosis"]
         if comp and comp.get("null_tournament"):
             nt["revised_winner_percentile"] = comp["null_tournament"]["selection_stat_percentile"]
+            nt["revised_r71_pass"] = comp["null_tournament"]["r71_pass"]
+            if comp["null_tournament"].get("r71_diagnosis"):
+                nt["revised_r71_diagnosis"] = comp["null_tournament"]["r71_diagnosis"]
     vb = None
     if main.get("vs_buy_hold"):
         v = main["vs_buy_hold"]

@@ -106,6 +106,16 @@ def build(rec: dict, prefix: str = "") -> dict:
         "oos_exposure": field(w["oos_exposure"], _pct(w["oos_exposure"], 0)),
         "raw_argmax_lead": field(rec["raw_argmax"]["lead"], str(rec["raw_argmax"]["lead"])),
         "raw_argmax_is_sharpe": field(rec["raw_argmax"]["is_sharpe"], _num(rec["raw_argmax"]["is_sharpe"])),
+        "raw_argmax_rule": field(rec["raw_argmax"]["key"], " / ".join(
+            str(rec["raw_argmax"][k]) for k in ("signal", "threshold", "strategy"))),
+        "raw_argmax_position": field(
+            rec["raw_argmax"]["lead"] in rec["plateau"]["leads"],
+            "inside the stable lead range" if rec["raw_argmax"]["lead"] in rec["plateau"]["leads"]
+            else "outside the stable lead range"),
+        "raw_argmax_is_winner": field(
+            rec["raw_argmax"]["key"] == w.get("key"),
+            "the same rule as the winner" if rec["raw_argmax"]["key"] == w.get("key")
+            else "a different rule from the winner"),
     }
     vb = rec.get("vs_buy_hold")
     if vb:

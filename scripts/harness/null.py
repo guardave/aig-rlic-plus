@@ -85,6 +85,21 @@ def _timing_sharpe(res: TrackResult, j: int, ppy: int) -> float:
     return float(t.mean() / t.std(ddof=1) * np.sqrt(ppy)) if t.std(ddof=1) > 0 else 0.0
 
 
+def _timing_sharpe_all(res: TrackResult, cols: np.ndarray, ppy: int) -> np.ndarray:
+    """Timing Sharpe (as _timing_sharpe) of many candidate columns at once."""
+    S = np.nan_to_num(res.returns[:, cols], nan=0.0)[res.oos_mask]
+    r = np.nan_to_num(res.ret, nan=0.0)[res.oos_mask]
+    P = res.positions[:, cols]
+    k = res.spec.position_shift
+    if k:
+        P = np.vstack([np.full((k, P.shape[1]), np.nan), P[:-k]])
+    e = np.nanmean(np.where(np.isnan(P), 0.0, P)[res.oos_mask], axis=0)
+    T = S - e[None, :] * r[:, None]
+    sd = T.std(axis=0, ddof=1)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        return np.where(sd > 0, T.mean(axis=0) / sd * np.sqrt(ppy), 0.0)
+
+
 def draw_record(res: TrackResult) -> dict:
     """Statistics recorded per draw (R7.1) for the selection actually used."""
     tab = res.table
@@ -98,17 +113,25 @@ def draw_record(res: TrackResult) -> dict:
     return {"is_max": float(valid["is_sharpe"].max()), "selection_stat": float(res.selection.get("score",
             tab.loc[w, "is_sharpe"])), "winner_is": float(tab.loc[w, "is_sharpe"]),
             "winner_oos": float(tab.loc[w, "oos_sharpe"]), "timing_sharpe": _timing_sharpe(res, int(w), res.spec.ppy),
+            "timing_sharpe_all_valid": float(np.mean(_timing_sharpe_all(res, valid.index.to_numpy(), res.spec.ppy))),
             "lead": lead, "lead_pos": leads.index(lead), "grid_edge": lead in (leads[0], leads[-1]),
             "winner_key": tab.loc[w, "key"]}
 
 
 def run_null(spec: PairSpec, make_inputs: Callable[[int], TrackInputs], n_span: int, K: int = 100,
-             legacy: bool = False) -> pd.DataFrame:
-    """K draws; make_inputs(k) returns the shifted track inputs for offset k."""
+             legacy: bool = False, shuffle_returns_seed: int | None = None) -> pd.DataFrame:
+    """K draws; make_inputs(k) returns the shifted track inputs for offset k. shuffle_returns_seed (diagnostic
+    only): the target returns are also randomly permuted, which removes their time path."""
     rows = []
     offs = offsets(n_span, spec.ppy, K)
     for d, k in enumerate(offs):
-        res = run_tournament(spec, make_inputs(k), legacy=legacy, full_table=False)
+        ti = make_inputs(k)
+        if shuffle_returns_seed is not None:
+            r = ti.ret.copy()
+            ok = ~np.isnan(r)
+            r[ok] = np.random.default_rng(shuffle_returns_seed + d).permutation(r[ok])
+            ti = TrackInputs(ti.name, ti.index, r, ti.lagged, ti.meta)
+        res = run_tournament(spec, ti, legacy=legacy, full_table=False)
         rows.append({"draw": d, "seed": SEED_BASE, "offset": k, **draw_record(res)})
     out = pd.DataFrame(rows)
     out.attrs.update(n_admissible=int(len(admissible(n_span, spec.ppy))), span=int(n_span))
@@ -173,6 +196,8 @@ def summarize(null: pd.DataFrame, actual: dict, grid_len: int, ppy: int = 12) ->
         "timing_sharpe_se_dependent": round(se, 4) if len(st) > 2 else None, "timing_sharpe_se_bandwidth": bw,
         "timing_sharpe_effective_draws": round(float(sd ** 2 / se ** 2), 1) if len(st) > 2 and se > 0 else None,
         "r71_tolerance": round(float(pass_tol), 4) if len(st) > 2 else None,
+        "timing_sharpe_mean_all_valid_candidates": round(float(null["timing_sharpe_all_valid"].mean()), 4)
+        if "timing_sharpe_all_valid" in null else None,
         "r71_pass": bool(len(st) > 2 and abs(st.mean()) <= pass_tol),
         "null_scores_hist": {"bins": [round(float(b), 4) for b in hist_bins], "counts": [int(c) for c in hist_counts]},
     }
