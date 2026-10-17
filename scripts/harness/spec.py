@@ -48,6 +48,11 @@ class Legacy:
     ann_return: str = "geometric"     # geometric (CAGR) | arithmetic (mean * ppy)
     round_table: int | None = None    # decimals the legacy table was rounded to BEFORE selection
     is_quantile: str = "full"         # how the legacy pipeline fitted ISQuantile thresholds (full | expanding)
+    selection: str = "is_argmax"      # how the PUBLISHED row was picked: is_argmax (raw IS Sharpe argmax) |
+    #                                   max_oos_valid (highest OOS Sharpe among the legacy-valid rows: OOS > 0 and
+    #                                   full-history turnover < 24, the legacy `valid` flag; OOS-selected)
+    is_window: str = "common"         # common: IS on the common IS start | own_dropna: each candidate's own
+    #                                   pre-OOS rows, NaN returns dropped (legacy is_sharpe / is_n)
 
 
 @dataclass

@@ -100,6 +100,8 @@ def run_tournament(spec: PairSpec, ti: TrackInputs, legacy: bool = False, full_t
     cs_row, eligible = common_is_start(first, own_is_n, spec.min_is_n, elig_mode)
     rows = np.arange(n)
     is_mask = (rows >= cs_row) & pre_oos if cs_row >= 0 else np.zeros(n, bool)
+    if legacy and L.is_window == "own_dropna":      # legacy: every candidate on its own pre-OOS rows (dropna)
+        is_mask = pre_oos.copy()
     is_sc = L.is_scoring if legacy else "deployable"
     oos_sc = L.oos_scoring if legacy else "deployable"
     ann = L.ann_return if legacy else "geometric"

@@ -97,19 +97,43 @@ def replay_legacy(mod, tol: float = 1e-6) -> dict:
             rep["columns"][col] = {"max_abs_diff": mx, "pass": bool(mx <= prec.get(col, tol))}
     if same_keys:
         rep["valid_flags_equal"] = bool((tab["valid"].to_numpy() == pub["valid"].to_numpy()).all())
-        rep["common_is_start_equal"] = bool((tab["common_is_start"].to_numpy() == pub["common_is_start"].to_numpy()).all())
-    w = res.selection["winner"]
-    sel = pd.read_csv(rdir / f"legacy_oos_selection_{tag}.csv")       # immutable record of the published pick
-    p = sel[sel["role"] == "primary_is_selected_common_start"].iloc[0]
+        if "common_is_start" in pub:                                   # older tables do not record it
+            rep["common_is_start_equal"] = bool((tab["common_is_start"].to_numpy() == pub["common_is_start"].to_numpy()).all())
+    method = spec.legacy.selection
+    if method == "max_oos_valid":
+        if not same_keys:
+            raise ValueError("max_oos_valid replay needs the harness rows in the published order")
+        # the published row was picked on OUT-OF-SAMPLE Sharpe among the legacy-valid rows (legacy `valid`:
+        # OOS > 0, full-history turnover < 24); taken from the immutable published table, first in order on ties
+        cand = pub[pub["valid"].astype(str).str.lower().isin(["true", "1"])]
+        if "annual_turnover" in cand:
+            cand = cand[cand["annual_turnover"].astype(float) < 24]
+        cand = cand[cand["oos_sharpe"].astype(float) > 0]
+        w = int(cand["oos_sharpe"].astype(float).idxmax())
+        label = "published (OOS-selected, legacy method: highest out-of-sample Sharpe among valid rules)"
+    elif method == "is_argmax":
+        w = res.selection["winner"]
+        label = "raw in-sample Sharpe argmax, revised values, fixed lag"
+    else:
+        raise ValueError(f"unknown Legacy.selection {method!r}")
+    rep["selection_method"] = method
+    sel_f = rdir / f"legacy_oos_selection_{tag}.csv"                 # immutable record of the published pick
+    if sel_f.exists():
+        sel = pd.read_csv(sel_f)
+        role = "primary_is_selected_common_start" if method == "is_argmax" else "published_oos_selected"
+        p = (sel[sel["role"] == role] if "role" in sel and (sel["role"] == role).any() else sel).iloc[0]
+    else:
+        p = pub.loc[w]
     wrow = tab.loc[w]
-    rep["winner"] = {"harness": wrow["key"], "published": f"{p['signal']}|{p['threshold']}|{p['direction']}|{int(p[spec.lead_col])}",
+    pdir = p["direction"] if "direction" in p else wrow["direction"]    # single-orientation tables omit it
+    rep["winner"] = {"harness": wrow["key"], "published": f"{p['signal']}|{p['threshold']}|{pdir}|{int(p[spec.lead_col])}",
                      "match": bool(wrow["signal"] == p["signal"] and wrow["threshold"] == p["threshold"]
-                                   and wrow["direction"] == p["direction"] and int(wrow["lead"]) == int(p[spec.lead_col])
+                                   and wrow["direction"] == pdir and int(wrow["lead"]) == int(p[spec.lead_col])
                                    and ("strategy" not in p or wrow["strategy"] == p["strategy"]))}
     rep["published"] = {"key": wrow["key"], "signal": str(wrow["signal"]), "threshold": str(wrow["threshold"]),
                         "strategy": str(wrow["strategy"]), "direction": str(wrow["direction"]), "lead": int(wrow["lead"]),
                         "is_sharpe": float(wrow["is_sharpe"]), "oos_sharpe": float(wrow["oos_sharpe"]),
-                        "tag": tag, "selection": "raw in-sample Sharpe argmax, revised values, fixed lag"}
+                        "tag": tag, "selection": label}
     sr = pd.read_csv(rdir / f"strategy_returns_{tag}.csv")
     d = np.abs(res.deployable_returns(w) - sr["strategy_return"].to_numpy(float))
     rep["strategy_return"] = {"rows": int(len(sr)), "max_abs_diff": float(d.max()), "pass": bool(d.max() <= tol)}
