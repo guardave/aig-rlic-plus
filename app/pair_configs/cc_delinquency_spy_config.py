@@ -14,42 +14,43 @@ from pathlib import Path
 import pandas as pd
 
 from components.page_templates import MethodologyConfig
+from components import provenance as P
 from components.winner_fields import lead_grid, load
 
 W = load("cc_delinquency_spy")
 _RES = Path(__file__).resolve().parents[2] / "results" / "cc_delinquency_spy"
-_WS = json.loads((_RES / "winner_summary.json").read_text())
+_WS = P.json_file(_RES / "winner_summary.json")
 _TAG = _WS["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
 _CORE = _RES / f"core_models_{_TAG}"
-_Q = pd.read_csv(_RES / "regime_quartile_returns.csv").set_index("quartile")["sharpe"].to_dict()
-_G = pd.read_csv(_RES / "granger_by_lag.csv")
+_Q = P.col_dict(P.csv_file(_RES / "regime_quartile_returns.csv"), "quartile", "sharpe")
+_G = P.csv_file(_RES / "granger_by_lag.csv")
 _G_P = " / ".join(f"{p:.2f}" for p in _G["p_value"])
-_G_MIN = float(_G["p_value"].min())
-_C = pd.read_csv(_CORE / "correlations.csv")
-_C_MAX = float(_C["value"].abs().max())
-_C_MINP = float(_C["p_value"].min())
-_CCF = pd.read_csv(_CORE / "ccf_prewhitened.csv")
-_CCF_SIG = _CCF[_CCF["significant"]]
-_CCF_TXT = (", ".join(str(int(x)) for x in _CCF_SIG["lag"]) if len(_CCF_SIG) else "none")
-_LP = pd.read_csv(_CORE / "local_projections.csv")
-_QT = json.loads((_CORE / "quantile_equality_test.json").read_text())
-_SB = json.loads((_RES / "structural_break_cc_delinquency_spy.json").read_text())["max_abs_z"]
-_ST = pd.read_csv(_RES / f"stationarity_tests_{_TAG}.csv").set_index(["variable", "test"])["p_value"]
-_MAN = json.loads((_RES / f"candidates_manifest_{_TAG}.json").read_text())
+_G_MIN = P.colmin(_G, "p_value")
+_C = P.csv_file(_CORE / "correlations.csv")
+_C_MAX = P.colmaxabs(_C, "value")
+_C_MINP = P.colmin(_C, "p_value")
+_CCF = P.csv_file(_CORE / "ccf_prewhitened.csv")
+_CCF_SIG = _CCF[_CCF["significant"].astype(bool)]
+_CCF_TXT = (", ".join(str(x) for x in _CCF_SIG["lag"]) if len(_CCF_SIG) else "none")
+_LP = P.csv_file(_CORE / "local_projections.csv")
+_QT = P.json_file(_CORE / "quantile_equality_test.json")
+_SB = P.json_file(_RES / "structural_break_cc_delinquency_spy.json")["max_abs_z"]
+_ST = P.csv_file(_RES / f"stationarity_tests_{_TAG}.csv").set_index(["variable", "test"])["p_value"]
+_MAN = P.json_file(_RES / f"candidates_manifest_{_TAG}.json")
 _GRID = lead_grid("cc_delinquency_spy")
 _GRID_RANGE = f"L{_GRID[0]}-L{_GRID[-1]}"
-_VIN0 = _WS["tracks"]["main"]["sample"]["first_vintage"][:4]  # first archived real-time vintage (year)
+_VIN0 = P.year(_WS["tracks"]["main"]["sample"]["first_vintage"])  # first archived real-time vintage (year)
 _HZ = list(_LP["horizon"])
 _HZ_TXT = ", ".join(str(h) for h in _HZ[:-1]) + f" and {_HZ[-1]}"
 
-SIGNAL_TEXT = {
+SIGNAL_TEXT = P.definitions({
     "level": "delinquency rate", "diff_1q": "quarter-on-quarter change in the delinquency rate",
     "chg_4q": "4-quarter change in the delinquency rate", "zscore_20q": "delinquency rate versus its 5-year history (z-score)",
-}
-THRESHOLD_TEXT = {
+})
+THRESHOLD_TEXT = P.definitions({
     "T0_zero": "zero", "T_z_0": "zero", "T_z_1.0": "a z-score of 1.0",
     "T_roll_p50": "its rolling 20-quarter median", "T_roll_p75": "its rolling 20-quarter 75th percentile",
-}
+})
 SIDE = {"countercyclical": "at or below", "procyclical": "at or above"}
 LEAN = {"countercyclical": "countercyclical (the credit-stress prior: hold equities when delinquency is low or falling)",
         "procyclical": "procyclical (hold equities when delinquency is high or rising, against the credit-stress prior)"}
@@ -323,7 +324,7 @@ LOCAL_PROJECTIONS_BLOCK = dict(
         f"What this shows: coefficients {', '.join(f'{c:.3f}' for c in _LP['coef'])} with p-values "
         f"{', '.join(f'{p:.2f}' for p in _LP['p_value'])} at horizons of {_HZ_TXT} quarters."
     ),
-    observation=f"The largest R-squared across horizons is {_LP['r_squared'].max():.3f}.",
+    observation=f"The largest R-squared across horizons is {P.colmax(_LP, 'r_squared'):.3f}.",
     interpretation="The raw macro relationship carries no measurable forward response.",
     key_message="SPY shows no robust dynamic response to credit-card delinquency changes.",
 )
@@ -394,7 +395,7 @@ EVIDENCE_METHOD_BLOCKS = {
         "The statistical tests above ask whether the indicator forecasts. The tournament asks a pragmatic "
         "question: across the declared QUARTERLY trading rules built from this series, which one did best on the "
         f"training period? We tested {W.n_candidates} combinations ({W.n_valid} valid as known at the time): "
-        f"{len(_MAN['signals'])} signal transforms x threshold schemes x long/cash x both orientations x quarterly "
+        f"{P.length(_MAN['signals'])} signal transforms x threshold schemes x long/cash x both orientations x quarterly "
         f"leads {_GRID_RANGE}. The winner is "
         f"`{W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}`, chosen on the training period by "
         f"{W.selection_objective}."
@@ -565,7 +566,7 @@ STRATEGY_CONFIG = StrategyConfig()
 # =========================================================================
 # METHODOLOGY PAGE
 # =========================================================================
-_DATA_SOURCES_MD = """
+_DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
 | Indicator (as known at the time) | ALFRED (FRB vintages, pinned: data/release_calendar/vintages/DRCCLACBN.csv.gz) | `DRCCLACBN`, every published vintage (archive from 2011-05) | Quarterly |
@@ -574,7 +575,7 @@ _DATA_SOURCES_MD = """
 | Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted quarter-end close | Quarterly |
 
 QUARTERLY credit pair. The delinquency series is native quarterly, not seasonally adjusted (NSA), revised and lagging. No seasonal adjustment is applied in this pipeline.
-"""
+""")
 
 _INDICATOR_CONSTRUCTION_MD = (
     "The raw indicator is the credit-card delinquency rate (% of balances 30+ days past due). The pipeline builds "
@@ -584,7 +585,7 @@ _INDICATOR_CONSTRUCTION_MD = (
     f"runs {_GRID_RANGE} QUARTERS (strict publication floor); the winner uses `{W.signal_code}` at L{W.lead}."
 )
 
-_METHODS_TABLE_MD = """
+_METHODS_TABLE_MD = P.definition_text("""
 | Method | Question It Answers | Why We Chose It |
 |---|---|---|
 | Correlation battery (Pearson) | Any raw association at any quarterly horizon? | Cheap triage before formal tests |
@@ -597,10 +598,10 @@ _METHODS_TABLE_MD = """
 | Lead-plateau selection (D9) | Is the chosen lead part of a stable range? | Guards against a lucky single lead |
 | Chance check (null tournament) | How does the winner compare with contests on scrambled signals? | Measures what selection alone can produce |
 | Paired block bootstrap | How uncertain is the Sharpe difference versus buy-and-hold? | Interval for the headline comparison |
-"""
+""")
 
 _TOURNAMENT_DESIGN_MD = f"""
-Grid: {len(_MAN['signals'])} signal transforms x threshold schemes x long/cash x both orientations x QUARTERLY leads {_GRID_RANGE} ({W.n_candidates} combinations). Each data track selects its own winner on its training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it.
+Grid: {P.length(_MAN['signals'])} signal transforms x threshold schemes x long/cash x both orientations x QUARTERLY leads {_GRID_RANGE} ({W.n_candidates} combinations). Each data track selects its own winner on its training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it.
 
 - As known at the time (headline): `{W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe} ({W.is_start} to {W.is_end}), test-period Sharpe {W.oos_sharpe}; {W.n_valid} valid combinations, {W.n_distinct} distinct position series.
 - As revised today (hindsight): `{W.comparison_signal_code} / {W.comparison_threshold_code} / L{W.comparison_lead}`, training Sharpe {W.comparison_is_sharpe} ({W.comparison_is_start} to {W.comparison_is_end}), test-period Sharpe {W.comparison_oos_sharpe}.

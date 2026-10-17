@@ -13,20 +13,21 @@ from pathlib import Path
 
 import pandas as pd
 
+from components import provenance as P
 from components.page_templates import MethodologyConfig
 from components.winner_fields import lead_grid, load
 
 W = load("unrate_spy")
 _RES = Path(__file__).resolve().parents[2] / "results" / "unrate_spy"
-_WS = json.loads((_RES / "winner_summary.json").read_text())
+_WS = P.json_file(_RES / "winner_summary.json")
 _TAG = _WS["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
-_Q = pd.read_csv(_RES / "regime_quartile_returns.csv").set_index("quartile")["sharpe"].to_dict()
-_QR = pd.read_csv(_RES / f"core_models_{_TAG}" / "quantile_regression.csv").set_index("quantile")["coef"].to_dict()
-_QT = json.loads((_RES / f"core_models_{_TAG}" / "quantile_equality_test.json").read_text())
-_G_MIN_P = float(pd.read_csv(_RES / "granger_by_lag.csv")["p_value"].min())
-_TS = json.loads((_RES / "track_summary.json").read_text())
+_Q = P.col_dict(P.csv_file(_RES / "regime_quartile_returns.csv"), "quartile", "sharpe")
+_QR = P.col_dict(P.csv_file(_RES / f"core_models_{_TAG}" / "quantile_regression.csv"), "quantile", "coef")
+_QT = P.json_file(_RES / f"core_models_{_TAG}" / "quantile_equality_test.json")
+_G_MIN_P = P.colmin(P.csv_file(_RES / "granger_by_lag.csv"), "p_value")
+_TS = P.json_file(_RES / "track_summary.json")
 _NT = _TS.get("null_tournament") or {}
-_MAN = json.loads((_RES / f"candidates_manifest_{_TAG}.json").read_text())
+_MAN = P.json_file(_RES / f"candidates_manifest_{_TAG}.json")
 _GRID = lead_grid("unrate_spy")
 _GRID_RANGE = f"L{_GRID[0]}-L{_GRID[-1]}"
 
@@ -47,11 +48,11 @@ def _r71_caveat() -> str:
 
 _R71_CAVEAT = _r71_caveat()
 
-THRESHOLD_TEXT = {
+THRESHOLD_TEXT = P.definitions({
     "T_roll_p75": "its rolling 60-month 75th percentile", "T_roll_p90": "its rolling 60-month 90th percentile",
     "T_roll_p25": "its rolling 60-month 25th percentile", "T0_zero": "zero", "T_z_1.0": "a z-score of 1.0",
     "T_sahm_0.5": "the Sahm-rule level of 0.5",
-}
+})
 SIDE = {"countercyclical": "at or below", "procyclical": "at or above"}
 
 
@@ -403,7 +404,7 @@ EVIDENCE_METHOD_BLOCKS = {
     "level2_labels": ["Local Projections", "Quantile Regression"],
     "tournament_intro": (
         f"The tournament tested {W.n_candidates} strategy combinations ({W.n_valid} valid on the training period) "
-        f"across {len(_MAN['signals'])} UNRATE transforms, fixed and rolling thresholds, both orientations and the lead grid "
+        f"across {P.length(_MAN['signals'])} UNRATE transforms, fixed and rolling thresholds, both orientations and the lead grid "
         f"{_GRID_RANGE} months, on data as known at the time. The selected winner is `{W.signal_code} / {W.threshold_code} / "
         f"{W.strategy_family} / L{W.lead}`, chosen on the training period by {W.selection_objective}."
     ),
@@ -557,14 +558,14 @@ This describes the backtested rule so it can be audited; it is not a trading rec
 STRATEGY_CONFIG = StrategyConfig()
 
 
-_DATA_SOURCES_MD = """
+_DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
 | Indicator (as known at the time) | ALFRED (FRED vintages, pinned in data/release_calendar/vintages/UNRATE.csv.gz) | `UNRATE`, civilian unemployment rate, every published vintage | Monthly |
 | Indicator (as revised today) | FRED (latest vintage of the same file) | `UNRATE` | Monthly |
 | Release dates | data/release_calendar/release_calendar.csv | first publication date per month | Monthly |
 | Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted month-end close | Monthly |
-"""
+""")
 
 _INDICATOR_CONSTRUCTION_MD = (
     "The raw indicator is the U.S. civilian unemployment rate, in percent. "
@@ -576,7 +577,7 @@ _INDICATOR_CONSTRUCTION_MD = (
     f"{THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)} as threshold."
 )
 
-_METHODS_TABLE_MD = """
+_METHODS_TABLE_MD = P.definition_text("""
 | Method | Question It Answers | Why We Chose It |
 |---|---|---|
 | Correlation analysis | Does UNRATE move linearly with future SPY returns? | Simple baseline before richer tests |
@@ -589,7 +590,7 @@ _METHODS_TABLE_MD = """
 | Lead-plateau selection (D9) | Is the chosen lead part of a stable range rather than an isolated peak? | Guards against picking a lucky single lead |
 | Chance check (null tournament) | How does the winner compare with contests run on scrambled signals? | Measures how much selection alone can produce |
 | Paired block bootstrap | How uncertain is the Sharpe difference versus buy-and-hold? | Interval for the headline comparison |
-"""
+""")
 
 _TOURNAMENT_DESIGN_MD = f"""
 Grid: UNRATE transforms x fixed and rolling thresholds x long/cash strategy x procyclical/countercyclical orientations x leads {_GRID_RANGE} months ({W.n_candidates} combinations, {W.n_distinct} distinct position series). Each data track selects its own winner on the training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it.

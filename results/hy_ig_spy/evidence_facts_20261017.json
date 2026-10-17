@@ -171,6 +171,19 @@
       "Q2": 0.13236,
       "Q3": 0.11274,
       "Q4": 0.040692
+    },
+    "oos_months": 79,
+    "n_threshold_labels": 13,
+    "quantile_tails": {
+      "n": 6,
+      "n_sig_05": 6
+    },
+    "walk_forward_rank1": {
+      "n_years": 22,
+      "first_year": 2005,
+      "last_year": 2026,
+      "n_positive": 16,
+      "n_above_bh": 1
     }
   }
 }

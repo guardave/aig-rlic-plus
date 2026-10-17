@@ -14,42 +14,43 @@ from pathlib import Path
 
 import pandas as pd
 
+from components import provenance as P
 from components.page_templates import MethodologyConfig
-from components.winner_fields import lead_grid, load
+from components.winner_fields import load
 
 W = load("hy_ig_spy")
 _RES = Path(__file__).resolve().parents[2] / "results" / "hy_ig_spy"
-_WS = json.loads((_RES / "winner_summary.json").read_text())
+_WS = P.json_file(_RES / "winner_summary.json")
 _TAG = _WS["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
-_AUD = {(r["probabilities"], r["lead_days"]): r for r in json.loads((_RES / f"hmm_lookahead_audit_{_TAG}.json").read_text())["rows"]}
-_LC = pd.read_csv(_RES / f"lead_correlation_{_TAG}.csv").set_index("transform")
-_WC = pd.read_csv(_RES / f"lead_winner_curve_{_TAG}.csv")
-_SUB = pd.read_csv(_RES / "subperiod_sharpe.csv").set_index("period_name")
-_COST = pd.read_csv(_RES / f"tournament_validation_{_TAG}" / "transaction_costs.csv")
+_AUD = {(r["probabilities"], r["lead_days"]): r for r in P.json_file(_RES / f"hmm_lookahead_audit_{_TAG}.json")["rows"]}
+_LC = P.csv_file(_RES / f"lead_correlation_{_TAG}.csv").set_index("transform")
+_WC = P.csv_file(_RES / f"lead_winner_curve_{_TAG}.csv")
+_SUB = P.csv_file(_RES / "subperiod_sharpe.csv").set_index("period_name")
+_COST = P.csv_file(_RES / f"tournament_validation_{_TAG}" / "transaction_costs.csv")
 _COST = _COST[_COST["rank"] == 1].set_index("tx_cost_bps")["net_sharpe_approx"]
-_WF = pd.read_csv(_RES / f"tournament_validation_{_TAG}" / "walk_forward.csv")
+_WF = P.csv_file(_RES / f"tournament_validation_{_TAG}" / "walk_forward.csv")
 _WF = _WF[_WF["rank"] == 1]
-_SB = json.loads((_RES / "structural_break_hy_ig_spy.json").read_text())
+_SB = P.json_file(_RES / "structural_break_hy_ig_spy.json")
 _SIGCOL = _WS["signal_column"]
-_EF = json.loads((_RES / f"evidence_facts_{_TAG}.json").read_text())
+_EF = P.json_file(_RES / f"evidence_facts_{_TAG}.json")
 _H = _EF["history"]
 _PREV_HMM = next((p for p in _WS["selection"].get("previously_published", []) if "combo" in p), {})
-_GRID = lead_grid("hy_ig_spy")
-_MAN = json.loads((_RES / f"candidates_manifest_{_TAG}.json").read_text())
+_GRID = P.lead_grid("hy_ig_spy")
+_MAN = P.json_file(_RES / f"candidates_manifest_{_TAG}.json")
 _PPY = _MAN["ppy"]
 _GRID_SET = "{" + ", ".join(str(x) for x in _GRID) + "}"
-_N_THR = len({t for r in _MAN["rules"].values() for t in r})
-_N_STRAT = len(_MAN["strategies"])
+_N_STRAT = P.length(_MAN["strategies"])
 _QR_H = _EF["quantile_horizon_days"]
-_OOS_A, _OOS_B = pd.Timestamp(_WS["oos_period_start"]), pd.Timestamp(_WS["oos_period_end"])
-_OOS_MONTHS = (_OOS_B.year - _OOS_A.year) * 12 + _OOS_B.month - _OOS_A.month + 1
 
 
 def _pct(v, nd=1):
-    return f"{abs(v) * 100:.{nd}f}%"
+    return f"{abs(v):.{nd}%}"
 
 
 _D = _EF["derived"]                      # facts from large files, computed by the pipeline
+_N_THR = _D["n_threshold_labels"]
+_OOS_MONTHS = _D["oos_months"]
+_QT_TAILS, _WF1 = _D["quantile_tails"], _D["walk_forward_rank1"]
 _HB = _D["best_hmm_rule"]
 
 
@@ -65,19 +66,19 @@ _LEADS = _GRID
 
 
 def _f(v, nd=2):
-    return "n/a" if v is None or pd.isna(v) else f"{float(v):.{nd}f}"
+    return "n/a" if v is None or pd.isna(v) else f"{v:.{nd}f}"
 
 
-THRESHOLD_TEXT = {
+THRESHOLD_TEXT = P.definitions({
     "T2_rp75": "the 75th percentile of its own trailing 504 trading days", "T2_rp85": "the 85th percentile of its own trailing 504 trading days",
     "T2_rp95": "the 95th percentile of its own trailing 504 trading days", "T1_p75": "its 75th percentile over the in-sample readings before each day (frozen at the in-sample end)",
     "T1_p85": "its 85th percentile over the in-sample readings before each day (frozen at the in-sample end)", "T1_p95": "its 95th percentile over the in-sample readings before each day (frozen at the in-sample end)",
     "T3_z1.5": "a trailing 504-day z-score of 1.5", "T3_z2.0": "a trailing 504-day z-score of 2.0",
     "T3_z2.5": "a trailing 504-day z-score of 2.5", "T4_hmm_0.5": "0.5", "T4_hmm_0.7": "0.7", "T5_ms_0.5": "0.5",
     "T5_ms_0.7": "0.7", "-": "its trailing 504-day range (sizing; no threshold)",
-}
+})
 _THR = THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)
-SIGNAL_TEXT = {
+SIGNAL_TEXT = P.definitions({
     "S1_spread_level": "HY-IG spread level", "S2a_zscore_252d": "HY-IG spread's 252-day z-score",
     "S2b_zscore_504d": "HY-IG spread's 504-day z-score", "S3a_pctrank_504d": "HY-IG spread's 504-day percentile rank",
     "S3b_pctrank_1260d": "HY-IG spread's 1260-day percentile rank", "S4a_roc_21d": "HY-IG spread's 21-day % change",
@@ -86,7 +87,7 @@ SIGNAL_TEXT = {
     "S7_ms_stress": "causal Markov-switching stress probability", "S10_mom_21d": "HY-IG spread's 21-day change",
     "S11_mom_63d": "HY-IG spread's 63-day change", "S12_mom_252d": "HY-IG spread's 252-day change",
     "S13_acceleration": "HY-IG spread acceleration",
-}
+})
 _SIG = SIGNAL_TEXT.get(W.signal_code, W.signal_display)
 _RULE = (f"each day, take the {_SIG} as it stood {W.lead_text} earlier and compare it with {_THR}; hold 100% SPY "
          "when it is below, otherwise hold cash")
@@ -292,9 +293,9 @@ STORY_CONFIG = StoryConfig()
 # =========================================================================
 # EVIDENCE PAGE — 8-element method blocks
 # =========================================================================
-_LPC = pd.read_csv(_RES / f"core_models_{_TAG}" / "local_projections.csv")
-_QRC = pd.read_csv(_RES / f"core_models_{_TAG}" / "quantile_regression.csv").set_index("quantile")
-_FT = pd.read_csv(_RES / f"regime_quartile_forward_tests_{_TAG}.csv").set_index("horizon_months")
+_LPC = P.csv_file(_RES / f"core_models_{_TAG}" / "local_projections.csv")
+_QRC = P.csv_file(_RES / f"core_models_{_TAG}" / "quantile_regression.csv").set_index("quantile")
+_FT = P.csv_file(_RES / f"regime_quartile_forward_tests_{_TAG}.csv").set_index("horizon_months")
 _GM, _GD, _CC, _HM = _EF["granger_monthly"], _EF["granger_daily_lag1"], _EF["ccf"], _EF["hmm"]
 _SC = _EF["static_corr_level_fwd"]
 _TE = _EF["transfer_entropy_proxy_mean"]
@@ -324,7 +325,7 @@ CORRELATION_BLOCK = dict(
     observation=(
         f"The rolling same-day correlation is negative in {_pct(_EF['rolling_corr_same_day_neg_share'], 0)} of "
         "windows and changes sign over time. Static correlations of the spread level with SPY forward returns are "
-        f"small: {'; '.join(f'{v:+.3f} at {h} trading days' for h, v in _SC.items())}. Their iid "
+        f"small: {'; '.join(f'{v:+.3f} at {h} trading days' for h, v in P.items(_SC))}. Their iid "
         "p-values on overlapping windows are not reliable."
     ),
     interpretation=(
@@ -501,7 +502,7 @@ REGIME_QUARTILE_BLOCK = dict(
     ),
     chart_name="regime_quartile_returns",
     chart_caption=(
-        f"SPY next-month return by month-end spread quartile, {int(_FT.loc[1, 'n_months'])} months. Annualised: "
+        f"SPY next-month return by month-end spread quartile, {_FT.loc[1, 'n_months']} months. Annualised: "
         f"Q1 {_pct(_D['quartile_next_month_ann_return']['Q1'])}, Q2 {_pct(_D['quartile_next_month_ann_return']['Q2'])}, Q3 {_pct(_D['quartile_next_month_ann_return']['Q3'])}, "
         f"Q4 {_pct(_D['quartile_next_month_ann_return']['Q4'])}. Q4-Q1 = {_FT.loc[1, 'q4_minus_q1'] * 100:+.2f} pp per month (HAC t "
         f"{_FT.loc[1, 'q4_minus_q1_hac_t']:.2f})."
@@ -572,9 +573,9 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     method_theory=(
         "**Local projections** (Jordà, 2005) regress the SPY forward return over h trading days on today's spread "
         "level, with the VIX and the 10y-3m Treasury spread as controls, at horizons of "
-        + ", ".join(str(int(h)) for h in _LPC["horizon_days"]) + " trading days. Forward windows overlap, so "
+        + ", ".join(str(h) for h in _LPC["horizon_days"]) + " trading days. Forward windows overlap, so "
         "standard errors are Newey-West HAC with maxlags = max(0.75·n^(1/3), h-1): "
-        + ", ".join(str(int(x)) for x in _LPC["hac_maxlags"]) + "."
+        + ", ".join(str(x) for x in _LPC["hac_maxlags"]) + "."
     ),
     question=(
         "After controlling for VIX and the yield curve, does a higher spread level predict lower SPY returns over the "
@@ -587,12 +588,12 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     chart_name="local_projections",
     chart_caption=(
         "Local projections of SPY forward returns on the spread level (controls: VIX, 10y-3m), HAC maxlags ≥ h-1. "
-        + "; ".join(f"h = {int(r.horizon_days)}d: t {r.t_stat:.2f}" for r in _LPC.itertuples())
+        + "; ".join(f"h = {r.horizon_days}d: t {r.t_stat:.2f}" for r in _LPC.itertuples())
         + (". None significant." if (_LPC["p_value"] >= 0.05).all() else ".")
     ),
     observation=(
         "The coefficients are "
-        + ", ".join(f"{r.coef:+.4f} ({int(r.horizon_days)} days, p = {r.p_value:.2f})" for r in _LPC.itertuples())
+        + ", ".join(f"{r.coef:+.4f} ({r.horizon_days} days, p = {r.p_value:.2f})" for r in _LPC.itertuples())
         + " per percentage point. An earlier version of this table used too short a HAC lag for the overlapping "
         "long-horizon returns and reported a significant effect; with the lag set to at least h-1 it is not."
     ),
@@ -602,7 +603,7 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     ),
     key_message=(
         "The spread level's effect on SPY forward returns is negative but not statistically significant at any "
-        f"horizon tested (HAC t between {_LPC['t_stat'].min():.2f} and {_LPC['t_stat'].max():.2f})."
+        f"horizon tested (HAC t between {P.colmin(_LPC, 't_stat'):.2f} and {P.colmax(_LPC, 't_stat'):.2f})."
     ),
 )
 
@@ -631,8 +632,8 @@ QUANTILE_BLOCK = dict(
     observation=(
         f"The lowest and highest quantile slopes are {_QRC['coef'].iloc[0]:+.4f} and {_QRC['coef'].iloc[-1]:+.4f}; the "
         f"median slope is {_QRC.loc[0.5, 'coef']:+.4f} (p = {_QRC.loc[0.5, 'p_value']:.2f}). Slopes other than the "
-        f"median have p < 0.05 at {int((_QRC[_QRC.index != 0.5]['p_value'] < 0.05).sum())} of "
-        f"{len(_QRC) - 1} quantiles."
+        f"median have p < 0.05 at {_QT_TAILS['n_sig_05']} of "
+        f"{_QT_TAILS['n']} quantiles."
     ),
     interpretation=(
         f"A wider spread goes with a wider spread of {_QR_H}-day SPY outcomes in both directions, a volatility effect, rather "
@@ -668,7 +669,7 @@ CORRELATION_LEAD_VIEW_BLOCK = dict(
     ),
     observation=(
         f"The winner's signal ({_SIGCOL}) has r "
-        + (", ".join(f"{_LCW[f'L{L}']} at {L} days" for L in _LEADS) if _LCW is not None else "n/a")
+        + (", ".join(f"{_LCW[f'L{int(L)}']} at {L} days" for L in _LEADS) if _LCW is not None else "n/a")
         + "."
     ),
     interpretation=(
@@ -703,7 +704,7 @@ LEAD_TOURNAMENT_BLOCK = dict(
     chart_name="lead_sharpe_distribution",
     chart_caption=(
         "The winning rule's out-of-sample Sharpe by lead: "
-        + ", ".join(f"{int(r.lead_days)}d {_f(r.oos_sharpe)}" for r in _WC.itertuples())
+        + ", ".join(f"{r.lead_days}d {_f(r.oos_sharpe)}" for r in _WC.itertuples())
         + f" (traded L{W.lead}). SPY buy-and-hold: {W.bh_oos_sharpe}."
     ),
     observation=(
@@ -772,7 +773,7 @@ EVIDENCE_METHOD_BLOCKS = {
         "Quantile Regression",
     ],
     "tournament_intro": (
-        f"The tournament combined {len(_MAN['signals'])} signals (spread level, z-scores, percentile ranks, rates of "
+        f"The tournament combined {P.length(_MAN['signals'])} signals (spread level, z-scores, percentile ranks, rates of "
         "change, momentum, acceleration, the CCC-BB spread, and causal HMM and Markov-switching stress probabilities) "
         f"with their threshold labels, {_N_STRAT} strategies (Long/Cash, Signal-Strength, Long/Short; Signal-Strength "
         f"ignores the threshold and is declared once per signal) and the lead grid {_GRID_SET} (trading days): "
@@ -880,10 +881,10 @@ class StrategyConfig:
 
     WALK_FORWARD_TITLE = "Calendar-Year Sharpe of the Winning Rule vs SPY"
     WALK_FORWARD_CAPTION = (
-        f"What this shows: the rule's Sharpe in each calendar year {int(_WF['test_year'].min())}-{int(_WF['test_year'].max())} "
+        f"What this shows: the rule's Sharpe in each calendar year {_WF1['first_year']}-{_WF1['last_year']} "
         "(bars) next to SPY's Sharpe in the same year (markers). Positive in "
-        f"{int((_WF['oos_sharpe'] > 0).sum())} of {len(_WF)} years and above SPY in "
-        f"{int((_WF['oos_sharpe'] > _WF['bh_sharpe']).sum())} of {len(_WF)}. Years before 2019-10 are in-sample: the "
+        f"{_WF1['n_positive']} of {_WF1['n_years']} years and above SPY in "
+        f"{_WF1['n_above_bh']} of {_WF1['n_years']}. Years before 2019-10 are in-sample: the "
         "rule was selected on them."
     )
 
@@ -954,7 +955,7 @@ STRATEGY_CONFIG = StrategyConfig()
 # =========================================================================
 # METHODOLOGY PAGE CONFIG
 # =========================================================================
-_DATA_SOURCES_MD = """
+_DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |:---------|:-------|:-------|:----------|
 | **HY-IG Spread (HY leg)** | FRED (ICE BofA US High Yield Index OAS) | BAMLH0A0HYM2 | Daily (business days; ~1-day publication lag) |
@@ -968,7 +969,7 @@ _DATA_SOURCES_MD = """
 from the spread and VIX) are trading signals. VIX and the 10y-3m spread enter only as the HMM
 feature and as regression controls. Pre-2023 OAS history is spliced from the archived v1 data
 (see `interpretation_metadata.json` caveats).
-"""
+""")
 
 _INDICATOR_CONSTRUCTION_MD = (
     "The primary indicator is the HY-IG credit spread, built daily as the ICE BofA US High "
@@ -985,7 +986,7 @@ _INDICATOR_CONSTRUCTION_MD = (
     "`signal_scope.json` in the Signal Universe section below."
 )
 
-_METHODS_TABLE_MD = """
+_METHODS_TABLE_MD = P.definition_text("""
 | Method | Question It Answers | Specification |
 |:-------|:--------------------|:--------------|
 | Pearson / Rolling Correlation | Same-day and forward co-movement | Rolling 252d same-day; static vs 1-252d forward returns (iid p-values, overlapping) |
@@ -998,20 +999,20 @@ _METHODS_TABLE_MD = """
 | Local Projections (Jordà) | Spread level → SPY forward return at 5/21/63 days | Controls VIX, 10y-3m; HAC maxlags = max(0.75 n^(1/3), h-1) |
 | Predictive regressions | 12 signals × 5 horizons | OLS with HAC maxlags = max(0.75 n^(1/3), h-1) |
 | Quantile Regression | Effect across the 21-day forward return distribution | Quantiles 5%-95% |
-"""
+""")
 
-_GRID_TABLE_MD = f"""
+_GRID_TABLE_MD = P.definition_text(f"""
 | Dimension | Values |
 |:----------|:-------|
-| **Signals ({len(_MAN['signals'])})** | {"; ".join(SIGNAL_TEXT.get(k, k) for k in _MAN['signals'])} |
+| **Signals ({P.length(_MAN['signals'])})** | {"; ".join(SIGNAL_TEXT.get(k, k) for k in _MAN['signals'])} |
 | **Thresholds ({_N_THR} labels)** | T1 in-sample percentile p75/p85/p95 (expanding over the in-sample readings before each day, 400-day warm-up, frozen at the in-sample end); T2 rolling-504d percentile rp75/rp85/rp95; T3 rolling-504d z-score 1.5/2.0/2.5; T4/T5 probability 0.5/0.7 (S6/S7 only) |
 | **Strategies ({_N_STRAT})** | Long/Cash (P1), Signal-Strength sizing on the trailing-504d range (P2; ignores the threshold, declared once per signal and lead), Long/Short (P3) |
 | **Lead times (trading days)** | {", ".join(str(x) for x in _MAN['leads'])}, the standard daily grid floored for the OAS publication lag; plus a {_MAN['position_shift']}-day execution lag |
 | **Orientation** | Countercyclical (high signal -> reduce SPY exposure) |
 | **Selection** | Stable lead range (D9): each window of three neighbouring leads scored by its lowest in-sample Sharpe on the common window, winner = highest in-sample Sharpe inside the best window, among in-sample-valid rules (>= {_MAN['min_is_n']:,} IS days, IS exposure {_MAN['exposure_bounds'][0]:.0%}-{_MAN['exposure_bounds'][1]:.0%}, IS turnover < {_MAN['max_is_turnover']}/yr, >= {_MAN['min_is_trades']} IS trades; undefined positions held as cash) |
-"""
+""")
 
-_TOURNAMENT_DESIGN_MD = _GRID_TABLE_MD + f"""
+_TOURNAMENT_DESIGN_MD = f"""{_GRID_TABLE_MD}
 {W.n_candidates} combinations, {W.n_valid} in-sample-valid ({W.n_distinct} distinct position series). Winner: **{W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}**, stable lead range {W.plateau_range}, in-sample Sharpe {W.is_sharpe} (SPY {W.bh_is_sharpe}). Out of sample ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} vs SPY {W.bh_oos_sharpe}, annual return {W.oos_ann_return} vs {W.bh_oos_ann_return}, maximum drawdown {W.oos_max_drawdown} vs {W.bh_oos_max_drawdown}. Highest single in-sample Sharpe in the grid (reference only, not the selection rule): {W.raw_argmax_rule} at L{W.raw_argmax_lead}, in-sample Sharpe {W.raw_argmax_is_sharpe}, {W.raw_argmax_is_winner}, {W.raw_argmax_position}.
 """
 

@@ -1610,6 +1610,20 @@ def stage_narrative_provenance():
     ft = _pd.read_csv(res / f"regime_quartile_forward_tests_{DATE_TAG}.csv").set_index("horizon_months")
     derived["quartile_next_month_ann_return"] = {q: round(float(ft.loc[1, f"mean_{q}"] * 12), 6)
                                                  for q in ("Q1", "Q2", "Q3", "Q4")}
+    ws = json.loads((res / "winner_summary.json").read_text())
+    a, b = _pd.Timestamp(ws["oos_period_start"]), _pd.Timestamp(ws["oos_period_end"])
+    derived["oos_months"] = (b.year - a.year) * 12 + b.month - a.month + 1
+    man = json.loads((res / f"candidates_manifest_{DATE_TAG}.json").read_text())
+    derived["n_threshold_labels"] = len({t for r in man["rules"].values() for t in r})
+    qr = _pd.read_csv(res / f"core_models_{DATE_TAG}" / "quantile_regression.csv")
+    tails = qr[qr["quantile"] != 0.5]
+    derived["quantile_tails"] = {"n": int(len(tails)), "n_sig_05": int((tails["p_value"] < 0.05).sum())}
+    wf = _pd.read_csv(res / f"tournament_validation_{DATE_TAG}" / "walk_forward.csv")
+    wf = wf[wf["rank"] == 1]
+    derived["walk_forward_rank1"] = {"n_years": int(len(wf)), "first_year": int(wf["test_year"].min()),
+                                     "last_year": int(wf["test_year"].max()),
+                                     "n_positive": int((wf["oos_sharpe"] > 0).sum()),
+                                     "n_above_bh": int((wf["oos_sharpe"] > wf["bh_sharpe"]).sum())}
     write_evidence_facts(PAIR_ID, DATE_TAG, sources=NARRATIVE_SOURCES, derived=derived)
     print("  narrative provenance: evidence_facts sources + derived written")
 
