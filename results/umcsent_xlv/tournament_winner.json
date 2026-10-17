@@ -1,0 +1,31 @@
+{
+  "pair_id": "umcsent_xlv",
+  "generated_at": "2026-10-17T23:09:12.439502+00:00",
+  "track": "main",
+  "source_tournament_file": "tournament_results_20261017.csv",
+  "winner": {
+    "signal": "S4_zscore",
+    "threshold": "-",
+    "strategy": "P2_signal_strength",
+    "direction": "procyclical",
+    "lead_value": 3,
+    "lead_unit": "months",
+    "oos_sharpe": 0.58112,
+    "oos_ann_return": 0.044781,
+    "max_drawdown": -0.129452,
+    "annual_turnover": 1.104596
+  },
+  "benchmark": {
+    "name": "Buy & Hold",
+    "oos_sharpe": 0.737193,
+    "oos_ann_return": 0.103076,
+    "max_drawdown": -0.156182
+  },
+  "deltas": {
+    "delta_sharpe": -0.156073,
+    "delta_return": -0.058295,
+    "delta_max_drawdown": 0.02673
+  },
+  "beats_benchmark": false,
+  "suggested_strategy_objective": "min_mdd"
+}

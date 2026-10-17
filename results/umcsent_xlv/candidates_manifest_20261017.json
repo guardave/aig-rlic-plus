@@ -1,0 +1,415 @@
+{
+  "pair_id": "umcsent_xlv",
+  "signals": {
+    "S1_level": "umcsent",
+    "S2_yoy": "umcsent_yoy",
+    "S3_mom": "umcsent_mom",
+    "S4_zscore": "umcsent_zscore",
+    "S5_3m_ma": "umcsent_3m_ma",
+    "S6_direction": "umcsent_direction",
+    "S7_dev_ma": "umcsent_dev_ma"
+  },
+  "rules": {
+    "S1_level": {
+      "T1_fixed_p25": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.25)"
+      },
+      "T1_fixed_p50": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.5)"
+      },
+      "T1_fixed_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T2_roll_p25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_roll_p75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_1.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_1.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_1.5": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_1.5": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_2.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_2.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "S2_yoy": {
+      "T1_fixed_p25": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.25)"
+      },
+      "T1_fixed_p50": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.5)"
+      },
+      "T1_fixed_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T2_roll_p25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_roll_p75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_1.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_1.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_1.5": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_1.5": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_2.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_2.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T4_zero": {
+        "variable": "raw",
+        "threshold": 0.0
+      }
+    },
+    "S3_mom": {
+      "T1_fixed_p25": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.25)"
+      },
+      "T1_fixed_p50": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.5)"
+      },
+      "T1_fixed_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T2_roll_p25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_roll_p75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_1.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_1.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_1.5": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_1.5": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_2.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_2.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T4_zero": {
+        "variable": "raw",
+        "threshold": 0.0
+      }
+    },
+    "S4_zscore": {
+      "T1_fixed_p25": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.25)"
+      },
+      "T1_fixed_p50": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.5)"
+      },
+      "T1_fixed_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T2_roll_p25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_roll_p75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_1.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_1.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_1.5": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_1.5": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_2.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_2.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "S5_3m_ma": {
+      "T1_fixed_p25": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.25)"
+      },
+      "T1_fixed_p50": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.5)"
+      },
+      "T1_fixed_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T2_roll_p25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_roll_p75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_1.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_1.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_1.5": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_1.5": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_2.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_2.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "S6_direction": {
+      "T1_fixed_p25": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.25)"
+      },
+      "T1_fixed_p50": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.5)"
+      },
+      "T1_fixed_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T2_roll_p25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_roll_p75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_1.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_1.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_1.5": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_1.5": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_2.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_2.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "S7_dev_ma": {
+      "T1_fixed_p25": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.25)"
+      },
+      "T1_fixed_p50": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.5)"
+      },
+      "T1_fixed_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T2_roll_p25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_roll_p75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_1.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_1.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_1.5": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_1.5": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_2.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T3_zscore_neg_2.0": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T4_zero": {
+        "variable": "raw",
+        "threshold": 0.0
+      }
+    }
+  },
+  "strategies": [
+    "P1",
+    "P2",
+    "P3"
+  ],
+  "directions": [
+    "procyclical"
+  ],
+  "leads": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "lead_unit": "months",
+  "binary_signals": [
+    "S6_direction"
+  ],
+  "min_is_n": 60,
+  "ppy": 12,
+  "oos_start": "2019-04-30",
+  "exposure_bounds": [
+    0.05,
+    0.95
+  ],
+  "max_is_turnover": null,
+  "min_is_trades": null,
+  "position_shift": 1,
+  "n_candidates": 2184,
+  "candidates_sha256": "22a8e51d5055350a84b84b781330b482dca4c097fd5ecba1756e1dcd54476207"
+}

@@ -1,0 +1,2 @@
+signal,threshold,strategy,track,oos_sharpe,sharpe_diff_vs_bh,ci_95_low,ci_95_high,p_diff_le_0,method,block_length,draws,seed
+S4_zscore,-,P2_signal_strength,as known at the time,0.58112,-0.1561,-0.4162,0.1054,0.8744,paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H),6,5000,42

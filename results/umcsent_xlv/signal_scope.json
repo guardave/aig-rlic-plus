@@ -3,14 +3,14 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-04-20T00:00:00Z",
+  "last_updated_at": "2026-10-17T22:27:35.757214+00:00",
   "indicator_axis": {
     "canonical_column": "umcsent",
     "display_name": "University of Michigan Consumer Sentiment",
     "derivatives": [
       {
         "name": "umcsent",
-        "definition": "The raw University of Michigan Consumer Sentiment index — a monthly survey of US consumer confidence about personal finances and the economy.",
+        "definition": "The raw University of Michigan Consumer Sentiment index \u2014 a monthly survey of US consumer confidence about personal finances and the economy.",
         "formula": "raw column (FRED: UMCSENT, monthly frequency)",
         "role": "raw",
         "appears_in_charts": [
@@ -21,17 +21,17 @@
       },
       {
         "name": "umcsent_yoy",
-        "definition": "The year-over-year percentage change in consumer sentiment — how much sentiment has risen or fallen compared with the same month last year.",
+        "definition": "The year-over-year percentage change in consumer sentiment \u2014 how much sentiment has risen or fallen compared with the same month last year.",
         "formula": "(umcsent / umcsent.shift(12) - 1) * 100",
         "role": "threshold_input",
         "appears_in_charts": [
           "correlation_heatmap"
         ],
-        "notes": "WINNER signal (tournament code S2_yoy). Zero-crossing threshold (T4_zero). Approximately stationary."
+        "notes": "Zero-crossing threshold (T4_zero). Approximately stationary."
       },
       {
         "name": "umcsent_mom",
-        "definition": "The month-over-month percentage change in consumer sentiment — how much sentiment moved compared with the prior month.",
+        "definition": "The month-over-month percentage change in consumer sentiment \u2014 how much sentiment moved compared with the prior month.",
         "formula": "(umcsent / umcsent.shift(1) - 1) * 100",
         "role": "derivative",
         "appears_in_charts": [
@@ -41,7 +41,7 @@
       },
       {
         "name": "umcsent_zscore",
-        "definition": "The 36-month rolling z-score of consumer sentiment — how many standard deviations the current reading is from its recent average, with memory of the last 3 years.",
+        "definition": "The 36-month rolling z-score of consumer sentiment \u2014 how many standard deviations the current reading is from its recent average, with memory of the last 3 years.",
         "formula": "(umcsent - rolling_mean_36m(umcsent)) / rolling_std_36m(umcsent)",
         "role": "derivative",
         "appears_in_charts": [
@@ -51,7 +51,7 @@
       },
       {
         "name": "umcsent_3m_ma",
-        "definition": "The 3-month moving average of consumer sentiment — a smoothed version that reduces month-to-month noise.",
+        "definition": "The 3-month moving average of consumer sentiment \u2014 a smoothed version that reduces month-to-month noise.",
         "formula": "umcsent.rolling(3, min_periods=2).mean()",
         "role": "derivative",
         "appears_in_charts": [
@@ -78,7 +78,7 @@
       },
       {
         "name": "xlv_ret_1m",
-        "definition": "The 1-month simple return of XLV — how much the ETF gained or lost in the current month.",
+        "definition": "The 1-month simple return of XLV \u2014 how much the ETF gained or lost in the current month.",
         "formula": "xlv.pct_change()",
         "role": "derivative",
         "appears_in_charts": [
@@ -89,7 +89,7 @@
       },
       {
         "name": "xlv_ret_3m",
-        "definition": "The 3-month total return of XLV — cumulative price change over a quarter.",
+        "definition": "The 3-month total return of XLV \u2014 cumulative price change over a quarter.",
         "formula": "xlv / xlv.shift(3) - 1",
         "role": "derivative",
         "appears_in_charts": [
@@ -99,7 +99,7 @@
       },
       {
         "name": "xlv_ret_12m",
-        "definition": "The 12-month total return of XLV — one year of cumulative price appreciation, a long-horizon trend measure.",
+        "definition": "The 12-month total return of XLV \u2014 one year of cumulative price appreciation, a long-horizon trend measure.",
         "formula": "xlv / xlv.shift(12) - 1",
         "role": "derivative",
         "appears_in_charts": [
@@ -109,7 +109,7 @@
       },
       {
         "name": "xlv_vol_12m",
-        "definition": "The 12-month rolling realized volatility of XLV monthly returns, annualized — how volatile the ETF has been over the past year.",
+        "definition": "The 12-month rolling realized volatility of XLV monthly returns, annualized \u2014 how volatile the ETF has been over the past year.",
         "formula": "xlv_ret_1m.rolling(12).std() * sqrt(12)",
         "role": "diagnostic",
         "appears_in_charts": [],

@@ -1,0 +1,396 @@
+{
+  "pair_id": "umcsent_xlv",
+  "tag": "20261017",
+  "replay": {
+    "pair_id": "umcsent_xlv",
+    "legacy_tag": "20261008",
+    "n_rows_harness": 3393,
+    "n_rows_published": 3393,
+    "tolerance": 1e-06,
+    "columns": {
+      "is_sharpe": {
+        "max_abs_diff": 0.4084,
+        "pass": false
+      },
+      "oos_sharpe": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      },
+      "is_n": {
+        "max_abs_diff": 71.0,
+        "pass": false
+      },
+      "oos_n": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      }
+    },
+    "same_candidate_rows_in_order": true,
+    "valid_flags_equal": false,
+    "selection_method": "max_oos_valid",
+    "winner": {
+      "harness": "S3_mom|T3_zscore_1.0|P1|procyclical|6",
+      "published": "S3_mom|T3_zscore_1.0|procyclical|6",
+      "match": true
+    },
+    "published": {
+      "key": "S3_mom|T3_zscore_1.0|P1|procyclical|6",
+      "signal": "S3_mom",
+      "threshold": "T3_zscore_1.0",
+      "strategy": "P1",
+      "direction": "procyclical",
+      "lead": 6,
+      "is_sharpe": 0.3107,
+      "oos_sharpe": 1.1586,
+      "tag": "20261008",
+      "selection": "published (selected on out-of-sample Sharpe, legacy method)"
+    },
+    "strategy_return": {
+      "rows": 325,
+      "max_abs_diff": 9.71445146547012e-17,
+      "pass": true
+    },
+    "documented_differences": {
+      "is_sharpe": {
+        "max_abs_diff": 0.4084,
+        "pass": false
+      },
+      "is_n": {
+        "max_abs_diff": 71.0,
+        "pass": false
+      },
+      "valid_flags_equal": false
+    },
+    "pass": true
+  },
+  "tracks": {
+    "main": {
+      "candidate": "S4_zscore|-|P2|procyclical|3",
+      "is_frozen_object": false,
+      "cuts": {
+        "oos_start": {
+          "cut": "2019-04-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 245,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 245,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "oos_50pct": {
+          "cut": "2023-01-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 290,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 290,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "end_minus_1y": {
+          "cut": "2025-09-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 322,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 322,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_33pct": {
+          "cut": "2005-09-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 82,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 82,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_66pct": {
+          "cut": "2012-06-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 163,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 163,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        }
+      },
+      "pass": true
+    },
+    "comparison": {
+      "candidate": "S4_zscore|-|P2|procyclical|3",
+      "is_frozen_object": false,
+      "cuts": {
+        "oos_start": {
+          "cut": "2019-04-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 245,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 245,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "oos_50pct": {
+          "cut": "2023-01-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 290,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 290,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "end_minus_1y": {
+          "cut": "2025-09-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 322,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 322,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_33pct": {
+          "cut": "2005-09-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 82,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 82,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_66pct": {
+          "cut": "2012-06-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 163,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 163,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        }
+      },
+      "pass": true
+    }
+  },
+  "null": {
+    "main": {
+      "n_draws": 100,
+      "n_unique_offsets": 100,
+      "n_draws_without_winner": 0,
+      "n_admissible_offsets": 297,
+      "span": 560,
+      "max_usable_offset": 408,
+      "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period values inside every vintage), pipeline rebuilt per draw, same selection rule; distinct offsets; R7.1",
+      "seed_base": 20261016,
+      "is_max_percentile": 0.08,
+      "p_is": 0.92,
+      "selection_stat_percentile": 0.33,
+      "p_selection_stat": 0.67,
+      "winner_oos_percentile": 0.52,
+      "p_oos": 0.48,
+      "null_is_max_p5_p50_p95": [
+        0.999,
+        1.2115,
+        1.8229
+      ],
+      "null_winner_oos_median": 0.5785,
+      "edge_share": 0.14,
+      "edge_share_uniform": 0.1538,
+      "edge_share_bound": 0.2621,
+      "edge_flag": false,
+      "timing_sharpe_mean": 0.0202,
+      "timing_sharpe_sd": 0.2882,
+      "timing_sharpe_se_dependent": 0.0522,
+      "timing_sharpe_se_bandwidth": 6,
+      "timing_sharpe_effective_draws": 30.5,
+      "r71_tolerance": 0.1044,
+      "timing_sharpe_mean_all_valid_candidates": -0.0031,
+      "r71_pass": true,
+      "null_scores_hist": {
+        "bins": [
+          0.4873,
+          0.5475,
+          0.6077,
+          0.6679,
+          0.7281,
+          0.7883,
+          0.8485,
+          0.9087,
+          0.9689,
+          1.0291,
+          1.0893,
+          1.1495,
+          1.2097,
+          1.2699,
+          1.3301,
+          1.3903,
+          1.4505,
+          1.5107,
+          1.5709,
+          1.6311,
+          1.6913
+        ],
+        "counts": [
+          2,
+          0,
+          0,
+          2,
+          9,
+          5,
+          15,
+          4,
+          11,
+          21,
+          8,
+          2,
+          2,
+          1,
+          5,
+          5,
+          2,
+          1,
+          1,
+          4
+        ]
+      }
+    },
+    "comparison": {
+      "n_draws": 100,
+      "n_unique_offsets": 100,
+      "n_draws_without_winner": 0,
+      "n_admissible_offsets": 337,
+      "span": 560,
+      "max_usable_offset": null,
+      "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period values inside every vintage), pipeline rebuilt per draw, same selection rule; distinct offsets; R7.1",
+      "seed_base": 20261016,
+      "is_max_percentile": 0.4,
+      "p_is": 0.6,
+      "selection_stat_percentile": 0.68,
+      "p_selection_stat": 0.32,
+      "winner_oos_percentile": 0.45,
+      "p_oos": 0.55,
+      "null_is_max_p5_p50_p95": [
+        0.9386,
+        1.0704,
+        1.1594
+      ],
+      "null_winner_oos_median": 0.6275,
+      "edge_share": 0.17,
+      "edge_share_uniform": 0.1538,
+      "edge_share_bound": 0.2621,
+      "edge_flag": false,
+      "timing_sharpe_mean": 0.0227,
+      "timing_sharpe_sd": 0.2977,
+      "timing_sharpe_se_dependent": 0.0524,
+      "timing_sharpe_se_bandwidth": 6,
+      "timing_sharpe_effective_draws": 32.3,
+      "r71_tolerance": 0.1047,
+      "timing_sharpe_mean_all_valid_candidates": 0.0058,
+      "r71_pass": true,
+      "null_scores_hist": {
+        "bins": [
+          0.7596,
+          0.7752,
+          0.7908,
+          0.8064,
+          0.822,
+          0.8376,
+          0.8532,
+          0.8688,
+          0.8844,
+          0.9,
+          0.9156,
+          0.9312,
+          0.9468,
+          0.9624,
+          0.978,
+          0.9936,
+          1.0092,
+          1.0248,
+          1.0404,
+          1.056,
+          1.0716
+        ],
+        "counts": [
+          3,
+          11,
+          7,
+          4,
+          14,
+          12,
+          5,
+          6,
+          6,
+          3,
+          2,
+          2,
+          4,
+          3,
+          2,
+          3,
+          7,
+          1,
+          2,
+          3
+        ]
+      }
+    }
+  }
+}
