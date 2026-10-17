@@ -108,17 +108,19 @@ def null_maker(mod, which: str, ti):
         latest = latest_levels(spec.vintage_series, spec.freq)
         grid = latest.index
         return (lambda k: realtime_inputs(spec, vint, ti.index, ti.ret,
-                                          value_map=lambda v: NL.shift_vintage_values(v, k, grid, latest))), len(grid)
+                                          value_map=lambda v: NL.shift_vintage_values(v, k, grid))), len(grid)
     lv = mod.revised_levels()
     s, e = NL.data_span(lv)
     return (lambda k: revised_inputs(spec, NL.roll_span(lv, k, s, e), ti.index, ti.ret, name=ti.name)), e - s
 
 
 def r71_diagnosis(spec, make, n_span: int, summ: dict, log=print, K: int = 30) -> dict:
-    """When the R7.1 check fails, separate a lookahead from a selection effect: (a) the timing Sharpe averaged
-    over ALL valid candidates of each draw (no selection) and (b) the selected winner's timing Sharpe when the
-    target returns are also randomly permuted (no return path). A lookahead would survive both; a selection
-    effect on the real return path shows up only in the selected winner with the real returns."""
+    """When the R7.1 check fails, describe where the bias lives: (a) the timing Sharpe averaged over ALL valid
+    candidates of each draw (no selection) and (b) the selected winner's timing Sharpe when the target returns
+    are also randomly permuted (no return path). A bias seen only in (selected, real returns) is CONSISTENT with
+    a selection effect, but these two checks cannot exclude a lookahead in the null construction that only the
+    selection step exploits (Codex B0r: the real-time null's cross-vintage fill did exactly that); the leak
+    tests and a review of the null transform are still needed."""
     log(f"  R7.1 diagnosis: {K} draws with permuted returns")
     sh = NL.run_null(spec, make, n_span, K, shuffle_returns_seed=NL.SEED_BASE)
     st = sh["timing_sharpe"].dropna()
@@ -127,12 +129,13 @@ def r71_diagnosis(spec, make, n_span: int, summ: dict, log=print, K: int = 30) -
     return {"timing_mean_selected_winner": summ["timing_sharpe_mean"], "timing_mean_all_valid_candidates": a,
             "timing_mean_selected_winner_returns_permuted": b, "returns_permuted_se": round(se, 4),
             "returns_permuted_draws": int(len(st)),
-            "selection_effect": bool(abs(a) <= 0.05 and abs(b) <= max(0.10, 2 * se)),
+            "consistent_with_selection_effect": bool(abs(a) <= 0.05 and abs(b) <= max(0.10, 2 * se)),
             "reading": (f"Selected winners average a timing Sharpe of {summ['timing_sharpe_mean']} in the null; all valid "
                         f"candidates average {a}; with the returns permuted the selected winners average {b} "
                         f"(SE {se:.3f}). "
-                        + ("The bias appears only after in-sample selection on the real return path (a selection "
-                           "effect), not in unselected candidates or without the return path."
+                        + ("The bias appears only after in-sample selection on the real return path, not in "
+                           "unselected candidates or without the return path: consistent with a selection effect, "
+                           "though these checks alone cannot exclude a lookahead that only selection exploits."
                            if abs(a) <= 0.05 and abs(b) <= max(0.10, 2 * se) else
                            "The pattern is not explained by selection alone; investigate before relying on the null.")
                         + " The leak tests are reported separately.")}

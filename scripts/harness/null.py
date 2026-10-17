@@ -4,10 +4,14 @@ The RAW indicator is shifted and the whole pipeline is rebuilt for every draw (C
   revised / market track: the raw level inputs are circularly shifted inside their data span and every
       transform, threshold and regime fit is recomputed.
   real-time track (decision 3): inside EVERY vintage, the value of reference period d is replaced by that
-      vintage's value of period d - k (circular over the reference-period grid of the latest vintage; a source
-      period not yet in that vintage takes its latest-vintage value). Each vintage keeps its own release
-      structure (which periods it contains, and when it was published), and realtime_inputs, transforms and
-      thresholds are rebuilt per draw.
+      vintage's value of period d - k (circular over the reference-period grid of the latest vintage). A source
+      period that this vintage does not contain gives a MISSING value (never a value from another vintage:
+      that would import later information); missing readings are handled like real missing data (no signal,
+      position undefined, scored by the metrics' NaN rule). Each vintage keeps its own release structure
+      (which periods it contains, and when it was published), and realtime_inputs, transforms and thresholds
+      are rebuilt per draw. At large offsets the wrapped (missing) part can cover the whole in-sample window
+      of the early vintages; such a draw has no in-sample-valid candidate, records no winner and is excluded
+      from the percentiles (n_draws counts draws with a winner; n_draws_without_winner is reported).
 Offsets: DISTINCT admissible values in [m, n - m], m = max(36 months in native periods, 20% of n), drawn without
 replacement (seed 20261016); all of them when there are at most K. R7.1 is calibrated for the dependence between
 neighbouring offsets: the SE of the mean timing Sharpe is a Bartlett (Newey-West) long-run SE over the draws
@@ -41,15 +45,13 @@ def offsets(n: int, ppy: int, K: int, seed: int = SEED_BASE) -> list[int]:
     return [int(x) for x in np.random.default_rng(seed).choice(adm, size=K, replace=False)]
 
 
-def shift_vintage_values(v: pd.Series, k: int, grid: pd.DatetimeIndex, latest: pd.Series) -> pd.Series:
-    """Real-time null transform of one vintage (see module doc): period d gets the vintage's value of period
-    grid[(pos(d) - k) mod N], or the latest-vintage value when that period is not in this vintage."""
+def shift_vintage_values(v: pd.Series, k: int, grid: pd.DatetimeIndex) -> pd.Series:
+    """Real-time null transform of one vintage (see module doc): period d gets the vintage's OWN value of period
+    grid[(pos(d) - k) mod N]; NaN when this vintage does not contain that period (no cross-vintage fill)."""
     pos = grid.get_indexer(v.index)
     keep = pos >= 0
     src = grid[(pos[keep] - k) % len(grid)]
-    vals = v.reindex(src).to_numpy()
-    fill = latest.reindex(src).to_numpy()
-    vals = np.where(np.isnan(vals), fill, vals)
+    vals = v.reindex(src).to_numpy(dtype=float)
     return pd.Series(vals, index=v.index[keep]).sort_index()
 
 
@@ -180,6 +182,7 @@ def summarize(null: pd.DataFrame, actual: dict, grid_len: int, ppy: int = 12) ->
     hist_counts, hist_bins = np.histogram(null["selection_stat"].dropna(), bins=20) if K else ([], [])
     return {
         "n_draws": K, "n_unique_offsets": int(null["offset"].nunique()),
+        "n_draws_without_winner": int(null["selection_stat"].isna().sum()),
         "n_admissible_offsets": null.attrs.get("n_admissible"), "span": null.attrs.get("span"),
         "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period "
         "values inside every vintage), pipeline rebuilt per draw, same selection rule; distinct offsets; R7.1",

@@ -41,8 +41,8 @@ def _r71_caveat() -> str:
     body = " ".join(f"On data {lbl}: {d['reading']}" if d else f"On data {lbl}: no diagnosis recorded."
                     for lbl, d in fails)
     return ("6. **Chance-check calibration.** The scrambled contests should show no timing skill on average "
-            "(the R7.1 check); here they do not meet it. " + body + " The chance-check percentile therefore compares "
-            "the winner against a null that carries the same selection effect.\n")
+            "(the R7.1 check); here they do not meet it. " + body + " Where the check is not met, that track's chance-check "
+            "percentile compares its winner against a null that carries the same effect.\n")
 
 
 _R71_CAVEAT = _r71_caveat()

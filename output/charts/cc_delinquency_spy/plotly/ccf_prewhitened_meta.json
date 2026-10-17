@@ -1,7 +1,7 @@
 {
   "chart_name": "ccf_prewhitened",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-17T15:32:30.416417+00:00",
+  "generated_at": "2026-10-17T16:42:06.353412+00:00",
   "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
   "caption": "Pre-whitened cross-correlation between credit-card delinquency and SPY returns; offsets outside the band: -4, -3, -2.",
   "narrative_alignment_note": "Pre-whitened cross-correlation between credit-card delinquency and SPY returns; offsets outside the band: -4, -3, -2.",

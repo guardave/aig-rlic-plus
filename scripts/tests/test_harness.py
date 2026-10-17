@@ -211,10 +211,14 @@ def test_shift_vintage_values_keeps_release_structure():
     grid = pd.date_range("2000-01-31", periods=12, freq="ME")
     latest = pd.Series(np.arange(12.0) + 100, index=grid)
     v = pd.Series(np.arange(8.0), index=grid[:8])          # an early vintage: 8 periods published
-    out = null.shift_vintage_values(v, 2, grid, latest)
+    out = null.shift_vintage_values(v, 2, grid)
     assert list(out.index) == list(grid[:8])                # same periods present
     assert out.iloc[2] == 0.0 and out.iloc[7] == 5.0        # period d gets the vintage's period d - 2
-    assert out.iloc[0] == 110.0 and out.iloc[1] == 111.0    # wrap: periods not in the vintage use latest values
+    # wrap: the sources (periods 10, 11) are not in this vintage -> missing, never a later vintage's value
+    assert out.iloc[:2].isna().all()
+    assert not set(out.dropna()) & set(latest)              # no value from outside the vintage
+    one = null.shift_vintage_values(v.iloc[:1], 5, grid)    # Codex B0r case: one-period vintage, large offset
+    assert one.isna().all()
 
 
 def test_is_quantile_threshold_is_expanding_and_lagged():

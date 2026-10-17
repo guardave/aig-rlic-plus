@@ -1,7 +1,7 @@
 {
   "chart_name": "correlation_heatmap",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-17T15:32:30.385125+00:00",
+  "generated_at": "2026-10-17T16:42:06.322781+00:00",
   "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
   "caption": "Pearson correlations between delinquency transforms and forward SPY returns at 1-, 2-, and 4-quarter horizons; largest |r| 0.09, smallest p 0.28.",
   "narrative_alignment_note": "Pearson correlations between delinquency transforms and forward SPY returns at 1-, 2-, and 4-quarter horizons; largest |r| 0.09, smallest p 0.28.",

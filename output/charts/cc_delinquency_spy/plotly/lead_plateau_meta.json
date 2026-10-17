@@ -1,7 +1,7 @@
 {
   "chart_name": "lead_plateau",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-17T15:02:34.371370+00:00",
+  "generated_at": "2026-10-17T16:24:09.241315+00:00",
   "generated_by": "scripts/harness/charts.py",
   "caption": "The winner L2 sits in a stable range L2-L4.",
   "narrative_alignment_note": "The winner L2 sits in a stable range L2-L4.",
