@@ -83,7 +83,7 @@ STRATEGY_TEXT = {"P1_long_cash": "long/cash", "P2_signal_strength": "signal-stre
 
 def _rule(prefix: str = "") -> str:
     """Plain-English rule of a track's winner, from its structured fields."""
-    g = lambda n: getattr(W, prefix + n)  # noqa: E731
+    g = lambda n: W.text(prefix + n)  # noqa: E731
     fam = W.value(prefix + "strategy_family")
     sig = f"the {SIGNAL_TEXT.get(W.value(prefix + 'signal_code'), g('signal_code'))} from {g('lead_word')} months earlier"
     if fam == "P2_signal_strength":
@@ -98,7 +98,7 @@ def _rule(prefix: str = "") -> str:
 
 def _rid(prefix: str = "") -> str:
     """Rule id `signal / threshold / strategy family / L<lead>`; P2 sizes on the trailing range and has no threshold."""
-    g = lambda n: getattr(W, prefix + n)  # noqa: E731
+    g = lambda n: W.text(prefix + n)  # noqa: E731
     parts = [g("signal_code")] + ([] if W.value(prefix + "threshold_code") == "-" else [g("threshold_code")])
     return " / ".join(parts + [g("strategy_family"), f"L{g('lead')}"])
 
