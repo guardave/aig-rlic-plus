@@ -8,13 +8,13 @@
     "VIZ-O1",
     "VIZ-V5"
   ],
-  "caption": "Corrected winner uses UMCSENT 1-month momentum with a rolling z-score > 1.0 threshold and 6-month lead; OOS Sharpe 1.16, annual return 7.95%. Shaded bands mark NBER recessions.",
-  "narrative_alignment_note": "Winner-specific chart rebuilt from corrected strategy_returns, not reconstructed from tournament code.",
+  "caption": "Winner: S4_zscore / - / P2 / L3 on UMCSENT as known at the time, test period 2019-04-30 to 2026-09-30: Sharpe 0.58 versus 0.74 for buy-and-hold XLV; gross of costs. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Rendered from the harness MAIN-track strategy returns and winner_summary.json.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/umcsent_xlv/strategy_returns_20261008.csv",
+    "results/umcsent_xlv/strategy_returns_20261017.csv",
     "results/umcsent_xlv/winner_summary.json"
   ],
-  "generated_at": "2026-10-09T09:27:41.996499+00:00",
+  "generated_at": "2026-10-17T23:09:36.236298+00:00",
   "generated_by": "Viz Vera - scripts/generate_charts_umcsent_xlv.py"
 }

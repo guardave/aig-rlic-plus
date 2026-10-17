@@ -8,13 +8,13 @@
     "VIZ-O1",
     "VIZ-V5"
   ],
-  "caption": "Rolling 12-month Sharpe for corrected winner; full OOS Sharpe is 1.16. Shaded bands mark NBER recessions.",
-  "narrative_alignment_note": "Winner-specific rolling Sharpe rebuilt from corrected canonical strategy returns.",
+  "caption": "Rolling 12-month Sharpe of the rule and of buy-and-hold XLV in the test period; the full test-period Sharpe is 0.58. Shaded bands mark NBER recessions.",
+  "narrative_alignment_note": "Rendered from the harness MAIN-track strategy returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/umcsent_xlv/strategy_returns_20261008.csv",
+    "results/umcsent_xlv/strategy_returns_20261017.csv",
     "results/umcsent_xlv/winner_summary.json"
   ],
-  "generated_at": "2026-10-09T09:27:42.108589+00:00",
+  "generated_at": "2026-10-17T23:09:36.351892+00:00",
   "generated_by": "Viz Vera - scripts/generate_charts_umcsent_xlv.py"
 }

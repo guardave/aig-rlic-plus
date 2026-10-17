@@ -1,24 +1,10 @@
 #!/usr/bin/env python3
-"""
-Chart Generation: University of Michigan Consumer Sentiment (UMCSENT) × XLV
-=============================================================
-Produces the standard 10-chart Plotly JSON set for the Streamlit portal.
+"""Chart generation: University of Michigan Consumer Sentiment (UMCSENT) x XLV (Phase B harness).
 
-Charts:
-  1. hero                       -- UMCSENT YoY vs XLV price (dual-axis)
-  2. umcsent_xlv_correlations   -- Pearson correlation heatmap
-  3. umcsent_xlv_regime_stats   -- XLV returns by UMCSENT quartile
-  4. umcsent_xlv_ccf            -- Cross-correlation function
-  5. umcsent_xlv_equity_curves  -- Winner equity curve vs B&H
-  6. umcsent_xlv_drawdown       -- Drawdown comparison
-  7. umcsent_xlv_rolling_sharpe -- Rolling 12M Sharpe
-  8. umcsent_xlv_tournament_scatter -- Sharpe vs MDD scatter
-  9. umcsent_xlv_signal_dist    -- Signal distribution / direction breakdown
-  10. umcsent_xlv_wf_sharpe     -- Walk-forward OOS rolling Sharpe
-  11. correlation_scatter        -- UMCSENT YoY vs XLV 6M forward return cloud
-
-Author: Econ Evan (Econometrics Agent)
-Date: 2026-04-20
+Descriptive charts read the revised panel (data/umcsent_xlv_monthly_latest.parquet) and the evidence tables of
+the current run; winner charts read the MAIN track ("as known at the time") strategy returns and
+winner_summary.json. Every number in a title, caption or annotation is computed from those artifacts. The harness
+writes the lead_plateau and chance_check charts.
 """
 
 import os
@@ -36,7 +22,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 BASE_DIR = str(Path(__file__).resolve().parents[1])
 PAIR_ID = "umcsent_xlv"
-DATE_TAG = "20261008"
+DATE_TAG = "20261017"
 EXPECTED_DIRECTION = "procyclical"
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
 EXPLORE_DIR = os.path.join(RESULTS_DIR, f"exploratory_{DATE_TAG}")
@@ -106,8 +92,7 @@ def save_chart(fig, name, *, caption=None, rules=None, sources=None, alignment=N
 
 def load_monthly():
     """Load the monthly dataset."""
-    parquet_path = os.path.join(DATA_DIR, "umcsent_xlv_monthly_19980101_20251231.parquet")
-    return pd.read_parquet(parquet_path)
+    return pd.read_parquet(os.path.join(DATA_DIR, "umcsent_xlv_monthly_latest.parquet"))
 
 
 def load_tournament():
@@ -195,7 +180,7 @@ def chart_hero():
                   secondary_y=False)
 
     fig.update_layout(
-        title="UMCSENT YoY Change vs XLV Price (1999-2025)",
+        title=f"UMCSENT YoY Change vs XLV Price ({df['xlv'].first_valid_index().year}-{df['xlv'].last_valid_index().year})",
         template="plotly_white",
         hovermode="x unified",
         legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
@@ -256,8 +241,8 @@ def chart_correlation_scatter():
     )
     fig.add_annotation(
         text=(
-            "The cloud slopes upward but remains wide, so linear correlation "
-            "is useful as a summary but not sufficient as the only model."
+            f"Linear fit r = {corr:.2f} over {len(valid)} monthly observations; the spread around the "
+            "fit line shows how much the relationship varies month to month."
         ),
         xref="paper",
         yref="paper",
@@ -382,7 +367,7 @@ def chart_ccf():
 
     fig.update_layout(
         title="Cross-Correlation: UMCSENT YoY Change vs XLV Monthly Return<br><sup>Red bars = statistically significant at 95%</sup>",
-        xaxis_title="Lag (months; negative = UMCSENT leads XLV)",
+        xaxis_title="Lag (months; positive = UMCSENT leads XLV returns)",
         yaxis_title="Cross-Correlation",
         template="plotly_white",
         height=400,
@@ -449,10 +434,10 @@ def chart_rolling_granger():
     fig.update_xaxes(title_text="Date")
     fig.update_yaxes(title_text="p-value (lower is stronger evidence)", secondary_y=False)
     fig.update_yaxes(title_text="F-statistic", secondary_y=True)
+    share = float((rg["p_value_24m"] < 0.05).mean())
     fig.add_annotation(
         text=(
-            "The p-value is below 0.05 only in selected windows, not "
-            "consistently across the sample."
+            f"The rolling p-value is below 0.05 in {share:.0%} of the {len(rg)} windows."
         ),
         xref="paper",
         yref="paper",
@@ -466,256 +451,10 @@ def chart_rolling_granger():
 
 
 # ===================================================================
-# CHART 5: Equity curves (winner vs buy-and-hold)
-# ===================================================================
-def chart_equity_curves():
-    winner = load_winner()
-    strategy = load_strategy_returns()
-    oos_start = winner["oos_period_start"]
-    oos_end = winner["oos_period_end"]
-    oos = strategy.loc[oos_start:oos_end].copy()
-
-    fig = go.Figure()
-
-    # Buy-and-hold XLV
-    bh_cum = (1 + oos["bh_return"].fillna(0)).cumprod()
-    fig.add_trace(go.Scatter(
-        x=bh_cum.index, y=bh_cum.values,
-        name="Buy & Hold XLV",
-        line=dict(color=C_BENCHMARK, width=2, dash="dash"),
-    ))
-
-    strat_cum = (1 + oos["strategy_return"].fillna(0)).cumprod()
-    fig.add_trace(go.Scatter(
-        x=strat_cum.index, y=strat_cum.values,
-        name="Winner: UMCSENT 1M momentum, z>1.0, 6M lead",
-        line=dict(color=C_STRATEGY, width=2),
-    ))
-    add_nber_bands(fig)
-
-    fig.update_layout(
-        title=(
-            "Equity Curves: Corrected UMCSENT Momentum Winner "
-            f"(Sharpe {winner['oos_sharpe']:.2f}, {winner['oos_ann_return']:.2%} ann.)"
-        ),
-        xaxis_title="Date",
-        yaxis_title="Cumulative Return ($1 invested)",
-        template="plotly_white",
-        height=500,
-        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
-    )
-    save_chart(
-        fig,
-        "equity_curves",
-        caption=(
-            "Corrected winner uses UMCSENT 1-month momentum with a rolling z-score > 1.0 "
-            f"threshold and 6-month lead; OOS Sharpe {winner['oos_sharpe']:.2f}, "
-            f"annual return {winner['oos_ann_return']:.2%}. Shaded bands mark NBER recessions."
-        ),
-        rules=["ECON-SR1", "VIZ-NBER1", "VIZ-O1", "VIZ-V5"],
-        sources=[
-            f"results/{PAIR_ID}/strategy_returns_{DATE_TAG}.csv",
-            f"results/{PAIR_ID}/winner_summary.json",
-        ],
-        alignment="Winner-specific chart rebuilt from corrected strategy_returns, not reconstructed from tournament code.",
-    )
-
-
-# ===================================================================
-# CHART 6: Drawdown comparison
-# ===================================================================
-def chart_drawdown():
-    winner = load_winner()
-    strategy = load_strategy_returns()
-    oos = strategy.loc[winner["oos_period_start"]:winner["oos_period_end"]].copy()
-
-    fig = go.Figure()
-
-    # B&H drawdown
-    bh_cum = (1 + oos["bh_return"].fillna(0)).cumprod()
-    bh_dd = (bh_cum / bh_cum.cummax() - 1)
-    fig.add_trace(go.Scatter(
-        x=bh_dd.index, y=bh_dd.values * 100,
-        name="Buy & Hold XLV",
-        fill="tozeroy",
-        fillcolor="rgba(108,122,137,0.15)",
-        line=dict(color=C_BENCHMARK, width=1.5, dash="dash"),
-    ))
-
-    # Winner strategy drawdown
-    strat_cum = (1 + oos["strategy_return"].fillna(0)).cumprod()
-    strat_dd = (strat_cum / strat_cum.cummax() - 1)
-
-    fig.add_trace(go.Scatter(
-        x=strat_dd.index, y=strat_dd.values * 100,
-        name="Winner: UMCSENT 1M momentum, z>1.0, 6M lead",
-        fill="tozeroy",
-        fillcolor=C_DD_FILL,
-        line=dict(color=C_STRATEGY, width=2),
-    ))
-    add_nber_bands(fig)
-
-    fig.update_layout(
-        title=f"Drawdown Comparison: Corrected Winner Max DD {winner['oos_max_drawdown']:.1%}",
-        xaxis_title="Date",
-        yaxis_title="Drawdown (%)",
-        template="plotly_white",
-        height=400,
-        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
-    )
-    save_chart(
-        fig,
-        "drawdown",
-        caption=(
-            f"Corrected strategy max drawdown is {winner['oos_max_drawdown']:.1%} "
-            f"versus {winner['bh_max_drawdown']:.1%} for buy-and-hold XLV. "
-            "Shaded bands mark NBER recessions."
-        ),
-        rules=["ECON-SR1", "VIZ-NBER1", "VIZ-O1", "VIZ-V5"],
-        sources=[
-            f"results/{PAIR_ID}/strategy_returns_{DATE_TAG}.csv",
-            f"results/{PAIR_ID}/winner_summary.json",
-        ],
-        alignment="Drawdown rebuilt from corrected canonical winner return series.",
-    )
-
-
-# ===================================================================
-# CHART 7: Rolling Sharpe
-# ===================================================================
-def chart_rolling_sharpe():
-    winner = load_winner()
-    strategy = load_strategy_returns()
-    oos = strategy.loc[winner["oos_period_start"]:winner["oos_period_end"]].copy()
-
-    fig = go.Figure()
-
-    # B&H rolling Sharpe (12M)
-    bh_roll = oos["bh_return"].rolling(12, min_periods=8)
-    bh_sharpe = (bh_roll.mean() / bh_roll.std()) * np.sqrt(12)
-    fig.add_trace(go.Scatter(
-        x=bh_sharpe.index, y=bh_sharpe.values,
-        name="Buy & Hold XLV",
-        line=dict(color=C_BENCHMARK, width=1.5, dash="dash"),
-    ))
-
-    # Winner strategy rolling Sharpe
-    strat_roll = oos["strategy_return"].rolling(12, min_periods=8)
-    strat_sharpe = (strat_roll.mean() / strat_roll.std()) * np.sqrt(12)
-    fig.add_trace(go.Scatter(
-        x=strat_sharpe.index, y=strat_sharpe.values,
-        name="Winner: UMCSENT 1M momentum, z>1.0, 6M lead",
-        line=dict(color=C_STRATEGY, width=2),
-    ))
-    add_nber_bands(fig)
-
-    fig.add_hline(
-        y=winner["oos_sharpe"],
-        line_dash="dash",
-        line_color=C_INDICATOR,
-        line_width=1.2,
-        annotation_text=f"Reported OOS Sharpe = {winner['oos_sharpe']:.2f}",
-        annotation_position="top left",
-    )
-    fig.add_hline(y=0, line_dash="dash", line_color=C_BENCHMARK, line_width=0.5)
-
-    fig.update_layout(
-        title="Rolling 12-Month Sharpe: Corrected UMCSENT Momentum Winner",
-        xaxis_title="Date",
-        yaxis_title="Rolling Sharpe (12M)",
-        template="plotly_white",
-        height=400,
-        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
-    )
-    save_chart(
-        fig,
-        "rolling_sharpe",
-        caption=(
-            f"Rolling 12-month Sharpe for corrected winner; full OOS Sharpe is "
-            f"{winner['oos_sharpe']:.2f}. Shaded bands mark NBER recessions."
-        ),
-        rules=["ECON-SR1", "VIZ-NBER1", "VIZ-O1", "VIZ-V5"],
-        sources=[
-            f"results/{PAIR_ID}/strategy_returns_{DATE_TAG}.csv",
-            f"results/{PAIR_ID}/winner_summary.json",
-        ],
-        alignment="Winner-specific rolling Sharpe rebuilt from corrected canonical strategy returns.",
-    )
-
-
-# ===================================================================
-# CHART 8: Tournament scatter (Sharpe vs MDD)
-# ===================================================================
-def chart_tournament_scatter():
-    tourn_df = load_tournament()
-
-    valid = tourn_df[(tourn_df["valid"]) & (tourn_df["signal"] != "BENCHMARK")]
-    invalid = tourn_df[(~tourn_df["valid"]) & (tourn_df["signal"] != "BENCHMARK")]
-    benchmark = tourn_df[tourn_df["signal"] == "BENCHMARK"]
-
-    fig = go.Figure()
-
-    if len(invalid) > 0:
-        fig.add_trace(go.Scatter(
-            x=invalid["annual_turnover"], y=invalid["oos_sharpe"],
-            mode="markers",
-            marker=dict(size=3, color="#cccccc", opacity=0.2),
-            name="Invalid",
-        ))
-
-    if len(valid) > 0:
-        dd_pct = valid["max_drawdown"] * 100
-        fig.add_trace(go.Scatter(
-            x=valid["annual_turnover"], y=valid["oos_sharpe"],
-            mode="markers",
-            marker=dict(
-                size=5,
-                color=dd_pct,
-                colorscale="RdYlGn",
-                colorbar=dict(title="Max DD (%)"),
-                opacity=0.6,
-            ),
-            text=[f"{r['signal']}/{r['threshold']}/{r['strategy']}" for _, r in valid.iterrows()],
-            hovertemplate="%{text}<br>Sharpe: %{y:.2f}<br>Turnover: %{x:.1f}<extra></extra>",
-            name="Valid Strategies",
-        ))
-
-    if len(benchmark) > 0:
-        fig.add_trace(go.Scatter(
-            x=[benchmark.iloc[0]["annual_turnover"]],
-            y=[benchmark.iloc[0]["oos_sharpe"]],
-            mode="markers",
-            marker=dict(size=14, color=C_BENCHMARK, symbol="diamond"),
-            name="Buy-and-Hold XLV",
-        ))
-
-    top5 = valid.nlargest(5, "oos_sharpe") if len(valid) > 0 else pd.DataFrame()
-    if len(top5) > 0:
-        fig.add_trace(go.Scatter(
-            x=top5["annual_turnover"], y=top5["oos_sharpe"],
-            mode="markers",
-            marker=dict(size=12, color=C_STRATEGY, symbol="star", line=dict(width=1, color="black")),
-            name="Top 5",
-        ))
-
-    fig.update_layout(
-        title=f"Tournament Results: {len(tourn_df):,} Combinations ({len(valid):,} Valid)",
-        xaxis_title="Annual Turnover (trades/year)",
-        yaxis_title="OOS Sharpe Ratio",
-        template="plotly_white",
-        height=500,
-    )
-    save_chart(fig, f"{PAIR_ID}_tournament_scatter")
-
-
-# ===================================================================
 # CHART 9: Signal distribution / direction breakdown
 # ===================================================================
 def chart_signal_dist():
     df = load_monthly()
-    winner_data = load_winner()
-    is_end = winner_data["is_end"]
-    oos_start = winner_data["oos_start"]
 
     fig = make_subplots(
         rows=1,
@@ -793,214 +532,205 @@ def chart_signal_dist():
 
 
 # ===================================================================
-# CHART 10: Walk-forward OOS rolling Sharpe
+# Winner charts (MAIN track: as known at the time)
 # ===================================================================
-def chart_wf_sharpe():
-    winner = load_winner()
-    strategy = load_strategy_returns()
-    oos = strategy.loc[winner["oos_period_start"]:winner["oos_period_end"]].copy()
+def winner_label(w):
+    return f"Winner: {w['signal_code']} / {w['threshold_code']} / {w['strategy_code']} / L{w['lead_value']}"
 
+
+def oos_slice(w):
+    s = load_strategy_returns()
+    return s.loc[w["oos_period_start"]:w["oos_period_end"]].copy()
+
+
+WINNER_SOURCES = [f"results/{PAIR_ID}/strategy_returns_{DATE_TAG}.csv", f"results/{PAIR_ID}/winner_summary.json"]
+
+
+def chart_equity_curves():
+    w = load_winner()
+    oos = oos_slice(w)
     fig = go.Figure()
+    fig.add_trace(go.Scatter(x=oos.index, y=(1 + oos["benchmark_return"]).cumprod(), name="Buy & Hold XLV",
+                             line=dict(color=C_BENCHMARK, width=2, dash="dash")))
+    fig.add_trace(go.Scatter(x=oos.index, y=(1 + oos["strategy_return"]).cumprod(), name=winner_label(w),
+                             line=dict(color=C_STRATEGY, width=2)))
+    add_nber_bands(fig)
+    fig.update_layout(title=f"Test-Period Equity Curve (as known at the time): Sharpe {w['oos_sharpe']:.2f} vs "
+                            f"{w['bh_sharpe']:.2f} buy-and-hold",
+                      xaxis_title="Date", yaxis_title="Growth of $1", template="plotly_white", height=500,
+                      legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"))
+    save_chart(fig, "equity_curves",
+               caption=(f"{winner_label(w)} on UMCSENT as known at the time, test period {w['oos_period_start']} to "
+                        f"{w['oos_period_end']}: Sharpe {w['oos_sharpe']:.2f} versus {w['bh_sharpe']:.2f} for "
+                        f"buy-and-hold XLV; gross of costs. Shaded bands mark NBER recessions."),
+               rules=["ECON-SR1", "VIZ-NBER1", "VIZ-O1", "VIZ-V5"], sources=WINNER_SOURCES,
+               alignment="Rendered from the harness MAIN-track strategy returns and winner_summary.json.")
 
-    # Annual Sharpe by calendar year
-    years = sorted(oos.index.year.unique())
-    annual_data = []
-    for yr in years:
-        yr_mask = oos.index.year == yr
-        yr_ret = oos.loc[yr_mask, "strategy_return"].dropna()
-        bh_ret = oos.loc[yr_mask, "bh_return"].dropna()
-        if len(yr_ret) >= 8:
-            s = (yr_ret.mean() / yr_ret.std()) * np.sqrt(12) if yr_ret.std() > 0 else 0
-            b = (bh_ret.mean() / bh_ret.std()) * np.sqrt(12) if bh_ret.std() > 0 else 0
-            annual_data.append({"year": yr, "strat_sharpe": s, "bh_sharpe": b})
 
-    annual_df = pd.DataFrame(annual_data)
-    if len(annual_df) > 0:
-        bar_colors = [C_STRATEGY if v > 0 else C_INDICATOR for v in annual_df["strat_sharpe"]]
-        fig.add_trace(go.Bar(
-            x=annual_df["year"].astype(str),
-            y=annual_df["strat_sharpe"],
-            name="Strategy Annual Sharpe",
-            marker_color=bar_colors,
-        ))
-        fig.add_trace(go.Scatter(
-            x=annual_df["year"].astype(str),
-            y=annual_df["bh_sharpe"],
-            name="B&H XLV Sharpe",
-            mode="lines+markers",
-            line=dict(color=C_BENCHMARK, width=2, dash="dash"),
-        ))
+def chart_drawdown():
+    w = load_winner()
+    oos = oos_slice(w)
+    fig = go.Figure()
+    for col, name, color, fill, dash in (("benchmark_return", "Buy & Hold XLV", C_BENCHMARK, "rgba(108,122,137,0.15)", "dash"),
+                                         ("strategy_return", winner_label(w), C_STRATEGY, C_DD_FILL, None)):
+        eq = (1 + oos[col]).cumprod()
+        fig.add_trace(go.Scatter(x=eq.index, y=(eq / eq.cummax() - 1) * 100, name=name, fill="tozeroy",
+                                 fillcolor=fill, line=dict(color=color, width=2, dash=dash)))
+    add_nber_bands(fig)
+    fig.update_layout(title=f"Test-Period Drawdown: {w['oos_max_drawdown']:.1%} vs {w['bh_max_drawdown']:.1%} buy-and-hold",
+                      xaxis_title="Date", yaxis_title="Drawdown (%)", template="plotly_white", height=400,
+                      legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"))
+    save_chart(fig, "drawdown",
+               caption=(f"Maximum test-period drawdown {w['oos_max_drawdown']:.1%} for the rule versus "
+                        f"{w['bh_max_drawdown']:.1%} for buy-and-hold XLV (as known at the time). Shaded bands mark "
+                        "NBER recessions."),
+               rules=["ECON-SR1", "VIZ-NBER1", "VIZ-O1", "VIZ-V5"], sources=WINNER_SOURCES,
+               alignment="Rendered from the harness MAIN-track strategy returns.")
 
-    fig.add_hline(
-        y=winner["oos_sharpe"],
-        line_dash="dash",
-        line_color=C_INDICATOR,
-        line_width=1.2,
-        annotation_text=f"Full OOS Sharpe = {winner['oos_sharpe']:.2f}",
-        annotation_position="top left",
-    )
+
+def chart_rolling_sharpe():
+    w = load_winner()
+    oos = oos_slice(w)
+    fig = go.Figure()
+    for col, name, color, dash in (("benchmark_return", "Buy & Hold XLV", C_BENCHMARK, "dash"),
+                                   ("strategy_return", winner_label(w), C_STRATEGY, None)):
+        r = oos[col].rolling(12, min_periods=8)
+        fig.add_trace(go.Scatter(x=oos.index, y=r.mean() / r.std() * np.sqrt(12), name=name,
+                                 line=dict(color=color, width=2, dash=dash)))
+    add_nber_bands(fig)
+    fig.add_hline(y=w["oos_sharpe"], line_dash="dash", line_color=C_INDICATOR, line_width=1.2,
+                  annotation_text=f"Full test-period Sharpe = {w['oos_sharpe']:.2f}", annotation_position="top left")
     fig.add_hline(y=0, line_dash="dash", line_color=C_BENCHMARK, line_width=0.5)
-
-    fig.update_layout(
-        title="Walk-Forward Annual Sharpe: Corrected UMCSENT Momentum Winner",
-        xaxis_title="Year",
-        yaxis_title="Annualized Sharpe Ratio",
-        template="plotly_white",
-        height=430,
-        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
-        barmode="group",
-    )
-    save_chart(
-        fig,
-        "wf_sharpe",
-        caption=(
-            "Calendar-year OOS Sharpe for the corrected winner against buy-and-hold XLV; "
-            f"full-window OOS Sharpe is {winner['oos_sharpe']:.2f}."
-        ),
-        rules=["ECON-SR1", "VIZ-O1", "VIZ-V5"],
-        sources=[
-            f"results/{PAIR_ID}/strategy_returns_{DATE_TAG}.csv",
-            f"results/{PAIR_ID}/winner_summary.json",
-        ],
-        alignment="Winner-specific annual walk-forward Sharpe rebuilt from corrected strategy returns.",
-    )
+    fig.update_layout(title="Rolling 12-Month Sharpe (test period, as known at the time)", xaxis_title="Date",
+                      yaxis_title="Rolling Sharpe (12M)", template="plotly_white", height=400,
+                      legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"))
+    save_chart(fig, "rolling_sharpe",
+               caption=(f"Rolling 12-month Sharpe of the rule and of buy-and-hold XLV in the test period; the full "
+                        f"test-period Sharpe is {w['oos_sharpe']:.2f}. Shaded bands mark NBER recessions."),
+               rules=["ECON-SR1", "VIZ-NBER1", "VIZ-O1", "VIZ-V5"], sources=WINNER_SOURCES,
+               alignment="Rendered from the harness MAIN-track strategy returns.")
 
 
-def refresh_strategy_dependent_csvs():
-    winner = load_winner()
-    df = load_strategy_returns()
+def chart_tournament_scatter():
+    t = load_tournament()
+    w = load_winner()
+    valid = t[t["valid"].astype(bool)]
+    invalid = t[~t["valid"].astype(bool)]
+    sel = t[t["selected"].astype(bool)] if "selected" in t else t.iloc[0:0]
+    fig = go.Figure()
+    if len(invalid):
+        fig.add_trace(go.Scatter(x=invalid["is_sharpe"], y=invalid["oos_sharpe"], mode="markers",
+                                 marker=dict(size=3, color="#cccccc", opacity=0.3), name="Not valid on training data"))
+    fig.add_trace(go.Scatter(x=valid["is_sharpe"], y=valid["oos_sharpe"], mode="markers",
+                             marker=dict(size=5, color=valid["lead_months"], colorscale="Viridis",
+                                         colorbar=dict(title="Lead (months)"), opacity=0.6),
+                             text=valid["key"], hovertemplate="%{text}<br>Training Sharpe %{x:.2f}<br>Test Sharpe %{y:.2f}<extra></extra>",
+                             name="Valid combinations"))
+    if len(sel):
+        fig.add_trace(go.Scatter(x=sel["is_sharpe"], y=sel["oos_sharpe"], mode="markers",
+                                 marker=dict(size=14, color=C_STRATEGY, symbol="star", line=dict(width=1, color="black")),
+                                 name=winner_label(w)))
+    fig.add_hline(y=w["bh_sharpe"], line_dash="dash", line_color=C_BENCHMARK,
+                  annotation_text=f"Buy-and-hold XLV test Sharpe {w['bh_sharpe']:.2f}")
+    fig.update_layout(title=f"Tournament (as known at the time): {len(t):,} Combinations, {len(valid):,} Valid",
+                      xaxis_title="Training-period Sharpe", yaxis_title="Test-period Sharpe", template="plotly_white",
+                      height=500)
+    save_chart(fig, "tournament_scatter",
+               caption=(f"Training versus test-period Sharpe for {len(t):,} combinations ({len(valid):,} valid) on "
+                        "UMCSENT as known at the time. The star is the rule selected on training data by the stable "
+                        "lead-range rule; the test-period score played no part in the selection."),
+               sources=[f"results/{PAIR_ID}/tournament_results_{DATE_TAG}.csv", f"results/{PAIR_ID}/winner_summary.json"])
+
+
+def chart_wf_sharpe():
+    w = load_winner()
+    oos = oos_slice(w)
     rows = []
-    periods = [
-        ("Dot-Com Crash", "2000-03-01", "2002-10-31", False),
-        ("GFC", "2007-12-01", "2009-06-30", False),
-        ("COVID", "2020-02-01", "2020-12-31", True),
-        ("2022 Rates Shock", "2022-01-01", "2022-12-31", True),
-        ("Full OOS", winner["oos_period_start"], winner["oos_period_end"], True),
-    ]
-    for name, start, end, is_oos in periods:
-        seg = df.loc[start:end].copy()
-        r = seg["strategy_return"].dropna()
-        if len(r) == 0:
-            ann_return = ann_vol = sharpe = max_dd = np.nan
-        else:
-            ann_return = r.mean() * 12
-            ann_vol = r.std() * np.sqrt(12)
-            sharpe = (r.mean() / r.std()) * np.sqrt(12) if r.std() > 0 else 0
-            eq = (1 + r.fillna(0)).cumprod()
-            max_dd = (eq / eq.cummax() - 1).min()
-        rows.append({
-            "period_name": name,
-            "start_date": start,
-            "end_date": end,
-            "is_oos": is_oos,
-            "ann_return": round(float(ann_return), 6) if pd.notna(ann_return) else np.nan,
-            "ann_vol": round(float(ann_vol), 6) if pd.notna(ann_vol) else np.nan,
-            "sharpe": round(float(sharpe), 6) if pd.notna(sharpe) else np.nan,
-            "n_obs": int(len(r)),
-            "max_drawdown": round(float(max_dd), 6) if pd.notna(max_dd) else np.nan,
-        })
-    pd.DataFrame(rows).to_csv(os.path.join(RESULTS_DIR, "subperiod_sharpe.csv"), index=False)
+    for yr in sorted(oos.index.year.unique()):
+        seg = oos[oos.index.year == yr]
+        if len(seg) >= 8:
+            rows.append({"year": yr, "s": sharpe_of(seg["strategy_return"]), "b": sharpe_of(seg["benchmark_return"])})
+    a = pd.DataFrame(rows)
+    fig = go.Figure()
+    if len(a):
+        fig.add_trace(go.Bar(x=a["year"].astype(str), y=a["s"], name="Rule annual Sharpe",
+                             marker_color=[C_STRATEGY if v > 0 else C_INDICATOR for v in a["s"]]))
+        fig.add_trace(go.Scatter(x=a["year"].astype(str), y=a["b"], name="Buy-and-hold XLV Sharpe",
+                                 mode="lines+markers", line=dict(color=C_BENCHMARK, width=2, dash="dash")))
+    fig.add_hline(y=w["oos_sharpe"], line_dash="dash", line_color=C_INDICATOR, line_width=1.2,
+                  annotation_text=f"Full test-period Sharpe = {w['oos_sharpe']:.2f}", annotation_position="top left")
+    fig.add_hline(y=0, line_dash="dash", line_color=C_BENCHMARK, line_width=0.5)
+    fig.update_layout(title="Calendar-Year Sharpe in the Test Period (as known at the time)", xaxis_title="Year",
+                      yaxis_title="Annualized Sharpe Ratio", template="plotly_white", height=430,
+                      legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"))
+    save_chart(fig, "wf_sharpe",
+               caption=(f"Calendar-year test-period Sharpe of the rule against buy-and-hold XLV (years with at least "
+                        f"eight months); full-window test-period Sharpe {w['oos_sharpe']:.2f}."),
+               rules=["ECON-SR1", "VIZ-O1", "VIZ-V5"], sources=WINNER_SOURCES,
+               alignment="Rendered from the harness MAIN-track strategy returns.")
 
-    rolling = df["strategy_return"].rolling(24, min_periods=16)
-    out = pd.DataFrame({
-        "date": df.index,
-        "rolling_sharpe_24m": (rolling.mean() / rolling.std()) * np.sqrt(12),
-    }).dropna()
-    out.to_csv(os.path.join(RESULTS_DIR, "rolling_sharpe_umcsent_xlv.csv"), index=False)
-    print("  Refreshed: subperiod_sharpe.csv, rolling_sharpe_umcsent_xlv.csv")
+
+def sharpe_of(r):
+    r = r.dropna()
+    return float(r.mean() / r.std() * np.sqrt(12)) if len(r) > 1 and r.std() > 0 else 0.0
 
 
 def chart_subperiod_sharpe():
     rows = pd.read_csv(os.path.join(RESULTS_DIR, "subperiod_sharpe.csv"))
-    winner = load_winner()
-    labels = [
-        f"{r.period_name} ({'OOS' if r.is_oos else 'IS'})"
-        for r in rows.itertuples(index=False)
-    ]
-    values = rows["sharpe"].astype(float)
-    colors = [C_STRATEGY if v >= 0 else C_INDICATOR for v in values]
+    w = load_winner()
+    labels = [f"{r.period_name} ({'test' if r.is_oos else 'training'})" for r in rows.itertuples(index=False)]
     fig = go.Figure()
-    fig.add_trace(go.Bar(
-        x=labels,
-        y=values,
-        marker_color=colors,
-        text=[f"{v:+.2f}" for v in values],
-        textposition="outside",
-        name="Annualized Sharpe by episode",
-    ))
+    fig.add_trace(go.Bar(x=labels, y=rows["sharpe"], name="Rule", marker_color=C_STRATEGY,
+                         text=[f"{v:+.2f}" for v in rows["sharpe"]], textposition="outside"))
+    fig.add_trace(go.Bar(x=labels, y=rows["buy_hold_sharpe"], name="Buy-and-hold XLV", marker_color=C_BENCHMARK,
+                         text=[f"{v:+.2f}" for v in rows["buy_hold_sharpe"]], textposition="outside"))
     fig.add_hline(y=0, line_dash="dot", line_color=C_BENCHMARK, line_width=0.8)
-    fig.update_layout(
-        title="Sub-Period Sharpe: Corrected UMCSENT Momentum Winner",
-        xaxis_title="Historical episode",
-        yaxis_title="Annualized Sharpe Ratio",
-        template="plotly_white",
-        height=430,
-        showlegend=False,
-        margin=dict(b=120),
-    )
-    save_chart(
-        fig,
-        "subperiod_sharpe",
-        caption=(
-            "Sharpe by historical episode recomputed from corrected strategy_returns; "
-            f"full OOS Sharpe is {winner['oos_sharpe']:.2f}."
-        ),
-        rules=["ECON-SR1", "ECON-CP1", "VIZ-O1", "VIZ-V5"],
-        sources=[
-            f"results/{PAIR_ID}/strategy_returns_{DATE_TAG}.csv",
-            f"results/{PAIR_ID}/subperiod_sharpe.csv",
-            f"results/{PAIR_ID}/winner_summary.json",
-        ],
-        alignment="Winner-specific subperiod chart rebuilt from corrected strategy returns.",
-    )
+    fig.update_layout(title="Sharpe by Historical Episode (as known at the time)", xaxis_title="Historical episode",
+                      yaxis_title="Annualized Sharpe Ratio", template="plotly_white", height=430, barmode="group",
+                      margin=dict(b=120))
+    save_chart(fig, "subperiod_sharpe",
+               caption=(f"Sharpe of the rule and of buy-and-hold XLV in stress episodes and over the full test "
+                        f"period ({w['oos_period_start']} to {w['oos_period_end']}). Episodes before "
+                        f"{w['oos_period_start']} lie in the training period."),
+               rules=["ECON-SR1", "ECON-CP1", "VIZ-O1", "VIZ-V5"],
+               sources=[f"results/{PAIR_ID}/subperiod_sharpe.csv", f"results/{PAIR_ID}/winner_summary.json"])
 
 
 def chart_rolling_sharpe_cp():
-    winner = load_winner()
-    rg = pd.read_csv(os.path.join(RESULTS_DIR, "rolling_sharpe_umcsent_xlv.csv"))
-    rg["date"] = pd.to_datetime(rg["date"])
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=rg["date"],
-        y=rg["rolling_sharpe_24m"],
-        name="Rolling 24M Sharpe",
-        mode="lines",
-        line=dict(color=C_STRATEGY, width=2),
-    ))
+    w = load_winner()
+    rg = pd.read_csv(os.path.join(RESULTS_DIR, "rolling_sharpe_umcsent_xlv.csv"), parse_dates=["date"])
+    fig = go.Figure(go.Scatter(x=rg["date"], y=rg["rolling_sharpe_24m"], name="Rolling 24M Sharpe", mode="lines",
+                               line=dict(color=C_STRATEGY, width=2)))
     add_nber_bands(fig)
-    fig.add_hline(
-        y=winner["oos_sharpe"],
-        line_dash="dash",
-        line_color=C_INDICATOR,
-        line_width=1.2,
-        annotation_text=f"Reported OOS Sharpe = {winner['oos_sharpe']:.2f}",
-        annotation_position="top left",
-    )
+    fig.add_vline(x=pd.Timestamp(w["oos_period_start"]), line_dash="dot", line_color=C_INDICATOR)
     fig.add_hline(y=0, line_dash="dot", line_color=C_BENCHMARK, line_width=0.8)
-    fig.update_layout(
-        title="Rolling 24-Month Strategy Sharpe: Corrected UMCSENT Momentum Winner",
-        xaxis_title="Date",
-        yaxis_title="Annualized Sharpe Ratio",
-        template="plotly_white",
-        height=420,
-        legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
-    )
-    save_chart(
-        fig,
-        "rolling_sharpe_cp",
-        caption=(
-            "Rolling 24-month Sharpe recomputed from corrected strategy_returns; "
-            f"reported full OOS Sharpe is {winner['oos_sharpe']:.2f}. "
-            "Shaded bands mark NBER recessions."
-        ),
-        rules=["ECON-SR1", "ECON-CP2", "VIZ-NBER1", "VIZ-O1", "VIZ-V5"],
-        sources=[
-            f"results/{PAIR_ID}/strategy_returns_{DATE_TAG}.csv",
-            f"results/{PAIR_ID}/rolling_sharpe_umcsent_xlv.csv",
-            f"results/{PAIR_ID}/winner_summary.json",
-        ],
-        alignment="Winner-specific rolling CP Sharpe rebuilt from corrected strategy returns.",
-    )
+    fig.update_layout(title="Rolling 24-Month Sharpe of the Rule (training and test periods)", xaxis_title="Date",
+                      yaxis_title="Annualized Sharpe Ratio", template="plotly_white", height=420,
+                      legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"))
+    save_chart(fig, "rolling_sharpe_cp",
+               caption=(f"Rolling 24-month Sharpe of the rule from the start of its training period; the dotted line "
+                        f"marks the test-period start ({w['oos_period_start']}). Shaded bands mark NBER recessions."),
+               rules=["ECON-SR1", "ECON-CP2", "VIZ-NBER1", "VIZ-O1", "VIZ-V5"],
+               sources=[f"results/{PAIR_ID}/rolling_sharpe_umcsent_xlv.csv", f"results/{PAIR_ID}/winner_summary.json"])
+
+
+def chart_history_zoom(slug, title, start, end):
+    df = load_monthly().loc[start:end]
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    for s, e in NBER_RECESSIONS:
+        if pd.Timestamp(e) >= pd.Timestamp(start) and pd.Timestamp(s) <= pd.Timestamp(end):
+            fig.add_vrect(x0=max(s, start), x1=min(e, end), fillcolor=C_NBER, layer="below", line_width=0)
+    fig.add_trace(go.Scatter(x=df.index, y=df["umcsent"], name="UMCSENT (revised)", line=dict(color=C_INDICATOR, width=2)),
+                  secondary_y=False)
+    fig.add_trace(go.Scatter(x=df.index, y=df["xlv"], name="XLV price ($)", line=dict(color=C_EQUITY, width=1.6)),
+                  secondary_y=True)
+    fig.add_trace(go.Scatter(x=[None], y=[None], mode="markers", name="NBER recession period", hoverinfo="skip",
+                             marker=dict(size=12, color="rgba(120,120,120,0.35)", symbol="square")))
+    fig.update_layout(title=title, template="plotly_white", height=430, hovermode="x unified")
+    fig.update_yaxes(title_text="UMCSENT index", secondary_y=False)
+    fig.update_yaxes(title_text="XLV price ($)", secondary_y=True)
+    save_chart(fig, f"history_zoom_{slug}", caption=f"{title}; gray bands are NBER recessions.",
+               sources=["data/umcsent_xlv_monthly_latest.parquet"])
 
 
 # ===================================================================
@@ -1008,17 +738,6 @@ def chart_rolling_sharpe_cp():
 # ===================================================================
 if __name__ == "__main__":
     print(f"Generating charts for {PAIR_ID}...")
-    if "--winner-refresh" in sys.argv:
-        refresh_strategy_dependent_csvs()
-        chart_equity_curves()
-        chart_drawdown()
-        chart_rolling_sharpe()
-        chart_wf_sharpe()
-        chart_subperiod_sharpe()
-        chart_rolling_sharpe_cp()
-        print("\nWinner-specific refresh complete.")
-        raise SystemExit(0)
-
     chart_hero()
     chart_correlation_scatter()
     chart_correlations()
@@ -1030,10 +749,11 @@ if __name__ == "__main__":
     chart_tournament_scatter()
     chart_signal_dist()
     chart_wf_sharpe()
+    chart_subperiod_sharpe()
+    chart_rolling_sharpe_cp()
     chart_rolling_granger()
+    chart_history_zoom("dot_com", "Dot-Com Bust (2000-2002)", "1999-01-31", "2003-12-31")
+    chart_history_zoom("gfc", "Global Financial Crisis (2007-2009)", "2006-01-31", "2010-12-31")
+    chart_history_zoom("covid", "COVID Crash (2020)", "2018-01-31", "2021-12-31")
+    chart_history_zoom("rates_2022", "Fed Hiking Cycle (2022)", "2021-01-31", "2023-12-31")
     print(f"\nDone. Charts saved to {CHART_DIR}")
-    charts = os.listdir(CHART_DIR)
-    print(f"Total charts: {len(charts)}")
-    for c in sorted(charts):
-        size_kb = os.path.getsize(os.path.join(CHART_DIR, c)) // 1024
-        print(f"  {c}  ({size_kb} KB)")

@@ -7,13 +7,13 @@
     "VIZ-O1",
     "VIZ-V5"
   ],
-  "caption": "Calendar-year OOS Sharpe for the corrected winner against buy-and-hold XLV; full-window OOS Sharpe is 1.16.",
-  "narrative_alignment_note": "Winner-specific annual walk-forward Sharpe rebuilt from corrected strategy returns.",
+  "caption": "Calendar-year test-period Sharpe of the rule against buy-and-hold XLV (years with at least eight months); full-window test-period Sharpe 0.58.",
+  "narrative_alignment_note": "Rendered from the harness MAIN-track strategy returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/umcsent_xlv/strategy_returns_20261008.csv",
+    "results/umcsent_xlv/strategy_returns_20261017.csv",
     "results/umcsent_xlv/winner_summary.json"
   ],
-  "generated_at": "2026-10-09T09:27:42.495738+00:00",
+  "generated_at": "2026-10-17T23:09:36.526852+00:00",
   "generated_by": "Viz Vera - scripts/generate_charts_umcsent_xlv.py"
 }
