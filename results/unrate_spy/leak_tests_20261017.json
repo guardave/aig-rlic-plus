@@ -41,6 +41,18 @@
       "published": "chg_6m|T_roll_p75|countercyclical|4",
       "match": true
     },
+    "published": {
+      "key": "chg_6m|T_roll_p75|P1|countercyclical|4",
+      "signal": "chg_6m",
+      "threshold": "T_roll_p75",
+      "strategy": "P1",
+      "direction": "countercyclical",
+      "lead": 4,
+      "is_sharpe": 0.9294091772148677,
+      "oos_sharpe": 0.8083111964353786,
+      "tag": "20261016",
+      "selection": "raw in-sample Sharpe argmax, revised values, fixed lag"
+    },
     "strategy_return": {
       "rows": 404,
       "max_abs_diff": 9.71445146547012e-17,

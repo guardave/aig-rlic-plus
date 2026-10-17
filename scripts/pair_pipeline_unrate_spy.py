@@ -95,6 +95,7 @@ def build_panel() -> pd.DataFrame:
 def run_tournament() -> tuple[pd.DataFrame, dict, dict]:
     out = run_pair(PAIR_ID, DATE_TAG, K=100, extra={
         "target_symbol": TARGET_SYMBOL, "cost_bps": COST_BPS,
+        "lookback": "LB60 where rolling thresholds apply",
         "strategy_description": "Hold SPY when the lagged unemployment signal is on the favourable side of its "
                                 "threshold; otherwise hold cash.",
         "notes": "UNRATE is a lagging labor-market indicator; read the rule as defensive regime context, not a "

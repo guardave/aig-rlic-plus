@@ -82,6 +82,7 @@ def build_panel() -> pd.DataFrame:
 def run_tournament() -> tuple[pd.DataFrame, dict, dict]:
     out = run_pair(PAIR_ID, DATE_TAG, K=100, extra={
         "target_symbol": TARGET_SYMBOL, "cost_bps": COST_BPS,
+        "lookback": "20q where rolling thresholds apply",
         "strategy_description": "Hold SPY when the lagged delinquency signal is on the favourable side of its "
                                 "threshold; otherwise hold cash.",
         "notes": "Credit-card delinquency is a quarterly, lagging credit-stress measure. Headline = as known at the "

@@ -41,6 +41,18 @@
       "published": "level|T_roll_p75|countercyclical|2",
       "match": true
     },
+    "published": {
+      "key": "level|T_roll_p75|P1|countercyclical|2",
+      "signal": "level",
+      "threshold": "T_roll_p75",
+      "strategy": "P1",
+      "direction": "countercyclical",
+      "lead": 2,
+      "is_sharpe": 0.8963600045663451,
+      "oos_sharpe": 0.5044774985981482,
+      "tag": "20261016",
+      "selection": "raw in-sample Sharpe argmax, revised values, fixed lag"
+    },
     "strategy_return": {
       "rows": 130,
       "max_abs_diff": 9.367506770274758e-17,

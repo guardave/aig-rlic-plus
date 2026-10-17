@@ -399,6 +399,14 @@ class StrategyConfig:
         f"threshold, lead {W.lead_text}, on unemployment data as known at the time."
     )
 
+    STATISTICAL_FRAMING_BANNER = (
+        f"Correction (2026-10-17). This page previously reported the rule {W.previous_rule} (test-period Sharpe "
+        f"{W.previous_oos_sharpe}, published {W.previous_tag}), which was the single highest training Sharpe on "
+        "today's revised data with fixed release lags. It now reports the rule selected on data as known at the "
+        "time, with point-in-time release dates and the stable-lead-range rule; today's revised data are shown "
+        "for comparison only."
+    )
+
     PLAIN_ENGLISH = (
         f"The rule is to {_RULE}. This is a lagged labor-cycle rule, not a real-time recession forecast."
     )

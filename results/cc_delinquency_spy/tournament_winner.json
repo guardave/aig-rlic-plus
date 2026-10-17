@@ -1,6 +1,6 @@
 {
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-17T12:28:26.882122+00:00",
+  "generated_at": "2026-10-17T12:49:29.536249+00:00",
   "schema_version": "1.3.0",
   "target_symbol": "SPY",
   "track_policy": "compute_twice",
@@ -13,6 +13,7 @@
   "threshold_value": 0.105,
   "threshold_rule": "gte",
   "threshold_note": "T_roll_p50 threshold; threshold_value is the value in force at the last row",
+  "lookback": "20q where rolling thresholds apply",
   "strategy_family": "P1_long_cash",
   "strategy_code": "P1",
   "strategy_display_name": "P1 long cash",
@@ -150,7 +151,21 @@
           "n": 37
         }
       }
-    }
+    },
+    "previously_published": [
+      {
+        "key": "level|T_roll_p75|P1|countercyclical|2",
+        "signal": "level",
+        "threshold": "T_roll_p75",
+        "strategy": "P1",
+        "direction": "countercyclical",
+        "lead": 2,
+        "is_sharpe": 0.8963600045663451,
+        "oos_sharpe": 0.5044774985981482,
+        "tag": "20261016",
+        "selection": "raw in-sample Sharpe argmax, revised values, fixed lag"
+      }
+    ]
   },
   "tracks": {
     "main": {
@@ -1009,6 +1024,30 @@
     "track_state": {
       "value": "both",
       "text": "both"
+    },
+    "previous_rule": {
+      "value": "level|T_roll_p75|P1|countercyclical|2",
+      "text": "level / T_roll_p75 / L2"
+    },
+    "previous_lead": {
+      "value": 2,
+      "text": "2"
+    },
+    "previous_lead_text": {
+      "value": 2,
+      "text": "2 quarters"
+    },
+    "previous_oos_sharpe": {
+      "value": 0.5044774985981482,
+      "text": "0.50"
+    },
+    "previous_is_sharpe": {
+      "value": 0.8963600045663451,
+      "text": "0.90"
+    },
+    "previous_tag": {
+      "value": "20261016",
+      "text": "2026-10-16"
     }
   }
 }

@@ -410,6 +410,14 @@ class StrategyConfig:
         "no frozen-rule hold-out test has been run yet."
     )
 
+    STATISTICAL_FRAMING_BANNER = (
+        f"Correction (2026-10-17). This page previously reported the rule {W.previous_rule} (test-period Sharpe "
+        f"{W.previous_oos_sharpe}, published {W.previous_tag}), which was the single highest training Sharpe on "
+        "today's revised data with fixed release lags. It now reports the rule selected on data as known at the "
+        "time, with point-in-time release dates and the stable-lead-range rule; today's revised data are shown "
+        "for comparison only."
+    )
+
     PLAIN_ENGLISH = (
         f"The rule is to {_RULE}. In the test period ({W.oos_start} to {W.oos_end}) it scored Sharpe "
         f"{W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, with maximum drawdown {W.oos_max_drawdown} "
