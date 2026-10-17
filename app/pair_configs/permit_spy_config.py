@@ -10,30 +10,29 @@ from the previous_* fields.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
-import pandas as pd
 
+from components import provenance as P
 from components.page_templates import MethodologyConfig
-from components.winner_fields import lead_grid, load
+from components.winner_fields import load
 
 W = load("permit_spy")
 _RES = Path(__file__).resolve().parents[2] / "results" / "permit_spy"
-_WS = json.loads((_RES / "winner_summary.json").read_text())
+_WS = P.json_file(_RES / "winner_summary.json")
 _TAG = _WS["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
-_Q = pd.read_csv(_RES / "regime_quartile_returns.csv").set_index("quartile")["sharpe"].to_dict()
-_QR = pd.read_csv(_RES / f"core_models_{_TAG}" / "quantile_regression.csv").set_index("quantile")["coef"].to_dict()
-_QT = json.loads((_RES / f"core_models_{_TAG}" / "quantile_equality_test.json").read_text())
-_LP = pd.read_csv(_RES / f"core_models_{_TAG}" / "local_projections.csv").set_index("horizon")
-_G = pd.read_csv(_RES / "granger_by_lag.csv")
-_G_MIN_P = float(_G["p_value"].min())
-_G_MIN_LAG = int(_G.loc[_G["p_value"].idxmin(), "lag"])
+_Q = P.col_dict(P.csv_file(_RES / "regime_quartile_returns.csv"), "quartile", "sharpe")
+_QR = P.col_dict(P.csv_file(_RES / f"core_models_{_TAG}" / "quantile_regression.csv"), "quantile", "coef")
+_QT = P.json_file(_RES / f"core_models_{_TAG}" / "quantile_equality_test.json")
+_LP_T = P.csv_file(_RES / f"core_models_{_TAG}" / "local_projections.csv")
+_LP_COEF = P.col_dict(_LP_T, "horizon", "coef")
+_LP_P = P.col_dict(_LP_T, "horizon", "p_value")
+_G_MIN_P = P.colmin(P.csv_file(_RES / "granger_by_lag.csv"), "p_value")
 _G_SIG = bool(_G_MIN_P < 0.05)
-_TS = json.loads((_RES / "track_summary.json").read_text())
+_TS = P.json_file(_RES / "track_summary.json")
 _NT = _TS.get("null_tournament") or {}
-_MAN = json.loads((_RES / f"candidates_manifest_{_TAG}.json").read_text())
-_GRID = lead_grid("permit_spy")
+_MAN = P.json_file(_RES / f"candidates_manifest_{_TAG}.json")
+_GRID = P.lead_grid("permit_spy")
 _GRID_RANGE = f"L{_GRID[0]}-L{_GRID[-1]}"
 _EDGE = bool(((_WS.get("tracks") or {}).get("main") or {}).get("plateau", {}).get("grid_edge"))
 
@@ -54,7 +53,7 @@ def _r71_caveat() -> str:
 
 _R71_CAVEAT = _r71_caveat()
 
-THRESHOLD_TEXT = {
+THRESHOLD_TEXT = P.definitions({
     "T1_p25": "the 25th percentile of its earlier training-period readings",
     "T1_p50": "the median of its earlier training-period readings",
     "T1_p75": "the 75th percentile of its earlier training-period readings",
@@ -64,7 +63,7 @@ THRESHOLD_TEXT = {
     "T4_zero": "zero",
     "T_flag": "the contraction flag (year-over-year permit growth below zero)",
     "-": "its trailing 60-month range",
-}
+})
 SIDE = {"countercyclical": "at or below", "procyclical": "at or above"}
 STRATEGY_TEXT = {"P1_long_cash": "long/cash", "P2_signal_strength": "signal-strength sizing",
                  "P3_long_short": "long/short"}
@@ -284,8 +283,7 @@ GRANGER_BLOCK = dict(
     ),
     chart_name="granger_f_by_lag",
     chart_caption=(
-        f"What this shows: the smallest permit-to-SPY Granger p-value across lags is {_G_MIN_P:.2f}, at lag "
-        f"{_G_MIN_LAG}."
+        f"What this shows: the smallest permit-to-SPY Granger p-value across lags is {_G_MIN_P:.2f}."
     ),
     observation=(
         f"The smallest p-value across lags is {_G_MIN_P:.2f}"
@@ -352,8 +350,8 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     ),
     chart_name="local_projections",
     chart_caption=(
-        f"What this shows: slopes from {_LP.loc[1, 'coef']:+.4f} at the 1-month horizon to "
-        f"{_LP.loc[12, 'coef']:+.4f} at the 12-month horizon (p {_LP.loc[12, 'p_value']:.2f} at the 12-month horizon)."
+        f"What this shows: slopes from {_LP_COEF[1]:+.4f} at the 1-month horizon to "
+        f"{_LP_COEF[12]:+.4f} at the 12-month horizon (p {_LP_P[12]:.2f} at the 12-month horizon)."
     ),
     observation="The raw macro relationship is shown here, not the final lagged tournament rule.",
     interpretation=(
@@ -405,7 +403,7 @@ EVIDENCE_METHOD_BLOCKS = {
     "level2_labels": ["Local Projections", "Quantile Regression"],
     "tournament_intro": (
         f"The tournament tested {W.n_candidates} strategy combinations ({W.n_valid} valid on the training period) "
-        f"across {len(_MAN['signals'])} permit transforms, fixed and rolling thresholds, long/cash, signal-strength "
+        f"across {P.length(_MAN['signals'])} permit transforms, fixed and rolling thresholds, long/cash, signal-strength "
         f"and long/short strategies, both orientations and the lead grid {_GRID_RANGE} months, on data as known at "
         f"the time. The selected winner is `{_RID}`, "
         f"chosen on the training period by {W.selection_objective}."
@@ -556,14 +554,14 @@ This describes the backtested rule so it can be audited; it is not a trading rec
 STRATEGY_CONFIG = StrategyConfig()
 
 
-_DATA_SOURCES_MD = """
+_DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
 | Indicator (as known at the time) | ALFRED (FRED vintages, pinned in data/release_calendar/vintages/PERMIT.csv.gz) | `PERMIT`, new private housing units authorized by building permits, every published vintage | Monthly |
 | Indicator (as revised today) | FRED (latest vintage of the same file) | `PERMIT` | Monthly |
 | Release dates | data/release_calendar/release_calendar.csv | first publication date per month | Monthly |
 | Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted month-end close | Monthly |
-"""
+""")
 
 _INDICATOR_CONSTRUCTION_MD = (
     "The raw indicator is new private housing units authorized by building permits, in thousands at a seasonally "
@@ -576,7 +574,7 @@ _INDICATOR_CONSTRUCTION_MD = (
     f"{_FINAL_STEP}."
 )
 
-_METHODS_TABLE_MD = """
+_METHODS_TABLE_MD = P.definition_text("""
 | Method | Question It Answers | Why We Chose It |
 |---|---|---|
 | Correlation analysis | Do permit signals move linearly with future SPY returns? | Simple baseline before richer tests |
@@ -589,7 +587,7 @@ _METHODS_TABLE_MD = """
 | Lead-plateau selection (D9) | Is the chosen lead part of a stable range rather than an isolated peak? | Guards against picking a lucky single lead |
 | Chance check (null tournament) | How does the winner compare with contests run on scrambled signals? | Measures how much selection alone can produce |
 | Paired block bootstrap | How uncertain is the Sharpe difference versus buy-and-hold? | Interval for the headline comparison |
-"""
+""")
 
 _TOURNAMENT_DESIGN_MD = f"""
 Grid: permit transforms x training-percentile, rolling-percentile and zero thresholds x long/cash, signal-strength and long/short strategies x procyclical/countercyclical orientations x leads {_GRID_RANGE} months, with each position applied to the return of the month after it is set ({W.n_candidates} combinations, {W.n_distinct} distinct position series). Each data track selects its own winner on the training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it.
