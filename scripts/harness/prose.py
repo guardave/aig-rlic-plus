@@ -81,6 +81,7 @@ def build(rec: dict, prefix: str = "") -> dict:
         "is_sharpe": field(w["is_sharpe"], _num(w["is_sharpe"])),
         "oos_sharpe": field(w["oos_sharpe"], _num(w["oos_sharpe"])),
         "oos_ann_return": field(w["oos_ann_return"], _pct(w["oos_ann_return"])),
+        "oos_sharpe_net_5bp": field(w.get("oos_sharpe_net_5bp"), _num(w.get("oos_sharpe_net_5bp"))),
         "oos_max_drawdown": field(w["oos_max_drawdown"], _pct(w["oos_max_drawdown"])),
         "oos_n_trades": field(w["oos_n_trades"], str(w["oos_n_trades"])),
         "bh_is_sharpe": field(rec["bh_is"]["sharpe"], _num(rec["bh_is"]["sharpe"])),

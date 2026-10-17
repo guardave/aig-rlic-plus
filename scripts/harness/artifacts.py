@@ -145,6 +145,10 @@ def track_record(res: TrackResult, signal_display: dict, null_summary: dict | No
         "spearman_is_oos": _r(tab.loc[tab["valid"], ["is_sharpe", "oos_sharpe"]].corr("spearman").iloc[0, 1], 4)
         if tab["valid"].sum() > 2 else None,
     })
+    held = pd.Series(res.positions[:, int(w)]).shift(spec.position_shift).fillna(0.0).to_numpy()
+    cost = np.abs(np.diff(held, prepend=0.0)) * 5e-4          # 5 bp per unit of position change, charged when it takes effect
+    net = M.perf((ws["strategy_return"].to_numpy() - cost)[res.oos_mask], spec.ppy)
+    rec["winner"]["oos_sharpe_net_5bp"] = _r(net["sharpe"])
     if bootstrap:
         bs = paired_block_bootstrap_sharpe_diff(oos["strategy_return"].to_numpy(), oos["benchmark_return"].to_numpy(),
                                                 spec.bootstrap_block, spec.ppy)

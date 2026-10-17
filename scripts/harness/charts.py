@@ -115,7 +115,7 @@ def chance_check(pair: str, tag: str) -> str | None:
     fig.add_vline(x=real, line_color=C_REV, line_width=3, annotation_text="Real winner", annotation_position="top")
     q95 = float(np.nanpercentile(nd["selection_stat"], 95))
     fig.add_vline(x=q95, line_color=C_TEXT, line_width=1, line_dash="dot", annotation_text="95th",
-                  annotation_position="bottom right")
+                  annotation_position="top right")
     k = int(nd["selection_stat"].notna().sum())
     if pct is None:
         cap = "Chance check not yet run for this pair."

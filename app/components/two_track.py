@@ -93,7 +93,8 @@ def render_data_basis_strip(ts: dict) -> None:
                         "method requires. We did not substitute the as-revised-today result as the headline.")
         elif cap:
             st.caption(cap.format(rt_window=_years(main.get("window")), rev_window=_years(comp.get("window"))))
-        rows = [(MAIN_LABEL if state in ("both", "rt_insufficient") else "Single track", main.get("window"), C_MAIN)]
+        rows = [({"single_market": "Market data", "single_no_archive": "As revised today"}.get(state, MAIN_LABEL),
+                 main.get("window"), C_MAIN)]
         if comp and comp.get("window"):
             rows.append((REV_LABEL, comp.get("window"), C_REV))
         rows = [r for r in rows if r[1] and r[1][0]]
@@ -102,12 +103,11 @@ def render_data_basis_strip(ts: dict) -> None:
             for i, (lab, win, col) in enumerate(rows):
                 a, b = pd.Timestamp(win[0]), pd.Timestamp(win[1])
                 fig.add_trace(go.Bar(y=[i], x=[(b - a).total_seconds() * 1000], base=[a], orientation="h",
-                                     marker_color=col,
-                                     marker_pattern_shape="" if col == C_MAIN else "/",
+                                     marker_color=col, textfont=dict(color="white", size=13),
                                      text=[f"{lab} {_years(win)}"], textposition="inside", insidetextanchor="start",
                                      hoverinfo="text", hovertext=[f"{lab}: {win[0]} to {win[1]}"], showlegend=False))
             fig.update_layout(height=60 + 34 * len(rows), margin=dict(l=8, r=8, t=8, b=24), template="plotly_white",
-                              yaxis=dict(visible=False), xaxis=dict(type="date"), bargap=0.25)
+                              yaxis=dict(visible=False, autorange="reversed"), xaxis=dict(type="date"), bargap=0.25)
             st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
         missing = [r for r in comp.get("recessions_covered", []) if r not in main.get("recessions_covered", [])]
         if state == "both" and missing:
@@ -224,7 +224,7 @@ def render_cross_eval_table(pair_id: str, ts: dict, ws: dict) -> None:
     def own_row(rec, label, prefix):
         r = _tourn_row(pair_id, prefix, tag, rec["winner"]["key"]) or {}
         return [rule(rec), label, _num(rec["winner"]["is_sharpe"]), _num(rec["winner"]["oos_sharpe"]),
-                _num(rec["bh_oos"]["sharpe"]), f"{rec['is_window'][0]} to {rec['oos_window'][1]}",
+                _num(rec["bh_oos"]["sharpe"]), f"{rec['is_window'][0][:7]} to {rec['oos_window'][1][:7]}",
                 _pct(rec["winner"]["oos_max_drawdown"]) if r is not None else "n/a"]
 
     def cross_row(rec, label, other, prefix):
@@ -234,10 +234,10 @@ def render_cross_eval_table(pair_id: str, ts: dict, ws: dict) -> None:
         tr = _tourn_row(pair_id, prefix, tag, rec["winner"]["key"]) or {}
         note = "" if r.get("valid") else " (fails the training validity filters here)"
         return [rule(rec), label, _num(r["is_sharpe"]) + note, _num(r["oos_sharpe"]), _num(rec["bh_oos"]["sharpe"]),
-                f"{r['window']['is_start']} to {r['window']['oos_end']}", _pct(tr.get("max_drawdown"))]
+                f"{r['window']['is_start'][:7]} to {r['window']['oos_end'][:7]}", _pct(tr.get("max_drawdown"))]
 
-    cols = ["Rule", "Data scored on", "Training Sharpe", "Test Sharpe", "Buy-and-hold test Sharpe", "Window",
-            "Max drawdown (test)"]
+    cols = ["Rule", "Data scored on", "Training Sharpe", "Test Sharpe", "B&H test Sharpe", "Window",
+            "Test max drawdown"]
     rows = []
     if main and main.get("eligible"):
         rows.append(own_row(main, MAIN_LABEL, ""))
@@ -248,8 +248,9 @@ def render_cross_eval_table(pair_id: str, ts: dict, ws: dict) -> None:
         rows.append(cross_row(comp, MAIN_LABEL, "revised_winner_on_main", ""))
     if rows:
         df = pd.DataFrame(rows, columns=cols)
-        st.dataframe(df.style.apply(lambda r: ["font-weight: bold" if r.name == 0 else "color: #595959"] * len(r),
-                                    axis=1), hide_index=True, use_container_width=True)
+        css = pd.DataFrame("color: #595959", index=df.index, columns=df.columns)
+        css.iloc[0] = "font-weight: bold"
+        st.table(df.style.apply(lambda _: css, axis=None).hide(axis="index"))
     if comp:
         st.caption("Each data track picks its own winner. Rows 2 and 4 show how each winner fares on the other data.")
 
