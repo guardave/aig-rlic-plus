@@ -301,7 +301,7 @@ def chart_correlations():
     ))
 
     fig.update_layout(
-        title="Pearson Correlation: UMCSENT Signals → XLV Forward Returns<br><sup>* p<0.05, ** p<0.01</sup>",
+        title="Pearson Correlation: UMCSENT Signals → XLV Forward Returns<br><sup>* p<0.05, ** p<0.01 (HAC p-values for overlapping returns)</sup>",
         xaxis_title="XLV Forward Return Horizon",
         yaxis_title="Signal",
         template="plotly_white",
@@ -316,7 +316,7 @@ def chart_correlations():
 def chart_regime_stats():
     regime_df = pd.read_csv(os.path.join(EXPLORE_DIR, "regime_descriptive_stats.csv"))
 
-    colors = [C_INDICATOR, "#ff7f0e", C_EQUITY, C_STRATEGY]
+    colors = ["#c6dbef", "#6baed6", "#2171b5", "#08306b"]   # one sequential scale: Q1 (lightest) .. Q4
 
     fig = make_subplots(rows=1, cols=2,
                         subplot_titles=["Annualized Sharpe by UMCSENT YoY Quartile",
@@ -415,7 +415,8 @@ def chart_rolling_granger():
         line_color="red",
         line_width=1.2,
         annotation_text="p = 0.05 significance line",
-        annotation_position="bottom right",
+        annotation_position="top left",
+        annotation_bgcolor="rgba(255,255,255,0.85)",
         secondary_y=False,
     )
     fig.add_trace(
@@ -606,7 +607,8 @@ def chart_rolling_sharpe():
                                  line=dict(color=color, width=2, dash=dash)))
     add_nber_bands(fig)
     fig.add_hline(y=w["oos_sharpe"], line_dash="dash", line_color=C_INDICATOR, line_width=1.2,
-                  annotation_text=f"Full test-period Sharpe = {w['oos_sharpe']:.2f}", annotation_position="top left")
+                  annotation_text=f"Full test-period Sharpe = {w['oos_sharpe']:.2f}", annotation_position="top right",
+                  annotation_bgcolor="rgba(255,255,255,0.85)")
     fig.add_hline(y=0, line_dash="dash", line_color=C_BENCHMARK, line_width=0.5)
     fig.update_layout(title="Rolling 12-Month Sharpe (test period, as known at the time)", xaxis_title="Date",
                       yaxis_title="Rolling Sharpe (12M)", template="plotly_white", height=400,
@@ -639,7 +641,8 @@ def chart_tournament_scatter():
                                  marker=dict(size=14, color=C_STRATEGY, symbol="star", line=dict(width=1, color="black")),
                                  name=winner_label(w)))
     fig.add_hline(y=w["bh_sharpe"], line_dash="dash", line_color=C_BENCHMARK,
-                  annotation_text=f"Buy-and-hold XLV test Sharpe {w['bh_sharpe']:.2f}")
+                  annotation_text=f"Buy-and-hold XLV test Sharpe {w['bh_sharpe']:.2f}", annotation_position="top left",
+                  annotation_bgcolor="rgba(255,255,255,0.85)")
     fig.update_layout(title=f"Tournament (as known at the time): {len(t):,} Combinations, {len(valid):,} Valid",
                       xaxis_title="Training-period Sharpe", yaxis_title="Test-period Sharpe", template="plotly_white",
                       height=520, margin=dict(b=120),
@@ -657,7 +660,7 @@ def chart_wf_sharpe():
     rows = []
     for yr in sorted(oos.index.year.unique()):
         seg = oos[oos.index.year == yr]
-        if len(seg) >= 8:
+        if len(seg) == 12:                       # full calendar years only (no annualised partial years)
             rows.append({"year": yr, "s": sharpe_of(seg["strategy_return"]), "b": sharpe_of(seg["benchmark_return"])})
     a = pd.DataFrame(rows)
     fig = go.Figure()
@@ -667,19 +670,16 @@ def chart_wf_sharpe():
         fig.add_trace(go.Scatter(x=a["year"].astype(str), y=a["b"], name="Buy-and-hold XLV Sharpe",
                                  mode="lines+markers", line=dict(color=C_BENCHMARK, width=2, dash="dash")))
     fig.add_hline(y=w["oos_sharpe"], line_dash="dash", line_color=C_INDICATOR, line_width=1.2,
-                  annotation_text=f"Full test-period Sharpe = {w['oos_sharpe']:.2f}", annotation_position="top left")
+                  annotation_text=f"Full test-period Sharpe = {w['oos_sharpe']:.2f}", annotation_position="top right",
+                  annotation_bgcolor="rgba(255,255,255,0.85)")
     fig.add_hline(y=0, line_dash="dash", line_color=C_BENCHMARK, line_width=0.5)
-    fig.update_layout(title="Calendar-Year Sharpe in the Test Period (as known at the time)", xaxis_title="Year",
+    fig.update_layout(title="Calendar-Year Sharpe in the Test Period, Full Years (as known at the time)", xaxis_title="Year",
                       yaxis_title="Annualized Sharpe Ratio", template="plotly_white", height=430,
                       legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"))
-    save_chart(fig, "wf_sharpe",
-               caption=(f"Calendar-year test-period Sharpe of the rule against buy-and-hold XLV (years with at least "
-                        f"eight months); full-window test-period Sharpe {w['oos_sharpe']:.2f}."),
-               rules=["ECON-SR1", "VIZ-O1", "VIZ-V5"], sources=WINNER_SOURCES,
-               alignment="Rendered from the harness MAIN-track strategy returns.")
     save_chart(fig, "walk_forward",
-               caption=(f"Calendar-year test-period Sharpe of the rule against buy-and-hold XLV (years with at least "
-                        f"eight months); full-window test-period Sharpe {w['oos_sharpe']:.2f}."),
+               caption=(f"Calendar-year test-period Sharpe of the rule against buy-and-hold XLV, full calendar years "
+                        f"only (the partial first and last years are left out); full-window test-period Sharpe "
+                        f"{w['oos_sharpe']:.2f}."),
                rules=["ECON-SR1", "VIZ-O1", "VIZ-V5"], sources=WINNER_SOURCES,
                alignment="Rendered from the harness MAIN-track strategy returns.")
 
@@ -692,7 +692,7 @@ def sharpe_of(r):
 def chart_subperiod_sharpe():
     rows = pd.read_csv(os.path.join(RESULTS_DIR, "subperiod_sharpe.csv"))
     w = load_winner()
-    labels = [f"{r.period_name} ({'test' if r.is_oos else 'training'})" for r in rows.itertuples(index=False)]
+    labels = [f"{r.period_name} ({r.phase}, n={r.n_obs})" for r in rows.itertuples(index=False)]
     fig = go.Figure()
     fig.add_trace(go.Bar(x=labels, y=rows["sharpe"], name="Rule", marker_color=C_STRATEGY,
                          text=[f"{v:+.2f}" for v in rows["sharpe"]], textposition="outside"))
@@ -704,8 +704,9 @@ def chart_subperiod_sharpe():
                       margin=dict(b=120))
     save_chart(fig, "subperiod_sharpe",
                caption=(f"Sharpe of the rule and of buy-and-hold XLV in stress episodes and over the full test "
-                        f"period ({w['oos_period_start']} to {w['oos_period_end']}). Episodes before "
-                        f"{w['oos_period_start']} lie in the training period."),
+                        f"period ({w['oos_period_start']} to {w['oos_period_end']}). Each label gives the episode's "
+                        f"place relative to the training period (from {w['is_period_start']}) and its number of months; "
+                        "short episodes give noisy annualised Sharpe ratios."),
                rules=["ECON-SR1", "ECON-CP1", "VIZ-O1", "VIZ-V5"],
                sources=[f"results/{PAIR_ID}/subperiod_sharpe.csv", f"results/{PAIR_ID}/winner_summary.json"])
 
@@ -716,7 +717,10 @@ def chart_rolling_sharpe_cp():
     fig = go.Figure(go.Scatter(x=rg["date"], y=rg["rolling_sharpe_24m"], name="Rolling 24M Sharpe", mode="lines",
                                line=dict(color=C_STRATEGY, width=2)))
     add_nber_bands(fig)
-    fig.add_vline(x=pd.Timestamp(w["oos_period_start"]), line_dash="dot", line_color=C_INDICATOR)
+    t0 = pd.Timestamp(w["oos_period_start"])
+    fig.add_trace(go.Scatter(x=[t0, t0], y=[float(rg["rolling_sharpe_24m"].min()), float(rg["rolling_sharpe_24m"].max())],
+                             mode="lines", line=dict(color=C_INDICATOR, dash="dot", width=1.5), name="Test period starts",
+                             hoverinfo="skip"))
     fig.add_hline(y=0, line_dash="dot", line_color=C_BENCHMARK, line_width=0.8)
     fig.update_layout(title="Rolling 24-Month Sharpe of the Rule (training and test periods)", xaxis_title="Date",
                       yaxis_title="Annualized Sharpe Ratio", template="plotly_white", height=420,

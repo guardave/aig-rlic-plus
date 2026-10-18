@@ -410,7 +410,8 @@ QUANTILE_BLOCK = dict(
     ),
     question="Does the year-over-year change in UMCSENT matter more in the tails of XLV returns?",
     how_to_read=(
-        "Compare the slope across return quantiles; whiskers are 95% intervals. A slope that changes sign or size "
+        "Compare the slope across return quantiles; whiskers are 95% intervals from a moving-block bootstrap, "
+        "because the overlapping 3-month returns make the default errors too small. A slope that changes sign or size "
         "across quantiles points to state-dependence, but only if the intervals separate."
     ),
     chart_name="quantile_coef",
@@ -466,7 +467,7 @@ class StrategyConfig:
     STATISTICAL_FRAMING_BANNER = (
         f"Correction (2026-10-17). This page previously reported the rule {W.previous_rule} (test-period Sharpe "
         f"{W.previous_oos_sharpe}, published {W.previous_tag}), which was selected on its out-of-sample Sharpe "
-        "(legacy method), on today's revised data with fixed lags. It now reports the rule selected on the "
+        "(legacy method), on the data as downloaded for that run, with fixed lags. It now reports the rule selected on the "
         "training period only, on data as known at the time, with point-in-time release dates and the "
         "stable-lead-range rule; today's revised data are shown for comparison only."
     )
@@ -513,7 +514,7 @@ class StrategyConfig:
     SIGNAL_RULE_MD = f"""
 **Rule in plain English:** {_RULE}.
 
-Test-period results on data as known at the time ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} buy-and-hold; annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; {W.oos_n_trades} test-period trades; annual turnover {W.annual_turnover}.
+Test-period results on data as known at the time ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} buy-and-hold; annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; position changes summing to {W.oos_n_trades} full XLV units over the test period (whole units; exact sum {_D['oos_sum_abs_position_change']}), with {_D['oos_months_position_change_gt_5pct']} months in which the position moved by more than {_D['position_change_threshold_pp']} percentage points; annual turnover {W.annual_turnover}.
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = f"""
@@ -535,9 +536,9 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     EQUITY_CHART_NAME = "equity_curves"
     DRAWDOWN_CHART_NAME = "drawdown"
     WALK_FORWARD_TITLE = "Calendar-Year Sharpe"
-    WALK_FORWARD_CHART_NAME = "wf_sharpe"
+    WALK_FORWARD_CHART_NAME = "walk_forward"
     WALK_FORWARD_CAPTION = (
-        "What this shows: test-period Sharpe of the rule by calendar year against buy-and-hold XLV. It is not "
+        "What this shows: test-period Sharpe of the rule by full calendar year against buy-and-hold XLV. It is not "
         "designed to make every year profitable."
     )
     SHOW_TOURNAMENT_SCATTER = True
@@ -616,7 +617,9 @@ _REFERENCES_MD = """
 3. Yahoo Finance, XLV adjusted price history.
 4. Granger, C. W. J. (1969). "Investigating Causal Relations by Econometric Models and Cross-spectral Methods."
 5. Jorda, O. (2005). "Estimation and Inference of Impulse Responses by Local Projections."
-6. Politis, D. N., and Romano, J. P. (1994). "The Stationary Bootstrap."
+6. Politis, D. N., and Romano, J. P. (1992). "A Circular Block-Resampling Procedure for Stationary Data."
+7. Andrews, D. W. K. (1993). "Tests for Parameter Instability and Structural Change with Unknown Change Point."
+8. Newey, W. K., and West, K. D. (1987). "A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix."
 """
 
 METHODOLOGY_CONFIG = MethodologyConfig(

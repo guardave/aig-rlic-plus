@@ -156,7 +156,7 @@ PAIR_TEMPLATE_CHARTS: dict[str, list[str]] = {
         # Strategy performance and confidence tabs
         "equity_curves",
         "drawdown",
-        "wf_sharpe",
+        "walk_forward",
         "subperiod_sharpe",
         "rolling_correlation",
         "structural_break",
