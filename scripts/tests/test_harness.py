@@ -207,18 +207,20 @@ def test_dependent_se_exceeds_iid_se_for_smooth_draws():
     assert bw >= 12 and se > x.std(ddof=1) / np.sqrt(len(x))
 
 
-def test_shift_vintage_values_keeps_release_structure():
+def test_shift_vintage_values_wraps_within_the_vintage():
     grid = pd.date_range("2000-01-31", periods=12, freq="ME")
     latest = pd.Series(np.arange(12.0) + 100, index=grid)
     v = pd.Series(np.arange(8.0), index=grid[:8])          # an early vintage: 8 periods published
     out = null.shift_vintage_values(v, 2, grid)
-    assert list(out.index) == list(grid[:8])                # same periods present
-    assert out.iloc[2] == 0.0 and out.iloc[7] == 5.0        # period d gets the vintage's period d - 2
-    # wrap: the sources (periods 10, 11) are not in this vintage -> missing, never a later vintage's value
-    assert out.iloc[:2].isna().all()
-    assert not set(out.dropna()) & set(latest)              # no value from outside the vintage
+    assert list(out.index) == list(grid[:8])                # same periods present (release structure kept)
+    assert out.iloc[2] == 0.0 and out.iloc[7] == 5.0        # position i gets the vintage's position i - 2
+    assert list(out.iloc[:2]) == [6.0, 7.0]                 # wrap WITHIN the vintage (v1: missing, window shrank)
+    assert not out.isna().any()                             # no reading lost
+    assert set(out) == set(v)                               # a permutation of this vintage's own values
+    assert not set(out) & set(latest)                       # never a value from another vintage
     one = null.shift_vintage_values(v.iloc[:1], 5, grid)    # Codex B0r case: one-period vintage, large offset
-    assert one.isna().all()
+    assert list(one) == [0.0]
+    assert null.shift_vintage_values(v, 2, grid).equals(out)  # deterministic
 
 
 def test_is_quantile_threshold_is_expanding_and_lagged():

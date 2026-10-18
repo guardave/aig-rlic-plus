@@ -3,19 +3,19 @@
 The RAW indicator is shifted and the whole pipeline is rebuilt for every draw (Codex B0 fix):
   revised / market track: the raw level inputs are circularly shifted inside their data span and every
       transform, threshold and regime fit is recomputed.
-  real-time track (decision 3): inside EVERY vintage, the value of reference period d is replaced by that
-      vintage's value of period d - k (circular over the reference-period grid of the latest vintage). A source
-      period that this vintage does not contain gives a MISSING value (never a value from another vintage:
-      that would import later information); missing readings are handled like real missing data (no signal,
-      position undefined, scored by the metrics' NaN rule). Each vintage keeps its own release structure
-      (which periods it contains, and when it was published), and realtime_inputs, transforms and thresholds
-      are rebuilt per draw. At large offsets the wrapped (missing) part can cover the whole in-sample window
-      of the early vintages, so the admissible set is restricted UP FRONT to offsets that leave a usable
-      training window (some candidate meets the R3.3 eligibility rule; max_usable_offset, found by binary
-      search because usability is monotone in k); offsets are then drawn from that set. An offset can still
-      be eligible yet have no VALID rule (exposure / turnover filters): that draw records no winner and is
-      excluded; n_draws counts draws with a winner, the percentiles are computed from them, and
-      n_admissible_offsets / n_draws_without_winner are reported (cc MAIN: 56 admissible, 55 with a winner).
+  real-time track (decision 3; v2 2026-10-18, Lead ruling on QA B1 umcsent M1): inside EVERY vintage, the
+      value at position i of that vintage's OWN observed reference-period grid is replaced by the vintage's
+      value at position (i - k) mod n_v. The shift WRAPS within the vintage: every value comes from the same
+      vintage (no cross-vintage fill, which would import later information), no reading is lost, and each
+      vintage keeps its own release structure (which periods it contains, and when it was published);
+      realtime_inputs, transforms and thresholds are rebuilt per draw. v1 wrapped over the LATEST vintage's grid,
+      so an early vintage lost the k readings whose source lay beyond its own end: the draws' training windows
+      shrank (unrate: median 124 vs the real winner's 287 months) and the percentile compared unlike samples.
+      With the wrap every draw trains on the real winner's window. The admissible set is still restricted UP
+      FRONT to offsets that leave a usable training window (max_usable_offset, a binary search; with the wrap
+      every admissible offset is usable). An offset can still be eligible yet have no VALID rule (exposure /
+      turnover filters): that draw records no winner and is excluded; n_draws counts draws with a winner, the
+      percentiles are computed from them, and n_admissible_offsets / n_draws_without_winner are reported.
 Offsets: DISTINCT admissible values in [m, n - m], m = max(36 months in native periods, 20% of n), drawn without
 replacement (seed 20261016); all of them when there are at most K. R7.1 is calibrated for the dependence between
 neighbouring offsets: the SE of the mean timing Sharpe is a Bartlett (Newey-West) long-run SE over the draws
@@ -70,14 +70,19 @@ def offsets(n: int, ppy: int, K: int, seed: int = SEED_BASE, max_offset: int | N
     return [int(x) for x in np.random.default_rng(seed).choice(adm, size=K, replace=False)]
 
 
-def shift_vintage_values(v: pd.Series, k: int, grid: pd.DatetimeIndex) -> pd.Series:
-    """Real-time null transform of one vintage (see module doc): period d gets the vintage's OWN value of period
-    grid[(pos(d) - k) mod N]; NaN when this vintage does not contain that period (no cross-vintage fill)."""
-    pos = grid.get_indexer(v.index)
-    keep = pos >= 0
-    src = grid[(pos[keep] - k) % len(grid)]
-    vals = v.reindex(src).to_numpy(dtype=float)
-    return pd.Series(vals, index=v.index[keep]).sort_index()
+def shift_vintage_values(v: pd.Series, k: int, grid: pd.DatetimeIndex | None = None) -> pd.Series:
+    """Real-time null transform of one vintage (see module doc): position i of the vintage's own sorted reference-
+    period grid gets the vintage's value at position (i - k) mod n_v (circular WITHIN the vintage: no value from
+    another vintage, no reading lost). `grid` (the latest vintage's grid) restricts the periods kept to those of
+    the pair's grid when given; it no longer defines the wrap."""
+    v = v.sort_index()
+    if grid is not None:
+        v = v[v.index.isin(grid)]
+    n = len(v)
+    if n == 0:
+        return v.astype(float)
+    vals = v.to_numpy(dtype=float)
+    return pd.Series(vals[(np.arange(n) - k) % n], index=v.index)
 
 
 def roll_span(obj, k: int, start: int = 0, stop: int | None = None):
@@ -131,9 +136,12 @@ def draw_record(res: TrackResult) -> dict:
     """Statistics recorded per draw (R7.1) for the selection actually used."""
     tab = res.table
     valid = tab[tab["valid"]]
+    # the draw's training window (QA B1 umcsent M1: real-time draws at large offsets train on shorter windows)
+    win = {"is_start": str(res.common_is_start.date()) if res.common_is_start is not None else None,
+           "is_n": int(np.sum(res.is_mask))}
     if res.selection is None or valid.empty:
         return {"is_max": np.nan, "selection_stat": np.nan, "winner_oos": np.nan, "timing_sharpe": np.nan,
-                "lead": np.nan, "lead_pos": np.nan, "grid_edge": np.nan, "winner_key": None}
+                "lead": np.nan, "lead_pos": np.nan, "grid_edge": np.nan, "winner_key": None, **win}
     w = res.selection["winner"]
     leads = list(res.spec.leads)
     lead = int(tab.loc[w, "lead"])
@@ -142,7 +150,7 @@ def draw_record(res: TrackResult) -> dict:
             "winner_oos": float(tab.loc[w, "oos_sharpe"]), "timing_sharpe": _timing_sharpe(res, int(w), res.spec.ppy),
             "timing_sharpe_all_valid": float(np.mean(_timing_sharpe_all(res, valid.index.to_numpy(), res.spec.ppy))),
             "lead": lead, "lead_pos": leads.index(lead), "grid_edge": lead in (leads[0], leads[-1]),
-            "winner_key": tab.loc[w, "key"]}
+            "winner_key": tab.loc[w, "key"], **win}
 
 
 def run_null(spec: PairSpec, make_inputs: Callable[[int], TrackInputs], n_span: int, K: int = 100,
@@ -213,7 +221,8 @@ def summarize(null: pd.DataFrame, actual: dict, grid_len: int, ppy: int = 12) ->
         "n_admissible_offsets": null.attrs.get("n_admissible"), "span": null.attrs.get("span"),
         "max_usable_offset": null.attrs.get("max_offset"),
         "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period "
-        "values inside every vintage), pipeline rebuilt per draw, same selection rule; distinct offsets; R7.1",
+        "values inside every vintage, wrapping within that vintage so no reading is lost and every draw trains on "
+        "the real winner's window), pipeline rebuilt per draw, same selection rule; distinct offsets; R7.1",
         "seed_base": SEED_BASE,
         "is_max_percentile": p_is[0], "p_is": p_is[1],
         "selection_stat_percentile": p_j[0], "p_selection_stat": p_j[1],
