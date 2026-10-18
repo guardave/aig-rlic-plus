@@ -2065,9 +2065,10 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
         b = bh.iloc[0]
         display_rows.append({
             "Rank": "—",
-            "Signal": f"Buy-and-Hold {target or ''}".strip(),
+            # short labels: the leaderboard's auto column widths cut 'Buy-and-Hold S&P 500 (SPY)' / 'Benchmark'
+            "Signal": ("Buy & hold " + (re.search(r"\(([^)]+)\)", target or "") or [None, ""])[1]).strip(),
             "Threshold": "—",
-            "Strategy": "Benchmark",
+            "Strategy": "Hold",
             "Lead": "—",
             **({"Lookback": "—"} if _show_lb else {}),
             **({"IS Sharpe": round(float(b["is_sharpe"]), 2)} if _is_sel and pd.notna(b.get("is_sharpe")) else
@@ -2075,7 +2076,7 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
             "OOS Sharpe": round(float(b["oos_sharpe"]), 2),
             "OOS Return": _to_pct(b.get("oos_ann_return")),
             "Max DD": _to_pct(b.get("max_drawdown")),
-            "Turnover": "0/yr",
+            "Turnover": "none (held)",          # no trades by construction; the file leaves it blank
             "Win Rate": f"{float(b['win_rate']):.1%}" if "win_rate" in b.index and pd.notna(b["win_rate"]) else "—",
         })
 
@@ -2084,10 +2085,18 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
         _table_source(pd.DataFrame(display_rows), tourn_path,
                       derived={"Rank": {"is_sharpe": "is_rank", "oos_sharpe": "oos_rank"}.get(rank_col)
                                if {"is_sharpe": "is_rank", "oos_sharpe": "oos_rank"}.get(rank_col) in tdf.columns
-                               else None}),
+                               else None},
+                      columns={"Lead": next((c for c in ("lead_months", "lead_quarters", "lead_days")
+                                             if c in tdf.columns), "lead"),
+                               "OOS Return": "oos_ann_return", "Max DD": "max_drawdown",
+                               "Turnover": "annual_turnover"}),
         use_container_width=True,
         hide_index=True,
+        height=35 * (len(display_rows) + 1) + 3,      # every row visible: the benchmark row was below the fold
         column_config={
+            # short header labels so long daily signal keys (hy_ig: S3b_pctrank_1260d) leave Win Rate on screen
+            "Threshold": st.column_config.TextColumn("Thresh.", help="Threshold rule"),
+            "Strategy": st.column_config.TextColumn("Strat.", help="Position rule code (see Methodology)"),
             "OOS Sharpe": st.column_config.NumberColumn("OOS Sharpe", format="%.2f"),
             "IS Sharpe": st.column_config.NumberColumn("IS Sharpe", format="%.2f"),
         },

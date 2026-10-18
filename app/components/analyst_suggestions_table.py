@@ -114,7 +114,8 @@ def render_analyst_suggestions(pair_id: str) -> None:
 
     df = _suggestions_to_dataframe(suggestions)
     # st.table wraps long cells (st.dataframe clipped them: QA pilot-visual L7)
-    st.table(table_source(df, f"{instance_path}#/suggestions").style.hide(axis="index"))
+    st.table(table_source(df, f"{instance_path}#/suggestions",
+                          columns={"Signal": "signal_name", "Proposed by": "proposed_by"}).style.hide(axis="index"))
 
     # ECON-AS explicit disclaimer — the canonical wording.
     st.info(

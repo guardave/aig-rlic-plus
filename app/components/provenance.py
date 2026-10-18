@@ -223,12 +223,14 @@ def _wrap(o, src: str, dates: bool = True):
     return o
 
 
-def table_source(df: pd.DataFrame, *sources, derived=()) -> pd.DataFrame:
+def table_source(df: pd.DataFrame, *sources, derived=(), columns=None) -> pd.DataFrame:
     """Shared-template tables (v5, QA L2v4 #1): name the artifact file(s) a displayed table comes from, so the gate
     checks every number of a displayed row against ONE row of a current source file instead of value-matching it
     against every number of the pair's results. ``sources``: paths, optionally with a JSON pointer to a list of
-    records ('.../signal_scope.json#/indicator_axis/derivatives'); ``derived``: display columns the template
-    computes (a rank) rather than copies. Gate mode only: the first column header carries the marker."""
+    records ('.../signal_scope.json#/indicator_axis/derivatives'); ``derived``: {display column: rank column} for a
+    rank the template computes (the gate recomputes it, Codex V52-3); ``columns``: {display column: source column}
+    for a displayed column whose header is not the source column's name (the gate checks each cell against its own
+    source column only, Codex V52-2). Gate mode only: the first column header carries the marker."""
     if not gate_on() or df is None or len(df.columns) == 0:
         return df
     repo = RESULTS.parent.resolve()
@@ -241,7 +243,7 @@ def table_source(df: pd.DataFrame, *sources, derived=()) -> pd.DataFrame:
             rel = "outside-repo:" + path
         srcs.append(rel + (f"#{ptr}" if ptr else ""))
     der = derived if isinstance(derived, dict) else {c: None for c in derived}   # {display col: source col | None}
-    head = f"{T0}{json.dumps({'src': srcs, 'derived': der})}{T1}"
+    head = f"{T0}{json.dumps({'src': srcs, 'derived': der, 'columns': dict(columns or {})})}{T1}"
     out = df.copy()
     out.columns = [f"{head}{out.columns[0]}", *out.columns[1:]]
     return out

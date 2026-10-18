@@ -10,9 +10,12 @@ the gate checks that record against the artifacts on disk:
 
 ``record()`` is called by a producer's save function right after it writes the chart JSON. Its inputs are the
 sources the producer declares PLUS every file under data/ or results/ the producer process has read so far
-(captured by an audit hook on open() and a pandas.read_parquet shim, both installed when this module is
-imported). Importing this module before reading any data is therefore what makes the record complete: producers
-import it at the top.
+(captured by an audit hook on open() and a pandas.read_parquet shim). Reads a script made BEFORE the hook was
+installed cannot be recovered, so the hook is installed at the process entry point (Codex V52-1: a static check of
+import order was bypassable by aliasing a reader): when a repo script (scripts/...) imports this module in a
+process that was not started through scripts/_cp_boot.py, the process re-executes itself through it, and the
+boot module installs the hook before any of the script's code runs. Whatever the first process read is discarded
+with it; the script then runs again from its first line under the hook.
 
 ``verify()`` (used by scripts/gate_number_provenance.py) fails a chart when it has no record, when the chart file
 changed after it was recorded, when the pair's results run tag moved on, or when any recorded input is missing or
@@ -81,6 +84,31 @@ def _install() -> None:
 
 
 _install()
+
+BOOT = Path(__file__).resolve().with_name("_cp_boot.py")
+
+
+def _boot() -> None:
+    """Re-execute a repo script through the boot module unless this process already started there. Skipped for
+    non-script processes (pytest, streamlit, python -c, multiprocessing children, whose main is '__mp_main__')."""
+    if getattr(sys, "_aig_cp_booted", False):
+        return
+    main = sys.modules.get("__main__")
+    f = getattr(main, "__file__", None)
+    if not f or getattr(main, "__name__", "") != "__main__":
+        return
+    try:
+        p = Path(f).resolve()
+        p.relative_to(REPO / "scripts")
+    except (ValueError, OSError):
+        return
+    spec = getattr(main, "__spec__", None)
+    target = ["-m", spec.name] if spec is not None and spec.name else [str(p)]
+    sys.stdout.flush(); sys.stderr.flush()
+    os.execv(sys.executable, [sys.executable, str(BOOT), *target, *sys.argv[1:]])
+
+
+_boot()
 
 
 def sha256(path: Path) -> str:

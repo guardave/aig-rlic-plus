@@ -12,8 +12,8 @@
   },
   {
    "id": "bibliographic_citation",
-   "regex": "\\*[^*\\n]+\\*,\\s*\\d+\\(\\d+\\),\\s*\\d+\\s*[–-]\\s*\\d+|[A-Z][A-Za-z'’-]+(?: et al\\.)?(?:,? (?:and|&) [A-Z][A-Za-z'’-]+)?,? \\((?:1[89]|20)\\d{2}[a-z]?\\)",
-   "why": "Reference list entries (journal volume(issue), pages; publication year): bibliographic metadata, not results. Bound to author-year context (Codex V51-7: '(1260d)' in a signal label matched the bare year arm)."
+   "regex": "[^\\W\\d_][^\\n()*]{0,200}?\\s\\((?:1[89]|20)\\d{2}[a-z]?\\)\\.[^\\n*]{0,300}\\*[^*\\n]+\\*,\\s*\\d+\\(\\d+\\),\\s*\\d+\\s*[–-]\\s*\\d+|[A-Z][A-Za-z'’-]+(?: et al\\.)?(?:,? (?:and|&) [A-Z][A-Za-z'’-]+)?,? \\((?:1[89]|20)\\d{2}[a-z]?\\)",
+   "why": "Reference list entries: author(s) (year). title. *Journal*, volume(issue), pages; or an in-text author-year citation. Bibliographic metadata, not results. Both arms need an author name and a year 1800-2099 (Codex V51-7: '(1260d)' matched a bare year arm; V52-4: the journal-volume arm needed neither author nor year)."
   },
   {
    "id": "trade_log_definitions",

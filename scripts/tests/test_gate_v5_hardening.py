@@ -244,6 +244,12 @@ def test_bibliographic_allowlist_needs_an_author_year_citation():
     assert re.search(e["regex"], "Politis and Romano (1994)")
     assert not re.search(e["regex"], "HY-IG Percentile Rank (1260d)")
     assert not re.search(e["regex"], "the window (2019) only")
+    # Codex V52-4: the journal-volume arm needed neither author nor year
+    assert not re.search(e["regex"], "*Journal*, 999(888), 777-666")
+    assert not re.search(e["regex"], "Sharpe 0.85. *J*, 1(1), 1-2")
+    ref = ("Gilchrist, S., & Zakrajsek, E. (2012). Credit spreads and business cycle fluctuations. "
+           "*American Economic Review*, 102(4), 1692-1720")
+    assert re.search(e["regex"], "- " + ref).group(0) == ref
 
 
 def test_trigger_card_diagnostic_has_no_computed_count():

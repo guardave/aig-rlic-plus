@@ -61,8 +61,16 @@ options, tick prefixes / suffixes, customdata and table-trace strings are extrac
 v5.2 after Codex L2v5.1: no value-matching fallback remains (an untagged, non-allowlisted template number FAILS as
 UNTAGGED-TEMPLATE whatever its value); sourced-table percent displays may scale x 100 only a ratio-kind column;
 derived table columns are checked against a named source column; declared chart inputs must exist and every
-producer installs the input recorder before reading data (static test); the trigger-card diagnostic carries no
+producer installs the input recorder before reading data (static test, replaced in v5.3); the trigger-card diagnostic carries no
 computed count; the bibliographic allowlist is bound to author-year context.
+
+v5.3 after Codex L2v5.2: each sourced-table cell is checked against the ONE source column its displayed column is
+bound to (explicit table_source columns= mapping, else the column whose normalised name is the header; a numeric
+cell in an unbound column fails), and x 100 is allowed only when THAT column is ratio-kind (V52-2); a derived
+numeric column must name a checker-owned rank rule (RANK_RULES) and equal the rank the checker recomputes from the
+score column; None or any other column fails (V52-3); the input recorder is installed at the process entry point
+(a repo script re-executes through scripts/_cp_boot.py; aliasing a reader before the import no longer escapes it,
+V52-1); both bibliographic arms need an author and a year (V52-4).
 
 Usage:
   python scripts/gate_number_provenance.py [pair ...]         # default: every pair with winner_summary 1.3.x
@@ -1255,15 +1263,16 @@ def _flat(o, out: list, key: str = "") -> list:
     return out
 
 
-def table_source_rows(payload: str, pair: str) -> tuple[list[list], list[str], set[str]]:
-    """(source rows as flat value lists, freshness findings, derived display columns) of a table_source marker.
+def table_source_rows(payload: str, pair: str) -> tuple[list[list], list[str], dict]:
+    """(source rows as flat value lists, freshness findings, column binding {"derived": {display: source col},
+    "columns": {display: source col}}) of a table_source marker.
     A source must exist inside results/<pair>/ or data/, and a dated source (YYYYMMDD in its path) must carry the
     pair's current run tag."""
     import pandas as pd
     try:
         spec = json.loads(payload)
     except ValueError:
-        return [], [f"table source marker unreadable: {payload[:80]!r}"], set()
+        return [], [f"table source marker unreadable: {payload[:80]!r}"], {"derived": {}, "columns": {}}
     rows, bad, tag = [], [], load_tag(pair)
     for src in spec.get("src", []):
         path, _, ptr = src.partition("#")
@@ -1294,7 +1303,8 @@ def table_source_rows(payload: str, pair: str) -> tuple[list[list], list[str], s
                 _SRC_ROWS[src] = [list(zip(d_.columns.astype(str), r)) for r in d_.values.tolist()]
         rows += _SRC_ROWS[src]
     d = spec.get("derived", {})
-    return rows, bad, (d if isinstance(d, dict) else {c: None for c in d})
+    return rows, bad, {"derived": d if isinstance(d, dict) else {c: None for c in d},
+                       "columns": spec.get("columns") or {}}
 
 
 def _row_values(row: list) -> tuple[list[tuple[float, bool]], set[str]]:
@@ -1339,44 +1349,103 @@ def _cell_ok(cell, nums: list, strs: set[str]) -> bool:
 
 
 _ALL_STRS: dict[int, set] = {}
+_RANKS: dict[tuple, dict] = {}
+
+# Checker-owned derivation rules for derived table columns (Codex V52-3): a derived display column may only name
+# a rank column listed here, and the checker recomputes that rank from its score column over the source rows
+# (descending, ties share the lowest rank, rows without a rank are not ranked) instead of trusting the file or the
+# producer's mapping.
+RANK_RULES = {"is_rank": "is_sharpe", "oos_rank": "oos_sharpe"}
 
 
-def row_bound(cells: list, header: list[str], rows: list[list], derived) -> bool:
-    """Every checked cell of a displayed row is matched by ONE source row: cells with numbers or dates through
-    _cell_ok, and text cells that occur in the source (row keys such as an episode name) by equality in that same
-    row. Text the template composes (a label found in no source row) binds nothing. ``derived``: {display column:
-    source column or None}: a derived cell must equal that source column's value in the same row (Codex V51-6: a
-    hand-computed rank is checked against the file's rank column); None = not verifiable, skipped."""
-    derived = derived if isinstance(derived, dict) else {c: None for c in derived}
-    checks = [(c[0] if isinstance(c, tuple) else c, derived[h]) for c, h in zip(cells, header)
-              if h in derived and derived[h] and re.search(r"\d", c[0] if isinstance(c, tuple) else c)]
+def _norm(h: str) -> str:
+    return re.sub(r"[^0-9a-z]+", "_", str(h).lower()).strip("_")
+
+
+def _binding(bind) -> tuple[dict, dict]:
+    if isinstance(bind, dict) and set(bind) <= {"derived", "columns"} and bind:
+        return dict(bind.get("derived") or {}), dict(bind.get("columns") or {})
+    return (bind if isinstance(bind, dict) else {c: None for c in bind or ()}), {}
+
+
+def _bound_col(h: str, columns: dict, row_cols: set) -> str | None:
+    """Source column a displayed column shows: the producer's explicit mapping, else the source column whose
+    normalised name equals the header ('OOS Sharpe' -> oos_sharpe). None: unbound."""
+    if h in columns:
+        return columns[h] if columns[h] in row_cols else None
+    n = _norm(h)
+    return next((c for c in row_cols if _norm(c) == n), None)
+
+
+def _recomputed_rank(rows: list[list], rank_col: str) -> dict[int, float]:
+    """{row index: rank} recomputed from RANK_RULES[rank_col] over the rows that carry a rank."""
+    key = (id(rows), rank_col)
+    if key not in _RANKS:
+        score = RANK_RULES[rank_col]
+        vals = {}
+        for i, r in enumerate(rows):
+            d = dict(r)
+            rk, sc = d.get(rank_col), d.get(score)
+            if _isnum(rk) and _isnum(sc):
+                vals[i] = float(sc)
+        _RANKS[key] = {i: 1.0 + sum(1 for w in vals.values() if w > v) for i, v in vals.items()}
+    return _RANKS[key]
+
+
+def _isnum(v) -> bool:
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and not (isinstance(v, float) and math.isnan(v))
+
+
+def row_bound(cells: list, header: list[str], rows: list[list], bind) -> bool:
+    """Every checked cell of a displayed row is matched by ONE source row. A cell with numbers or dates is checked
+    against the ONE source column its displayed column is bound to (_bound_col; Codex V52-2: a percent display
+    was authorised by a coincident ratio value in another column): its value at the displayed precision, x 100
+    only when that column's declared kind is a ratio. A numeric cell in an unbound column fails (UNBOUND). Text
+    cells that occur in the source (row keys such as an episode name) must occur in that same row; text the
+    template composes binds nothing. ``bind``: {"derived": {display: rank column}, "columns": {display: source
+    column}} (a bare dict is the derived map). A derived numeric cell must name a RANK_RULES column (None or any
+    other column fails, Codex V52-3) and equal both that column's value and the rank the checker recomputes."""
+    derived, columns = _binding(bind)
     if id(rows) not in _ALL_STRS:
         _ALL_STRS.clear()
+        _RANKS.clear()
         _ALL_STRS[id(rows)] = {t for r in rows for t in _row_values(r)[1]}
     known = _ALL_STRS[id(rows)]
-    keys, want = [], []
+    row_cols = {c for r in rows for c, _v in r}
+    keys, want, checks = [], [], []
     for c, h in zip(cells, header):
-        if h in derived:
-            continue
         exact, blanked = c if isinstance(c, tuple) else (c, c)
+        if h in derived:
+            if re.search(r"\d", exact):
+                if derived[h] not in RANK_RULES:
+                    return False
+                checks.append((exact, derived[h]))
+            continue
         if re.search(r"\d", blanked):
-            want.append(c)
+            col = _bound_col(h, columns, row_cols)
+            if col is None:
+                return False
+            want.append((c, col))
         elif exact and exact in known:
             keys.append(exact)
     if not want and not keys and not checks:
         return True
 
-    def derived_ok(r) -> bool:
+    def derived_ok(i, r) -> bool:
         vals = dict(r)
         for txt, col in checks:
             v = vals.get(col)
             n = [x for (x, _d, _p), _t in _numbers(txt)]
-            if v is None or (isinstance(v, float) and math.isnan(v)) or not n or abs(float(v) - n[0]) > 1e-9:
+            rk = _recomputed_rank(rows, col).get(i)
+            if not _isnum(v) or not n or rk is None or abs(float(v) - n[0]) > 1e-9 or abs(rk - n[0]) > 1e-9:
                 return False
         return True
-    for r in rows:
-        nums, strs = _row_values(r)
-        if all(k in strs for k in keys) and all(_cell_ok(c, nums, strs) for c in want) and derived_ok(r):
+    for i, r in enumerate(rows):
+        _nums, strs = _row_values(r)
+        if not all(k in strs for k in keys) or not derived_ok(i, r):
+            continue
+        vals = dict(r)
+        if all(_cell_ok(c, *_row_values([(col, vals.get(col))])) for c, col in want):
             return True
     return False
 
@@ -1421,8 +1490,9 @@ def _row_near_miss(cells: list[str], header: list[str], rows: list, derived: set
     """(accepted, tried): perturb each decimal number of a displayed row by +-0.01..0.10 at its precision and
     re-run the row-bound check."""
     acc = tried = 0
+    der, _cols = _binding(derived)
     for i, (c, h) in enumerate(zip(cells, header)):
-        if h in derived:
+        if h in der:
             continue
         c = c[1] if isinstance(c, tuple) else c
         for (x, d, pct), t in _numbers(c)[:1]:

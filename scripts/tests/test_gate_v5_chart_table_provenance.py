@@ -1,6 +1,7 @@
 """Number-provenance gate v5, QA L2v4 #1: chart files are checked by provenance record, sourced tables row by row
 against their source file. Every QA repro is a must-FAIL case."""
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -121,10 +122,12 @@ def test_derived_columns_and_json_pointer_sources(repo):
     (repo / "results" / PAIR / "scope.json").write_text(json.dumps(
         {"axis": {"derivatives": [{"name": "z_60m", "definition": "60-month z-score", "window": 60}]}}))
     rows, bad, der = g.table_source_rows(_src("results/toy_spy/scope.json#/axis/derivatives", ("Rank",)), PAIR)
-    assert bad == [] and der == {"Rank": None}
-    head = ["Rank", "Name", "Window"]
-    assert g.row_bound(g._template_cells(f"7{g.TABLE_SEP}z_60m{g.TABLE_SEP}60"), head, rows, der)
-    assert not g.row_bound(g._template_cells(f"7{g.TABLE_SEP}z_60m{g.TABLE_SEP}36"), head, rows, der)
+    assert bad == [] and der["derived"] == {"Rank": None}
+    head = ["Name", "Window"]
+    assert g.row_bound(g._template_cells(f"z_60m{g.TABLE_SEP}60"), head, rows, der)
+    assert not g.row_bound(g._template_cells(f"z_60m{g.TABLE_SEP}36"), head, rows, der)
+    # Codex V52-3: a derived numeric cell with no checker-owned rule ('None = skipped') now fails
+    assert not g.row_bound(g._template_cells(f"7{g.TABLE_SEP}z_60m{g.TABLE_SEP}60"), ["Rank", *head], rows, der)
 
 
 def test_cell_containing_the_old_separator_is_one_cell(repo):
@@ -179,42 +182,30 @@ def test_reads_of_other_pairs_results_are_not_inputs(repo):
     assert not [i for i in e["inputs"] if i.startswith("results/other_spy/")]
 
 
-READS = {"read_csv", "read_parquet", "read_json", "read_excel", "read_text", "read_bytes", "open", "load", "loads"}
+def _probe(*pre):
+    import subprocess
+    root = Path(__file__).resolve().parents[2]
+    data = next(p for p in subprocess.run(["git", "ls-files", "data"], cwd=root, capture_output=True, text=True,
+                                          env={k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+                                          ).stdout.split() if p.endswith(".csv"))
+    out = subprocess.run([sys.executable, *pre, str(root / "scripts" / "tests" / "_cp_alias_probe.py"), data],
+                         capture_output=True, text=True, cwd=root, timeout=120)
+    assert out.returncode == 0, out.stderr
+    return out.stdout.split()
 
 
-def _first_recorder_import(tree):
-    import ast
-    for i, st in enumerate(tree.body):
-        names = []
-        if isinstance(st, ast.Import):
-            names = [a.name for a in st.names]
-        elif isinstance(st, ast.ImportFrom):
-            names = [st.module or ""] + [f"{st.module}.{a.name}" for a in st.names]
-        if any(n in ("chart_provenance", "harness.charts", "harness.run") or n.startswith("harness.run")
-               for n in names):
-            return i
-    return None
+def test_a_read_before_the_recorder_import_is_still_recorded():
+    # Codex V52-1: an aliased reader (reader = Path.read_text) called before `import chart_provenance` escaped the
+    # static import-order test; the script now re-executes through the boot module, which installs the hook first
+    assert _probe() == ["BOOTED", "RECORDED"]
 
 
-def test_every_chart_producer_installs_the_recorder_before_reading_data():
-    # Codex V51-3: input capture depended on import order; a producer reading data first escaped the recorder
-    import ast
-    root = Path(__file__).resolve().parents[1]
-    producers = [f for f in sorted(root.glob("*.py")) + sorted((root / "harness").glob("*.py"))
-                 if "chart_provenance.record" in f.read_text() or "from harness.run import" in f.read_text()]
-    assert len(producers) >= 6
-    for f in producers:
-        tree = ast.parse(f.read_text())
-        i = _first_recorder_import(tree)
-        assert i is not None or f.name == "charts.py", f"{f.name}: does not import the recorder at module level"
-        if i is None:
-            assert "import chart_provenance" in f.read_text()
-            continue
-        for st in tree.body[:i]:
-            for n in ast.walk(st):
-                if isinstance(n, ast.Call):
-                    fn = n.func.attr if isinstance(n.func, ast.Attribute) else getattr(n.func, "id", "")
-                    assert fn not in READS, f"{f.name}: reads data (line {n.lineno}) before importing the recorder"
+def test_non_script_processes_are_not_re_executed():
+    import subprocess
+    root = Path(__file__).resolve().parents[2]
+    out = subprocess.run([sys.executable, "-c", "import sys; sys.path.insert(0, 'scripts'); import chart_provenance;"
+                          " print(getattr(sys, '_aig_cp_booted', False))"], capture_output=True, text=True, cwd=root)
+    assert out.stdout.strip() == "False", out.stderr
 
 
 def test_missing_declared_input_is_rejected(repo):
@@ -241,10 +232,29 @@ def test_percent_display_needs_a_ratio_kind_column():
 
 def test_derived_rank_is_checked_against_the_source_rank_column(repo):
     # Codex V51-6 repro: row_bound(['987'], ['Rank'], ..., {'Rank'}) passed a wrong hand-computed rank
-    (repo / "results" / PAIR / "t.csv").write_text("key,is_rank,oos_sharpe\na,1,0.62\nb,2,0.67\n")
+    (repo / "results" / PAIR / "t.csv").write_text(
+        "key,is_sharpe,is_rank,oos_sharpe,decoy\na,0.9,1,0.62,987\nb,0.8,2,0.67,987\n")
     rows, _b, _d = g.table_source_rows(_src("results/toy_spy/t.csv"), PAIR)
     head = ["Rank", "Key", "OOS Sharpe"]
     der = {"Rank": "is_rank"}
     assert g.row_bound(g._template_cells(f"2{g.TABLE_SEP}b{g.TABLE_SEP}0.67"), head, rows, der)
     assert not g.row_bound(g._template_cells(f"987{g.TABLE_SEP}b{g.TABLE_SEP}0.67"), head, rows, der)
     assert not g.row_bound(g._template_cells(f"1{g.TABLE_SEP}b{g.TABLE_SEP}0.67"), head, rows, der)
+    # Codex V52-3: a decoy column or None no longer authorises a derived rank
+    cells = g._template_cells(f"987{g.TABLE_SEP}b{g.TABLE_SEP}0.67")
+    assert not g.row_bound(cells, head, rows, {"Rank": "decoy"})
+    assert not g.row_bound(cells, head, rows, {"Rank": None})
+    # the checker recomputes the rank from is_sharpe: a file whose rank column disagrees fails
+    (repo / "results" / PAIR / "t2.csv").write_text("key,is_sharpe,is_rank,oos_sharpe\na,0.9,2,0.62\nb,0.8,1,0.67\n")
+    rows2, _b, _d = g.table_source_rows(_src("results/toy_spy/t2.csv"), PAIR)
+    assert not g.row_bound(g._template_cells(f"1{g.TABLE_SEP}b{g.TABLE_SEP}0.67"), head, rows2, der)
+
+
+def test_percent_permission_is_bound_to_the_displayed_column():
+    # Codex V52-2 repro: '50.0%' under 'Sharpe' was authorised by the coincident ratio-kind oos_ann_return
+    rows = [[("episode", "GFC"), ("sharpe", 0.5), ("oos_ann_return", 0.5)]]
+    assert not g.row_bound(["GFC", "50.0%"], ["Episode", "Sharpe"], rows, {})
+    assert g.row_bound(["GFC", "50.0%"], ["Episode", "OOS Return"], rows, {"columns": {"OOS Return": "oos_ann_return"}})
+    assert g.row_bound(["GFC", "0.50"], ["Episode", "Sharpe"], rows, {})
+    # a numeric cell in a column bound to no source column fails
+    assert not g.row_bound(["GFC", "0.50"], ["Episode", "Score"], rows, {})
