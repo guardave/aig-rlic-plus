@@ -86,6 +86,7 @@ def _install() -> None:
 _install()
 
 BOOT = Path(__file__).resolve().with_name("_cp_boot.py")
+BOOT_TOKEN = "entry-point:scripts/_cp_boot.py"   # a record made with the hook installed before the script ran
 
 
 def _boot() -> None:
@@ -150,6 +151,7 @@ def record(pair: str, chart_json, sources=(), producer: str | None = None) -> di
     entry = {"chart_sha256": sha256(chart_json), "results_tag": results_tag(pair),
              "producer": producer or Path(sys.argv[0]).as_posix(),
              "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+             "recorder": BOOT_TOKEN if getattr(sys, "_aig_cp_booted", False) else "not-booted",
              "inputs": {p: sha256(REPO / p) for p in inputs}}
     mp = manifest_path(pair)
     try:
@@ -180,6 +182,9 @@ def verify(pair: str, chart_rel: str) -> str | None:
     e = man.get(chart.stem)
     if not e:
         return f"chart {chart.stem} has no provenance record (regenerate it with a recording producer)"
+    if e.get("recorder") != BOOT_TOKEN:        # Codex V52-1: inputs are complete only under the entry-point hook
+        return (f"chart {chart.stem} was not recorded under the producer bootstrap (scripts/_cp_boot.py); "
+                "regenerate it by running its producer script")
     if not chart.is_file() or sha256(chart) != e.get("chart_sha256"):
         return f"chart {chart.stem} changed after its provenance was recorded"
     tag = results_tag(pair)

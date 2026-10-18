@@ -27,6 +27,7 @@ def repo(tmp_path, monkeypatch):
     monkeypatch.setattr(cp, "REPO", tmp_path)
     monkeypatch.setattr(g, "REPO", tmp_path)
     monkeypatch.setattr(g, "RESULTS", tmp_path / "results")
+    monkeypatch.setattr(sys, "_aig_cp_booted", True, raising=False)     # as a producer started by scripts/_cp_boot.py
     g._SRC_ROWS.clear()
     return tmp_path
 
@@ -198,6 +199,14 @@ def test_a_read_before_the_recorder_import_is_still_recorded():
     # Codex V52-1: an aliased reader (reader = Path.read_text) called before `import chart_provenance` escaped the
     # static import-order test; the script now re-executes through the boot module, which installs the hook first
     assert _probe() == ["BOOTED", "RECORDED"]
+
+
+def test_a_record_made_outside_the_bootstrap_fails(repo, monkeypatch):
+    # Lead V52-1: a chart record not made under the entry-point hook is rejected (its inputs may be incomplete)
+    monkeypatch.setattr(sys, "_aig_cp_booted", False)
+    f = _chart(repo)
+    cp.record(PAIR, f, ["results/toy_spy/subperiod_sharpe.csv"], "test")
+    assert "not recorded under the producer bootstrap" in cp.verify(PAIR, f.relative_to(repo).as_posix())
 
 
 def test_non_script_processes_are_not_re_executed():

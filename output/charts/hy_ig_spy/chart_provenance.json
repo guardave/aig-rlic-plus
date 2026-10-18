@@ -3,7 +3,8 @@
   "chart_sha256": "894ad4d969f6e3e32753ebe06c5b11b505001004088b05ed8ff01a4bbed9cdbb",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:07+00:00",
+  "recorded_at": "2026-10-18T05:10:02+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
@@ -14,7 +15,8 @@
   "chart_sha256": "11c7e0643d6069f318e56f10c7393be97b5b2aed5ecad209c5a53d57d668fa80",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T02:53:43+00:00",
+  "recorded_at": "2026-10-18T05:10:28+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/hy_ig_spy/lead_curve_20261017.csv": "aff55a78b9a6df346109368b12c790ac46567551a004b670d974778ef910b0c5",
    "results/hy_ig_spy/null_tournament_20261017.csv": "5ffbe5ce49132f9a8c5aab2474b18a1057120715752fc516504f1ec960d9b5a4",
@@ -26,7 +28,8 @@
   "chart_sha256": "4512987cd022ed0b7b02a90ef47d09c9000d18f7f55958b0c9cea4c5054baee0",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:12+00:00",
+  "recorded_at": "2026-10-18T05:10:07+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -46,7 +49,8 @@
   "chart_sha256": "91d09c620b674ec54ad87600ce9eaf847d6ecf8cd25dc2770495d3d44124ed21",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:07+00:00",
+  "recorded_at": "2026-10-18T05:10:02+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
@@ -57,17 +61,19 @@
   "chart_sha256": "5263b907f6238773b986e768b79defc7ae206c291765d80f315e73fb1e9ef48c",
   "results_tag": "20261017",
   "producer": "scripts/generate_lead_charts.py",
-  "recorded_at": "2026-10-18T00:47:35+00:00",
+  "recorded_at": "2026-10-18T05:10:59+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/hy_ig_spy/lead_correlation_20261017.csv": "5905596d45bab9fd22a2fcaafceae45280ec2e201b73e6dc9e04f9e1b81cf612",
    "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
   }
  },
  "drawdown": {
-  "chart_sha256": "a40b2821835edf10870f0ad336382deae96932825309175fd857d5f359d815b3",
+  "chart_sha256": "f3af494ec6b909f68a84f0bf3a02dd9106ee3cb0a3122dab47f4e1570dc3c219",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:11+00:00",
+  "recorded_at": "2026-10-18T05:10:06+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -84,7 +90,8 @@
   "chart_sha256": "114a2f9257c2319e7d9e47b094e7998a25987ed23067209f85d9ba6ec6361518",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:11+00:00",
+  "recorded_at": "2026-10-18T05:10:07+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -101,7 +108,8 @@
   "chart_sha256": "1215bfc6f610fe3b48e5199e38f4e52b79a421e93116d9e7fd8d0c9d8861f5e2",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:11+00:00",
+  "recorded_at": "2026-10-18T05:10:06+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -118,7 +126,8 @@
   "chart_sha256": "7f945b3499c97b3bb9fc1fbb2bb9ef87e0d8a4408b6097e49c4dfcc6b3f569f6",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:08+00:00",
+  "recorded_at": "2026-10-18T05:10:03+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
@@ -130,7 +139,8 @@
   "chart_sha256": "5efebbafc598ce42dcfcbcdfb095a59120ab964de406157612e199f38313852b",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:06+00:00",
+  "recorded_at": "2026-10-18T05:10:02+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495"
   }
@@ -139,7 +149,8 @@
   "chart_sha256": "7774b314c3eb9e07bc8b1551538e50af188edad415e521f73ce7e05010386f20",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:07+00:00",
+  "recorded_at": "2026-10-18T05:10:02+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
@@ -150,7 +161,8 @@
   "chart_sha256": "e72d6501bd78d6de78598a4f9f8d6695fb82fc865d9c89dcf79aafcb0b316a07",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:06+00:00",
+  "recorded_at": "2026-10-18T05:10:02+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
@@ -161,7 +173,8 @@
   "chart_sha256": "349c151f72bba3eb0a231e624b2793a36be4b4b9bd6948f41ea1dfcc3f0c7a87",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:07+00:00",
+  "recorded_at": "2026-10-18T05:10:02+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
@@ -172,7 +185,8 @@
   "chart_sha256": "ad37ecb92146b29507ab82dca82ca5e5a5f35720fa13235428956c967accbb22",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:10+00:00",
+  "recorded_at": "2026-10-18T05:10:06+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
@@ -184,16 +198,19 @@
   "chart_sha256": "72a27f7a65bb3ee5d79ad77cfbd5e8d86a4bab649d113ce7599f5eabc372c151",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T02:53:40+00:00",
+  "recorded_at": "2026-10-18T05:10:25+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
-   "results/hy_ig_spy/lead_curve_20261017.csv": "aff55a78b9a6df346109368b12c790ac46567551a004b670d974778ef910b0c5"
+   "results/hy_ig_spy/lead_curve_20261017.csv": "aff55a78b9a6df346109368b12c790ac46567551a004b670d974778ef910b0c5",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
   }
  },
  "lead_sharpe_distribution": {
   "chart_sha256": "1e10b0594a719cb344336cb9e715d338211fc5fab681b3bea256164e65275436",
   "results_tag": "20261017",
   "producer": "scripts/generate_lead_charts.py",
-  "recorded_at": "2026-10-18T00:47:38+00:00",
+  "recorded_at": "2026-10-18T05:11:02+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/hy_ig_spy/lead_clean_envelope_20261017.csv": "edb7ce7343b460262bb7570a0e6275c103e3a09a96026b6f60b1fde5eaa07f6f",
    "results/hy_ig_spy/lead_correlation_20261017.csv": "5905596d45bab9fd22a2fcaafceae45280ec2e201b73e6dc9e04f9e1b81cf612",
@@ -205,7 +222,8 @@
   "chart_sha256": "4f8798fc2b67428d6bcb516637d200656f45d1453d14abd86ced5cc7579d14ee",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:11+00:00",
+  "recorded_at": "2026-10-18T05:10:06+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -220,7 +238,8 @@
   "chart_sha256": "aa07876aae689e31b9f0f7a26391d1c0c1d565262f6411f2bbf015dae19084cd",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:11+00:00",
+  "recorded_at": "2026-10-18T05:10:06+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -236,7 +255,8 @@
   "chart_sha256": "632e9207899df426a1986d80fbe89408247d7526ccd19385ad780ad9c402a6db",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:11+00:00",
+  "recorded_at": "2026-10-18T05:10:07+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -255,7 +275,8 @@
   "chart_sha256": "bde85a3e42627b471bef6e5c0cf351714cd4df1671d0683b84a2ee54e1edd8c1",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:10+00:00",
+  "recorded_at": "2026-10-18T05:10:06+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
@@ -269,7 +290,8 @@
   "chart_sha256": "7c24a954f0f2d30580e326084577b0be6e5c995bc30cf8eb281c3fda6ba93c68",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:06+00:00",
+  "recorded_at": "2026-10-18T05:10:02+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
@@ -280,7 +302,8 @@
   "chart_sha256": "1292ff48cd6f45f431b971cace3fdbfd72bfb24b3bdb48586ed3f9c8c6def1f9",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:11+00:00",
+  "recorded_at": "2026-10-18T05:10:07+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -299,7 +322,8 @@
   "chart_sha256": "976966274d9508606af9dd650f1e04cde1d4121d0d16742f78c04811911d1702",
   "results_tag": "20261017",
   "producer": "scripts/viz_cp_retro_apply.py",
-  "recorded_at": "2026-10-18T03:25:08+00:00",
+  "recorded_at": "2026-10-18T05:11:08+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/hy_ig_spy/rolling_correlation_hy_ig_spy.csv": "95a240556d16f71110262af36b71f78f3ca94735991e5c14a1e49f20b50dee19",
    "results/hy_ig_spy/subperiod_sharpe.csv": "122361ad3e5a4dcd39a3272abea6df6a7429e3a131ef0f727ff74d9aac7b45ab",
@@ -310,7 +334,8 @@
   "chart_sha256": "c9a6a99379a7eea3a3e06a28937e38d4f070c19282a965306f814d29c367a84c",
   "results_tag": "20261017",
   "producer": "scripts/viz_cp_retro_apply.py",
-  "recorded_at": "2026-10-18T03:25:08+00:00",
+  "recorded_at": "2026-10-18T05:11:08+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/hy_ig_spy/rolling_correlation_hy_ig_spy.csv": "95a240556d16f71110262af36b71f78f3ca94735991e5c14a1e49f20b50dee19",
    "results/hy_ig_spy/rolling_granger_hy_ig_spy.csv": "915e3987e94c3bbfbb0f25e191c98471a5ec41e1900a3090196aee12f20b9666",
@@ -324,7 +349,8 @@
   "chart_sha256": "a1269feaf3cf6b1537474a72180678665c95dc8fd26442e285190d17b9f5fcce",
   "results_tag": "20261017",
   "producer": "scripts/viz_cp_retro_apply.py",
-  "recorded_at": "2026-10-18T03:25:08+00:00",
+  "recorded_at": "2026-10-18T05:11:08+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/hy_ig_spy/rolling_correlation_hy_ig_spy.csv": "95a240556d16f71110262af36b71f78f3ca94735991e5c14a1e49f20b50dee19",
    "results/hy_ig_spy/rolling_sharpe_hy_ig_spy.csv": "e38bd9909509881017ad0b33a4e552a8574a499bf65ad794b7b43324aa491d58",
@@ -337,7 +363,8 @@
   "chart_sha256": "6fb4ede1dfb963942479f325089a1959221661950cb8f0506c1c07fff80cdc44",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:11+00:00",
+  "recorded_at": "2026-10-18T05:10:07+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -356,7 +383,8 @@
   "chart_sha256": "92778652832711d79ebc565ed2693fc0ada25ba3eb123f06a26f5577b16f2d4b",
   "results_tag": "20261017",
   "producer": "scripts/viz_cp_retro_apply.py",
-  "recorded_at": "2026-10-18T03:25:08+00:00",
+  "recorded_at": "2026-10-18T05:11:08+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/hy_ig_spy/rolling_correlation_hy_ig_spy.csv": "95a240556d16f71110262af36b71f78f3ca94735991e5c14a1e49f20b50dee19",
    "results/hy_ig_spy/structural_break_hy_ig_spy.json": "f9f44716b3bb8be708828b9df84b214435ad6ba9b2a6e62d8222b947143dfea6",
@@ -368,7 +396,8 @@
   "chart_sha256": "a8ef6f6f32ebbfde3c871e01375d51cb4422ac9f9d7e42423cc13e0315b45853",
   "results_tag": "20261017",
   "producer": "scripts/viz_cp_retro_apply.py",
-  "recorded_at": "2026-10-18T03:25:08+00:00",
+  "recorded_at": "2026-10-18T05:11:07+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/hy_ig_spy/subperiod_sharpe.csv": "122361ad3e5a4dcd39a3272abea6df6a7429e3a131ef0f727ff74d9aac7b45ab"
   }
@@ -377,7 +406,8 @@
   "chart_sha256": "eaefd5101e472580c15678d6b03f8eaa1805c7d5ec83a7331a75e51cf960dbef",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:11+00:00",
+  "recorded_at": "2026-10-18T05:10:07+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -396,7 +426,8 @@
   "chart_sha256": "7c482783a12c874a5eff49dc7bcd47c77207e31cdd457c58a93313fa749bd4d4",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:11+00:00",
+  "recorded_at": "2026-10-18T05:10:07+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -415,7 +446,8 @@
   "chart_sha256": "c2b520153b990476045a8654d25a09aa831e95ee0a7009e71caa55ef7375764f",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:11+00:00",
+  "recorded_at": "2026-10-18T05:10:06+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
@@ -429,7 +461,8 @@
   "chart_sha256": "f2d5931b15c1c359c6ee50e4d25d0891818b1ced20ed727c2f97d98dfe4fcd12",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T03:20:11+00:00",
+  "recorded_at": "2026-10-18T05:10:07+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",

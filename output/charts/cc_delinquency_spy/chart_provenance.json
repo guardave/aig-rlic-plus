@@ -3,7 +3,8 @@
   "chart_sha256": "8b2572480f93880b9e8c3cb425614bd2de4cef870599bd1993c6d3982d5a6d0c",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:33:25+00:00",
+  "recorded_at": "2026-10-18T05:09:05+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv": "002c783a129e4a8b3a0541957cfda22147096d266d5bcefc11e75e8546a4231b",
@@ -16,19 +17,12 @@
   "chart_sha256": "fa9ecec88597a0ffeee0624d8efa59fffb828ea6e5ae5fcd2d2592cb2f8ae3ac",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T04:32:49+00:00",
+  "recorded_at": "2026-10-18T05:10:21+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
-   "data/phaseB_inputs/cc_delinquency_spy_quarterly_legacy_20261016.csv": "cba6772e62bf283e980379eea140bc71c55d997fc8278e43ae64bfd8293b5a5b",
-   "data/phaseB_inputs/spy_month_end_20261017.csv": "dba97c9aaa1cf16c8727e8e6300c053c3a3f718290001ad368bd80dfb51f1be5",
-   "data/release_calendar/release_calendar.csv": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
-   "data/release_calendar/release_calendar_meta.json": "9c8ab4d3258bf7938b38557a99f8266b638943d34e95fbed963d581484dd3e96",
-   "data/release_calendar/vintages/DRCCLACBN.csv.gz": "18d90bfb4a3699c2c239c69bed80fd30821bd8fbf7603762f648381b82a20662",
    "results/cc_delinquency_spy/hindsight_lead_curve_20261017.csv": "c65abaff0c043e6b47a654f9b3d79115fb6823e80938465258cbdbf396df4250",
    "results/cc_delinquency_spy/lead_curve_20261017.csv": "c69eed6eaf0c52fdd675a05aa60737f7b90605047b213c7bcea71e1fc5786942",
-   "results/cc_delinquency_spy/legacy_oos_selection_20261016.csv": "efbdc445b96ac6db505b8116092f6e7780dc0fbd9c644d41c23147deba970d57",
    "results/cc_delinquency_spy/null_tournament_20261017.csv": "629246da0c3e41639a46801f7a959feac9219c2f12c85af1b5591179d0ddde04",
-   "results/cc_delinquency_spy/strategy_returns_20261016.csv": "4ab91c195761d55960833b7b7f4660df7f51160dd754cf8d828e36e9f705358e",
-   "results/cc_delinquency_spy/tournament_results_20261016.csv": "91f5ecf52edc69942e0a1f05e18c9475f74571737a6da88c1f40400f78e66474",
    "results/cc_delinquency_spy/track_summary.json": "27f78ff9234afe32abec4c3eeef02c761b4cf3ecd9c5cc274d44a028063b532e",
    "results/cc_delinquency_spy/winner_summary.json": "09e74aef4b3044927a9e06da16c1ffee226c5f9a7d052c90df073d780bfefe47"
   }
@@ -37,7 +31,8 @@
   "chart_sha256": "660d9d6b1ce4f2943f56d59ac35fbfa74b7c510da9a5cf877afe0a2a0d1595b5",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:33:22+00:00",
+  "recorded_at": "2026-10-18T05:09:01+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/core_models_20261017/correlations.csv": "27d37cb3d9b119b4db342020db66c7d3cbd83d4418d6cf0abe39e4f5a01109e2",
@@ -49,7 +44,8 @@
   "chart_sha256": "5397d74467ad61dbcaad58ab470287b23f2c3c809ce16f22868120e445a3dd60",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:33:39+00:00",
+  "recorded_at": "2026-10-18T05:09:22+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv": "002c783a129e4a8b3a0541957cfda22147096d266d5bcefc11e75e8546a4231b",
@@ -67,7 +63,8 @@
   "chart_sha256": "a7e17ce5ef8b7a7ecf2a02dcb5411c84b2e3aceb580829d9515fc4b08315c449",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:33:36+00:00",
+  "recorded_at": "2026-10-18T05:09:19+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv": "002c783a129e4a8b3a0541957cfda22147096d266d5bcefc11e75e8546a4231b",
@@ -85,7 +82,8 @@
   "chart_sha256": "8f3f59583211107e798034cda83037174d4452cb17126f876a7581845c690bc1",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:33:27+00:00",
+  "recorded_at": "2026-10-18T05:09:08+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv": "002c783a129e4a8b3a0541957cfda22147096d266d5bcefc11e75e8546a4231b",
@@ -99,7 +97,8 @@
   "chart_sha256": "bdceb39caf564be6ff0c1ae5841abba43a9947aee651da9bb1bd44cdcd6390d4",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:33:16+00:00",
+  "recorded_at": "2026-10-18T05:08:54+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/winner_summary.json": "09e74aef4b3044927a9e06da16c1ffee226c5f9a7d052c90df073d780bfefe47"
@@ -109,7 +108,8 @@
   "chart_sha256": "d329c787224ec8eb7adc41292ec99c0b758bbc7fa388dfa0ca0ab9421f225fe3",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:34:03+00:00",
+  "recorded_at": "2026-10-18T05:09:53+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv": "002c783a129e4a8b3a0541957cfda22147096d266d5bcefc11e75e8546a4231b",
@@ -131,7 +131,8 @@
   "chart_sha256": "4b447970fce7b9258f0fc4541122bec955705aa72b8632b3e29d065247bd6d34",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:33:57+00:00",
+  "recorded_at": "2026-10-18T05:09:46+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv": "002c783a129e4a8b3a0541957cfda22147096d266d5bcefc11e75e8546a4231b",
@@ -153,7 +154,8 @@
   "chart_sha256": "dd7004c0a4c0b7ddd3951e1f77a687c9bc95980c776d1ee774c6f44e733fc187",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:34:00+00:00",
+  "recorded_at": "2026-10-18T05:09:49+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv": "002c783a129e4a8b3a0541957cfda22147096d266d5bcefc11e75e8546a4231b",
@@ -175,7 +177,8 @@
   "chart_sha256": "b8cd5ae757e11d1e8c2c39b62abe3e43a75339c28a4f0b68e288da3a62ed7e42",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:34:06+00:00",
+  "recorded_at": "2026-10-18T05:09:56+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv": "002c783a129e4a8b3a0541957cfda22147096d266d5bcefc11e75e8546a4231b",
@@ -197,25 +200,20 @@
   "chart_sha256": "033a220029a678b323f39633d344a6a8efb7dee345da2dcb6c4de60aa6e78eb8",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T04:32:46+00:00",
+  "recorded_at": "2026-10-18T05:10:17+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
-   "data/phaseB_inputs/cc_delinquency_spy_quarterly_legacy_20261016.csv": "cba6772e62bf283e980379eea140bc71c55d997fc8278e43ae64bfd8293b5a5b",
-   "data/phaseB_inputs/spy_month_end_20261017.csv": "dba97c9aaa1cf16c8727e8e6300c053c3a3f718290001ad368bd80dfb51f1be5",
-   "data/release_calendar/release_calendar.csv": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
-   "data/release_calendar/release_calendar_meta.json": "9c8ab4d3258bf7938b38557a99f8266b638943d34e95fbed963d581484dd3e96",
-   "data/release_calendar/vintages/DRCCLACBN.csv.gz": "18d90bfb4a3699c2c239c69bed80fd30821bd8fbf7603762f648381b82a20662",
    "results/cc_delinquency_spy/hindsight_lead_curve_20261017.csv": "c65abaff0c043e6b47a654f9b3d79115fb6823e80938465258cbdbf396df4250",
    "results/cc_delinquency_spy/lead_curve_20261017.csv": "c69eed6eaf0c52fdd675a05aa60737f7b90605047b213c7bcea71e1fc5786942",
-   "results/cc_delinquency_spy/legacy_oos_selection_20261016.csv": "efbdc445b96ac6db505b8116092f6e7780dc0fbd9c644d41c23147deba970d57",
-   "results/cc_delinquency_spy/strategy_returns_20261016.csv": "4ab91c195761d55960833b7b7f4660df7f51160dd754cf8d828e36e9f705358e",
-   "results/cc_delinquency_spy/tournament_results_20261016.csv": "91f5ecf52edc69942e0a1f05e18c9475f74571737a6da88c1f40400f78e66474"
+   "results/cc_delinquency_spy/winner_summary.json": "09e74aef4b3044927a9e06da16c1ffee226c5f9a7d052c90df073d780bfefe47"
   }
  },
  "local_projections": {
   "chart_sha256": "f64ff4a6cc3880ca6e2bac1ee1a901b0e33a6b3ba3b58e1af38d5f06da2293ff",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:33:31+00:00",
+  "recorded_at": "2026-10-18T05:09:12+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv": "002c783a129e4a8b3a0541957cfda22147096d266d5bcefc11e75e8546a4231b",
@@ -230,7 +228,8 @@
   "chart_sha256": "5d62567787d0d5d6ff90a12ec1d8b331c4631772c6a754390bfa4554ceb5b71d",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:33:34+00:00",
+  "recorded_at": "2026-10-18T05:09:16+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv": "002c783a129e4a8b3a0541957cfda22147096d266d5bcefc11e75e8546a4231b",
@@ -247,7 +246,8 @@
   "chart_sha256": "6bc84abd8e7a09768fd06be320b61fc3ef3f3ede9badc1340d5c1228150faaea",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:33:19+00:00",
+  "recorded_at": "2026-10-18T05:08:58+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/regime_quartile_returns.csv": "35b506bfc3595b7713a3c528f8880b10ee101c542d13a30d27a605ff06d87de9",
@@ -258,7 +258,8 @@
   "chart_sha256": "03a4f766ba3e2c8c405710aa25b6f2696c080d023981f1d5d8a787953497afda",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:33:47+00:00",
+  "recorded_at": "2026-10-18T05:09:33+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv": "002c783a129e4a8b3a0541957cfda22147096d266d5bcefc11e75e8546a4231b",
@@ -278,7 +279,8 @@
   "chart_sha256": "76aba510ce6236ec111c64f9ce50eb361878674f8fc2c8a4d835e1bcfcbdc5e9",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:33:49+00:00",
+  "recorded_at": "2026-10-18T05:09:36+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv": "002c783a129e4a8b3a0541957cfda22147096d266d5bcefc11e75e8546a4231b",
@@ -299,7 +301,8 @@
   "chart_sha256": "b488ad28b4a170453a42f8d14d05fb4fb168babc78a6caf565b413648635536c",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:33:52+00:00",
+  "recorded_at": "2026-10-18T05:09:39+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv": "002c783a129e4a8b3a0541957cfda22147096d266d5bcefc11e75e8546a4231b",
@@ -321,7 +324,8 @@
   "chart_sha256": "dd8b0c844b466a413a741395596cacdc9832ac714cb8f3b7e74449b8d7baf737",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:33:44+00:00",
+  "recorded_at": "2026-10-18T05:09:29+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv": "002c783a129e4a8b3a0541957cfda22147096d266d5bcefc11e75e8546a4231b",
@@ -340,7 +344,8 @@
   "chart_sha256": "dd8b0c844b466a413a741395596cacdc9832ac714cb8f3b7e74449b8d7baf737",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:33:41+00:00",
+  "recorded_at": "2026-10-18T05:09:26+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv": "002c783a129e4a8b3a0541957cfda22147096d266d5bcefc11e75e8546a4231b",
@@ -359,7 +364,8 @@
   "chart_sha256": "b488ad28b4a170453a42f8d14d05fb4fb168babc78a6caf565b413648635536c",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_cc_delinquency_spy.py",
-  "recorded_at": "2026-10-18T04:33:55+00:00",
+  "recorded_at": "2026-10-18T05:09:43+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/cc_delinquency_spy_quarterly_latest.parquet": "ea04a92dc2353c27087c6ba95ca47146e9d053643f3f8891b6194becec426538",
    "results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv": "002c783a129e4a8b3a0541957cfda22147096d266d5bcefc11e75e8546a4231b",
