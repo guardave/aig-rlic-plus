@@ -2061,6 +2061,7 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
         hide_index=True,
         column_config={
             "OOS Sharpe": st.column_config.NumberColumn("OOS Sharpe", format="%.2f"),
+            "IS Sharpe": st.column_config.NumberColumn("IS Sharpe", format="%.2f"),
         },
     )
     if objective_known:
