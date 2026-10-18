@@ -758,11 +758,13 @@
       "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ISM Report On Business calendar: 1st business day of M+1 (not on FRED); stakeholder chose E2 over E1 + 1-day execution delay (2026-10-16); _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 1..13 -> 2..13.",
       "conformed": true,
       "reconfirmed_winner": "ism_diff_1m / L4 / countercyclical / OOS Sharpe 1.507 (#255 floored re-run, DATE_TAG 20261008)",
+      "note": "Phase B port (2026-10-18): rebuilt on scripts/harness, one track (value_vintage revised_no_archive: no public archive of past ISM values; today's values from the pinned Data Master snapshot 20261016T232733Z, release-calendar as-of timing), D9 plateau, null K=100. The 20261016 rule (diff_1m / T0_zero / countercyclical / L13, raw IS argmax, fixed lag) replays exactly through the harness and is kept as the previous rule. reconfirmed_winner above is the historical #255 record (DATE_TAG 20261008), superseded by 20261016 and Phase B.",
       "position_shift": 0,
       "lead_floor_effective": 2,
       "release_calendar_series": "ISM_MFG",
-      "alignment": "fixed_lag",
-      "value_vintage": "revised_no_archive"
+      "alignment": "pit_asof",
+      "value_vintage": "revised_no_archive",
+      "track_policy": "single_revised_no_archive"
     },
     "permit_yoy_spy": {
       "signal_frequency": "monthly",
