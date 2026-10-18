@@ -142,3 +142,14 @@ def test_r71_failure_is_stated_without_the_floor_clause_when_the_se_sets_it(tmp_
     note = two_track.r71_note("toy_spy")
     assert "does not pass" in note and "fixed floor" not in note
     assert two_track.r71_note("absent_spy") == ""
+
+
+def test_chance_fact_states_zero_hits_and_the_test_period_rank():
+    # QA B1 permit N1: '0.00' hid the resolution; N2: the winner's test-period percentile in the null was not shown
+    nt = {"n_draws": 100, "winner_percentile": 1.0, "p_selection_stat": 0.0, "winner_oos_percentile": 0.24}
+    out = two_track.chance_fact({"null_tournament": nt})
+    assert "no contest scored as high" in out and "0.00" not in out
+    assert "test period" in out and "24th percentile" in out
+    nt2 = dict(nt, winner_percentile=0.98, p_selection_stat=0.02, winner_oos_percentile=None)
+    out2 = two_track.chance_fact({"null_tournament": nt2})
+    assert "at least as high: 0.02" in out2 and "test period" not in out2

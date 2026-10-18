@@ -281,6 +281,7 @@ def render_chance_check(pair_id: str, ts: dict) -> None:
                                 f"{nt['n_draws']:,} scrambled-signal contests")
                                + " (the indicator, as known at each date, shifted against the returns by a fixed "
                                  "number of periods, wrapping around once; same selection rule)."
+                               + oos_rank_note(nt)
                                + draws_note(nt) + coarse_note(pair_id, nt) + is_window_note(pair_id)
                                + r71_note(pair_id)))
 
@@ -381,6 +382,17 @@ def coarse_note(pair_id: str, nt: dict) -> str:
     return out + "."
 
 
+def oos_rank_note(nt: dict) -> str:
+    """Where the real winner's TEST-period Sharpe falls among the scrambled contests' winners' test-period Sharpes
+    (QA B1 permit N2: stored, never shown; the plateau percentile above is a training-period statistic). Tagged
+    from track_summary null_tournament.winner_oos_percentile (share of null winners strictly below)."""
+    q = nt.get("winner_oos_percentile")
+    if q is None:
+        return ""
+    return (" On the test period, the real winner's Sharpe ranks at the "
+            f"{_ordinal(round(q * 100))} percentile of the scrambled contests' winners' test-period Sharpes.")
+
+
 def r71_note(pair_id: str) -> str:
     """The R7.1 calibration result stated on every pair, pass or fail (QA B1 umcsent F2: a pass 0.001 inside the
     tolerance was invisible): the mean timing Sharpe of the scrambled contests' winners, its dependence-aware SE,
@@ -412,7 +424,9 @@ def chance_fact(ts: dict) -> str | None:
            f"ranks at the {_ordinal(round(nt['winner_percentile'] * 100))} percentile of {nt['n_draws']:,}")
     p = nt.get("p_selection_stat")
     out = (f"the winner's stable-range score {pos} scrambled-signal contests"
-           + (f" (share of contests scoring at least as high: {p:.2f})" if p is not None else "") + "."
+           + ("" if p is None else " (no contest scored as high)" if float(p) == 0 else
+              f" (share of contests scoring at least as high: {p:.2f})") + "."
+           + oos_rank_note(nt)
            + draws_note(nt))
     if nt.get("r71_pass") is False:
         out += " The scrambled contests do not meet the R7.1 calibration check (see the caveats)."

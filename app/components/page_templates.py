@@ -2133,9 +2133,21 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
         win_txt = " ★ marks the winner this page reports (the rule in the headline)" + (
             f"; it ranks #{w_rank:.0f} on this column."
             if w_rank not in (None, 1) and objective_known else ".")
+    # QA B1 permit N4: rules that trade identically share one position series, so their rows tie; say how many
+    # distinct series the declared grid has (winner_summary), next to the counts
+    distinct_txt = ""
+    try:
+        _wsd = _P.json_file(Path(tourn_path).parent / "winner_summary.json")
+        _nd = (_wsd.get("tracks", {}).get("main", {}).get("n_distinct")
+               or _wsd["selection"]["grid_scanned"]["n_distinct_position_series"])
+        if _nd is not None and int(_nd) < int(n_tested):
+            distinct_txt = (f" | **{_nd:,} distinct position series** (rules that trade identically tie, "
+                            "with identical rows)")
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        pass
     st.caption(
         f"**{n_tested:,} combinations tested** | "
-        f"**{n_valid:,} valid** {valid_txt}; {rank_txt}."
+        f"**{n_valid:,} valid** {valid_txt}{distinct_txt}; {rank_txt}."
         + (" OOS Sharpe is shown for evaluation only." if _is_sel else "")
         + (" Lookback = rolling-window length in the pair's period unit (n/a = none)." if _show_lb else "")
         + win_txt
@@ -2318,8 +2330,18 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
     # ---- Step 9: always-visible 10-row preview of broker-style log ----
     if broker_df is not None:
         st.markdown("**Broker-style log — first 10 executions:**")
+        _prev = broker_df.head(10).copy()
+        if "threshold_value" in _prev.columns:
+            # QA B1 permit N3: an empty threshold rendered as 'None'; a P2 rule has no threshold at all
+            try:
+                _w = json.loads((Path(broker_path).parent / "tournament_winner.json").read_text())["winner"]
+                _na = "n/a (range sizing)" if str(_w.get("strategy", "")).startswith("P2") else "n/a"
+            except (OSError, ValueError, KeyError, TypeError):
+                _na = "n/a"
+            _prev["threshold_value"] = _prev["threshold_value"].astype(object).where(
+                _prev["threshold_value"].notna(), _na)
         st.dataframe(
-            _table_source(broker_df.head(10), broker_path),
+            _table_source(_prev, broker_path),
             use_container_width=True,
             hide_index=True,
         )
