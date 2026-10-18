@@ -19,7 +19,7 @@ import os
 
 import streamlit as st
 
-from components.charts import _REPO_ROOT, _load_plotly_json, load_plotly_chart
+from components.charts import _REPO_ROOT, _load_plotly_json, _mark_chart_file, load_plotly_chart
 from components.statistical_methods import (
     CATEGORIES,
     METHODS,
@@ -105,6 +105,7 @@ def _render_method_example(method: dict, key_prefix: str = "") -> None:
     if os.path.exists(annotated_path):
         try:
             fig = _load_plotly_json(annotated_path)
+            _mark_chart_file(fig, annotated_path)
             st.plotly_chart(fig, use_container_width=True, key=key)
             rendered = True
         except Exception:  # noqa: BLE001 — render edge: fall back to the pair chart

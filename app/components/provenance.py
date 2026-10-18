@@ -48,6 +48,7 @@ D0, D1 = "", ""                        # definition text
 A0, A1 = "", ""                        # authored config text (added by the gate)
 AP = ""                                      # end of the config attribute path after A0 (added by the gate)
 U = ""                                       # source / unit separator inside a value sentinel
+T0, T1 = "\ue009", "\ue00a"                        # table source header marker (gate mode only, v5)
 RESULTS = Path(__file__).resolve().parents[2] / "results"
 REGISTRY = Path(__file__).resolve().parents[2] / "docs" / "schemas" / "lead_axis_registry.json"
 _ESC = {",": "%2C", "(": "%28", ")": "%29"}
@@ -220,6 +221,29 @@ def _wrap(o, src: str, dates: bool = True):
         lst.src = src
         return lst
     return o
+
+
+def table_source(df: pd.DataFrame, *sources, derived=()) -> pd.DataFrame:
+    """Shared-template tables (v5, QA L2v4 #1): name the artifact file(s) a displayed table comes from, so the gate
+    checks every number of a displayed row against ONE row of a current source file instead of value-matching it
+    against every number of the pair's results. ``sources``: paths, optionally with a JSON pointer to a list of
+    records ('.../signal_scope.json#/indicator_axis/derivatives'); ``derived``: display columns the template
+    computes (a rank) rather than copies. Gate mode only: the first column header carries the marker."""
+    if not gate_on() or df is None or len(df.columns) == 0:
+        return df
+    repo = RESULTS.parent.resolve()
+    srcs = []
+    for x in sources:
+        path, _, ptr = str(x).partition("#")
+        try:
+            rel = str(Path(path).resolve().relative_to(repo))
+        except ValueError:
+            rel = "outside-repo:" + path
+        srcs.append(rel + (f"#{ptr}" if ptr else ""))
+    head = f"{T0}{json.dumps({'src': srcs, 'derived': list(derived)})}{T1}"
+    out = df.copy()
+    out.columns = [f"{head}{out.columns[0]}", *out.columns[1:]]
+    return out
 
 
 def artifact(data, path):
@@ -441,6 +465,8 @@ def kind_of(src: str, pair: str | None = None) -> str:
         if "const" not in (ka, kb):
             if ka != kb:
                 raise SourceError(f"{fn} of a {ka} and a {kb} in {src!r}")
+            if ka == "unknown":                 # QA L2v4 #4: undeclared leaves are never combined
+                raise SourceError(f"{fn} of two leaves of undeclared kind in {src!r}")
             return ka
         c = float(args[1][6:] if kb == "const" else args[0][6:])
         k = ka if kb == "const" else kb

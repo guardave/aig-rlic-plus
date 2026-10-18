@@ -63,6 +63,7 @@ from components.narrative import (
 )
 from components.position_adjustment_panel import render_position_adjustment_panel
 from components.provenance import artifact as _artifact
+from components.provenance import table_source as _table_source
 from components.rolling_threshold import resolve_threshold
 from components.probability_engine_panel import render_probability_engine_panel
 from components.pair_registry import get_page_prefix
@@ -2053,7 +2054,7 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
         })
 
     st.dataframe(
-        pd.DataFrame(display_rows),
+        _table_source(pd.DataFrame(display_rows), tourn_path, derived=("Rank",)),
         use_container_width=True,
         hide_index=True,
         column_config={
@@ -2251,7 +2252,7 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
     if broker_df is not None:
         st.markdown("**Broker-style log — first 10 executions:**")
         st.dataframe(
-            broker_df.head(10),
+            _table_source(broker_df.head(10), broker_path),
             use_container_width=True,
             hide_index=True,
         )
@@ -2263,7 +2264,7 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
         # Degraded preview: show position log when broker-style is unavailable.
         st.markdown("**Position log — first 10 rows (degraded preview):**")
         st.dataframe(
-            pos_df.head(10),
+            _table_source(pos_df.head(10), pos_path),
             use_container_width=True,
             hide_index=True,
         )
@@ -2372,7 +2373,7 @@ def render_methodology_page(pair_id: str, config: MethodologyConfig) -> None:
     if stat_path and stat_path.exists():
         try:
             stat_df = pd.read_csv(stat_path)
-            st.dataframe(stat_df, use_container_width=True, hide_index=True)
+            st.dataframe(_table_source(stat_df, stat_path), use_container_width=True, hide_index=True)
             st.caption(
                 "How to read it: stationarity means a series has a stable "
                 "statistical pattern over time, rather than drifting because "

@@ -20,6 +20,7 @@ import pandas as pd
 import streamlit as st
 
 from components.charts import load_plotly_chart
+from components.provenance import table_source as _table_source
 
 _BASE = Path(__file__).resolve().parents[2]
 _RESULTS_DIR = str(_BASE / "results")
@@ -240,7 +241,7 @@ def _render_trade_table(paths: dict, pair_id: str):
         return
 
     st.dataframe(
-        trade_log,
+        _table_source(trade_log, trade_log_path),
         use_container_width=True,
         hide_index=True,
         column_config={
@@ -306,7 +307,7 @@ def _render_market_regime(paths: dict, pair_id: str):
     if regime_csv is not None:
         st.markdown("**Historical Regime Performance**")
         st.dataframe(
-            regime_csv,
+            _table_source(regime_csv, regime_path),
             use_container_width=True,
             hide_index=True,
             column_config={
@@ -346,7 +347,7 @@ def _render_market_regime(paths: dict, pair_id: str):
                 display_data = {col: [f"{last_row[col]:.3f}"] for col in prob_cols
                                 if col in last_row.index}
                 if display_data:
-                    st.dataframe(pd.DataFrame(display_data), hide_index=True)
+                    st.dataframe(_table_source(pd.DataFrame(display_data), regime_probs_path), hide_index=True)
 
 
 def _render_strategy_sop(paths: dict, summary: dict | None):
@@ -403,28 +404,32 @@ def _render_confidence(paths: dict, metadata: dict | None):
     if bootstrap is not None:
         st.markdown("**Bootstrap Validation**")
         # Handle both schemas: nested has different columns than legacy
-        st.dataframe(bootstrap, use_container_width=True, hide_index=True)
+        st.dataframe(_table_source(bootstrap, os.path.join(validation_dir, "bootstrap.csv")), use_container_width=True,
+                     hide_index=True)
 
     # Stress tests
     stress = _load_csv(os.path.join(validation_dir, "stress_tests.csv")
                        if validation_dir else None)
     if stress is not None:
         st.markdown("**Stress Test Performance**")
-        st.dataframe(stress, use_container_width=True, hide_index=True)
+        st.dataframe(_table_source(stress, os.path.join(validation_dir, "stress_tests.csv")), use_container_width=True,
+                     hide_index=True)
 
     # Walk-forward
     walk_fwd = _load_csv(os.path.join(validation_dir, "walk_forward.csv")
                          if validation_dir else None)
     if walk_fwd is not None:
         st.markdown("**Walk-Forward Validation**")
-        st.dataframe(walk_fwd, use_container_width=True, hide_index=True)
+        st.dataframe(_table_source(walk_fwd, os.path.join(validation_dir, "walk_forward.csv")), use_container_width=True,
+                     hide_index=True)
 
     # Transaction costs
     tx_costs = _load_csv(os.path.join(validation_dir, "transaction_costs.csv")
                          if validation_dir else None)
     if tx_costs is not None:
         st.markdown("**Transaction Cost Sensitivity**")
-        st.dataframe(tx_costs, use_container_width=True, hide_index=True)
+        st.dataframe(_table_source(tx_costs, os.path.join(validation_dir, "transaction_costs.csv")), use_container_width=True,
+                     hide_index=True)
 
 
 def _render_evidence_source(paths: dict, metadata: dict | None, pair_id: str):

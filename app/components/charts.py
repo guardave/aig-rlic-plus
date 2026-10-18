@@ -91,6 +91,19 @@ def _resolve_history_zoom_paths(chart_name: str, pair_id: str | None) -> list[st
     ]
 
 
+def _mark_chart_file(fig, json_path: str) -> None:
+    """Number-provenance gate v5: under AIG_PROVENANCE_GATE=1 the rendered figure names the chart file it was
+    loaded from (layout.meta.aig_chart_file), so the gate can check that file's provenance record instead of
+    value-matching the chart's text. No effect on the normal app."""
+    from components import provenance as P
+    if not P.gate_on():
+        return
+    rel = os.path.relpath(os.path.realpath(json_path), os.path.realpath(_REPO_ROOT))
+    meta = fig.layout.meta
+    fig.layout.meta = {**meta, "aig_chart_file": rel} if isinstance(meta, dict) else \
+        {"aig_chart_file": rel, **({"meta": meta} if meta is not None else {})}
+
+
 def load_plotly_chart(
     chart_name: str,
     fallback_text: str = "Chart will appear when visualization is complete.",
@@ -172,6 +185,7 @@ def load_plotly_chart(
             fig = None
 
     if fig is not None:
+        _mark_chart_file(fig, json_path)
         st.plotly_chart(fig, use_container_width=True, key=chart_key)
     elif not json_path:
         # GATE-25: render an explicit "chart pending" placeholder rather than

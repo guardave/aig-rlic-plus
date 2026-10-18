@@ -32,6 +32,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
+from .provenance import table_source
 from .schema_check import SchemaValidationError, validate_or_die
 
 
@@ -112,7 +113,7 @@ def render_analyst_suggestions(pair_id: str) -> None:
         return
 
     df = _suggestions_to_dataframe(suggestions)
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    st.dataframe(table_source(df, f"{instance_path}#/suggestions"), use_container_width=True, hide_index=True)
 
     # ECON-AS explicit disclaimer — the canonical wording.
     st.info(
