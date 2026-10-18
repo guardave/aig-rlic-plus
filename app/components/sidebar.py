@@ -74,10 +74,17 @@ def _build_findings() -> list[dict]:
 def _oos_end(pair_id: str) -> str | None:
     p = _REPO_ROOT / "results" / pair_id / "winner_summary.json"
     try:
-        end = json.loads(p.read_text()).get("oos_period_end")
+        ws = json.loads(p.read_text())
     except Exception:
         return None
+    end = ws.get("oos_period_end") or _comparison_end(ws)
     return str(end)[:10] if end else None
+
+
+def _comparison_end(ws: dict):
+    """Data end of a Phase B pair whose MAIN track has no rule (rt_insufficient): the as-revised-today test window."""
+    w = ((ws.get("tracks") or {}).get("comparison") or {}).get("oos_window") or []
+    return w[1] if ws.get("main_eligible") is False and len(w) == 2 else None
 
 
 @functools.lru_cache(maxsize=1)
@@ -97,7 +104,9 @@ def _data_through(pair_id: str | None) -> str:
             from components import provenance as P
             if P.gate_on():                  # tagged at display time only: the cached value stays plain
                 p = _REPO_ROOT / "results" / pair_id / "winner_summary.json"
-                end = P.prefix(P.field_text(P.artifact(json.loads(p.read_text()), p), "oos_period_end"), 10)
+                _ws = P.artifact(json.loads(p.read_text()), p)
+                end = (P.prefix(P.field_text(_ws, "oos_period_end"), 10) if _ws.get("oos_period_end") else
+                       P.prefix(P.field_text(_ws["tracks"]["comparison"]["oos_window"], 1), 10))
             return f"Data through {end}"
     rng = _oos_end_range_all()
     if rng:

@@ -161,7 +161,7 @@ def _walk(obj, nums: list, strs: list):
 def pool_files(pair: str) -> list[Path]:
     rdir = RESULTS / pair
     ws = json.loads((rdir / "winner_summary.json").read_text())
-    tag = ws["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
+    tag = _run_tag(ws, rdir)
     files = [rdir / "winner_summary.json", rdir / "track_summary.json", rdir / f"evidence_facts_{tag}.json",
              rdir / f"candidates_manifest_{tag}.json", rdir / "interpretation_metadata.json"]
     return [f for f in files if f.exists()]
@@ -1467,9 +1467,13 @@ def _template_cells(row_text: str, entries: list[dict] | None = None) -> list[st
     return out
 
 
-def load_tag(pair: str) -> str:
-    ws = json.loads((RESULTS / pair / "winner_summary.json").read_text())
-    return ws["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
+def _run_tag(ws: dict, rdir: Path) -> str | None:
+    import chart_provenance
+    return chart_provenance.run_tag_of(ws, rdir)
+
+
+def load_tag(pair: str) -> str | None:
+    return _run_tag(json.loads((RESULTS / pair / "winner_summary.json").read_text()), RESULTS / pair)
 
 
 def near_miss(pool: dict, centres: list[float], signed: bool = True) -> float:

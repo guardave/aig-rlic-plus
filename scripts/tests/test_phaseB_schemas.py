@@ -67,8 +67,13 @@ TW = json.loads((ROOT / "docs/schemas/tournament_winner.schema.json").read_text(
 
 @pytest.mark.parametrize("pair", sorted(p.parent.name for p in (ROOT / "results").glob("*/track_summary.json")))
 def test_harness_tournament_winner_is_canonical(pair):
-    tw = json.loads((ROOT / "results" / pair / "tournament_winner.json").read_text())
     ws = json.loads((ROOT / "results" / pair / "winner_summary.json").read_text())
+    if ws.get("main_eligible") is False:
+        # MAIN has no eligible candidate (retail_inv_sales class): no winner is published, so no tournament_winner
+        assert not (ROOT / "results" / pair / "tournament_winner.json").exists()
+        assert not ws.get("selection")
+        return
+    tw = json.loads((ROOT / "results" / pair / "tournament_winner.json").read_text())
     assert validate_json(tw, TW) == []
     assert tw["deltas"]["delta_sharpe"] == pytest.approx(ws["oos_sharpe"] - ws["bh_sharpe"], abs=1e-6)
     assert "selection" not in tw          # not a copy of winner_summary

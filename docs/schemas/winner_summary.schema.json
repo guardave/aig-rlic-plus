@@ -6,12 +6,30 @@
   "title": "Winner Summary",
   "description": "Canonical contract for `results/{pair_id}/winner_summary.json`. Produced by Econ Evan at tournament completion; consumed by AppDev Ace's Strategy page (probability engine panel, position adjustment panel, instructional trigger cards, execution panel) and by Research Ray for narrative cross-reference. Resolves ECON-H5 (producer mandate) and APP-WS1 (consumer pre-render contract) in a single artifact per META-CF. Companion to `tournament_winner.json` (META-TWJ) — winner_summary is the render-ready strategy descriptor; tournament_winner is the winner-vs-benchmark delta record.",
   "type": "object",
-  "required": ["pair_id", "generated_at"],
+  "required": [
+    "pair_id",
+    "generated_at"
+  ],
   "allOf": [
     {
       "description": "v1.3.0 (Phase B two tracks): when the MAIN track (real-time values) has too little history to select a winner, `main_eligible` is false, the top-level winner fields are OMITTED and `status` says why. Every other file (no `main_eligible`, or true) must carry the full winner record as before, so 1.2.0 files validate unchanged.",
-      "if": {"required": ["main_eligible"], "properties": {"main_eligible": {"const": false}}},
-      "then": {"required": ["status", "tracks", "track_policy"]},
+      "if": {
+        "required": [
+          "main_eligible"
+        ],
+        "properties": {
+          "main_eligible": {
+            "const": false
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "status",
+          "tracks",
+          "track_policy"
+        ]
+      },
       "else": {
         "required": [
           "signal_column",
@@ -58,32 +76,56 @@
       "minLength": 1
     },
     "threshold_value": {
-      "type": ["number", "null"],
+      "type": [
+        "number",
+        "null"
+      ],
       "description": "Numeric threshold used by the winning strategy rule. Units depend on `signal_column` semantics (probability in [0,1] for HMM signals; z-score units for z-score signals; etc.). Pair with `threshold_rule` to form the complete decision rule. `null` is tolerated for legacy pairs whose producers did not emit a numeric threshold (see backlog BL-THRESHOLD-VALUE-SCHEMA for producer-side backfill); consumers must render a user-visible fallback per Ace's Defense-2 coerce (commit 5f2e50d)."
     },
     "threshold_window_days": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 2,
       "description": "Trailing window (trading days) of a rolling-percentile threshold (`T2_rp*` codes), i.e. the N in `signal.rolling(N, min_periods=threshold_min_periods).quantile(q)`. Optional; when absent the app derives it from `threshold_note`/`threshold_display_name` and otherwise shows neutral wording, never a guessed window."
     },
     "threshold_min_periods": {
-      "type": ["integer", "null"],
+      "type": [
+        "integer",
+        "null"
+      ],
       "minimum": 1,
       "description": "`min_periods` of the rolling-percentile threshold (see `threshold_window_days`). Optional."
     },
     "threshold_rule": {
       "type": "string",
-      "enum": ["gt", "lt", "gte", "lte", "crosses_up", "crosses_down"],
+      "enum": [
+        "gt",
+        "lt",
+        "gte",
+        "lte",
+        "crosses_up",
+        "crosses_down"
+      ],
       "description": "Comparison operator applied to `signal_column` vs `threshold_value`. `gt`/`lt`/`gte`/`lte` are static comparisons (entry = signal satisfies relation at t); `crosses_up`/`crosses_down` are event triggers (entry = signal crossed the threshold in direction between t-1 and t)."
     },
     "strategy_family": {
       "type": "string",
-      "enum": ["P1_long_cash", "P2_signal_strength", "P3_long_short"],
+      "enum": [
+        "P1_long_cash",
+        "P2_signal_strength",
+        "P3_long_short"
+      ],
       "description": "Position-sizing family. `P1_long_cash` = binary long/cash; `P2_signal_strength` = continuous scaling by signal magnitude; `P3_long_short` = symmetric long/short. Ace's Position Adjustment panel (APP-SE2) branches on this value."
     },
     "direction": {
       "type": "string",
-      "enum": ["procyclical", "countercyclical", "mixed"],
+      "enum": [
+        "procyclical",
+        "countercyclical",
+        "mixed"
+      ],
       "description": "Empirical relationship between signal and target observed in the tournament winner. `procyclical` = higher signal coincides with higher target returns; `countercyclical` = higher signal coincides with lower target returns (typical of stress/risk signals); `mixed` = sign depends on regime or threshold. Mirrors `interpretation_metadata.json.observed_direction`."
     },
     "oos_sharpe": {
@@ -142,7 +184,11 @@
     },
     "track_policy": {
       "type": "string",
-      "enum": ["compute_twice", "single_revised_no_archive", "single_market"],
+      "enum": [
+        "compute_twice",
+        "single_revised_no_archive",
+        "single_market"
+      ],
       "description": "v1.3.0. compute_twice: MAIN = real-time values (ALFRED vintages), COMPARISON = revised values (hindsight); single_revised_no_archive: one track on revised values (no vintage archive); single_market: one track on market data that is not revised."
     },
     "main_eligible": {
@@ -150,16 +196,32 @@
       "description": "v1.3.0. False when the MAIN track has fewer IS rows than the protocol minimum on its own sample; the top-level winner fields are then omitted (see allOf)."
     },
     "status": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "description": "v1.3.0. Why MAIN is not eligible (`main_not_eligible`: {rt_start, n_is_rows, min_required}, `text`)."
     },
     "tracks": {
       "type": "object",
       "description": "v1.3.0. Full winner record per track. The top-level fields always describe `main`.",
-      "required": ["main"],
+      "required": [
+        "main"
+      ],
       "properties": {
-        "main": {"$ref": "#/$defs/track_record"},
-        "comparison": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/track_record"}]}
+        "main": {
+          "$ref": "#/$defs/track_record"
+        },
+        "comparison": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/track_record"
+            }
+          ]
+        }
       }
     },
     "cross_eval": {
@@ -171,8 +233,15 @@
       "description": "v1.3.0 structured winner fields: every number or fact page prose may state about the result, as {value, text}. Pair configs render prose from these (app/components/winner_fields.py); scripts/gate_structured_prose.py checks prose against them. Keys prefixed `comparison_` describe the hindsight track.",
       "additionalProperties": {
         "type": "object",
-        "required": ["value", "text"],
-        "properties": {"text": {"type": "string"}}
+        "required": [
+          "value",
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        }
       }
     },
     "selection": {
@@ -187,7 +256,14 @@
       "properties": {
         "objective": {
           "type": "string",
-          "enum": ["max_oos_sharpe", "max_oos_sortino", "max_oos_calmar", "robustness_ridge", "max_is_sharpe", "max_is_sharpe_lead_plateau_w3"],
+          "enum": [
+            "max_oos_sharpe",
+            "max_oos_sortino",
+            "max_oos_calmar",
+            "robustness_ridge",
+            "max_is_sharpe",
+            "max_is_sharpe_lead_plateau_w3"
+          ],
           "description": "The single scalar maximised over the valid strategy population (ECON-T4: BENCHMARK excluded). Default/historical = `max_oos_sharpe` (all 12 audited pairs). `composite_*` documented objectives are admitted via a separately-versioned schema bump. `max_is_sharpe` (GH #251/#268): winner = argmax IN-SAMPLE Sharpe (dates < OOS start) among IS-valid rows; OOS metrics are evaluation-only. `max_is_sharpe_lead_plateau_w3` (Phase B, D9 / R5.7): each window of 3 adjacent grid leads is scored by its minimum IS Sharpe; the best window is the plateau (`window_leads`, score `J`) and the winner is the highest raw IS Sharpe inside it; the raw IS argmax is kept as `raw_is_argmax`.",
           "pattern": "^(max_oos_sharpe|max_oos_sortino|max_oos_calmar|robustness_ridge|max_is_sharpe|max_is_sharpe_lead_plateau_w3|composite_[a-z0-9_]+)$"
         },
@@ -198,41 +274,104 @@
         "grid_scanned": {
           "type": "object",
           "description": "The EXACT tournament space searched at publish time — FROZEN with the winner (ECON-T5 §2/§4). The lead grid MUST be an explicit list, never prose like '0..12'.",
-          "required": ["leads"],
+          "required": [
+            "leads"
+          ],
           "additionalProperties": true,
           "properties": {
             "leads": {
               "type": "array",
-              "items": {"type": "integer", "minimum": 0},
+              "items": {
+                "type": "integer",
+                "minimum": 0
+              },
               "minItems": 1,
               "description": "Explicit lead grid actually scanned (e.g. [0,1,2,3,6] for a legacy coarse grid, or [0,1,...,12] for an ECON-LL1 fine grid)."
             },
-            "n_signals": {"type": "integer", "minimum": 1},
-            "n_thresholds": {"type": "integer", "minimum": 1},
-            "n_strategies": {"type": "integer", "minimum": 1},
-            "n_valid_combos": {"type": "integer", "minimum": 1, "description": "Valid strategy combos scanned (ECON-T4: BENCHMARK excluded)."},
-            "median_valid_objective": {"type": "number", "description": "Median objective value across the valid population (context for the winner's edge)."}
+            "n_signals": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "n_thresholds": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "n_strategies": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "n_valid_combos": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Valid strategy combos scanned (ECON-T4: BENCHMARK excluded)."
+            },
+            "median_valid_objective": {
+              "type": "number",
+              "description": "Median objective value across the valid population (context for the winner's edge)."
+            }
           }
         },
         "tie_break_step": {
-          "type": ["integer", "null"],
+          "type": [
+            "integer",
+            "null"
+          ],
           "minimum": 0,
           "description": "ECON-T3 cascade level that resolved the winner (0/null = no tie; unique maximiser on `objective`)."
         },
         "raw_winner_row": {
           "type": "object",
           "description": "**RAW tournament-row identity of the winner (Ivy audit finding).** The literal codes as they appear in the source tournament CSV row — not display aliases. Lets an auditor resolve the published winner to exactly one row in the cited file.",
-          "required": ["signal", "threshold", "strategy", "lead_column", "lead_value", "source_tournament_file", "source_row_index"],
+          "required": [
+            "signal",
+            "threshold",
+            "strategy",
+            "lead_column",
+            "lead_value",
+            "source_tournament_file",
+            "source_row_index"
+          ],
           "additionalProperties": true,
           "properties": {
-            "signal": {"type": "string", "minLength": 1, "description": "Raw `signal` cell value from the tournament CSV row."},
-            "threshold": {"type": "string", "minLength": 1, "description": "Raw `threshold` cell value (code/label) from the tournament CSV row."},
-            "strategy": {"type": "string", "minLength": 1, "description": "Raw `strategy` cell value from the tournament CSV row."},
-            "lead_column": {"type": "string", "minLength": 1, "description": "Name of the lead column in the tournament CSV (e.g. `lead_months`)."},
-            "lead_value": {"type": "integer", "minimum": 0, "description": "Raw lead value of the winning row."},
-            "source_tournament_file": {"type": "string", "pattern": "tournament_results_.*\\.csv$", "description": "Filename of the publish-time tournament CSV the winner was selected from (immutable; ECON-T5 §4)."},
-            "source_row_index": {"type": "integer", "minimum": 0, "description": "0-based row index of the winning row within `source_tournament_file`."},
-            "display_alias": {"type": "string", "description": "Optional: the display alias used elsewhere in this file (e.g. `signal_code`/`signal_display_name`) when it differs from the raw `signal` code — documents the alias→rawcode mapping."}
+            "signal": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Raw `signal` cell value from the tournament CSV row."
+            },
+            "threshold": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Raw `threshold` cell value (code/label) from the tournament CSV row."
+            },
+            "strategy": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Raw `strategy` cell value from the tournament CSV row."
+            },
+            "lead_column": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Name of the lead column in the tournament CSV (e.g. `lead_months`)."
+            },
+            "lead_value": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Raw lead value of the winning row."
+            },
+            "source_tournament_file": {
+              "type": "string",
+              "pattern": "tournament_results_.*\\.csv$",
+              "description": "Filename of the publish-time tournament CSV the winner was selected from (immutable; ECON-T5 §4)."
+            },
+            "source_row_index": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "0-based row index of the winning row within `source_tournament_file`."
+            },
+            "display_alias": {
+              "type": "string",
+              "description": "Optional: the display alias used elsewhere in this file (e.g. `signal_code`/`signal_display_name`) when it differs from the raw `signal` code — documents the alias→rawcode mapping."
+            }
           }
         },
         "runner_up": {
@@ -240,11 +379,22 @@
           "description": "The 2nd-best valid combo on `objective` — what the winner was chosen over.",
           "additionalProperties": true,
           "properties": {
-            "signal": {"type": "string"},
-            "threshold": {"type": "string"},
-            "strategy": {"type": "string"},
-            "lead_value": {"type": "integer", "minimum": 0},
-            "objective_value": {"type": "number"}
+            "signal": {
+              "type": "string"
+            },
+            "threshold": {
+              "type": "string"
+            },
+            "strategy": {
+              "type": "string"
+            },
+            "lead_value": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "objective_value": {
+              "type": "number"
+            }
           }
         },
         "rationale": {
@@ -252,40 +402,135 @@
           "description": "One-paragraph plain-English justification of the selection (the edge over the runner-up; whether the ECON-T3 cascade engaged; grid description)."
         },
         "objective_runner_up_divergence": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "ECON-T5 §3 honest-finding clause. `null` ASSERTS the published winner == the raw max-`objective` row. Non-null (one paragraph) is MANDATORY when a non-raw-max objective deliberately overrode raw Sharpe: names the higher-raw-Sharpe row passed over, the preference criterion, and why it is sound."
         }
       }
+    },
+    "run_tag": {
+      "type": "string",
+      "pattern": "^\\d{8}$",
+      "description": "Results tag of the run (YYYYMMDD); written by the Phase B harness whether or not MAIN has a winner."
     }
   },
   "$defs": {
     "track_record": {
       "type": "object",
       "description": "v1.3.0 per-track winner record (harness artifacts.track_record).",
-      "required": ["track", "eligible", "lead_unit", "n_candidates", "n_valid"],
+      "required": [
+        "track",
+        "eligible",
+        "lead_unit",
+        "n_candidates",
+        "n_valid"
+      ],
       "properties": {
-        "track": {"type": "string", "enum": ["real_time", "revised", "market"]},
-        "eligible": {"type": "boolean"},
-        "lead_unit": {"type": "string", "enum": ["months", "quarters", "days"]},
-        "n_candidates": {"type": "integer", "minimum": 0},
-        "n_valid": {"type": "integer", "minimum": 0},
-        "n_distinct": {"type": "integer", "minimum": 0}
+        "track": {
+          "type": "string",
+          "enum": [
+            "real_time",
+            "revised",
+            "market"
+          ]
+        },
+        "eligible": {
+          "type": "boolean"
+        },
+        "lead_unit": {
+          "type": "string",
+          "enum": [
+            "months",
+            "quarters",
+            "days"
+          ]
+        },
+        "n_candidates": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "n_valid": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "n_distinct": {
+          "type": "integer",
+          "minimum": 0
+        }
       },
-      "if": {"properties": {"eligible": {"const": true}}},
+      "if": {
+        "properties": {
+          "eligible": {
+            "const": true
+          }
+        }
+      },
       "then": {
-        "required": ["winner", "is_window", "oos_window", "objective", "plateau", "raw_argmax", "bh_oos", "bh_is"],
+        "required": [
+          "winner",
+          "is_window",
+          "oos_window",
+          "objective",
+          "plateau",
+          "raw_argmax",
+          "bh_oos",
+          "bh_is"
+        ],
         "properties": {
           "winner": {
             "type": "object",
-            "required": ["signal", "threshold", "strategy", "direction", "lead", "is_sharpe", "oos_sharpe"],
-            "properties": {"lead": {"type": "integer", "minimum": 0}}
+            "required": [
+              "signal",
+              "threshold",
+              "strategy",
+              "direction",
+              "lead",
+              "is_sharpe",
+              "oos_sharpe"
+            ],
+            "properties": {
+              "lead": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
           },
-          "plateau": {"type": "object", "required": ["leads", "score", "winner_lead"]},
-          "vs_buy_hold": {"type": "object", "required": ["sharpe_diff", "ci_95", "p_diff_le_0", "block_length", "draws"]},
-          "null_tournament": {"type": "object", "required": ["n_draws", "p_is", "selection_stat_percentile", "r71_pass"]}
+          "plateau": {
+            "type": "object",
+            "required": [
+              "leads",
+              "score",
+              "winner_lead"
+            ]
+          },
+          "vs_buy_hold": {
+            "type": "object",
+            "required": [
+              "sharpe_diff",
+              "ci_95",
+              "p_diff_le_0",
+              "block_length",
+              "draws"
+            ]
+          },
+          "null_tournament": {
+            "type": "object",
+            "required": [
+              "n_draws",
+              "p_is",
+              "selection_stat_percentile",
+              "r71_pass"
+            ]
+          }
         }
       },
-      "else": {"required": ["insufficient_reason"]}
+      "else": {
+        "required": [
+          "insufficient_reason"
+        ]
+      }
     }
   }
 }

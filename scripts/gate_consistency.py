@@ -295,6 +295,21 @@ def check_pair(pair: str) -> tuple[list[str], list[str]]:
     hard: list[str] = []
     soft: list[str] = []
 
+    if ws.get("main_eligible") is False and not ws.get("selection"):
+        # Phase B: MAIN (as known at the time) has no eligible candidate, so no winner is published; the claim
+        # must agree with the MAIN tournament table (no row valid / eligible there)
+        reason = ((ws.get("status") or {}).get("main_not_eligible")) or {}
+        tr_files = sorted(rdir.glob("tournament_results_*.csv"))
+        if tr_files:
+            rows = [r for r in _read_csv(tr_files[-1]) if r["signal"] != "BENCHMARK"]
+            ok = [r for r in rows if str(r.get("valid", "False")).lower() == "true"
+                  or str(r.get("is_eligible", "False")).lower() == "true"]
+            if ok:
+                hard.append(f"A: winner_summary says MAIN has no eligible candidate, but {len(ok)} row(s) of "
+                            f"{tr_files[-1].name} are valid/eligible")
+        return hard, [f"INFO: MAIN not eligible ({reason or 'no reason recorded'}); no published winner, "
+                      "winner consistency checks skipped"]
+
     win_lead = int(ws.get("lead_value", ws.get("lead_months")))
     win_sharpe = float(ws["oos_sharpe"])
     sig_code = ws.get("signal_code", "")

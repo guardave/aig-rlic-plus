@@ -254,6 +254,21 @@ def artifact(data, path):
     return _wrap(data, f"art:{_rel(path)}#", dates=False) if gate_on() else data
 
 
+def run_tag(ws: dict, pair_dir) -> str | None:
+    """A pair's current run tag (plain text, untagged: it names files): winner_summary run_tag (Phase B, written
+    even when MAIN has no winner), else the published winner's source tournament file, else the latest dated
+    tournament_results file. Mirrors scripts/chart_provenance.run_tag_of."""
+    if ws.get("run_tag"):
+        return str(ws["run_tag"])
+    try:
+        return str(ws["selection"]["raw_winner_row"]["source_tournament_file"]).split("_")[-1].removesuffix(".csv")
+    except (KeyError, TypeError, AttributeError):
+        pass
+    tags = sorted(f.stem.rsplit("_", 1)[-1] for f in Path(pair_dir).glob("tournament_results_*.csv")
+                  if f.stem.rsplit("_", 1)[-1].isdigit())
+    return tags[-1] if tags else None
+
+
 def json_file(path) -> dict:
     """A JSON artifact with every number tagged art:<path>#<key path>."""
     return _wrap(json.loads(Path(path).read_text()), f"art:{_rel(path)}#")

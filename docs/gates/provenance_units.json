@@ -86,6 +86,11 @@
       "why": "Sharpe difference vs buy-and-hold and its bootstrap interval"
     },
     {
+      "pattern": "/insufficient_reason/min_required$",
+      "kind": "count",
+      "why": "minimum training rows the method requires (rt_insufficient reason)"
+    },
+    {
       "pattern": "/null_tournament/r71_tolerance$",
       "kind": "sharpe",
       "why": "R7.1 tolerance on the mean timing Sharpe of the null winners (Sharpe units)"
@@ -121,7 +126,7 @@
       "why": "position changes per year, or their sum over the test period (shown as is)"
     },
     {
-      "pattern": "(?:^|[/#])(?:n|n_\\w+|\\w+_rank|is_n_\\w+|\\w+_trades|\\w+_n|count|rows|draws|block_length|total_combos|hac_maxlags|oos_months|oos_months_position_change_gt_\\w+|history_years)(?:/|$)",
+      "pattern": "(?:^|[/#])(?:n|n_\\w+|\\w+_rank|is_n_\\w+|\\w+_trades|\\w+_n|count|rows|draws|block_length|total_combos|hac_maxlags|oos_months|(?:comparison_)?oos_months_position_change_gt_\\w+|history_years)(?:/|$)",
       "kind": "count",
       "why": "counts and ranks"
     },

@@ -86,6 +86,20 @@ def _badge(label: str, help_text: str, color: str = "blue") -> None:
         st.markdown(f"`{label}`", help=help_text)
 
 
+NO_MAIN_KPI = ("**No headline metrics.** There is no rule on data as known at the time: the archive of past releases "
+               "is too short to train one, so this pair is unranked (no Candidate, Watchlist or Reject status). "
+               "Figures computed on today's revised data are hindsight context only.")
+NO_MAIN_EXECUTE = ("There is no rule on data as known at the time, so there is nothing to execute. The hindsight rule "
+                   "found on today's revised data is not an execution plan.")
+NO_MAIN_TRADES = ("No trade log: there is no rule on data as known at the time. The hindsight rule's trades are not "
+                  "shown as a track record.")
+
+
+def no_main(ts: dict | None) -> bool:
+    """MAIN (as known at the time) has no eligible candidate: no headline, no execution plan, no trade log."""
+    return bool(ts) and ts.get("track_state") == "rt_insufficient"
+
+
 def render_data_basis_strip(ts: dict) -> None:
     """Strip under the title: headline + caption by track_state and labelled history bars (sections 4-5)."""
     state = ts["track_state"]
@@ -95,7 +109,8 @@ def render_data_basis_strip(ts: dict) -> None:
         st.markdown(f"**{head}**")
         if state == "rt_insufficient":
             ir = ts.get("insufficient_reason") or {}
-            st.markdown(f"The archive of values as known at the time starts {ir.get('rt_start') or 'n/a'}, which leaves "
+            st.markdown(f"The archive of values as known at the time starts "
+                        f"{P.field_text(ir, 'rt_start') if ir.get('rt_start') else 'n/a'}, which leaves "
                         f"{ir.get('n_is_rows', 'n/a')} training rows, fewer than the {ir.get('min_required')} the "
                         "method requires. We did not substitute the as-revised-today result as the headline.")
         elif cap:
@@ -222,8 +237,7 @@ def render_cross_eval_table(pair_id: str, ts: dict, ws: dict) -> None:
     st.markdown("### Each data track's winner, scored on both tracks")
     if ts["track_state"] in ("single_market", "single_no_archive") or not comp:
         st.caption("This pair has one data track, so only its own winner row applies.")
-    tag = ws["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv") \
-        if ws.get("selection") else None
+    tag = P.run_tag(ws, _REPO / "results" / pair_id)
     ce = ts.get("cross_eval") or {}
 
     def rule(rec):

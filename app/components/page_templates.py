@@ -286,7 +286,7 @@ def _load_winner_summary(pair_id: str) -> dict[str, Any] | None:
         import glob as _glob
         import pandas as _pd
         tourn_files = _glob.glob(str(_REPO_ROOT / "results" / pair_id / "tournament_results*.csv"))
-        if tourn_files and (
+        if tourn_files and "tracks" not in data and (     # Phase B (1.3.x) summaries carry their own fields
             data.get("bh_sharpe") is None
             or data.get("bh_max_drawdown") is None
             or data.get("total_combos") is None
@@ -654,6 +654,14 @@ def _dd_kpi_delta(winner: dict) -> tuple[str | None, str]:
     return (f"vs {bh_fmt} B&H" if bh_fmt != "N/A" else None), "inverse"
 
 
+def _kpi_or_note(no_main: bool, cards: list) -> None:
+    """The headline KPI row, or (MAIN has no rule: rt_insufficient) the factual note that there is none."""
+    if no_main:
+        st.info(two_track.NO_MAIN_KPI)
+    else:
+        kpi_row(cards)
+
+
 def render_story_page(pair_id: str, config: Any | None = None) -> None:
     """Render the canonical Story page for ``pair_id``.
 
@@ -760,7 +768,9 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
             f"**Key metrics — {_kpi_routing['headline_label']} "
             f"(window {oos_range_label}):**"
         )
+    _no_main = two_track.no_main(_ts_story)
     st.markdown(
+        two_track.NO_MAIN_KPI if _no_main else
         f"{_key_metrics_header}\n\n"
         f"- **Sharpe ratio: {oos_sharpe}**{_vs_bh_clause(bh_sharpe, target)}\n"
         f"- **Annualized return: {oos_return}**{_vs_bh_clause(bh_ret, target)}\n"
@@ -824,7 +834,7 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
         _headline_sharpe_label = _kpi_routing["headline_label"]
         _render_kpi_routing_disclosure(pair_id, _kpi_routing)
 
-    kpi_row([
+    _kpi_or_note(_no_main, [
         {
             "label": _headline_sharpe_label,
             "value": oos_sharpe,
@@ -1589,12 +1599,13 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
             )
         _render_kpi_routing_disclosure(pair_id, _kpi_routing)
 
+    _no_main = two_track.no_main(_ts)
     if _ts:   # design section 3: the headline is MAIN, labelled with its data basis
         _headline_sharpe_label = {"both": "Test-period Sharpe (as known at the time)",
                                   "single_market": "Test-period Sharpe (market data)",
                                   "single_no_archive": "Test-period Sharpe (as revised today)"}.get(
                                       _ts["track_state"], _headline_sharpe_label)
-    kpi_row([
+    _kpi_or_note(_no_main, [
         {"label": _headline_sharpe_label, "value": oos_sharpe,
          "delta": _headline_sharpe_delta,
          # found_in_search / unconfirmed: keep the signed gap but no green/red judgement colour
@@ -1633,71 +1644,74 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
 
     # --- Execute tab ---
     with tab_execute:
-        st.markdown("### Strategy Summary")
-        _col1, _col2 = st.columns(2)
-        with _col1:
-            st.markdown(f"**Signal code:** `{winner.get('signal_code', 'N/A')}`")
-            st.markdown(f"**Signal column:** `{winner.get('signal_column', 'N/A')}`")
-            # #244 re-open: a rolling-quantile winner uses a TIME-VARYING boundary,
-            # so showing a lone fixed number implies a fixed cutoff. Label it as the
-            # moving rolling median with its latest value.
-            _trule = winner.get('threshold_rule', '')
-            _th = resolve_threshold(pair_id, winner)
-            _p2 = any(str(winner.get(k) or "").startswith("P2")
-                      for k in ("strategy_family", "strategy", "strategy_code"))
-            if _p2:      # QA B1 umcsent F5: a signal-strength rule has no threshold; its 'gt' code meant nothing
-                st.markdown("**Threshold:** none (the position is sized by where the signal sits in its "
-                            "trailing range; there is no threshold to cross)")
-            elif _th["spec"] is not None or 'roll' in str(winner.get('threshold_code', '')).lower():
-                _tl = _th["label"] or "rolling threshold (window not recorded)"
-                if _th["source"] == "recorded":
-                    _tv_txt = f"latest value `{_th['raw']}`"
-                elif _th["value"] is not None:
-                    _tv_txt = f"latest value `{_th['value']:g}`"
+        if _no_main:   # MAIN has no rule (rt_insufficient): nothing to execute; no stale or hindsight plan
+            st.info(two_track.NO_MAIN_EXECUTE)
+        else:
+            st.markdown("### Strategy Summary")
+            _col1, _col2 = st.columns(2)
+            with _col1:
+                st.markdown(f"**Signal code:** `{winner.get('signal_code', 'N/A')}`")
+                st.markdown(f"**Signal column:** `{winner.get('signal_column', 'N/A')}`")
+                # #244 re-open: a rolling-quantile winner uses a TIME-VARYING boundary,
+                # so showing a lone fixed number implies a fixed cutoff. Label it as the
+                # moving rolling median with its latest value.
+                _trule = winner.get('threshold_rule', '')
+                _th = resolve_threshold(pair_id, winner)
+                _p2 = any(str(winner.get(k) or "").startswith("P2")
+                          for k in ("strategy_family", "strategy", "strategy_code"))
+                if _p2:      # QA B1 umcsent F5: a signal-strength rule has no threshold; its 'gt' code meant nothing
+                    st.markdown("**Threshold:** none (the position is sized by where the signal sits in its "
+                                "trailing range; there is no threshold to cross)")
+                elif _th["spec"] is not None or 'roll' in str(winner.get('threshold_code', '')).lower():
+                    _tl = _th["label"] or "rolling threshold (window not recorded)"
+                    if _th["source"] == "recorded":
+                        _tv_txt = f"latest value `{_th['raw']}`"
+                    elif _th["value"] is not None:
+                        _tv_txt = f"latest value `{_th['value']:g}`"
+                    else:
+                        _tv_txt = "no numeric latest value is recorded"
+                    st.markdown(f"**Threshold:** `{_trule}` its {_tl} (moving boundary; {_tv_txt})")
+                elif winner.get('threshold_value') not in (None, ''):
+                    st.markdown(f"**Threshold:** `{_trule} {winner.get('threshold_value')}`")
                 else:
-                    _tv_txt = "no numeric latest value is recorded"
-                st.markdown(f"**Threshold:** `{_trule}` its {_tl} (moving boundary; {_tv_txt})")
-            elif winner.get('threshold_value') not in (None, ''):
-                st.markdown(f"**Threshold:** `{_trule} {winner.get('threshold_value')}`")
-            else:
-                st.markdown(f"**Threshold:** `{_trule}` (no numeric value recorded)")
-        with _col2:
-            st.markdown(f"**Strategy family:** `{_strategy_family}`")
-            st.markdown(f"**Direction:** `{_direction}`")
-            _timing_summary = getattr(config, "TIMING_SUMMARY", None)
-            if _timing_summary:
-                st.markdown(f"**Timing:** {_timing_summary}")
-            else:
-                st.markdown(f"**Lead time:** {_lead_label}")
+                    st.markdown(f"**Threshold:** `{_trule}` (no numeric value recorded)")
+            with _col2:
+                st.markdown(f"**Strategy family:** `{_strategy_family}`")
+                st.markdown(f"**Direction:** `{_direction}`")
+                _timing_summary = getattr(config, "TIMING_SUMMARY", None)
+                if _timing_summary:
+                    st.markdown(f"**Timing:** {_timing_summary}")
+                else:
+                    st.markdown(f"**Lead time:** {_lead_label}")
 
-        st.markdown("---")
-        # APP-SE1 — Probability Engine Panel
-        render_probability_engine_panel(pair_id)
-        st.markdown("---")
-        # APP-SE2 — Position Adjustment Panel
-        render_position_adjustment_panel(pair_id)
-        st.markdown("---")
-        # APP-SE3 — Instructional Trigger Cards
-        render_instructional_trigger_cards(pair_id)
-
-        manual_use = getattr(config, "MANUAL_USE_MD", None)
-        if manual_use:
             st.markdown("---")
-            st.markdown("### How to Use This Indicator Manually")
-            st.markdown(manual_use)
+            # APP-SE1 — Probability Engine Panel
+            render_probability_engine_panel(pair_id)
+            st.markdown("---")
+            # APP-SE2 — Position Adjustment Panel
+            render_position_adjustment_panel(pair_id)
+            st.markdown("---")
+            # APP-SE3 — Instructional Trigger Cards
+            render_instructional_trigger_cards(pair_id)
 
-        # APP-SE4 — Future: Live Execution lives inside the Execute tab
-        # so it scopes to the tab the user is reading. Previously rendered
-        # at parent indentation below all three tabs, which the user
-        # perceived as a duplicated section on Performance + Confidence.
-        st.markdown("---")
-        try:
-            render_live_execution_placeholder(pair_id)
-        except Exception:
-            # Tolerant placeholder; do not block the page on dependency load.
-            pass
+            manual_use = getattr(config, "MANUAL_USE_MD", None)
+            if manual_use:
+                st.markdown("---")
+                st.markdown("### How to Use This Indicator Manually")
+                st.markdown(manual_use)
 
-    # --- Performance tab ---
+            # APP-SE4 — Future: Live Execution lives inside the Execute tab
+            # so it scopes to the tab the user is reading. Previously rendered
+            # at parent indentation below all three tabs, which the user
+            # perceived as a duplicated section on Performance + Confidence.
+            st.markdown("---")
+            try:
+                render_live_execution_placeholder(pair_id)
+            except Exception:
+                # Tolerant placeholder; do not block the page on dependency load.
+                pass
+
+        # --- Performance tab ---
     with tab_performance:
         st.markdown("### Equity Curves vs. Buy-and-Hold")
         equity_chart = getattr(config, "EQUITY_CHART_NAME", "equity_curves")
@@ -1710,7 +1724,9 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
             ),
             caption=(
                 "What this shows: cumulative returns for the tournament "
-                f"winner compared to buy-and-hold {target}."
+                f"winner compared to buy-and-hold {target}." if not _no_main else
+                "What this shows: cumulative returns of the hindsight rule (found on today's revised data; there "
+                f"is no rule as known at the time) compared to buy-and-hold {target}."
             ),
         )
         st.markdown("---")
@@ -1724,6 +1740,8 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
                 f"output/charts/{pair_id}/plotly/{drawdown_chart}.json"
             ),
             caption=(
+                "What this shows: peak-to-trough drawdown profile of the hindsight rule (today's revised data; "
+                "there is no rule as known at the time, so there are no headline figures)." if _no_main else
                 f"What this shows: peak-to-trough drawdown profile. The headline "
                 f"figures — strategy {max_dd} vs {bh_dd} buy-and-hold — are the "
                 f"OUT-OF-SAMPLE-window maxima. Where this chart extends before the "
@@ -1738,7 +1756,10 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         st.markdown("---")
         st.markdown("### Trading History")
         # APP-TL1 (Wave 10H.2): dual-CSV, fixed-order narrative block.
-        _render_trade_log_block(pair_id, config)
+        if _no_main:
+            st.caption(two_track.NO_MAIN_TRADES)
+        else:
+            _render_trade_log_block(pair_id, config)
 
     # --- Confidence tab ---
     with tab_confidence:
@@ -1991,7 +2012,10 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
     bh = tdf[tdf.get("signal") == "BENCHMARK"]
 
     if len(valid) == 0:
-        st.info("No valid tournament strategies to display.")
+        _ts_lb = two_track.load_track_summary(pair_id) if pair_id else None
+        st.info("No candidate rule is eligible on data as known at the time (the training window is too short), "
+                "so this leaderboard is empty." if two_track.no_main(_ts_lb)
+                else "No valid tournament strategies to display.")
         return
 
     winner = None
@@ -2418,17 +2442,24 @@ def render_methodology_page(pair_id: str, config: MethodologyConfig) -> None:
         start = _P.prefix(_P.field_text(winner, "oos_period_start") or "", 7)
         end = _P.prefix(_P.field_text(winner, "oos_period_end") or "", 7)
         oos_n = winner.get("oos_n", "N/A")
+        _win_label, _combos = "Out-of-Sample Window", winner.get("total_combos")
+        if winner.get("main_eligible") is False:     # rt_insufficient: only the as-revised-today track has a window
+            _cw = ((winner.get("tracks") or {}).get("comparison") or {}).get("oos_window") or []
+            if len(_cw) == 2:
+                start, end = _P.prefix(_P.field_text(_cw, 0), 7), _P.prefix(_P.field_text(_cw, 1), 7)
+                _win_label = "Test window (as revised today; hindsight)"
+            oos_n = ((winner.get("tracks") or {}).get("comparison") or {}).get("oos_n", "N/A")
+            _combos = ((winner.get("tracks") or {}).get("main") or {}).get("n_candidates")
         st.markdown("### Sample Period")
         col1, col2 = st.columns(2)
         with col1:
             st.metric(
-                "Out-of-Sample Window",
+                _win_label,
                 f"{start} to {end}" if start and end else "N/A",
                 delta=f"{oos_n} obs" if oos_n != "N/A" else None,
             )
         with col2:
-            st.metric("Total tournament combinations", f"{winner.get('total_combos', 'N/A'):,}"
-                      if isinstance(winner.get("total_combos"), int) else "N/A")
+            st.metric("Total tournament combinations", f"{_combos:,}" if isinstance(_combos, int) else "N/A")
         if config.sample_period_note:
             st.caption(f"What this shows: {config.sample_period_note}")
         st.markdown("---")

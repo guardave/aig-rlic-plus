@@ -350,6 +350,7 @@ def winner_summary(mod, tag: str, out: dict, extra: dict) -> dict:
     comp = recs["comparison"]
     res = out["results"]["main"]
     ws = {"pair_id": spec.pair_id, "generated_at": A.now_iso(), "schema_version": A.SCHEMA_VERSION,
+          "run_tag": tag,                 # the run's results tag, present whether or not MAIN has a winner
           "target_symbol": extra.get("target_symbol", "SPY"), "track_policy": spec.track_policy,
           "main_eligible": bool(main and main.get("eligible")),
           "cost_assumption_bps": extra.get("cost_bps", 5)}

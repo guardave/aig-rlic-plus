@@ -68,7 +68,8 @@ def main(argv=None) -> int:
     tag = a.tag
     if not tag:
         ws = json.loads((R.REPO / "results" / a.pair / "winner_summary.json").read_text())
-        tag = ws["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
+        import chart_provenance
+        tag = chart_provenance.run_tag_of(ws, R.REPO / "results" / a.pair)
     out = Path(a.out) if a.out else R.REPO / "results" / a.pair / f"null_is_windows_{tag}.csv"
     windows(a.pair, tag).to_csv(out, index=False)
     print(f"wrote {out}")

@@ -116,12 +116,26 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def results_tag(pair: str) -> str | None:
-    """The pair's current run tag (the tournament file the published winner came from), None without one."""
+def run_tag_of(ws: dict, rdir: Path) -> str | None:
+    """A pair's current run tag: winner_summary run_tag (Phase B harness, written even when MAIN has no winner),
+    else the tournament file the published winner came from, else the latest dated tournament_results file."""
+    if ws.get("run_tag"):
+        return str(ws["run_tag"])
     try:
-        ws = json.loads((REPO / "results" / pair / "winner_summary.json").read_text())
         return ws["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
-    except (OSError, KeyError, ValueError, AttributeError):
+    except (KeyError, TypeError, AttributeError):
+        pass
+    tags = sorted(f.stem.rsplit("_", 1)[-1] for f in Path(rdir).glob("tournament_results_*.csv")
+                  if f.stem.rsplit("_", 1)[-1].isdigit())
+    return tags[-1] if tags else None
+
+
+def results_tag(pair: str) -> str | None:
+    """The pair's current run tag (run_tag_of), None without one."""
+    rdir = REPO / "results" / pair
+    try:
+        return run_tag_of(json.loads((rdir / "winner_summary.json").read_text()), rdir)
+    except (OSError, ValueError):
         return None
 
 
