@@ -1,5 +1,5 @@
 {
   "pair_id": "nhs_saar_rebuilt_spy",
   "method": "rolling-correlation z-score proxy",
-  "max_abs_z": 2.2812228173396183
+  "max_abs_z": 2.2568142215639515
 }

@@ -26,44 +26,44 @@
     ]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-10-15T18:09:26.343228+00:00",
-  "indicator": "nhs_saar",
+  "last_updated_at": "2026-10-18T07:00:55.386643+00:00",
+  "indicator": "hsn1f",
   "target": "spy",
   "expected_direction": "procyclical",
   "observed_direction": "procyclical",
   "direction_consistent": true,
-  "mechanism": "New home buyers commit before construction, so new-home sales lead the housing cycle and the broader expansion; stronger home-sales growth should coincide with a healthier economy and support equities.",
+  "mechanism": "New home sales are signed before construction starts, so rising sales point to more building, hiring and household spending ahead; a pro-cyclical reading is bullish for equities.",
   "confidence": "low",
-  "key_finding": "IS-selected rule uses pct_6m at L13 (in-sample Sharpe 0.98) with held-out OOS Sharpe 0.92 versus buy-and-hold 1.00.",
+  "key_finding": "As known at the time (real-time HSN1F vintages), the rule selected on in-sample data uses zscore_60m at L12 (IS Sharpe 0.91) with held-out OOS Sharpe 0.65 versus buy-and-hold 1.00.",
   "caveats": [
-    "New Home Sales is volatile month to month and is revised after release.",
-    "The strategy is search-selected and needs a fresh holdout confirmation.",
-    "Housing leads the cycle, but the lead time to equities is variable and regime-dependent."
+    "New home sales are revised heavily in the following months; the headline uses the values as published at each date (ALFRED vintages) and the as-revised-today result is shown for comparison only.",
+    "The strategy is search-selected and needs fresh holdout validation.",
+    "The previous rule (20261015) was the single highest in-sample Sharpe on revised data with fixed lags; it is replaced here."
   ],
-  "narrative_summary": "New Home Sales (SAAR) is tested as an early-cycle housing overlay for SPY: a procyclical timing signal, not a clean forecast.",
+  "narrative_summary": "New home sales are tested as an early housing-cycle signal for SPY allocation.",
   "known_stress_episodes": [
     {
       "label": "Dot-Com recession",
       "start": "2001-03-01",
       "end": "2001-11-30",
-      "note": "Housing held up better than equities in this episode."
+      "note": "Home sales held up on low mortgage rates while equities fell."
     },
     {
-      "label": "Global Financial Crisis",
-      "start": "2007-12-01",
+      "label": "Housing bust and Global Financial Crisis",
+      "start": "2005-07-01",
       "end": "2009-06-30",
-      "note": "New Home Sales collapsed ahead of and through the crisis."
+      "note": "New home sales peaked in 2005 and fell for years before and during the recession."
     },
     {
       "label": "COVID shock",
       "start": "2020-02-01",
-      "end": "2020-04-30",
-      "note": "Home sales dropped then rebounded sharply on low rates."
+      "end": "2020-06-30",
+      "note": "Brief collapse, then a fast rate-driven rebound."
     }
   ],
   "data_provenance": {
     "source": "FRED",
     "series_id": "HSN1F",
-    "accessed_at": "2026-10-15T18:09:26.343228+00:00"
+    "accessed_at": "2026-10-18T07:00:55.386643+00:00"
   }
 }

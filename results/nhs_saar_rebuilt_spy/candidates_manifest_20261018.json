@@ -1,0 +1,133 @@
+{
+  "pair_id": "nhs_saar_rebuilt_spy",
+  "signals": {
+    "yoy": "nhs_pct_yoy",
+    "pct_6m": "nhs_pct_6m",
+    "pct_3m": "nhs_pct_3m",
+    "mom": "nhs_mom",
+    "zscore_60m": "nhs_zscore_60m",
+    "chg_6m": "nhs_6m_chg"
+  },
+  "rules": {
+    "yoy": {
+      "T0_zero": {
+        "variable": "raw",
+        "threshold": 0.0
+      },
+      "T_roll_p25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "pct_6m": {
+      "T0_zero": {
+        "variable": "raw",
+        "threshold": 0.0
+      },
+      "T_roll_p25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "pct_3m": {
+      "T0_zero": {
+        "variable": "raw",
+        "threshold": 0.0
+      },
+      "T_roll_p25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "mom": {
+      "T0_zero": {
+        "variable": "raw",
+        "threshold": 0.0
+      },
+      "T_roll_p25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "zscore_60m": {
+      "T_z_0": {
+        "variable": "raw",
+        "threshold": 0.0
+      },
+      "T_z_-0.5": {
+        "variable": "raw",
+        "threshold": -0.5
+      },
+      "T_roll_p25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "chg_6m": {
+      "T_roll_p25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T_roll_p75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    }
+  },
+  "strategies": [
+    "P1"
+  ],
+  "directions": [
+    "procyclical",
+    "countercyclical"
+  ],
+  "leads": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14
+  ],
+  "lead_unit": "months",
+  "binary_signals": [],
+  "min_is_n": 60,
+  "ppy": 12,
+  "oos_start": "2017-01-31",
+  "exposure_bounds": [
+    0.05,
+    0.95
+  ],
+  "max_is_turnover": null,
+  "min_is_trades": null,
+  "position_shift": 0,
+  "n_candidates": 468,
+  "candidates_sha256": "5e5e14d18933ae29ad0915f6900ccc2f00c9e06493301a026c7b92b219b6834f"
+}

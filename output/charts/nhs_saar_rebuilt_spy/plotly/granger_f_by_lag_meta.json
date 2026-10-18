@@ -1,12 +1,12 @@
 {
   "chart_name": "granger_f_by_lag",
   "pair_id": "nhs_saar_rebuilt_spy",
-  "generated_at": "2026-10-15T18:10:31.390666+00:00",
+  "generated_at": "2026-10-18T07:06:09.129875+00:00",
   "generated_by": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "caption": "Granger p-values by lag for New Home Sales 6-month growth predicting SPY returns.",
-  "narrative_alignment_note": "Granger p-values by lag for New Home Sales 6-month growth predicting SPY returns.",
+  "caption": "Granger p-values by lag for 6-month new-home-sales growth predicting SPY returns, with Holm-adjusted p-values across the lags tested.",
+  "narrative_alignment_note": "Granger p-values by lag for 6-month new-home-sales growth predicting SPY returns, with Holm-adjusted p-values across the lags tested.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/nhs_saar_rebuilt_spy/core_models_20261015/granger_causality.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_nhs_saar_rebuilt_spy/results/nhs_saar_rebuilt_spy/core_models_20261018/granger_causality.csv"
   ]
 }

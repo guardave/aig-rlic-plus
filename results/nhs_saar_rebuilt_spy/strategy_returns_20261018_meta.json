@@ -1,0 +1,15 @@
+{
+  "pair_id": "nhs_saar_rebuilt_spy",
+  "track": "real_time",
+  "role": "main",
+  "winner_key": "zscore_60m|T_roll_p25|P1|procyclical|12",
+  "generated_at": "2026-10-18T07:02:47.272868+00:00",
+  "vintage_policy": {
+    "alignment": "realtime_vintage",
+    "vintage_series": "HSN1F",
+    "after_close": false,
+    "first_vintage": "1999-07-30"
+  },
+  "calendar_sha256": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
+  "vintage_file_sha256": "0a45735e6f64253b58d21fbe013e4f853fe8677a225e0a70994209bf916f39b1"
+}

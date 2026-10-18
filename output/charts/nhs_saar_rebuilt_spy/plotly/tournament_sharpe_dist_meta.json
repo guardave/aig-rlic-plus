@@ -1,12 +1,12 @@
 {
   "chart_name": "tournament_sharpe_dist",
   "pair_id": "nhs_saar_rebuilt_spy",
-  "generated_at": "2026-10-15T18:10:32.254297+00:00",
+  "generated_at": "2026-10-18T07:06:23.134410+00:00",
   "generated_by": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "caption": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
-  "narrative_alignment_note": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
+  "caption": "Distribution of OOS Sharpe across valid tournament strategies by lead (as known at the time; the winner is chosen on training data, not on this OOS score).",
+  "narrative_alignment_note": "Distribution of OOS Sharpe across valid tournament strategies by lead (as known at the time; the winner is chosen on training data, not on this OOS score).",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/nhs_saar_rebuilt_spy/tournament_results_20261015.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_nhs_saar_rebuilt_spy/results/nhs_saar_rebuilt_spy/tournament_results_20261018.csv"
   ]
 }

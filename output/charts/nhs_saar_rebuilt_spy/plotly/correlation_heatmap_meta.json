@@ -1,12 +1,12 @@
 {
   "chart_name": "correlation_heatmap",
   "pair_id": "nhs_saar_rebuilt_spy",
-  "generated_at": "2026-10-15T18:10:31.325832+00:00",
+  "generated_at": "2026-10-18T07:06:02.195027+00:00",
   "generated_by": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "caption": "Pearson correlations between New Home Sales transforms and forward SPY returns.",
-  "narrative_alignment_note": "Pearson correlations between New Home Sales transforms and forward SPY returns.",
+  "caption": "Pearson correlations between new-home-sales transforms and forward SPY returns.",
+  "narrative_alignment_note": "Pearson correlations between new-home-sales transforms and forward SPY returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/nhs_saar_rebuilt_spy/core_models_20261015/correlations.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_nhs_saar_rebuilt_spy/results/nhs_saar_rebuilt_spy/core_models_20261018/correlations.csv"
   ]
 }

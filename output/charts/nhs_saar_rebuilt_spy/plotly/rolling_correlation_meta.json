@@ -1,12 +1,12 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "nhs_saar_rebuilt_spy",
-  "generated_at": "2026-10-15T18:10:32.285412+00:00",
+  "generated_at": "2026-10-18T07:06:29.015696+00:00",
   "generated_by": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "caption": "Rolling 60-month correlation between New Home Sales 6-month growth and SPY returns.",
-  "narrative_alignment_note": "Rolling 60-month correlation between New Home Sales 6-month growth and SPY returns.",
+  "caption": "Rolling 60-month correlation between 6-month new-home-sales growth and SPY returns.",
+  "narrative_alignment_note": "Rolling 60-month correlation between 6-month new-home-sales growth and SPY returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/nhs_saar_rebuilt_spy/rolling_correlation_nhs_saar_rebuilt_spy.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_nhs_saar_rebuilt_spy/results/nhs_saar_rebuilt_spy/rolling_correlation_nhs_saar_rebuilt_spy.csv"
   ]
 }

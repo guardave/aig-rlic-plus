@@ -1,0 +1,396 @@
+{
+  "pair_id": "nhs_saar_rebuilt_spy",
+  "tag": "20261018",
+  "replay": {
+    "pair_id": "nhs_saar_rebuilt_spy",
+    "legacy_tag": "20261015",
+    "n_rows_harness": 468,
+    "n_rows_published": 468,
+    "tolerance": 1e-06,
+    "columns": {
+      "is_sharpe": {
+        "max_abs_diff": 1.9984014443252818e-15,
+        "pass": true
+      },
+      "oos_sharpe": {
+        "max_abs_diff": 1.3322676295501878e-15,
+        "pass": true
+      },
+      "is_n": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      },
+      "oos_n": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      },
+      "is_exposure": {
+        "max_abs_diff": 5.551115123125783e-17,
+        "pass": true
+      },
+      "n_trades": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      }
+    },
+    "same_candidate_rows_in_order": true,
+    "valid_flags_equal": true,
+    "common_is_start_equal": true,
+    "selection_method": "is_argmax",
+    "winner": {
+      "harness": "pct_6m|T_roll_p50|P1|procyclical|13",
+      "published": "pct_6m|T_roll_p50|procyclical|13",
+      "match": true
+    },
+    "published": {
+      "key": "pct_6m|T_roll_p50|P1|procyclical|13",
+      "signal": "pct_6m",
+      "threshold": "T_roll_p50",
+      "strategy": "P1",
+      "direction": "procyclical",
+      "lead": 13,
+      "is_sharpe": 0.9817476696696968,
+      "oos_sharpe": 0.9194590059726396,
+      "replay_is_sharpe": 0.981747669669696,
+      "replay_oos_sharpe": 0.9194590059726405,
+      "tag": "20261015",
+      "selection": "raw in-sample Sharpe argmax, revised values, fixed lag"
+    },
+    "strategy_return": {
+      "rows": 404,
+      "max_abs_diff": 9.71445146547012e-17,
+      "pass": true
+    },
+    "pass": true
+  },
+  "tracks": {
+    "main": {
+      "candidate": "zscore_60m|T_roll_p25|P1|procyclical|12",
+      "is_frozen_object": false,
+      "cuts": {
+        "oos_start": {
+          "cut": "2017-01-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 289,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 289,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "oos_50pct": {
+          "cut": "2021-11-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 347,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 347,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "end_minus_1y": {
+          "cut": "2025-09-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 393,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 393,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_33pct": {
+          "cut": "2001-01-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 97,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 97,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_66pct": {
+          "cut": "2009-01-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 193,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 193,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        }
+      },
+      "pass": true
+    },
+    "comparison": {
+      "candidate": "zscore_60m|T_roll_p25|P1|procyclical|14",
+      "is_frozen_object": false,
+      "cuts": {
+        "oos_start": {
+          "cut": "2017-01-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 289,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 289,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "oos_50pct": {
+          "cut": "2021-11-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 347,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 347,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "end_minus_1y": {
+          "cut": "2025-09-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 393,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 393,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_33pct": {
+          "cut": "2001-01-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 97,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 97,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_66pct": {
+          "cut": "2009-01-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 193,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 193,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        }
+      },
+      "pass": true
+    }
+  },
+  "null": {
+    "main": {
+      "n_draws": 100,
+      "n_unique_offsets": 100,
+      "n_draws_without_winner": 0,
+      "n_admissible_offsets": 195,
+      "span": 326,
+      "max_usable_offset": 260,
+      "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
+      "seed_base": 20261016,
+      "is_max_percentile": 0.91,
+      "p_is": 0.09,
+      "selection_stat_percentile": 0.99,
+      "p_selection_stat": 0.01,
+      "winner_oos_percentile": 0.33,
+      "p_oos": 0.67,
+      "null_is_max_p5_p50_p95": [
+        0.7184,
+        0.8605,
+        1.0434
+      ],
+      "null_winner_oos_median": 0.7403,
+      "edge_share": 0.04,
+      "edge_share_uniform": 0.1538,
+      "edge_share_bound": 0.2621,
+      "edge_flag": false,
+      "timing_sharpe_mean": -0.0288,
+      "timing_sharpe_sd": 0.2059,
+      "timing_sharpe_se_dependent": 0.0326,
+      "timing_sharpe_se_bandwidth": 12,
+      "timing_sharpe_effective_draws": 39.8,
+      "r71_tolerance": 0.1,
+      "timing_sharpe_mean_all_valid_candidates": -0.0,
+      "r71_pass": true,
+      "null_scores_hist": {
+        "bins": [
+          0.4394,
+          0.4582,
+          0.477,
+          0.4958,
+          0.5146,
+          0.5334,
+          0.5522,
+          0.571,
+          0.5898,
+          0.6086,
+          0.6274,
+          0.6462,
+          0.665,
+          0.6838,
+          0.7026,
+          0.7214,
+          0.7402,
+          0.759,
+          0.7778,
+          0.7966,
+          0.8154
+        ],
+        "counts": [
+          1,
+          1,
+          0,
+          2,
+          5,
+          10,
+          10,
+          13,
+          14,
+          14,
+          7,
+          3,
+          6,
+          6,
+          0,
+          3,
+          3,
+          1,
+          0,
+          1
+        ]
+      }
+    },
+    "comparison": {
+      "n_draws": 100,
+      "n_unique_offsets": 100,
+      "n_draws_without_winner": 0,
+      "n_admissible_offsets": 337,
+      "span": 560,
+      "max_usable_offset": null,
+      "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
+      "seed_base": 20261016,
+      "is_max_percentile": 0.88,
+      "p_is": 0.12,
+      "selection_stat_percentile": 1.0,
+      "p_selection_stat": 0.0,
+      "winner_oos_percentile": 0.97,
+      "p_oos": 0.03,
+      "null_is_max_p5_p50_p95": [
+        0.8462,
+        0.9672,
+        1.2083
+      ],
+      "null_winner_oos_median": 0.8019,
+      "edge_share": 0.11,
+      "edge_share_uniform": 0.1538,
+      "edge_share_bound": 0.2621,
+      "edge_flag": false,
+      "timing_sharpe_mean": 0.0448,
+      "timing_sharpe_sd": 0.2636,
+      "timing_sharpe_se_dependent": 0.0425,
+      "timing_sharpe_se_bandwidth": 6,
+      "timing_sharpe_effective_draws": 38.5,
+      "r71_tolerance": 0.1,
+      "timing_sharpe_mean_all_valid_candidates": 0.0168,
+      "r71_pass": true,
+      "null_scores_hist": {
+        "bins": [
+          0.6551,
+          0.6749,
+          0.6946,
+          0.7144,
+          0.7341,
+          0.7539,
+          0.7736,
+          0.7934,
+          0.8131,
+          0.8329,
+          0.8526,
+          0.8724,
+          0.8921,
+          0.9119,
+          0.9316,
+          0.9514,
+          0.9711,
+          0.9909,
+          1.0106,
+          1.0304,
+          1.0501
+        ],
+        "counts": [
+          4,
+          6,
+          8,
+          18,
+          5,
+          3,
+          12,
+          6,
+          7,
+          5,
+          6,
+          1,
+          4,
+          9,
+          1,
+          0,
+          0,
+          1,
+          0,
+          4
+        ]
+      }
+    }
+  }
+}

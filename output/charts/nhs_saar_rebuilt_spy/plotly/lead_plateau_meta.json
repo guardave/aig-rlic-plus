@@ -1,0 +1,13 @@
+{
+  "chart_name": "lead_plateau",
+  "pair_id": "nhs_saar_rebuilt_spy",
+  "generated_at": "2026-10-18T07:02:49.102455+00:00",
+  "generated_by": "scripts/harness/charts.py",
+  "caption": "The winner L12 sits in a stable range L12-L14.",
+  "narrative_alignment_note": "The winner L12 sits in a stable range L12-L14.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/nhs_saar_rebuilt_spy/lead_curve_20261018.csv",
+    "results/nhs_saar_rebuilt_spy/hindsight_lead_curve_20261018.csv"
+  ]
+}

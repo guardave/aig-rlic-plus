@@ -1,10 +1,10 @@
 {
   "chart_name": "subperiod_sharpe",
   "pair_id": "nhs_saar_rebuilt_spy",
-  "generated_at": "2026-10-15T18:10:32.331788+00:00",
+  "generated_at": "2026-10-18T07:06:34.424554+00:00",
   "generated_by": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "caption": "Strategy and buy-and-hold SPY Sharpe during major stress episodes.",
-  "narrative_alignment_note": "Strategy and buy-and-hold SPY Sharpe during major stress episodes.",
+  "caption": "Strategy and buy-and-hold SPY Sharpe during major stress episodes, with the sample phase (training, test or before training) of each window.",
+  "narrative_alignment_note": "Strategy and buy-and-hold SPY Sharpe during major stress episodes, with the sample phase (training, test or before training) of each window.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/nhs_saar_rebuilt_spy/subperiod_sharpe.csv"

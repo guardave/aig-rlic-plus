@@ -1,7 +1,7 @@
 {
   "pair_id": "nhs_saar_rebuilt_spy",
-  "winner_oos_sharpe": 0.919459,
-  "benchmark_oos_sharpe": 1.003407,
-  "oos_max_drawdown": -0.196238,
+  "winner_oos_sharpe": 0.64964,
+  "benchmark_oos_sharpe": 0.996397,
+  "oos_max_drawdown": -0.247722,
   "bh_max_drawdown": -0.239272
 }

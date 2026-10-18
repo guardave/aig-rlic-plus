@@ -1,0 +1,9 @@
+variable,test,statistic,p_value,lags,conclusion
+hsn1f,ADF,-2.282600455887092,0.17764108968833653,18,unit_root_not_rejected
+hsn1f,KPSS,0.7268215794584875,0.011107129140137503,12,nonstationary
+nhs_pct_6m,ADF,-2.965931555616986,0.03820078689098692,18,stationary
+nhs_pct_6m,KPSS,0.1568654758094978,0.1,10,stationary_not_rejected
+nhs_pct_yoy,ADF,-2.780861039836804,0.061060066395620435,13,unit_root_not_rejected
+nhs_pct_yoy,KPSS,0.16775889215255071,0.1,11,stationary_not_rejected
+spy_ret,ADF,-11.025396819642882,5.845492736095785e-20,2,stationary
+spy_ret,KPSS,0.1493775537113095,0.1,3,stationary_not_rejected

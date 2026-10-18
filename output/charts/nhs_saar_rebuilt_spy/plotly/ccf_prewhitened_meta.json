@@ -1,12 +1,12 @@
 {
   "chart_name": "ccf_prewhitened",
   "pair_id": "nhs_saar_rebuilt_spy",
-  "generated_at": "2026-10-15T18:10:31.359955+00:00",
+  "generated_at": "2026-10-18T07:06:05.118204+00:00",
   "generated_by": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "caption": "Cross-correlation between New Home Sales 6-month growth and SPY returns.",
-  "narrative_alignment_note": "Cross-correlation between New Home Sales 6-month growth and SPY returns.",
+  "caption": "Cross-correlation between the monthly change in 6-month new-home-sales growth and SPY returns.",
+  "narrative_alignment_note": "Cross-correlation between the monthly change in 6-month new-home-sales growth and SPY returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/nhs_saar_rebuilt_spy/core_models_20261015/ccf_prewhitened.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_nhs_saar_rebuilt_spy/results/nhs_saar_rebuilt_spy/core_models_20261018/ccf_prewhitened.csv"
   ]
 }

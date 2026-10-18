@@ -1,12 +1,12 @@
 {
   "chart_name": "structural_break",
   "pair_id": "nhs_saar_rebuilt_spy",
-  "generated_at": "2026-10-15T18:10:32.306346+00:00",
+  "generated_at": "2026-10-18T07:06:31.662808+00:00",
   "generated_by": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "caption": "Proxy check for large changes in the New Home Sales-SPY relationship.",
-  "narrative_alignment_note": "Proxy check for large changes in the New Home Sales-SPY relationship.",
+  "caption": "Proxy check for large changes in the HSN1F-SPY relationship.",
+  "narrative_alignment_note": "Proxy check for large changes in the HSN1F-SPY relationship.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/nhs_saar_rebuilt_spy/structural_break_nhs_saar_rebuilt_spy.json"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_nhs_saar_rebuilt_spy/results/nhs_saar_rebuilt_spy/structural_break_nhs_saar_rebuilt_spy.json"
   ]
 }

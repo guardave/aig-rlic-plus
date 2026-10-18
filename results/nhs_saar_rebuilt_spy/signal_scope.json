@@ -3,62 +3,65 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-15T18:09:26.343228+00:00",
+  "last_updated_at": "2026-10-18T07:00:55.386643+00:00",
   "indicator_axis": {
     "canonical_column": "hsn1f",
-    "display_name": "New Home Sales (SAAR)",
+    "display_name": "New Home Sales, SAAR (HSN1F)",
     "derivatives": [
       {
         "name": "hsn1f",
-        "definition": "New one-family houses sold, SAAR",
+        "definition": "New home sales level (thousands of units, SAAR)",
         "formula": "FRED HSN1F",
         "role": "raw",
         "appears_in_charts": [
-          "hero",
-          "regime_stats"
+          "hero"
         ]
       },
       {
-        "name": "nhs_mom",
-        "definition": "Monthly growth in New Home Sales",
-        "formula": "x_t / x_{t-1} - 1",
-        "role": "derivative",
-        "appears_in_charts": []
-      },
-      {
-        "name": "nhs_pct_3m",
-        "definition": "Three-month growth in New Home Sales",
-        "formula": "x_t / x_{t-3} - 1",
+        "name": "nhs_pct_yoy",
+        "definition": "Year-over-year percent change",
+        "formula": "(x_t / x_{t-12} - 1) * 100",
         "role": "derivative",
         "appears_in_charts": []
       },
       {
         "name": "nhs_pct_6m",
-        "definition": "Six-month growth in New Home Sales",
-        "formula": "x_t / x_{t-6} - 1",
+        "definition": "Six-month percent change",
+        "formula": "(x_t / x_{t-6} - 1) * 100",
         "role": "derivative",
         "appears_in_charts": [
+          "regime_stats",
           "local_projections",
+          "quantile_coef",
+          "rolling_correlation",
+          "granger_f_by_lag",
           "ccf_prewhitened"
         ]
       },
       {
-        "name": "nhs_pct_yoy",
-        "definition": "Twelve-month growth in New Home Sales",
-        "formula": "x_t / x_{t-12} - 1",
+        "name": "nhs_pct_3m",
+        "definition": "Three-month percent change",
+        "formula": "(x_t / x_{t-3} - 1) * 100",
+        "role": "derivative",
+        "appears_in_charts": []
+      },
+      {
+        "name": "nhs_mom",
+        "definition": "Month-over-month percent change",
+        "formula": "(x_t / x_{t-1} - 1) * 100",
         "role": "derivative",
         "appears_in_charts": []
       },
       {
         "name": "nhs_zscore_60m",
-        "definition": "New Home Sales versus its five-year history",
+        "definition": "Level versus its five-year history",
         "formula": "(x - mean60)/std60",
-        "role": "threshold_input",
+        "role": "derivative",
         "appears_in_charts": []
       },
       {
         "name": "nhs_6m_chg",
-        "definition": "Six-month change in the New Home Sales level",
+        "definition": "Six-month change in level (thousands)",
         "formula": "x_t - x_{t-6}",
         "role": "derivative",
         "appears_in_charts": []
@@ -84,7 +87,10 @@
         "definition": "SPY monthly return",
         "formula": "spy_t / spy_{t-1} - 1",
         "role": "derivative",
-        "appears_in_charts": []
+        "appears_in_charts": [
+          "regime_stats",
+          "ccf_prewhitened"
+        ]
       },
       {
         "name": "spy_fwd_1m",
@@ -92,7 +98,8 @@
         "formula": "spy_{t+1} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "correlation_heatmap",
+          "local_projections"
         ]
       },
       {
@@ -101,6 +108,7 @@
         "formula": "spy_{t+3} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
+          "correlation_heatmap",
           "local_projections",
           "quantile_coef"
         ]
@@ -111,7 +119,8 @@
         "formula": "spy_{t+6} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "correlation_heatmap",
+          "local_projections"
         ]
       },
       {
@@ -120,10 +129,11 @@
         "formula": "spy_{t+12} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "correlation_heatmap",
+          "local_projections"
         ]
       }
     ]
   },
-  "notes": "Scope limited to New Home Sales (SAAR, HSN1F) growth/level signals and SPY returns."
+  "notes": "Scope limited to HSN1F-derived housing signals and SPY returns."
 }
