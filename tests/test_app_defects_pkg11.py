@@ -24,7 +24,7 @@ def _w(pair):
     ("petrol_inv_spy", "rolling 36-month 25th percentile"),
     ("phlxsox_spy", "rolling 63-day 75th percentile"),       # daily LB63
     ("cass_freight_spy", "rolling 60-month 75th percentile"),
-    ("sloos_ci_small_spy", "rolling 20-quarter 75th percentile"),
+    ("sloos_ci_small_spy", "rolling 20-quarter median"),     # Phase B winner T_roll_p50 (was T_roll_p75)
     ("retail_inv_sales_spy", "rolling 60-month median"),
     ("indpro_spy", "rolling 60-month 75th percentile"),      # window only in display name
 ])
