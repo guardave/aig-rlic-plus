@@ -1094,9 +1094,10 @@
       "position_shift": 0,
       "lead_floor_effective": 1,
       "release_calendar_series": "DRTSCILM",
-      "alignment": "fixed_lag",
+      "alignment": "pit_asof",
       "value_vintage": "revised_alfred",
-      "note": "OUTSTANDING (pkg12 Q8): the data is DRTSCILM (large and middle-market firms); the originally intended indicator DRTSCIS (small firms) is not yet tested."
+      "note": "Phase B port (2026-10-18): rebuilt on scripts/harness (two tracks: real-time ALFRED DRTSCILM vintages from 2010-04 = MAIN, revised = comparison; D9 plateau; null K=100). The published 20261015 rule (level/T_roll_p75/P1/countercyclical/L2, raw IS argmax on a common IS start) replays through the harness. OUTSTANDING (pkg12 Q8): the data is DRTSCILM (large and middle-market firms); the originally intended indicator DRTSCIS (small firms) is not yet tested.",
+      "track_policy": "compute_twice"
     },
     "t10y3m_rebuilt_spy": {
       "signal_frequency": "monthly",
