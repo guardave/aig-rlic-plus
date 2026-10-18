@@ -1,10 +1,10 @@
 {
   "chart_name": "history_zoom_gfc",
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-10-15T18:19:46.957786+00:00",
+  "generated_at": "2026-10-18T13:57:51.573588+00:00",
   "generated_by": "scripts/generate_charts_umcsent_spy.py",
-  "caption": "Global Financial Crisis: Expected Conditions Collapsed 2008-09; gray bands are NBER recessions.",
-  "narrative_alignment_note": "Global Financial Crisis: Expected Conditions Collapsed 2008-09; gray bands are NBER recessions.",
+  "caption": "Global Financial Crisis: Expected Conditions Stayed Low Until Late 2008, Then Rose Through 2009; gray bands are NBER recessions.",
+  "narrative_alignment_note": "Global Financial Crisis: Expected Conditions Stayed Low Until Late 2008, Then Rose Through 2009; gray bands are NBER recessions.",
   "disposition": "consumed",
   "source_artifacts": [
     "data/umcsent_spy_monthly_latest.parquet"

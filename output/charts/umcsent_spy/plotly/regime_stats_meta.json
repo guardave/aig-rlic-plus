@@ -1,10 +1,10 @@
 {
   "chart_name": "regime_stats",
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-10-15T18:19:45.828125+00:00",
+  "generated_at": "2026-10-18T13:56:03.042002+00:00",
   "generated_by": "scripts/generate_charts_umcsent_spy.py",
-  "caption": "SPY performance across expected-conditions level quartiles.",
-  "narrative_alignment_note": "SPY performance across expected-conditions level quartiles.",
+  "caption": "SPY performance in the same month across quartiles of the Michigan Expected Business Conditions level.",
+  "narrative_alignment_note": "SPY performance in the same month across quartiles of the Michigan Expected Business Conditions level.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/umcsent_spy/regime_quartile_returns.csv"

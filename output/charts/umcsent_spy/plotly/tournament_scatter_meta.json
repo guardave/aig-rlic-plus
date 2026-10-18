@@ -1,12 +1,12 @@
 {
   "chart_name": "tournament_scatter",
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-10-15T18:19:46.792385+00:00",
+  "generated_at": "2026-10-18T13:57:07.545907+00:00",
   "generated_by": "scripts/generate_charts_umcsent_spy.py",
   "caption": "Alias for tournament scatter slot.",
   "narrative_alignment_note": "Alias for tournament scatter slot.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/umcsent_spy/tournament_results_20261015.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_umcsent_spy/results/umcsent_spy/tournament_results_20261018.csv"
   ]
 }

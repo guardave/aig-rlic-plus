@@ -1,10 +1,10 @@
 {
   "chart_name": "hero",
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-10-15T18:19:45.778986+00:00",
+  "generated_at": "2026-10-18T13:55:55.920460+00:00",
   "generated_by": "scripts/generate_charts_umcsent_spy.py",
-  "caption": "Expected-conditions diffusion level and SPY with NBER recession bands.",
-  "narrative_alignment_note": "Expected-conditions diffusion level and SPY with NBER recession bands.",
+  "caption": "University of Michigan Expected Business Conditions index (Data Master; not the headline Consumer Sentiment index) and SPY, with NBER recessions shaded. Values as revised today (no archive of past values).",
+  "narrative_alignment_note": "University of Michigan Expected Business Conditions index (Data Master; not the headline Consumer Sentiment index) and SPY, with NBER recessions shaded. Values as revised today (no archive of past values).",
   "disposition": "consumed",
   "source_artifacts": [
     "data/umcsent_spy_monthly_latest.parquet"

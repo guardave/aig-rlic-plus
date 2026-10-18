@@ -1,10 +1,10 @@
 {
   "chart_name": "history_zoom_inflation_2022",
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-10-15T18:19:47.036211+00:00",
+  "generated_at": "2026-10-18T13:58:09.225158+00:00",
   "generated_by": "scripts/generate_charts_umcsent_spy.py",
-  "caption": "2022 Rate Shock: Optimism Hit Lows but the Rule Lagged; gray bands are NBER recessions.",
-  "narrative_alignment_note": "2022 Rate Shock: Optimism Hit Lows but the Rule Lagged; gray bands are NBER recessions.",
+  "caption": "2022 Rate Shock: Expected Conditions Slid From the 2021 Peak and Stayed Well Below It; gray bands are NBER recessions.",
+  "narrative_alignment_note": "2022 Rate Shock: Expected Conditions Slid From the 2021 Peak and Stayed Well Below It; gray bands are NBER recessions.",
   "disposition": "consumed",
   "source_artifacts": [
     "data/umcsent_spy_monthly_latest.parquet"
