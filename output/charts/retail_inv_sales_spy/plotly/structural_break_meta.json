@@ -1,12 +1,12 @@
 {
   "chart_name": "structural_break",
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-10-16T18:30:49.321815+00:00",
+  "generated_at": "2026-10-18T07:58:49.270796+00:00",
   "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "caption": "Proxy check for large changes in the inventories-to-sales/SPY relationship.",
-  "narrative_alignment_note": "Proxy check for large changes in the inventories-to-sales/SPY relationship.",
+  "caption": "Proxy check for large changes in the inventories-to-sales / SPY relationship.",
+  "narrative_alignment_note": "Proxy check for large changes in the inventories-to-sales / SPY relationship.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/retail_inv_sales_spy/structural_break_retail_inv_sales_spy.json"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_retail_inv_sales_spy/results/retail_inv_sales_spy/structural_break_retail_inv_sales_spy.json"
   ]
 }

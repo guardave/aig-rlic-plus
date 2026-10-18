@@ -3,15 +3,15 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-16T18:27:53.094449+00:00",
+  "last_updated_at": "2026-10-18T07:56:59.194980+00:00",
   "indicator_axis": {
     "canonical_column": "invsales",
-    "display_name": "Retail Inventories-to-Sales Ratio",
+    "display_name": "Retail Inventories-to-Sales Ratio (RETAILIRSA)",
     "derivatives": [
       {
         "name": "invsales",
-        "definition": "Retail Inventories-to-Sales Ratio",
-        "formula": "Data Master (Census)",
+        "definition": "Retail inventories-to-sales ratio",
+        "formula": "FRED RETAILIRSA",
         "role": "raw",
         "appears_in_charts": [
           "hero"
@@ -19,13 +19,10 @@
       },
       {
         "name": "invsales_level",
-        "definition": "Inventories-to-sales ratio level",
+        "definition": "Ratio level (threshold input)",
         "formula": "identity",
         "role": "threshold_input",
-        "appears_in_charts": [
-          "hero",
-          "regime_stats"
-        ]
+        "appears_in_charts": []
       },
       {
         "name": "invsales_diff_1m",
@@ -38,16 +35,20 @@
         "name": "invsales_chg_12m",
         "definition": "12-month change",
         "formula": "x_t - x_{t-12}",
-        "role": "threshold_input",
+        "role": "derivative",
         "appears_in_charts": [
-          "local_projections"
+          "regime_stats",
+          "local_projections",
+          "quantile_coef",
+          "rolling_correlation",
+          "granger_f_by_lag"
         ]
       },
       {
         "name": "invsales_zscore_60m",
-        "definition": "Level vs 5-year history",
-        "formula": "(x-mean60m)/std60m",
-        "role": "threshold_input",
+        "definition": "Level versus its five-year history",
+        "formula": "(x - mean60)/std60",
+        "role": "derivative",
         "appears_in_charts": []
       }
     ]
@@ -69,39 +70,54 @@
       {
         "name": "spy_ret",
         "definition": "SPY monthly return",
-        "formula": "spy_t/spy_{t-1}-1",
+        "formula": "spy_t / spy_{t-1} - 1",
         "role": "derivative",
-        "appears_in_charts": []
+        "appears_in_charts": [
+          "regime_stats"
+        ]
       },
       {
         "name": "spy_fwd_1m",
-        "definition": "1-month forward SPY return",
-        "formula": "spy_{t+1}/spy_t-1",
+        "definition": "One-month forward SPY return",
+        "formula": "spy_{t+1} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "correlation_heatmap",
+          "local_projections"
         ]
       },
       {
         "name": "spy_fwd_3m",
-        "definition": "3-month forward SPY return",
-        "formula": "spy_{t+3}/spy_t-1",
+        "definition": "Three-month forward SPY return",
+        "formula": "spy_{t+3} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
+          "correlation_heatmap",
           "local_projections",
           "quantile_coef"
         ]
       },
       {
         "name": "spy_fwd_6m",
-        "definition": "6-month forward SPY return",
-        "formula": "spy_{t+6}/spy_t-1",
+        "definition": "Six-month forward SPY return",
+        "formula": "spy_{t+6} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "correlation_heatmap",
+          "local_projections"
+        ]
+      },
+      {
+        "name": "spy_fwd_12m",
+        "definition": "Twelve-month forward SPY return",
+        "formula": "spy_{t+12} / spy_t - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap",
+          "local_projections"
         ]
       }
     ]
   },
-  "notes": "Scope limited to Retail Inventories-to-Sales Ratio signals and SPY returns."
+  "notes": "Scope limited to RETAILIRSA-derived signals and SPY returns."
 }

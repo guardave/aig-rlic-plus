@@ -1,0 +1,11 @@
+variable,test,statistic,p_value,lags,conclusion
+invsales,ADF,-1.955389259292781,0.30646915682988296,10,unit_root_not_rejected
+invsales,KPSS,2.5851262543260574,0.01,11,nonstationary
+invsales_diff_1m,ADF,-5.6337324875376344,1.0748439437254184e-06,9,stationary
+invsales_diff_1m,KPSS,0.03807309647687867,0.1,13,stationary_not_rejected
+invsales_chg_12m,ADF,-4.467960718680533,0.0002245818700885084,12,stationary
+invsales_chg_12m,KPSS,0.054520638335416996,0.1,11,stationary_not_rejected
+invsales_zscore_60m,ADF,-3.1657808757174024,0.022052842424103665,5,stationary
+invsales_zscore_60m,KPSS,0.4401371850242256,0.05985466162748897,11,stationary_not_rejected
+spy_ret,ADF,-11.025396819642882,5.845492736095785e-20,2,stationary
+spy_ret,KPSS,0.1493775537113095,0.1,3,stationary_not_rejected

@@ -1,0 +1,58 @@
+{
+  "pair_id": "retail_inv_sales_spy",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-10-18T07:57:18.667426+00:00",
+  "track_state": "rt_insufficient",
+  "track_policy": "compute_twice",
+  "main": {
+    "track": "real_time",
+    "eligible": false
+  },
+  "comparison": {
+    "track": "revised",
+    "eligible": true,
+    "window": [
+      "1997-01-31",
+      "2026-09-30"
+    ],
+    "n_obs": 357,
+    "winner": {
+      "signal": "level",
+      "threshold": "T_roll_p50",
+      "strategy": "P1",
+      "direction": "procyclical",
+      "lead": 6
+    },
+    "is_sharpe": 0.855325,
+    "oos_sharpe": 0.81762,
+    "recessions_covered": [
+      "2001 recession",
+      "2008-09 recession",
+      "2020 recession"
+    ]
+  },
+  "cross_eval": {
+    "main_winner_on_revised": null,
+    "revised_winner_on_main": {
+      "is_sharpe": 0.0,
+      "oos_sharpe": 1.1111696726806182,
+      "valid": false,
+      "is_eligible": false,
+      "window": {
+        "is_start": null,
+        "oos_start": "2017-06-30",
+        "oos_end": "2026-09-30"
+      }
+    }
+  },
+  "insufficient_reason": {
+    "rt_start": "2013-07-31",
+    "n_is_rows": 47,
+    "min_required": 60
+  },
+  "plateau": null,
+  "null_tournament": null,
+  "vs_buy_hold": null,
+  "status_badge_source": "main",
+  "pair_version": null
+}

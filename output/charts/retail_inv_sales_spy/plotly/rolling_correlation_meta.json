@@ -1,12 +1,12 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-10-16T18:30:49.299785+00:00",
+  "generated_at": "2026-10-18T07:58:45.194461+00:00",
   "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "caption": "Rolling correlation between the inventories-to-sales change and SPY returns.",
-  "narrative_alignment_note": "Rolling correlation between the inventories-to-sales change and SPY returns.",
+  "caption": "Rolling 24-month correlation between the 12-month change in the inventories-to-sales ratio and SPY returns.",
+  "narrative_alignment_note": "Rolling 24-month correlation between the 12-month change in the inventories-to-sales ratio and SPY returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/retail_inv_sales_spy/rolling_correlation_retail_inv_sales_spy.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_retail_inv_sales_spy/results/retail_inv_sales_spy/rolling_correlation_retail_inv_sales_spy.csv"
   ]
 }

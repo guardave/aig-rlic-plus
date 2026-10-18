@@ -1,12 +1,12 @@
 {
   "chart_name": "tournament_sharpe_dist",
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-10-16T18:30:49.259156+00:00",
+  "generated_at": "2026-10-18T07:58:37.392999+00:00",
   "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "caption": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
-  "narrative_alignment_note": "Distribution of OOS Sharpe across valid tournament strategies by lead.",
+  "caption": "Distribution of test-period Sharpe across valid tournament strategies by lead on today's revised data (hindsight; no candidate is valid on data as known at the time). The winner is chosen on training data, not on this score.",
+  "narrative_alignment_note": "Distribution of test-period Sharpe across valid tournament strategies by lead on today's revised data (hindsight; no candidate is valid on data as known at the time). The winner is chosen on training data, not on this score.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/retail_inv_sales_spy/tournament_results_20261016.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_retail_inv_sales_spy/results/retail_inv_sales_spy/hindsight_tournament_results_20261018.csv"
   ]
 }

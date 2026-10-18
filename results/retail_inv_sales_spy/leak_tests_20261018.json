@@ -1,0 +1,235 @@
+{
+  "pair_id": "retail_inv_sales_spy",
+  "tag": "20261018",
+  "replay": {
+    "pair_id": "retail_inv_sales_spy",
+    "legacy_tag": "20261016",
+    "n_rows_harness": 288,
+    "n_rows_published": 288,
+    "tolerance": 1e-06,
+    "columns": {
+      "is_sharpe": {
+        "max_abs_diff": 1.7763568394002505e-15,
+        "pass": true
+      },
+      "oos_sharpe": {
+        "max_abs_diff": 1.1102230246251565e-15,
+        "pass": true
+      },
+      "is_n": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      },
+      "oos_n": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      },
+      "is_exposure": {
+        "max_abs_diff": 8.326672684688674e-17,
+        "pass": true
+      },
+      "n_trades": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      }
+    },
+    "same_candidate_rows_in_order": true,
+    "valid_flags_equal": true,
+    "common_is_start_equal": true,
+    "selection_method": "is_argmax",
+    "winner": {
+      "harness": "level|T_roll_p50|P1|procyclical|6",
+      "published": "level|T_roll_p50|procyclical|6",
+      "match": true
+    },
+    "published": {
+      "key": "level|T_roll_p50|P1|procyclical|6",
+      "signal": "level",
+      "threshold": "T_roll_p50",
+      "strategy": "P1",
+      "direction": "procyclical",
+      "lead": 6,
+      "is_sharpe": 0.8864761838392008,
+      "oos_sharpe": 0.732422457935694,
+      "replay_is_sharpe": 0.8864761838392012,
+      "replay_oos_sharpe": 0.7324224579356936,
+      "tag": "20261016",
+      "selection": "raw in-sample Sharpe argmax, revised values, fixed lag"
+    },
+    "strategy_return": {
+      "rows": 391,
+      "max_abs_diff": 9.71445146547012e-17,
+      "pass": true
+    },
+    "pass": true
+  },
+  "tracks": {
+    "main": null,
+    "comparison": {
+      "candidate": "level|T_roll_p50|P1|procyclical|6",
+      "is_frozen_object": false,
+      "cuts": {
+        "oos_start": {
+          "cut": "2017-06-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 294,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 294,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "oos_50pct": {
+          "cut": "2022-02-28",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 350,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 350,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "end_minus_1y": {
+          "cut": "2025-09-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 393,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 393,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_33pct": {
+          "cut": "2001-02-28",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 98,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 98,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_66pct": {
+          "cut": "2009-04-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 196,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 196,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        }
+      },
+      "pass": true
+    }
+  },
+  "null": {
+    "main": null,
+    "comparison": {
+      "n_draws": 100,
+      "n_unique_offsets": 100,
+      "n_draws_without_winner": 0,
+      "n_admissible_offsets": 249,
+      "span": 416,
+      "max_usable_offset": null,
+      "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
+      "seed_base": 20261016,
+      "is_max_percentile": 0.31,
+      "p_is": 0.69,
+      "selection_stat_percentile": 0.06,
+      "p_selection_stat": 0.94,
+      "winner_oos_percentile": 0.61,
+      "p_oos": 0.39,
+      "null_is_max_p5_p50_p95": [
+        0.7471,
+        0.8965,
+        1.1796
+      ],
+      "null_winner_oos_median": 0.7797,
+      "edge_share": 0.16,
+      "edge_share_uniform": 0.1667,
+      "edge_share_bound": 0.2785,
+      "edge_flag": false,
+      "timing_sharpe_mean": -0.0726,
+      "timing_sharpe_sd": 0.2911,
+      "timing_sharpe_se_dependent": 0.0557,
+      "timing_sharpe_se_bandwidth": 6,
+      "timing_sharpe_effective_draws": 27.4,
+      "r71_tolerance": 0.1113,
+      "timing_sharpe_mean_all_valid_candidates": 0.0267,
+      "r71_pass": true,
+      "null_scores_hist": {
+        "bins": [
+          0.5699,
+          0.597,
+          0.6241,
+          0.6512,
+          0.6783,
+          0.7054,
+          0.7326,
+          0.7597,
+          0.7868,
+          0.8139,
+          0.841,
+          0.8681,
+          0.8952,
+          0.9224,
+          0.9495,
+          0.9766,
+          1.0037,
+          1.0308,
+          1.0579,
+          1.085,
+          1.1121
+        ],
+        "counts": [
+          1,
+          6,
+          12,
+          7,
+          6,
+          24,
+          12,
+          11,
+          0,
+          2,
+          0,
+          0,
+          5,
+          1,
+          0,
+          6,
+          0,
+          1,
+          0,
+          6
+        ]
+      }
+    }
+  }
+}

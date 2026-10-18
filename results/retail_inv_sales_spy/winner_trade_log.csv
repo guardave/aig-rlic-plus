@@ -1,40 +1,41 @@
-trade_date,side,instrument,quantity_pct,commission_bps,signal_value,threshold_value,position_before,position_after,reason
-1995-06-30,BUY,SPY,100.0,5,1.68,1.67,0.0,1.0,level procyclical rule crossed T_roll_p50
-1996-09-30,SELL,SPY,100.0,5,1.67,1.68,1.0,0.0,level procyclical rule crossed T_roll_p50
-1996-12-31,BUY,SPY,100.0,5,1.67,1.67,0.0,1.0,level procyclical rule crossed T_roll_p50
-1997-04-30,SELL,SPY,100.0,5,1.66,1.67,1.0,0.0,level procyclical rule crossed T_roll_p50
-2001-06-30,BUY,SPY,100.0,5,1.63,1.625,0.0,1.0,level procyclical rule crossed T_roll_p50
-2001-07-31,SELL,SPY,100.0,5,1.61,1.62,1.0,0.0,level procyclical rule crossed T_roll_p50
-2002-03-31,BUY,SPY,100.0,5,1.64,1.61,0.0,1.0,level procyclical rule crossed T_roll_p50
-2002-04-30,SELL,SPY,100.0,5,1.47,1.61,1.0,0.0,level procyclical rule crossed T_roll_p50
-2003-08-31,BUY,SPY,100.0,5,1.59,1.59,0.0,1.0,level procyclical rule crossed T_roll_p50
-2003-10-31,SELL,SPY,100.0,5,1.58,1.59,1.0,0.0,level procyclical rule crossed T_roll_p50
-2004-12-31,BUY,SPY,100.0,5,1.58,1.58,0.0,1.0,level procyclical rule crossed T_roll_p50
-2005-03-31,SELL,SPY,100.0,5,1.55,1.5750000000000002,1.0,0.0,level procyclical rule crossed T_roll_p50
-2005-07-31,BUY,SPY,100.0,5,1.56,1.56,0.0,1.0,level procyclical rule crossed T_roll_p50
-2005-08-31,SELL,SPY,100.0,5,1.54,1.56,1.0,0.0,level procyclical rule crossed T_roll_p50
-2008-08-31,BUY,SPY,100.0,5,1.5,1.5,0.0,1.0,level procyclical rule crossed T_roll_p50
-2008-09-30,SELL,SPY,100.0,5,1.48,1.5,1.0,0.0,level procyclical rule crossed T_roll_p50
-2009-03-31,BUY,SPY,100.0,5,1.51,1.495,0.0,1.0,level procyclical rule crossed T_roll_p50
-2009-12-31,SELL,SPY,100.0,5,1.45,1.49,1.0,0.0,level procyclical rule crossed T_roll_p50
-2012-12-31,BUY,SPY,100.0,5,1.4,1.4,0.0,1.0,level procyclical rule crossed T_roll_p50
-2013-02-28,SELL,SPY,100.0,5,1.39,1.4,1.0,0.0,level procyclical rule crossed T_roll_p50
-2013-06-30,BUY,SPY,100.0,5,1.39,1.39,0.0,1.0,level procyclical rule crossed T_roll_p50
-2013-08-31,SELL,SPY,100.0,5,1.38,1.39,1.0,0.0,level procyclical rule crossed T_roll_p50
-2013-09-30,BUY,SPY,100.0,5,1.39,1.39,0.0,1.0,level procyclical rule crossed T_roll_p50
-2018-05-31,SELL,SPY,100.0,5,1.44,1.45,1.0,0.0,level procyclical rule crossed T_roll_p50
-2018-07-31,BUY,SPY,100.0,5,1.45,1.45,0.0,1.0,level procyclical rule crossed T_roll_p50
-2018-11-30,SELL,SPY,100.0,5,1.44,1.45,1.0,0.0,level procyclical rule crossed T_roll_p50
-2018-12-31,BUY,SPY,100.0,5,1.45,1.45,0.0,1.0,level procyclical rule crossed T_roll_p50
-2019-01-31,SELL,SPY,100.0,5,1.44,1.45,1.0,0.0,level procyclical rule crossed T_roll_p50
-2019-02-28,BUY,SPY,100.0,5,1.45,1.45,0.0,1.0,level procyclical rule crossed T_roll_p50
-2019-05-31,SELL,SPY,100.0,5,1.44,1.45,1.0,0.0,level procyclical rule crossed T_roll_p50
-2019-06-30,BUY,SPY,100.0,5,1.49,1.45,0.0,1.0,level procyclical rule crossed T_roll_p50
-2020-02-29,SELL,SPY,100.0,5,1.45,1.46,1.0,0.0,level procyclical rule crossed T_roll_p50
-2020-03-31,BUY,SPY,100.0,5,1.46,1.46,0.0,1.0,level procyclical rule crossed T_roll_p50
-2020-05-31,SELL,SPY,100.0,5,1.44,1.46,1.0,0.0,level procyclical rule crossed T_roll_p50
-2020-09-30,BUY,SPY,100.0,5,1.54,1.4649999999999999,0.0,1.0,level procyclical rule crossed T_roll_p50
-2020-11-30,SELL,SPY,100.0,5,1.33,1.47,1.0,0.0,level procyclical rule crossed T_roll_p50
-2023-06-30,BUY,SPY,100.0,5,1.28,1.27,0.0,1.0,level procyclical rule crossed T_roll_p50
-2023-07-31,SELL,SPY,100.0,5,1.24,1.26,1.0,0.0,level procyclical rule crossed T_roll_p50
-2023-09-30,BUY,SPY,100.0,5,1.28,1.26,0.0,1.0,level procyclical rule crossed T_roll_p50
+trade_date,side,instrument,quantity_pct,trade_size_pct,commission_bps,signal_value,threshold_value,position_before,position_after,reason
+1994-11-30,BUY,SPY,100.0,100.0,5,1.67,1.67,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+1996-09-30,SELL,SPY,0.0,100.0,5,1.67,1.68,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+1996-12-31,BUY,SPY,100.0,100.0,5,1.67,1.67,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+1997-04-30,SELL,SPY,0.0,100.0,5,1.66,1.67,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2001-06-30,BUY,SPY,100.0,100.0,5,1.63,1.625,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2001-07-31,SELL,SPY,0.0,100.0,5,1.61,1.62,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2002-03-31,BUY,SPY,100.0,100.0,5,1.64,1.61,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2002-04-30,SELL,SPY,0.0,100.0,5,1.47,1.61,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2003-08-31,BUY,SPY,100.0,100.0,5,1.59,1.59,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2003-10-31,SELL,SPY,0.0,100.0,5,1.58,1.59,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2004-12-31,BUY,SPY,100.0,100.0,5,1.58,1.58,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2005-03-31,SELL,SPY,0.0,100.0,5,1.55,1.575,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2005-07-31,BUY,SPY,100.0,100.0,5,1.56,1.56,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2005-08-31,SELL,SPY,0.0,100.0,5,1.54,1.56,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2008-08-31,BUY,SPY,100.0,100.0,5,1.5,1.5,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2008-09-30,SELL,SPY,0.0,100.0,5,1.48,1.5,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2009-03-31,BUY,SPY,100.0,100.0,5,1.51,1.495,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2009-12-31,SELL,SPY,0.0,100.0,5,1.45,1.49,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2012-12-31,BUY,SPY,100.0,100.0,5,1.4,1.4,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2013-02-28,SELL,SPY,0.0,100.0,5,1.39,1.4,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2013-06-30,BUY,SPY,100.0,100.0,5,1.39,1.39,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2013-08-31,SELL,SPY,0.0,100.0,5,1.38,1.39,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2013-09-30,BUY,SPY,100.0,100.0,5,1.39,1.39,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2018-05-31,SELL,SPY,0.0,100.0,5,1.44,1.45,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2018-07-31,BUY,SPY,100.0,100.0,5,1.45,1.45,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2018-11-30,SELL,SPY,0.0,100.0,5,1.43,1.45,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2018-12-31,BUY,SPY,100.0,100.0,5,1.45,1.45,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2019-01-31,SELL,SPY,0.0,100.0,5,1.44,1.45,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2019-02-28,BUY,SPY,100.0,100.0,5,1.45,1.45,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2019-05-31,SELL,SPY,0.0,100.0,5,1.44,1.45,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2019-06-30,BUY,SPY,100.0,100.0,5,1.49,1.45,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2020-02-29,SELL,SPY,0.0,100.0,5,1.45,1.46,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2020-03-31,BUY,SPY,100.0,100.0,5,1.46,1.46,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2020-05-31,SELL,SPY,0.0,100.0,5,1.44,1.46,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2020-09-30,BUY,SPY,100.0,100.0,5,1.54,1.465,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2020-11-30,SELL,SPY,0.0,100.0,5,1.33,1.47,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2023-06-30,BUY,SPY,100.0,100.0,5,1.29,1.28,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2023-07-31,SELL,SPY,0.0,100.0,5,1.26,1.265,1.0,0.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2023-08-31,BUY,SPY,100.0,100.0,5,1.28,1.265,0.0,1.0,"level procyclical rule crossed T_roll_p50 (as revised today, hindsight)"
+2026-09-30,SELL,SPY,0.0,100.0,5,,,1.0,0.0,signal undefined (no published reading for this month): cash under the undefined-means-cash rule

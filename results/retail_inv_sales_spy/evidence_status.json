@@ -2,9 +2,9 @@
   "pair_id": "retail_inv_sales_spy",
   "schema_version": "1.2.0",
   "status": "found_in_search",
-  "updated_at": "2026-10-16T18:27:53.094449+00:00",
-  "plain_english": "The winning rule was selected for the highest in-sample Sharpe. Lower drawdown than buy-and-hold in the held-out window is an observed secondary outcome, not the selection criterion. Neither the Sharpe result nor the lower drawdown has been tested on data released after the rule was chosen.",
-  "technical_note": "Winner selected by in-sample Sharpe (common pre-OOS window) from the 20261016 monthly tournament and evaluated on the held-out OOS window, which was not used for selection; the OOS window is limited, and drawdown was not a selection criterion.",
-  "next_step": "Freeze the selected rule and predefine confirmation criteria, then assess both Sharpe and drawdown on an independent holdout not used to select the rule.",
+  "updated_at": "2026-10-18T07:56:59.194980+00:00",
+  "plain_english": "There is no winning rule on data as known at the time: the archive of past releases is too short to train on. A rule found on today's revised data is shown as hindsight only.",
+  "technical_note": "Real-time RETAILIRSA vintages start 2013-07-31, leaving 47 training rows before the test period (minimum 60); MAIN is not eligible. The as-revised-today winner comes from the 20261018 tournament (D9 lead plateau) and is search-selected hindsight, not a frozen-rule hold-out result.",
+  "next_step": "Re-run once enough real-time history exists, or freeze the hindsight rule and test it on data released after this run.",
   "owner": "evan"
 }

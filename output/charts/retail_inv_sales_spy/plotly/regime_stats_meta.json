@@ -1,10 +1,10 @@
 {
   "chart_name": "regime_stats",
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-10-16T18:30:48.123514+00:00",
+  "generated_at": "2026-10-18T07:58:06.952655+00:00",
   "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "caption": "SPY performance across inventories-to-sales 12-month change quartiles.",
-  "narrative_alignment_note": "SPY performance across inventories-to-sales 12-month change quartiles.",
+  "caption": "SPY performance in the same month across quartiles of the 12-month change in the retail inventories-to-sales ratio.",
+  "narrative_alignment_note": "SPY performance in the same month across quartiles of the 12-month change in the retail inventories-to-sales ratio.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/retail_inv_sales_spy/regime_quartile_returns.csv"

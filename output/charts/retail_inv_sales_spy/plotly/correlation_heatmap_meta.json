@@ -1,12 +1,12 @@
 {
   "chart_name": "correlation_heatmap",
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-10-16T18:30:48.167471+00:00",
+  "generated_at": "2026-10-18T07:58:11.411970+00:00",
   "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
   "caption": "Pearson correlations between inventories-to-sales transforms and forward SPY returns.",
   "narrative_alignment_note": "Pearson correlations between inventories-to-sales transforms and forward SPY returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/retail_inv_sales_spy/core_models_20261016/correlations.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_retail_inv_sales_spy/results/retail_inv_sales_spy/core_models_20261018/correlations.csv"
   ]
 }

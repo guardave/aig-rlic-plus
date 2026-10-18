@@ -1,0 +1,102 @@
+{
+  "pair_id": "retail_inv_sales_spy",
+  "signals": {
+    "level": "invsales_level",
+    "diff_1m": "invsales_diff_1m",
+    "chg_12m": "invsales_chg_12m",
+    "zscore_60m": "invsales_zscore_60m"
+  },
+  "rules": {
+    "level": {
+      "T_roll_p25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T_roll_p75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "diff_1m": {
+      "T0_zero": {
+        "variable": "raw",
+        "threshold": 0.0
+      },
+      "T_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T_roll_p75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "chg_12m": {
+      "T0_zero": {
+        "variable": "raw",
+        "threshold": 0.0
+      },
+      "T_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T_roll_p75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "zscore_60m": {
+      "T_z_0": {
+        "variable": "raw",
+        "threshold": 0.0
+      },
+      "T_z_1.0": {
+        "variable": "raw",
+        "threshold": 1.0
+      },
+      "T_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    }
+  },
+  "strategies": [
+    "P1"
+  ],
+  "directions": [
+    "countercyclical",
+    "procyclical"
+  ],
+  "leads": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14
+  ],
+  "lead_unit": "months",
+  "binary_signals": [],
+  "min_is_n": 60,
+  "ppy": 12,
+  "oos_start": "2017-06-30",
+  "exposure_bounds": [
+    0.05,
+    0.95
+  ],
+  "max_is_turnover": null,
+  "min_is_trades": null,
+  "position_shift": 0,
+  "n_candidates": 288,
+  "candidates_sha256": "8b1d5fbf358c642dbc103491ca10202fcb614415abd6284a702c849b2a8484ae"
+}

@@ -2,26 +2,26 @@
   "pair_id": "retail_inv_sales_spy",
   "signal": "invsales_chg_12m",
   "construction": "pandas.qcut(signal, 4), right-closed intervals",
-  "sample_start": "1994-01-31",
-  "sample_end": "2025-07-31",
-  "eligible_observations": 379,
+  "sample_start": "1993-02-28",
+  "sample_end": "2026-08-31",
+  "eligible_observations": 403,
   "boundaries": [
     -0.5799999999999998,
     -0.040000000000000036,
-    0.0,
+    -0.009999999999999787,
     0.030000000000000027,
     0.19999999999999996
   ],
   "boundary_tie_counts": {
-    "-0.040000000000000036": 16,
-    "0.0": 33,
-    "0.030000000000000027": 14
+    "-0.040000000000000036": 18,
+    "-0.009999999999999787": 1,
+    "0.030000000000000027": 12
   },
   "bucket_counts": {
-    "Q1": 101,
-    "Q2": 117,
-    "Q3": 73,
-    "Q4": 88
+    "Q1": 104,
+    "Q2": 98,
+    "Q3": 102,
+    "Q4": 99
   },
   "unassigned_observations": 0,
   "assignment_rule": "Q1 includes the sample minimum and first quartile boundary; Q2-Q4 are open on the left and closed on the right. Boundary ties remain together in the lower bucket."

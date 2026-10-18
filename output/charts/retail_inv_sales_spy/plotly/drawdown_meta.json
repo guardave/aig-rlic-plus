@@ -1,12 +1,12 @@
 {
   "chart_name": "drawdown",
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-10-16T18:30:49.222484+00:00",
+  "generated_at": "2026-10-18T07:58:33.255993+00:00",
   "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "caption": "Drawdown comparison for the winner strategy and SPY buy-and-hold.",
-  "narrative_alignment_note": "Drawdown comparison for the winner strategy and SPY buy-and-hold.",
+  "caption": "Drawdown of the rule selected on today's revised data (as revised today (hindsight)) and SPY buy-and-hold.",
+  "narrative_alignment_note": "Drawdown of the rule selected on today's revised data (as revised today (hindsight)) and SPY buy-and-hold.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/retail_inv_sales_spy/strategy_returns_20261016.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_retail_inv_sales_spy/results/retail_inv_sales_spy/hindsight_strategy_returns_20261018.csv"
   ]
 }

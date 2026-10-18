@@ -1,12 +1,12 @@
 {
   "chart_name": "tournament_scatter",
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-10-16T18:30:49.269046+00:00",
+  "generated_at": "2026-10-18T07:58:41.049267+00:00",
   "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
   "caption": "Alias for tournament scatter slot.",
   "narrative_alignment_note": "Alias for tournament scatter slot.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/retail_inv_sales_spy/tournament_results_20261016.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_retail_inv_sales_spy/results/retail_inv_sales_spy/hindsight_tournament_results_20261018.csv"
   ]
 }
