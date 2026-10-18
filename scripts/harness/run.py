@@ -193,12 +193,8 @@ def build_tracks(mod) -> dict:
 def null_maker(mod, which: str, ti):
     """(make_inputs(k), span length) for the track's null (see harness.null)."""
     spec = mod.SPEC
-    if ti.name == "real_time":
-        vint = load_vintages(spec.vintage_series)
-        latest = latest_levels(spec.vintage_series, spec.freq)
-        grid = latest.index
-        return (lambda k: realtime_inputs(spec, vint, ti.index, ti.ret,
-                                          value_map=lambda v: NL.shift_vintage_values(v, k, grid))), len(grid)
+    if ti.name == "real_time":            # null v3: one constant roll of the real per-row inputs (harness.null)
+        return (lambda k: NL.roll_track_inputs(ti, k)), NL.defined_span_min(ti.lagged)
     lv = mod.revised_levels()
     s, e = NL.data_span(lv)
     return (lambda k: revised_inputs(spec, NL.roll_span(lv, k, s, e), ti.index, ti.ret, name=ti.name)), e - s

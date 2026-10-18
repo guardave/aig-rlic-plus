@@ -66,3 +66,20 @@ def test_real_time_draws_train_on_the_real_winners_window():
     for k in (115, 381):
         r = run_tournament(mod.SPEC, make(k), full_table=False)
         assert r.common_is_start == act.common_is_start and int(r.is_mask.sum()) == int(act.is_mask.sum()), k
+
+
+def test_previously_published_pilots_carry_previous_selection():
+    # QA null v2 F4 (read as 'dropped'; the field was in fact ADDED when the reruns moved the pilots to the current
+    # harness): a pair with a previously published rule must carry previous_selection in its winner fields
+    import json
+    root = Path(__file__).resolve().parents[2]
+    for pair in ("unrate_spy", "cc_delinquency_spy"):
+        ws = json.loads((root / "results" / pair / "winner_summary.json").read_text())
+        if ws["selection"].get("previously_published"):
+            f = ws["winner_fields"].get("previous_selection")
+            assert f and f["text"] == ws["selection"]["previously_published"][0]["selection"], pair
+
+
+def test_panel_caption_describes_a_constant_roll():
+    src = Path(two_track.__file__).read_text()
+    assert "fixed " in src and "wrapping around once" in src and "within each" not in src

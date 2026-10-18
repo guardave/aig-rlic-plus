@@ -598,7 +598,7 @@ Grid: UNRATE transforms x fixed and rolling thresholds x long/cash strategy x pr
 - As known at the time (headline): `{W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe}, test-period Sharpe {W.oos_sharpe}. The single highest training Sharpe on this track ({W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}; it is shown for reference and is not the selection rule.
 - As revised today (hindsight): `{W.comparison_signal_code} / {W.comparison_threshold_code} / L{W.comparison_lead}`, training Sharpe {W.comparison_is_sharpe}, test-period Sharpe {W.comparison_oos_sharpe}.
 - Cross-evaluation: the headline rule scored on revised data has test-period Sharpe {W.ce_main_on_revised_oos_sharpe}; the hindsight rule scored on data as known at the time has {W.ce_revised_on_main_oos_sharpe}.
-- Chance check: across {W.null_draws} contests run on circularly shifted unemployment data (each archived release shifted within itself, wrapping at its own end, so every contest trains on the real winner's window), the real winner's stable-range score ranks at the {W.null_percentile} point of the scrambled scores.
+- Chance check: across {W.null_draws} contests run on unemployment data shifted against the returns by a fixed number of months (wrapping around once), the real winner's stable-range score ranks at the {W.null_percentile} point of the scrambled scores.
 """
 
 _REFERENCES_MD = """

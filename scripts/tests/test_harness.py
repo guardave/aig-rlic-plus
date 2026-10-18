@@ -207,20 +207,46 @@ def test_dependent_se_exceeds_iid_se_for_smooth_draws():
     assert bw >= 12 and se > x.std(ddof=1) / np.sqrt(len(x))
 
 
-def test_shift_vintage_values_wraps_within_the_vintage():
-    grid = pd.date_range("2000-01-31", periods=12, freq="ME")
-    latest = pd.Series(np.arange(12.0) + 100, index=grid)
-    v = pd.Series(np.arange(8.0), index=grid[:8])          # an early vintage: 8 periods published
-    out = null.shift_vintage_values(v, 2, grid)
-    assert list(out.index) == list(grid[:8])                # same periods present (release structure kept)
-    assert out.iloc[2] == 0.0 and out.iloc[7] == 5.0        # position i gets the vintage's position i - 2
-    assert list(out.iloc[:2]) == [6.0, 7.0]                 # wrap WITHIN the vintage (v1: missing, window shrank)
-    assert not out.isna().any()                             # no reading lost
-    assert set(out) == set(v)                               # a permutation of this vintage's own values
-    assert not set(out) & set(latest)                       # never a value from another vintage
-    one = null.shift_vintage_values(v.iloc[:1], 5, grid)    # Codex B0r case: one-period vintage, large offset
-    assert list(one) == [0.0]
-    assert null.shift_vintage_values(v, 2, grid).equals(out)  # deterministic
+def _rt_inputs():
+    from harness.engine import TrackInputs
+    n = 40
+    idx = pd.date_range("2000-01-31", periods=n, freq="ME")
+    a = np.arange(n, dtype=float)
+    a[:3] = np.nan                                   # warm-up
+    a[-2:] = np.nan                                  # unpublished tail (unrate Oct-2025 class)
+    b = np.arange(n, dtype=float) + 1000
+    b[:5] = np.nan
+    return TrackInputs("real_time", idx, np.zeros(n), {1: pd.DataFrame({"a": a, "b": b}, index=idx),
+                                                       3: pd.DataFrame({"a": np.roll(a, 2)}, index=idx)})
+
+
+def test_real_time_null_roll_is_a_constant_shift_on_every_row():
+    # F1 regression (QA null v2): v2 wrapped each vintage mod its own length -> time-warp / near-identity rows.
+    # v3 rolls the built per-row inputs: the effective shift must equal k on EVERY defined row.
+    ti = _rt_inputs()
+    for k in (1, 7, 20, 31):
+        out = null.roll_track_inputs(ti, k)
+        for L, f in ti.lagged.items():
+            for c in f.columns:
+                v, w = f[c].to_numpy(), out.lagged[L][c].to_numpy()
+                ok = ~np.isnan(v)
+                s, e = int(np.argmax(ok)), len(v) - int(np.argmax(ok[::-1]))
+                n = e - s
+                assert (np.isnan(w) == np.isnan(v)).all()            # defined rows (windows) unchanged
+                src = (np.arange(s, e) - s - k) % n + s              # row u reads row u - k (wrapping once)
+                assert np.array_equal(w[s:e], v[src]), (L, c, k)
+                shift = (np.arange(s, e) - src) % n
+                assert set(shift) == {k % n}                        # one constant shift, no near-identity rows
+
+
+def test_real_time_null_roll_leaves_the_real_inputs_alone_and_is_deterministic():
+    ti = _rt_inputs()
+    before = {L: f.copy() for L, f in ti.lagged.items()}
+    a, b = null.roll_track_inputs(ti, 9), null.roll_track_inputs(ti, 9)
+    for L in ti.lagged:
+        assert ti.lagged[L].equals(before[L])                       # the real path is never modified
+        assert a.lagged[L].equals(b.lagged[L])
+    assert null.defined_span_min(ti.lagged) == 35                    # every column spans 35 defined rows
 
 
 def test_is_quantile_threshold_is_expanding_and_lagged():

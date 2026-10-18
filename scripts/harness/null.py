@@ -3,19 +3,16 @@
 The RAW indicator is shifted and the whole pipeline is rebuilt for every draw (Codex B0 fix):
   revised / market track: the raw level inputs are circularly shifted inside their data span and every
       transform, threshold and regime fit is recomputed.
-  real-time track (decision 3; v2 2026-10-18, Lead ruling on QA B1 umcsent M1): inside EVERY vintage, the
-      value at position i of that vintage's OWN observed reference-period grid is replaced by the vintage's
-      value at position (i - k) mod n_v. The shift WRAPS within the vintage: every value comes from the same
-      vintage (no cross-vintage fill, which would import later information), no reading is lost, and each
-      vintage keeps its own release structure (which periods it contains, and when it was published);
-      realtime_inputs, transforms and thresholds are rebuilt per draw. v1 wrapped over the LATEST vintage's grid,
-      so an early vintage lost the k readings whose source lay beyond its own end: the draws' training windows
-      shrank (unrate: median 124 vs the real winner's 287 months) and the percentile compared unlike samples.
-      With the wrap every draw trains on the real winner's window. The admissible set is still restricted UP
-      FRONT to offsets that leave a usable training window (max_usable_offset, a binary search; with the wrap
-      every admissible offset is usable). An offset can still be eligible yet have no VALID rule (exposure /
-      turnover filters): that draw records no winner and is excluded; n_draws counts draws with a winner, the
-      percentiles are computed from them, and n_admissible_offsets / n_draws_without_winner are reported.
+  real-time track (v3 2026-10-18, Lead ruling after QA null v2 F1): the per-row point-in-time inputs are built
+      ONCE exactly as in the real tournament (each row reads the vintage visible when its return window opens and
+      computes the feature inside that vintage); the draw then applies ONE constant circular roll of k rows to every
+      input column (signals, rolling thresholds, regime columns) over that column's own span of defined rows (first
+      to last defined row), wrapping once. Row u gets the column's value from row u - k on every row: a constant
+      shift, the same mechanism as the market track's in-span roll. Each column keeps its first and last defined
+      rows, so the training and test windows equal the real ones. History: v1 shifted reference periods inside
+      every vintage over the latest vintage's grid (early vintages lost readings, draw windows shrank); v2 wrapped
+      inside each vintage mod its own length, which is NOT a constant shift (time-warp where a vintage is shorter
+      than k, near-identity rows) and pooled two populations (QA null v2 F1).
 Offsets: DISTINCT admissible values in [m, n - m], m = max(36 months in native periods, 20% of n), drawn without
 replacement (seed 20261016); all of them when there are at most K. R7.1 is calibrated for the dependence between
 neighbouring offsets: the SE of the mean timing Sharpe is a Bartlett (Newey-West) long-run SE over the draws
@@ -70,19 +67,38 @@ def offsets(n: int, ppy: int, K: int, seed: int = SEED_BASE, max_offset: int | N
     return [int(x) for x in np.random.default_rng(seed).choice(adm, size=K, replace=False)]
 
 
-def shift_vintage_values(v: pd.Series, k: int, grid: pd.DatetimeIndex | None = None) -> pd.Series:
-    """Real-time null transform of one vintage (see module doc): position i of the vintage's own sorted reference-
-    period grid gets the vintage's value at position (i - k) mod n_v (circular WITHIN the vintage: no value from
-    another vintage, no reading lost). `grid` (the latest vintage's grid) restricts the periods kept to those of
-    the pair's grid when given; it no longer defines the wrap."""
-    v = v.sort_index()
-    if grid is not None:
-        v = v[v.index.isin(grid)]
-    n = len(v)
-    if n == 0:
-        return v.astype(float)
-    vals = v.to_numpy(dtype=float)
-    return pd.Series(vals[(np.arange(n) - k) % n], index=v.index)
+def roll_defined(frame: pd.DataFrame, k: int) -> pd.DataFrame:
+    """Every column circularly rolled by k rows over its OWN span of defined rows [first, last] (wraps once when
+    k < span): row u gets the column's row u - k. Columns keep their first / last defined rows."""
+    out = frame.copy()
+    for c in frame.columns:
+        v = frame[c].to_numpy()
+        ok = ~pd.isna(v)
+        if not ok.any():
+            continue
+        s, e = int(np.argmax(ok)), len(v) - int(np.argmax(ok[::-1]))
+        w = v.copy()
+        w[s:e] = np.roll(v[s:e], k)
+        out[c] = w
+    return out
+
+
+def defined_span_min(lagged: dict) -> int:
+    """Shortest span of defined rows over every input column (the admissible-offset range is set on it)."""
+    n = None
+    for f in lagged.values():
+        for c in f.columns:
+            ok = ~pd.isna(f[c].to_numpy())
+            if ok.any():
+                L = len(ok) - int(np.argmax(ok[::-1])) - int(np.argmax(ok))
+                n = L if n is None else min(n, L)
+    return int(n or 0)
+
+
+def roll_track_inputs(ti: TrackInputs, k: int) -> TrackInputs:
+    """Real-time null draw (v3): the real per-row inputs, every column rolled by the same constant k."""
+    return TrackInputs(ti.name, ti.index, ti.ret, {L: roll_defined(f, k) for L, f in ti.lagged.items()},
+                       dict(ti.meta, null_roll=int(k)))
 
 
 def roll_span(obj, k: int, start: int = 0, stop: int | None = None):
@@ -221,8 +237,9 @@ def summarize(null: pd.DataFrame, actual: dict, grid_len: int, ppy: int = 12) ->
         "n_admissible_offsets": null.attrs.get("n_admissible"), "span": null.attrs.get("span"),
         "max_usable_offset": null.attrs.get("max_offset"),
         "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period "
-        "values inside every vintage, wrapping within that vintage so no reading is lost and every draw trains on "
-        "the real winner's window), pipeline rebuilt per draw, same selection rule; distinct offsets; R7.1",
+        "point-in-time inputs built as in the real tournament, then one constant circular roll of k rows over each "
+        "input's span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same "
+        "selection rule; distinct offsets; R7.1",
         "seed_base": SEED_BASE,
         "is_max_percentile": p_is[0], "p_is": p_is[1],
         "selection_stat_percentile": p_j[0], "p_selection_stat": p_j[1],

@@ -60,7 +60,7 @@ def revised_inputs(spec: PairSpec, levels: pd.DataFrame, index: pd.DatetimeIndex
 def realtime_inputs(spec: PairSpec, vint: pd.DataFrame, index: pd.DatetimeIndex, ret: np.ndarray,
                     value_map=None) -> TrackInputs:
     """Real-time values: per row, the vintage visible when the window opens (after-close aware). `value_map`
-    transforms every visible vintage first (null tournament raw shift, harness.null.shift_vintage_values)."""
+    transforms every visible vintage first (the real-time null no longer uses it: null v3 rolls the built inputs)."""
     col = spec.level_columns[0]
     ac = align.after_close_rule(spec.vintage_series)
     lagged = align.realtime_frames(vint, index, spec.leads,

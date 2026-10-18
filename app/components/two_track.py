@@ -279,8 +279,8 @@ def render_chance_check(pair_id: str, ts: dict) -> None:
                                 "The real winner's plateau score (the statistic the scrambled contests are compared on) "
                                 f"ranks at the {_ordinal(round(nt['winner_percentile'] * 100))} percentile of "
                                 f"{nt['n_draws']:,} scrambled-signal contests")
-                               + " (the indicator shifted in time against the returns, wrapping around within each "
-                                 "release so no reading is lost; same selection rule)."
+                               + " (the indicator, as known at each date, shifted against the returns by a fixed "
+                                 "number of periods, wrapping around once; same selection rule)."
                                + draws_note(nt) + is_window_note(pair_id)))
 
 
