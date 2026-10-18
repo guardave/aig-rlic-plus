@@ -89,13 +89,10 @@ def add_contraction_shading(fig: go.Figure, df: pd.DataFrame) -> None:
     starts = stress.index[stress & ~stress.shift(1, fill_value=False)]
     ends = stress.index[stress & ~stress.shift(-1, fill_value=False)]
     for start, end in zip(starts, ends):
-        fig.add_vrect(
-            x0=start,
-            x1=end,
-            fillcolor="rgba(204,121,167,0.18)",
-            line_width=0,
-            layer="below",
-        )
+        # add_shape on the paper height: add_vrect adds NOTHING on a make_subplots(secondary_y) figure, so the
+        # legend listed contraction bands no chart drew (QA pilot-visual L2; the unrate Sahm-band bug)
+        fig.add_shape(type="rect", xref="x", yref="paper", x0=start, x1=end, y0=0, y1=1,
+                      fillcolor="rgba(204,121,167,0.18)", line_width=0, layer="below")
 
 
 def chart_hero() -> None:
