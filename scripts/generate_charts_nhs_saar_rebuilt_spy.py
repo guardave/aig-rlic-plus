@@ -118,10 +118,10 @@ def chart_hero() -> None:
 
 def chart_regime_stats() -> None:
     q = pd.read_csv(RES / "regime_quartile_returns.csv")
-    labels = ["Q1<br>Weakest 6-month growth", "Q2", "Q3", "Q4<br>Strongest 6-month growth"]
+    labels = ["Q1<br>weakest", "Q2", "Q3", "Q4<br>strongest"]
     fig = make_dual_panel_regime_chart(
         labels, q["sharpe"].astype(float).tolist(), (q["mean_return"].astype(float) * 12 * 100).tolist(),
-        signal_label="New home sales 6-month growth", x_axis_title="6-month growth in new home sales, quartile",
+        signal_label="6-month home-sales growth", x_axis_title="Quartile of 6-month growth in new home sales",
         axis_noun="", sample_sizes=q["n"].astype(int).tolist())
     fig.update_layout(title=dict(text="SPY Returns by New-Home-Sales Growth Regime", y=0.98), margin=dict(t=150))
     save("regime_stats", fig, "SPY performance in the same month across quartiles of 6-month growth in new home "

@@ -257,15 +257,13 @@
   }
  },
  "regime_stats": {
-  "chart_sha256": "77776d5dde10e97d5730fd513b8d60b90074821109bfdc18384c213c62d8cd1c",
+  "chart_sha256": "41083c3402700df4dbbb80ee50ebaccc1ac1752f58ec9d2a9819bc84396d3ec2",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:05:55+00:00",
+  "recorded_at": "2026-10-18T07:22:28+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
-   "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
-   "results/nhs_saar_rebuilt_spy/regime_quartile_returns.csv": "7524f601da5db4a5626f6afc495e9a7327a91a270eeba98d0de95bc0c075e97c",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/regime_quartile_returns.csv": "7524f601da5db4a5626f6afc495e9a7327a91a270eeba98d0de95bc0c075e97c"
   }
  },
  "rolling_correlation": {

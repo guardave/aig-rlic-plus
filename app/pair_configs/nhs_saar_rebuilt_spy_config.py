@@ -106,8 +106,8 @@ _IF_THEN = (
     "- **ELSE** -> hold cash."
 )
 _COMP_TAIL = (
-    f" On the revised track the last {W.comparison_tail_n_periods} test month ({W.comparison_tail_first_date}) has no "
-    "defined position because the revised series ends before it, so it is held in cash under the undefined-means-cash "
+    f" On the revised track the test period ends with {W.comparison_tail_n_periods} month(s) without a defined position "
+    f"({W.comparison_tail_first_date} to {W.comparison_tail_last_date}), held in cash under the undefined-means-cash "
     f"rule; holding the last position instead would give a test-period Sharpe of {W.comparison_tail_hold_last_sharpe}."
     if W.has("comparison_tail_n_periods") else "")
 
