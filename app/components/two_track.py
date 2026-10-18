@@ -212,6 +212,40 @@ def render_chips(ts: dict, winner: dict) -> None:
         _badge(label, TIPS["chance"], "gray")
 
 
+def grid_edge_notes(pair_id: str) -> list[str]:
+    """One sentence per track whose winner sits at an end of the declared lead grid (QA B1 nhs F4: shown on the
+    Strategy tab next to each track's winner, not only on Confidence): a longer / shorter lead was not tested,
+    so the stable range may continue beyond it. Tagged (winner lead from winner_summary, grid from the
+    registry)."""
+    try:
+        ws = P.json_file(Path(__file__).resolve().parents[2] / "results" / pair_id / "winner_summary.json")
+    except (OSError, ValueError):
+        return []
+    grid = P.lead_grid(pair_id)
+    if not grid:
+        return []
+    lo, hi = min(int(g) for g in grid), max(int(g) for g in grid)
+    glo = next(g for g in grid if int(g) == lo)
+    ghi = next(g for g in grid if int(g) == hi)
+    unit = _lead_unit(ws) or "periods"
+    out = []
+    for role, label in (("main", MAIN_LABEL), ("comparison", REV_LABEL)):
+        rec = (ws.get("tracks") or {}).get(role) or {}
+        plat = rec.get("plateau") or {}
+        if not rec.get("eligible") or not plat.get("grid_edge"):
+            continue
+        wl = plat["winner_lead"]
+        if int(wl) == hi:
+            out.append(f"{label}: the winner's lead L{wl} is the longest lead tested (grid L{glo}-L{ghi} {unit}); "
+                       "a longer lead was not tested, so the stable range may continue beyond it.")
+        elif int(wl) == lo:
+            out.append(f"{label}: the winner's lead L{wl} is the shortest lead in the grid (L{glo}-L{ghi} {unit}).")
+        else:
+            out.append(f"{label}: the winner's lead L{wl} is at the end of the leads its rule could be scored on "
+                       f"(grid L{glo}-L{ghi} {unit}).")
+    return out
+
+
 def render_kpi_caption(ts: dict, ws: dict) -> None:
     """Secondary caption under the KPI row: the as-revised-today winner, never a KPI card (section 3)."""
     comp = ts.get("comparison")
@@ -230,11 +264,19 @@ def render_kpi_caption(ts: dict, ws: dict) -> None:
     st.caption(txt)
 
 
+def _signed(x) -> str:
+    """'+0.12'; a value that rounds to zero at 2 dp is shown at 3 dp ('-0.004'), or '0.000' (QA B1 mfg: '+0.00')."""
+    v = float(x)                              # decide on the plain value; format the (tagged) value itself
+    if f"{v:+.2f}" not in ("+0.00", "-0.00"):
+        return f"{x:+.2f}"
+    return f"{x:+.3f}" if f"{v:+.3f}" not in ("+0.000", "-0.000") else f"{abs(x):.3f}"
+
+
 def _facts(vb: dict, main: dict) -> list[str]:
     """Fixed fact templates of section 7 (no verdict words)."""
     lo, hi = vb["ci_95"]
     d = vb["sharpe_diff"]
-    out = [f"The test-period Sharpe difference is {d:+.2f} (95% interval {lo:+.2f} to {hi:+.2f}). "
+    out = [f"The test-period Sharpe difference is {_signed(d)} (95% interval {_signed(lo)} to {_signed(hi)}). "
            + ("We cannot statistically distinguish the strategy from buy-and-hold." if lo <= 0 <= hi
               else "The interval excludes zero.")]
     ar, av, dd = vb["ann_return"], vb["ann_vol"], vb["max_dd"]
@@ -318,19 +360,26 @@ def render_cross_eval_table(pair_id: str, ts: dict, ws: dict) -> None:
     cols = ["Rule", "Data scored on", "Training Sharpe", "Test Sharpe", "B&H test Sharpe", "Window",
             "Test max drawdown"]
     rows = []
-    if main and main.get("eligible"):
-        rows.append(own_row(main, MAIN_LABEL, ""))
-        if comp:
-            rows.append(cross_row(main, REV_LABEL, "main_winner_on_revised", "hindsight_"))
-    if comp and comp.get("eligible"):
-        rows.append(own_row(comp, REV_LABEL, "hindsight_"))
-        rows.append(cross_row(comp, MAIN_LABEL, "revised_winner_on_main", ""))
+    same = bool(main and main.get("eligible") and comp and comp.get("eligible")
+                and main["winner"].get("key") == comp["winner"].get("key"))
+    if same:     # both tracks pick the same rule: its two own rows already show it on both data (no duplicates)
+        rows = [own_row(main, MAIN_LABEL, ""), own_row(comp, REV_LABEL, "hindsight_")]
+    else:
+        if main and main.get("eligible"):
+            rows.append(own_row(main, MAIN_LABEL, ""))
+            if comp:
+                rows.append(cross_row(main, REV_LABEL, "main_winner_on_revised", "hindsight_"))
+        if comp and comp.get("eligible"):
+            rows.append(own_row(comp, REV_LABEL, "hindsight_"))
+            rows.append(cross_row(comp, MAIN_LABEL, "revised_winner_on_main", ""))
     if rows:
         df = pd.DataFrame(rows, columns=cols)
         css = pd.DataFrame("color: #595959", index=df.index, columns=df.columns)
         css.iloc[0] = "font-weight: bold"
         st.table(df.style.apply(lambda _: css, axis=None).hide(axis="index"))
-    if comp and not (main and main.get("eligible")):
+    if same:
+        st.caption("Both data tracks select the same rule, so the rows show that rule on each track's data.")
+    elif comp and not (main and main.get("eligible")):
         st.caption("Only the as-revised-today (hindsight) track has a winner. Row 2 shows how that rule fares on "
                    "data as known at the time, over the test period only (that track has no training window).")
     elif comp:
@@ -362,7 +411,7 @@ def render_chance_check(pair_id: str, ts: dict) -> None:
                                  "number of periods, wrapping around once; same selection rule)."
                                + oos_rank_note(nt)
                                + draws_note(nt) + coarse_note(pair_id, nt) + is_window_note(pair_id)
-                               + r71_note(pair_id)))
+                               + r71_note(pair_id) + comparison_chance_note(pair_id, ts)))
 
 
 def render_lead_plateau(pair_id: str, ts: dict, ws: dict) -> None:
@@ -481,7 +530,7 @@ def oos_rank_note(nt: dict, who: str = "real winner") -> str:
             f"{_ordinal(round(q * 100))} percentile of the scrambled contests' winners' test-period Sharpes.")
 
 
-def r71_note(pair_id: str, track: str = "main") -> str:
+def r71_note(pair_id: str, track: str = "main", label: str = "Calibration check (R7.1)") -> str:
     """The R7.1 calibration result stated on every pair, pass or fail (QA B1 umcsent F2: a pass 0.001 inside the
     tolerance was invisible): the mean timing Sharpe of the scrambled contests' winners, its dependence-aware SE,
     the tolerance and the outcome, tagged from winner_summary tracks.main.null_tournament. '' without a null."""
@@ -494,12 +543,26 @@ def r71_note(pair_id: str, track: str = "main") -> str:
         return ""
     if m is None or se is None or tol is None or ok is None:
         return ""
-    out = (f" Calibration check (R7.1): the scrambled contests' winners have a mean timing Sharpe of {m:.3f}"
+    out = (f" {label}: the scrambled contests' winners have a mean timing Sharpe of {m:.3f}"
            f" (dependence-aware standard error {se:.3f}) against a tolerance of {tol:.3f} in absolute value;"
            f" the check {'passes' if bool(ok) else 'does not pass'}")
     if float(se) * 2 < float(tol):
         out += " (the tolerance is set by its fixed floor, not by the standard error)"
     return out + "."
+
+
+def comparison_chance_note(pair_id: str, ts: dict) -> str:
+    """Two-track pairs: the comparison (as revised today) track's own chance check and R7.1, stated next to MAIN's
+    (QA B1 mfg: its comparison R7.1 passed only through the floor and was not shown). '' otherwise."""
+    if ts.get("track_state") != "both":
+        return ""
+    hn = hindsight_null(pair_id)
+    if not hn:
+        return ""
+    pos = (f"is above all {hn['n_draws']:,}" if hn["winner_percentile"] >= 1 else
+           f"ranks at the {_ordinal(round(hn['winner_percentile'] * 100))} percentile of {hn['n_draws']:,}")
+    return (f" On data as revised today, that track's winner {pos} scrambled-signal contests."
+            + r71_note(pair_id, "comparison", "Calibration check (R7.1) on that track"))
 
 
 def hindsight_null(pair_id: str) -> dict | None:

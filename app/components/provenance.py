@@ -298,6 +298,20 @@ def current_file(pair_id: str, stem: str, ext: str = "csv", rdir=None) -> Path |
     return files[-1] if files else None
 
 
+def deployed_signal(pair_id: str, rdir=None):
+    """Phase B pairs: the MAIN winner's signal and threshold exactly as the rule used them at each rebalance date
+    (point in time, lagged by the lead; the harness's strategy_returns_<tag>.csv) and its position. None for
+    legacy pairs or a missing file (the caller shows the error from resolve_current)."""
+    import pandas as pd
+    if not is_phase_b(pair_id, rdir):
+        return None
+    f = resolve_current(pair_id, "strategy_returns", rdir=rdir)
+    if f is None:
+        return None
+    df = pd.read_csv(f, parse_dates=["date"]).set_index("date")
+    return df[[c for c in ("signal", "threshold", "position") if c in df.columns]]
+
+
 def resolve_current(pair_id: str, stem: str, ext: str = "csv", rdir=None) -> Path | None:
     """current_file for page components: a missing Phase B current-run file is shown as an error on the page and
     the component renders nothing from another run."""

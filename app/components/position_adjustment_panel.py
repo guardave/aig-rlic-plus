@@ -319,5 +319,6 @@ def render_position_adjustment_panel(pair_id: str) -> None:
         st.caption("Source: no positions are recorded in this pair's artifacts, so the curve is an "
                    "approximation computed from the signal, not the rule's deployed positions.")
     else:
+        _per = {"quarters": "quarters", "days": "trading days"}.get(winner.get("lead_unit"), "months")
         st.caption("Source: the rule's deployed positions, the same series the headline results are computed "
-                   "from (months without a published reading are shown as cash: the rule holds cash then).")
+                   f"from ({_per} without a published reading are shown as cash: the rule holds cash then).")

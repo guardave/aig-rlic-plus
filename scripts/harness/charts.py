@@ -124,12 +124,20 @@ def chance_check(pair: str, tag: str) -> str | None:
     pct = ts["null_tournament"]["winner_percentile"]
     fig = go.Figure(go.Histogram(x=nd["selection_stat"].dropna(), marker_color=C_NULL, nbinsx=20,
                                  name="Scrambled-signal contests"))
-    fig.add_vline(x=real, line_color=C_REV, line_width=3,
-                  annotation_text="Real winner's plateau score (the statistic the null compares)",
-                  annotation_position="top")
     q95 = float(np.nanpercentile(nd["selection_stat"], 95))
-    fig.add_vline(x=q95, line_color=C_TEXT, line_width=1, line_dash="dot", annotation_text="95th",
-                  annotation_position="top right")
+    _vals = nd["selection_stat"].dropna().to_numpy(float)
+    fig.add_vline(x=real, line_color=C_REV, line_width=3)
+    fig.add_vline(x=q95, line_color=C_TEXT, line_width=1, line_dash="dot")
+    # one key line above the plot instead of labels on the lines: nothing is clipped at the edge, drawn over the bars
+    # or stacked when the two lines are close (QA sloos F3)
+    fig.add_annotation(x=0, xref="paper", y=1.06, yref="paper", xanchor="left", showarrow=False,
+                       font=dict(size=12, color=C_TEXT),
+                       text=(f"<span style='color:{C_REV}'><b>Solid line</b></span>: real winner's plateau score (the "
+                             "statistic the null compares).  <b>Dotted line</b>: 95th percentile of the scrambled "
+                             "contests."))
+    xs = np.r_[_vals, real, q95]
+    pad = 0.08 * max(float(xs.max() - xs.min()), 1e-6)
+    fig.update_xaxes(range=[float(xs.min()) - pad, float(xs.max()) + pad])
     k = int(nd["selection_stat"].notna().sum())
     if pct is None:
         cap = "Chance check not yet run for this pair."
@@ -138,7 +146,8 @@ def chance_check(pair: str, tag: str) -> str | None:
     else:
         cap = (f"The real winner's plateau score ranks at the {ordinal(round(pct * 100))} percentile of {k:,} "
                "scrambled-signal contests.")
-    fig.update_layout(template="plotly_white", height=380, title="Chance check: real winner vs scrambled signals",
+    fig.update_layout(template="plotly_white", height=400, margin=dict(t=95),
+                      title="Chance check: real winner vs scrambled signals",
                       xaxis_title="Best score in a contest (training-period Sharpe, stable lead range)",
                       yaxis_title="Number of contests", showlegend=False)
     # the y '0' and the first x tick met at the origin (umcsent QA P5): pad both axes' tick labels off the corner

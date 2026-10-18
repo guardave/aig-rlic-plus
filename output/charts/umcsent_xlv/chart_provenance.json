@@ -14,10 +14,10 @@
   }
  },
  "chance_check": {
-  "chart_sha256": "e43e1935da841f8fc1c33a5910cb31d97bb5a22bc45ac9e5ed669e3aa3f1193d",
+  "chart_sha256": "7b1243243955feb01c163dd2caa803a2ed9e5e4df3f442c22cbb0107eb035460",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T06:02:31+00:00",
+  "recorded_at": "2026-10-18T13:06:00+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/umcsent_xlv/hindsight_lead_curve_20261017.csv": "720244d68e8f8e2b063070380b8dd217084b3c65d7de5b73e1645c5ea53f3ab1",
@@ -190,11 +190,12 @@
   "chart_sha256": "b8c8a772c77495b74a3674ce98ecd243863ebee0eb358495fa0468a777f2f5b9",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T06:02:26+00:00",
+  "recorded_at": "2026-10-18T13:05:56+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/umcsent_xlv/hindsight_lead_curve_20261017.csv": "720244d68e8f8e2b063070380b8dd217084b3c65d7de5b73e1645c5ea53f3ab1",
-   "results/umcsent_xlv/lead_curve_20261017.csv": "5e6bc3624b4cbcc1b089c320d53689122fa1818e683e8eb02925e7fc05c04203"
+   "results/umcsent_xlv/lead_curve_20261017.csv": "5e6bc3624b4cbcc1b089c320d53689122fa1818e683e8eb02925e7fc05c04203",
+   "results/umcsent_xlv/winner_summary.json": "439348aa8b7b6bca3834fceb895fb9349e2388981fefd9d061c90fa07eb8cae3"
   }
  },
  "local_projections": {

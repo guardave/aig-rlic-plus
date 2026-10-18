@@ -12,10 +12,10 @@
   }
  },
  "chance_check": {
-  "chart_sha256": "11c7e0643d6069f318e56f10c7393be97b5b2aed5ecad209c5a53d57d668fa80",
+  "chart_sha256": "21420172d02290d5cfa98ff50ee895ad7867f69777cb276ae7b679c86cc2c602",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T05:10:28+00:00",
+  "recorded_at": "2026-10-18T13:05:47+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/hy_ig_spy/lead_curve_20261017.csv": "aff55a78b9a6df346109368b12c790ac46567551a004b670d974778ef910b0c5",
@@ -198,7 +198,7 @@
   "chart_sha256": "72a27f7a65bb3ee5d79ad77cfbd5e8d86a4bab649d113ce7599f5eabc372c151",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T05:10:25+00:00",
+  "recorded_at": "2026-10-18T13:05:44+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/hy_ig_spy/lead_curve_20261017.csv": "aff55a78b9a6df346109368b12c790ac46567551a004b670d974778ef910b0c5",

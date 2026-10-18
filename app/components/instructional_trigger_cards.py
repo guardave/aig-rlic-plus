@@ -539,7 +539,20 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
     # Load real signal history for sparkline slices (Wave 5C S18-9 fix).
     real_slices: dict[str, pd.Series | None] = {"up": None, "down": None, "flat": None}
     data_source_note = "stylised (no signal history available)"
-    signals_path = _latest_signals_file(pair_dir)
+    from components.provenance import deployed_signal, is_phase_b
+    _gap = False
+    if is_phase_b(pair_id):
+        # Phase B (QA B1 nhs F2): the signal as the rule used it (lagged, as known at each date) against the
+        # threshold of that date; the slices show the distance from the threshold, so the crossing level is 0
+        _sig = deployed_signal(pair_id)
+        signals_path = None
+        if _sig is not None and not _p2_range and _sig["threshold"].notna().any():
+            real_slices = _find_real_crossings(_sig["signal"] - _sig["threshold"], 0.0, window=30)
+            _gap = True
+            data_source_note = ("the rule's real signal history as known at each date, shown as its distance from "
+                                "that date's threshold (the crossing level is zero)")
+    else:
+        signals_path = _latest_signals_file(pair_dir)
     if signals_path is not None and signal_column:
         try:
             signals_df = pd.read_parquet(signals_path)
@@ -635,7 +648,7 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
                 if not _p2_range:            # a range-sized rule has no crossing to draw
                     _mini_sparkline(
                         card["sparkline_direction"],
-                        threshold,
+                        0.0 if _gap else threshold,
                         card["title"],
                         key=f"trigger_{pair_id}_{card['key_suffix']}",
                         real_slice=real,

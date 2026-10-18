@@ -118,8 +118,8 @@ def render_signal_universe(pair_id: str) -> None:
     )
 
     ind_df = _derivatives_to_dataframe(indicator_axis.get("derivatives", []))
-    st.dataframe(table_source(ind_df, f"{instance_path}#/indicator_axis/derivatives"), use_container_width=True,
-                 hide_index=True)
+    # st.table wraps long cells ('Appears in' overflowed the clipped st.dataframe column: QA B1 mfg)
+    st.table(table_source(ind_df, f"{instance_path}#/indicator_axis/derivatives").style.hide(axis="index"))
 
     ind_n = len(ind_df)
     if hasattr(indicator_axis.get("derivatives"), "src"):  # tagged list (gate mode): a tagged count
@@ -146,8 +146,7 @@ def render_signal_universe(pair_id: str) -> None:
     )
 
     tgt_df = _derivatives_to_dataframe(target_axis.get("derivatives", []))
-    st.dataframe(table_source(tgt_df, f"{instance_path}#/target_axis/derivatives"), use_container_width=True,
-                 hide_index=True)
+    st.table(table_source(tgt_df, f"{instance_path}#/target_axis/derivatives").style.hide(axis="index"))
 
     tgt_n = len(tgt_df)
     if hasattr(target_axis.get("derivatives"), "src"):

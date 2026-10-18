@@ -427,6 +427,47 @@ def _render_chart(
     )
 
 
+_RULE_WORDS = {"gte": "at or above", "gt": "above", "lte": "at or below", "lt": "below"}
+
+
+def _render_deployed_signal(pair_id: str, winner: dict, sig: pd.DataFrame, p2_range: bool) -> None:
+    """Phase B Signal Monitoring chart: the winning signal as the rule used it at each rebalance date (as known
+    at the time, lagged by the lead) against the threshold the rule compared it with at that date, with the
+    test period shaded. Replaces the revised, unlagged signal of the legacy panel (QA B1 nhs F2)."""
+    target = winner.get("target_symbol", "SPY")
+    lead, unit = winner.get("lead_value"), {"days": "trading days", "months": "months", "quarters": "quarters"}.get(
+        str(winner.get("lead_unit", "")).lower(), "periods")
+    rule = _RULE_WORDS.get(str(winner.get("threshold_rule", "")).lower())
+    name = str(winner.get("signal_display_name") or winner.get("signal_code") or "Signal")
+    s = sig["signal"].astype(float)
+    first = s.first_valid_index()
+    if first is None:
+        st.info("The rule's signal is undefined over the whole sample, so there is nothing to plot.")
+        return
+    d = sig.loc[first:]
+    if p2_range:     # a range-sized rule's signal column is the reading's place in its trailing range (0-1)
+        name = f"Place of the {name} in its trailing range (bottom to top)"
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=d.index, y=d["signal"], mode="lines", line=dict(color="#0072B2", width=1.6),
+                             name=f"{name} (as known at each date, lead {lead} {unit})"))
+    thr = d["threshold"].astype(float) if "threshold" in d else None
+    if thr is not None and thr.notna().any() and not p2_range:
+        fig.add_trace(go.Scatter(x=d.index, y=thr, mode="lines", line=dict(color="#D55E00", width=1.4, dash="dot"),
+                                 name=(f"Threshold at each date: long {target} when the signal is {rule} it"
+                                       if rule else "Threshold at each date")))
+    oos = pd.Timestamp(str(winner.get("oos_period_start"))[:10]) if winner.get("oos_period_start") else None
+    if oos is not None:
+        fig.add_vrect(x0=oos, x1=d.index.max(), fillcolor="#999999", opacity=0.12, line_width=0,
+                      annotation_text="Test period", annotation_position="top left")
+    fig.update_layout(template="plotly_white", height=380, margin=dict(t=40, b=40),
+                      legend=dict(orientation="h", yanchor="top", y=-0.15, x=0),
+                      yaxis_title="Place in trailing range (bottom to top)" if p2_range else name, xaxis_title=None)
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.caption("Source: the values the rule actually compared at each rebalance date (the harness's strategy "
+               "returns file for the as-known-at-the-time track), so the line is lagged by the lead and uses "
+               "each date's published reading, not today's revised series.")
+
+
 def render_probability_engine_panel(pair_id: str) -> None:
     """Render the Probability Engine Panel for a pair (APP-SE1).
 
@@ -499,8 +540,28 @@ def render_probability_engine_panel(pair_id: str) -> None:
                  f"long {winner.get('target_symbol', 'SPY')} and cash."
         )
     )
+    from components.provenance import is_phase_b as _is_pb
+    if _is_pb(pair_id):          # the deployed-signal chart has no near-threshold zone; say what it does show
+        panel_caption = ("What this shows: the winning signal exactly as the rule used it at each date (the reading "
+                         "published by then, lagged by the lead)"
+                         + (", which sizes the position by its place in its trailing range (no threshold)."
+                            if _p2_range_hdr else ", against the threshold it was compared with at that date."))
     st.markdown(f"### {panel_title}")
     st.caption(panel_caption)
+
+    # ---- Phase B pairs: the signal and threshold exactly as the rule used them (QA B1 nhs F2) ----
+    from components.provenance import deployed_signal, is_phase_b
+    if is_phase_b(pair_id):
+        _sig = deployed_signal(pair_id)
+        if _sig is None:
+            st.session_state[f"se1_validation_{pair_id}"] = {"ok": False, "reason": "no current-run strategy_returns"}
+            return
+        _render_deployed_signal(pair_id, winner, _sig, _p2_range_hdr)
+        st.session_state[f"se1_validation_{pair_id}"] = {"ok": True, "column": column, "display_name": display_name,
+                                                         "threshold": winner.get("threshold_value"),
+                                                         "is_probability": is_probability_signal,
+                                                         "signals_path": "strategy_returns (deployed)"}
+        return
 
     # ---- Load signals parquet ----
     signals_path = _latest_signals_file(pair_dir)

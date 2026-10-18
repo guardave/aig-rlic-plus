@@ -639,6 +639,19 @@ def _sharpe_kpi_delta(winner: dict) -> tuple[str | None, str]:
     return (f"vs {_format_scalar(b)} B&H" if b is not None else None), "off"
 
 
+def _ret_kpi_delta(winner: dict) -> dict:
+    """Annual-return KPI delta: the signed gap to buy-and-hold in percentage points, green only when the strategy
+    returned MORE (QA B1 consumer_sentiment: a static 'annualized' delta drew a green up arrow on a return below
+    buy-and-hold). Without the buy-and-hold figure: 'annualized', no arrow."""
+    r, b = winner.get("oos_ann_return"), winner.get("bh_ann_return")
+    if isinstance(r, (int, float)) and isinstance(b, (int, float)) and not isinstance(r, bool):
+        gap = (r - b) * 100
+        if round(float(gap), 1) == 0:
+            return {"delta": f"{abs(gap):.1f}pp vs B&H (same)", "delta_color": "off"}
+        return {"delta": f"{gap:+.1f}pp vs B&H, annualized", "delta_color": "normal"}
+    return {"delta": "annualized", "delta_color": "off", "delta_arrow": "off"}
+
+
 def _dd_kpi_delta(winner: dict) -> tuple[str | None, str]:
     """Step C #197 (Alex_UK): colour the Max Drawdown KPI delta GREEN when the
     strategy's drawdown is shallower (less negative) than buy-and-hold, RED when
@@ -846,7 +859,7 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
         {
             "label": "OOS Return",
             "value": oos_return,
-            "delta": "annualized",
+            **_ret_kpi_delta(winner),
         },
         {
             "label": "Max Drawdown",
@@ -1227,10 +1240,10 @@ def render_undefined_tail_note(pair_id: str) -> None:
     first, last = _P.prefix(_P.field_text(ut, "first_date"), 7), _P.prefix(_P.field_text(ut, "last_date"), 7)
     st.info(
         f"**Last {ut['n_periods']} test {unit} held in cash ({first} to {last}).** The signal has no published "
-        "reading for these months, so the rule's pre-registered treatment applies: an undefined signal means cash. "
+        f"reading for these {unit}, so the rule's pre-registered treatment applies: an undefined signal means cash. "
         f"Buy-and-hold returned {ut['benchmark_return_over_tail'] * 100:+.1f}% over them. Sensitivity (not the rule): "
-        f"holding the last position through these months would give a test-period Sharpe of "
-        f"{ut['oos_sharpe_hold_last_position']:.2f}, against {ut['oos_sharpe_as_published']:.2f} as published."
+        f"holding the last position through these {unit} would give a test-period Sharpe of "
+        f"{ut['oos_sharpe_hold_last_position']:.3f}, against {ut['oos_sharpe_as_published']:.3f} as published."
     )
 
 
@@ -1612,7 +1625,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
          "delta": _headline_sharpe_delta,
          # found_in_search / unconfirmed: keep the signed gap but no green/red judgement colour
          "delta_color": _sharpe_kpi_delta(winner)[1] if _kpi_routing is None else "off"},
-        {"label": "OOS Return", "value": oos_return, "delta": "annualized"},
+        {"label": "OOS Return", "value": oos_return, **_ret_kpi_delta(winner)},
         {"label": "Max Drawdown", "value": max_dd,
          "delta": _dd_kpi_delta(winner)[0],
          "delta_color": _dd_kpi_delta(winner)[1]},
@@ -1630,6 +1643,8 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     ], pair_id, target)
     if _ts:
         two_track.render_kpi_caption(_ts, winner)
+        for _edge in two_track.grid_edge_notes(pair_id):
+            st.caption(f"Lead grid: {_edge}")
         two_track.render_vs_buy_hold(_ts, winner)
     render_undefined_tail_note(pair_id)
     st.markdown("---")
@@ -2244,6 +2259,11 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
 
     # ---- Step 3: two-file model explanation (Ray stub) ----
     st.markdown(_TRADE_LOG_TWO_FILE_MODEL_MD)
+    if _P.is_phase_b(pair_id):     # QA B1 import_price F4: say which log rows the headline trade count covers
+        st.caption("Counting rule: the headline number of position changes and the turnover count the changes "
+                   "between consecutive test-period months. A change made on the first test-period month (from "
+                   "the last training month's position) is a row of this log but is not in that count, so "
+                   "counting log rows dated in the test period can give one more.")
 
     # ---- Step 4: column glossary: the columns the broker-style log actually has (QA pilot-visual M4) ----
     st.markdown(_trade_log_glossary(broker_df))
