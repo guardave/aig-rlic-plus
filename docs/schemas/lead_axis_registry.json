@@ -977,11 +977,13 @@
       "class": "monthly",
       "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 3 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 3 = 3 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09 (RETAILIRSA, Census MTIS); _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 2..14 -> 3..14.",
       "conformed": true,
+      "note": "Phase B port (2026-10-18): rebuilt on scripts/harness (two tracks: real-time ALFRED vintages = MAIN, revised = comparison; D9 lead plateau; point-in-time release timing), registry grid L3..L14 with position_shift 0. MAIN is not eligible (ALFRED archive from 2013-06-13 leaves 47 training months, 60 required): the pair is shown unranked. The 20261016 rule (level/T_roll_p50/P1/L6, raw IS argmax, commit 1d06839f) is replayed exactly by the harness and kept as the previous rule.",
       "position_shift": 0,
       "lead_floor_effective": 3,
       "release_calendar_series": "RETAILIRSA",
-      "alignment": "fixed_lag",
-      "value_vintage": "revised_alfred"
+      "alignment": "pit_asof",
+      "value_vintage": "revised_alfred",
+      "track_policy": "compute_twice"
     },
     "nhs_saar_spy": {
       "signal_frequency": "monthly",
