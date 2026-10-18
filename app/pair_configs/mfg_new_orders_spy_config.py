@@ -573,8 +573,9 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     references_md=_REFERENCES_MD,
     sample_period_note=(
         f"Monthly sample; training period {W.is_start} to {W.is_end} and test period {W.oos_start} to {W.oos_end} on "
-        "data as known at the time. The orders vintage archive limits the as-known-at-the-time sample; the revised "
-        "comparison uses the full revised history."
+        "data as known at the time. The as-known-at-the-time sample starts with the first archived vintage, whose "
+        "history already covers the rolling windows; the revised comparison starts later because today's revised "
+        "series begins later and its rolling statistics and leads need several years of readings first."
     ),
     plain_english=(
         "This page documents how core capital goods orders were turned into testable signals, how the econometric "
