@@ -1,534 +1,476 @@
 #!/usr/bin/env python3
-"""Pair pipeline: U. Michigan Expected Business Conditions x SPY.
+"""Pair pipeline: University of Michigan Expected Business Conditions x SPY (Phase B harness, single track).
 
-MONTHLY pipeline. The indicator is the University of Michigan survey diffusion of expected
-change in business conditions, sourced from Data Master.xlsx. Bounded, mean-reverting — the
-LEVEL is stationary and used directly. Economic prior: rising optimism precedes stronger
-spending → PROCYCLICAL (hold SPY when optimism is elevated). Monthly grid, sqrt(12).
+The series is the Michigan survey's EXPECTED BUSINESS CONDITIONS index from Data Master.xlsx (sheet
+UoM_ExptdChgBinesCyle), not the headline Consumer Sentiment index (FRED UMCSENT). It has no public archive of past
+values (registry value_vintage revised_no_archive), so the tournament runs on scripts/harness (spec:
+scripts/pair_spec_umcsent_spy.py) on ONE track, "As revised today": today's values (pinned Data Master snapshot
+2026-10-16), aligned point-in-time with the Michigan survey release calendar (FRED UMCSENT release dates are used
+ONLY as the timing source; the component is published in the same survey release). The winner is selected on
+in-sample data by the D9 lead-plateau rule over the registry grid L1..L13 (position_shift 0: the lead is the whole
+lag between the reading month and the return month); null tournament K=100, paired block bootstrap vs buy-and-hold
+SPY, leak tests. The rule published on the main site (20260912, commit d1b68ecd: chg_12m / T_roll_p50 /
+procyclical / L9, selected on OUT-OF-SAMPLE Sharpe) is replayed exactly by the harness and kept as the previous rule.
+
+This file keeps the pair's evidence stages (computed on the same panel, descriptive only), metadata and the
+narrative-provenance record. Overlapping-horizon inference uses HAC errors with at least h-1 lags; the Granger
+summary reports the best lag with a Holm adjustment over the lags tested.
 """
+
 from __future__ import annotations
 
 import json
+import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import yfinance as yf
-from statsmodels.tsa.stattools import adfuller, kpss
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+from scipy import stats
+from statsmodels.stats.multitest import multipletests
+from statsmodels.tsa.stattools import adfuller, grangercausalitytests, kpss
+
+REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "scripts"))
+import pair_spec_umcsent_spy as spec_mod  # noqa: E402
+from harness.artifacts import trade_log, winner_series  # noqa: E402
+from harness.evidence import write_evidence_facts  # noqa: E402
+from harness.run import run_pair  # noqa: E402
 
 PAIR_ID = "umcsent_spy"
-DATE_TAG = "20261015"
+DATE_TAG = "20261018"  # Phase B B1s: harness, single track (revised, no archive), D9 plateau, grid L1..L13, null K=100, bootstrap
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
-REPO = Path(__file__).resolve().parents[1]
+EVIDENCE_SIGNAL = "umcsent_level"   # the survey level: bounded and stationary, used as is by the descriptive tests
 DATA_DIR = REPO / "data"
 RES = REPO / "results" / PAIR_ID
 CORE = RES / f"core_models_{DATE_TAG}"
 VALID = RES / f"tournament_validation_{DATE_TAG}"
-for path in (DATA_DIR, RES, CORE, VALID):
-    path.mkdir(parents=True, exist_ok=True)
 NOW_ISO = datetime.now(timezone.utc).isoformat()
-
-MASTER_XLSX = str(DATA_DIR / "Data Master.xlsx")
-MASTER_SHEET = "UoM_ExptdChgBinesCyle"
-MASTER_COL = "U. Michigan Expected Business Conditions"
-PERIODS_PER_YEAR = 12                 # monthly
-
-
-def read_master() -> pd.Series:
-    """U. Michigan Expected Business Conditions, monthly, from Data Master."""
-    import openpyxl
-    wb = openpyxl.load_workbook(MASTER_XLSX, read_only=True, data_only=True)
-    ws = wb[MASTER_SHEET]
-    rows = [(r[0], r[1]) for r in ws.iter_rows(min_row=2, values_only=True)
-            if r and r[0] is not None and r[1] is not None and hasattr(r[0], "year")]
-    s = pd.Series({pd.Timestamp(d): float(v) for d, v in rows}, name="umcsent").sort_index()
-    s = s.resample("ME").last()
-    print(f"  [MASTER] U. Michigan Expected Business Conditions: {len(s.dropna())} mo, "
-          f"{s.dropna().index.min().date()} to {s.dropna().index.max().date()}")
-    return s
+SIGNALS = spec_mod.SIGNALS
+HORIZONS = (1, 3, 6, 12)              # forward SPY return horizons (months) of the descriptive tests
+GRANGER_MAX_LAG = 12                  # Granger lags 1..12; the best lag's p-value is Holm-adjusted over the 12
+QR_HORIZON = 3                        # quantile regression on 3-month forward SPY returns
+QR_BLOCK, QR_DRAWS, QR_SEED = 6, 499, 42   # moving-block bootstrap of the QR slopes (block > QR_HORIZON - 1)
+POSITION_CHANGE_THRESHOLD_PP = 5      # a test-period month counts as a position change above this size
+ROLL_CORR_WINDOW, ROLL_CORR_MIN = 60, 36
+STRESS_PERIODS = [
+    ("Dot-Com Crash", "2000-03-31", "2002-10-31"),
+    ("GFC", "2007-12-31", "2009-06-30"),
+    ("COVID", "2020-02-29", "2020-04-30"),
+    ("2022 Rates Shock", "2022-01-31", "2022-12-31"),
+]
 
 
-def _read_spy_monthly() -> tuple[pd.Series, str]:
-    try:
-        raw = yf.download("SPY", start="1993-01-01", progress=False, auto_adjust=True, actions=False)
-        if not raw.empty:
-            spy = raw["Close"]["SPY"] if isinstance(raw.columns, pd.MultiIndex) else raw["Close"]
-            return spy.resample("ME").last().rename("spy"), "Yahoo Finance"
-    except Exception as exc:
-        print(f"  Yahoo SPY fetch failed: {exc}")
-    for fb in (DATA_DIR / "rsxfs_spy_monthly_latest.parquet",
-               DATA_DIR / "unrate_spy_monthly_latest.parquet",
-               DATA_DIR / "eci_total_comp_spy_monthly_latest.parquet"):
-        if fb.exists():
-            local = pd.read_parquet(fb)
-            if "spy" in local.columns:
-                print(f"  Using local SPY fallback: {fb.name}")
-                return local["spy"].resample("ME").last().rename("spy"), f"Local fallback: {fb.name}"
-    raise RuntimeError("No SPY data available")
-
-
-def source_data() -> pd.DataFrame:
-    print("Sourcing U. Michigan Expected Business Conditions (Data Master) and SPY month-end prices")
-    raw = read_master()
-    spy, spy_source = _read_spy_monthly()
-    df = pd.concat([raw, spy], axis=1).dropna(subset=["umcsent", "spy"])
-    df["spy_ret"] = df["spy"].pct_change()
-    for h in (1, 3, 6):
-        df[f"spy_fwd_{h}m"] = df["spy"].pct_change(h).shift(-h)
-
-    lvl = df["umcsent"]
-    # Bounded / mean-reverting level is a valid stationary signal.
-    df["umcsent_level"] = lvl
-    df["umcsent_diff_1m"] = lvl.diff(1)             # month-on-month change
-    df["umcsent_chg_12m"] = lvl.diff(12)             # 12-month change
-    roll_mean = lvl.rolling(60, min_periods=24).mean()
-    roll_std = lvl.rolling(60, min_periods=24).std()
-    df["umcsent_zscore_60m"] = (lvl - roll_mean) / roll_std
-
-    df = df.loc["1993-01-01":].copy()
-    df.to_parquet(DATA_DIR / "umcsent_spy_monthly_latest.parquet")
-    df.describe().T.to_csv(DATA_DIR / f"summary_stats_umcsent_spy_{DATE_TAG}.csv")
-    missing = df.isna().sum().rename("missing_count").to_frame()
-    missing["missing_pct"] = missing["missing_count"] / len(df)
-    missing.to_markdown(DATA_DIR / f"missing_value_report_umcsent_spy_{DATE_TAG}.md")
-
-    data_dict = pd.DataFrame([
-        {"Column Name": "umcsent", "Display Name": "U. Michigan Expected Business Conditions",
-         "Description": "U. Michigan expected-change-in-business-conditions diffusion",
-         "Source": "Data Master.xlsx", "Series ID": "UMCSENT", "Unit": "Index (diffusion)",
-         "Transformation": "Monthly level",
-         "Direction Convention": "Higher = more optimism (bullish equities)",
-         "Effective Start": str(df["umcsent"].first_valid_index().date()),
-         "Known Quirks": "Survey diffusion, bounded/mean-reverting; sentiment leads spending",
-         "Display Note": "Rising expected business conditions precede stronger spending and risk-on equity conditions.",
-         "Refresh Freq.": "Monthly", "Refresh Source": "Data Master"},
-        {"Column Name": "spy", "Display Name": "SPY adjusted close",
-         "Description": "SPDR S&P 500 ETF adjusted close", "Source": spy_source, "Series ID": "SPY",
-         "Unit": "USD", "Transformation": "Month-end adjusted close",
-         "Direction Convention": "Higher = higher equity price",
-         "Effective Start": str(df["spy"].first_valid_index().date()),
-         "Known Quirks": "ETF history begins 1993", "Display Note": "Equity target and benchmark.",
-         "Refresh Freq.": "Daily", "Refresh Source": spy_source},
-    ])
-    data_dict.to_csv(DATA_DIR / f"data_dictionary_umcsent_spy_{DATE_TAG}.csv", index=False)
-    print(f"  Data rows: {len(df)}, {df.index.min().date()} to {df.index.max().date()}")
-    return df
-
-
-def stationarity_report(df: pd.DataFrame) -> pd.DataFrame:
-    rows = []
-    for col in ["umcsent_level", "umcsent_diff_1m", "umcsent_chg_12m", "umcsent_zscore_60m", "spy_ret"]:
-        s = df[col].dropna()
-        if len(s) < 20:
-            continue
-        try:
-            adf = adfuller(s, autolag="AIC")
-            rows.append({"variable": col, "test": "ADF", "statistic": adf[0], "p_value": adf[1],
-                         "lags": adf[2], "conclusion": "stationary" if adf[1] < 0.05 else "unit_root_not_rejected"})
-        except Exception as exc:
-            rows.append({"variable": col, "test": "ADF", "statistic": np.nan, "p_value": np.nan, "lags": np.nan, "conclusion": f"err:{exc}"})
-        try:
-            kp = kpss(s, regression="c", nlags="auto")
-            rows.append({"variable": col, "test": "KPSS", "statistic": kp[0], "p_value": kp[1],
-                         "lags": kp[2], "conclusion": "stationary_not_rejected" if kp[1] > 0.05 else "nonstationary"})
-        except Exception as exc:
-            rows.append({"variable": col, "test": "KPSS", "statistic": np.nan, "p_value": np.nan, "lags": np.nan, "conclusion": f"err:{exc}"})
-    out = pd.DataFrame(rows)
-    out.to_csv(RES / f"stationarity_tests_{DATE_TAG}.csv", index=False)
-    return out
+def hac_lags(n: int, h: int) -> int:
+    """Newey-West lag length for an h-period overlapping regression: max(int(0.75 n^(1/3)), h - 1)."""
+    return max(int(0.75 * n ** (1 / 3)), h - 1)
 
 
 def ann_metrics(rets: pd.Series) -> dict[str, float]:
+    """Monthly performance block used by the evidence tables (sub-period, quartile)."""
     rets = rets.dropna()
-    if len(rets) == 0 or rets.std() == 0:
-        return {"oos_sharpe": 0.0, "oos_sortino": 0.0, "oos_calmar": 0.0, "oos_ann_return": 0.0,
-                "oos_ann_vol": 0.0, "max_drawdown": 0.0, "win_rate": 0.0, "oos_n": int(len(rets))}
-    ppy = PERIODS_PER_YEAR
-    ann_return = (1 + rets).prod() ** (ppy / len(rets)) - 1
-    ann_vol = rets.std() * np.sqrt(ppy)
-    sharpe = rets.mean() / rets.std() * np.sqrt(ppy)
-    neg = rets[rets < 0]
-    sortino = ann_return / (neg.std() * np.sqrt(ppy)) if len(neg) > 1 and neg.std() > 0 else 0.0
+    if len(rets) < 2 or rets.std() == 0:
+        return {"sharpe": 0.0, "ann_return": 0.0, "max_drawdown": 0.0, "n": int(len(rets))}
     equity = (1 + rets).cumprod()
-    max_dd = (equity / equity.cummax() - 1).min()
-    calmar = ann_return / abs(max_dd) if max_dd < 0 else 0.0
-    return {"oos_sharpe": float(sharpe), "oos_sortino": float(sortino), "oos_calmar": float(calmar),
-            "oos_ann_return": float(ann_return), "oos_ann_vol": float(ann_vol),
-            "max_drawdown": float(max_dd), "win_rate": float((rets > 0).mean()), "oos_n": int(len(rets))}
+    return {"sharpe": float(rets.mean() / rets.std() * np.sqrt(12)),
+            "ann_return": float((1 + rets).prod() ** (12 / len(rets)) - 1),
+            "max_drawdown": float((equity / equity.cummax() - 1).min()), "n": int(len(rets))}
 
 
-SIGNALS = {
-    "level": "umcsent_level",
-    "diff_1m": "umcsent_diff_1m",
-    "chg_12m": "umcsent_chg_12m",
-    "zscore_60m": "umcsent_zscore_60m",
-}
-SIGNAL_DISPLAY = {
-    "level": "U. Michigan Expected Business Conditions (level)",
-    "diff_1m": "Month-on-month change",
-    "chg_12m": "12-month change",
-    "zscore_60m": "Level vs 5-year history (z-score)",
-}
+def build_panel() -> pd.DataFrame:
+    """Today's Michigan Expected Business Conditions (pinned Data Master snapshot) and SPY month-end closes on the
+    rebalance grid."""
+    idx = spec_mod.rebalance_index()
+    lv = spec_mod.revised_levels()
+    df = lv.reindex(idx)
+    df.index.name = "date"
+    df["spy"] = spec_mod.target_prices().reindex(idx)
+    df["spy_ret"] = df["spy"].pct_change()
+    for h in HORIZONS:
+        df[f"spy_fwd_{h}m"] = df["spy"].shift(-h) / df["spy"] - 1
+    full = spec_mod.features(lv)
+    for col in SIGNALS.values():
+        df[col] = full[col].reindex(idx)
+    df.to_parquet(DATA_DIR / f"{PAIR_ID}_monthly_latest.parquet")
+    df.describe().T.to_csv(DATA_DIR / f"summary_stats_{PAIR_ID}_{DATE_TAG}.csv")
+    missing = df.isna().sum().rename("missing_count").to_frame()
+    missing["missing_pct"] = missing["missing_count"] / len(df)
+    missing.to_markdown(DATA_DIR / f"missing_value_report_{PAIR_ID}_{DATE_TAG}.md")
+    pd.DataFrame([
+        {"Column Name": "umcsent", "Display Name": "U. Michigan Expected Business Conditions",
+         "Description": "University of Michigan Surveys of Consumers: expected change in business conditions "
+                        "(survey index; not the headline Consumer Sentiment index)",
+         "Source": "Data Master.xlsx (sheet UoM_ExptdChgBinesCyle), pinned snapshot 2026-10-16",
+         "Series ID": "UMICH_EXP_BUS_COND (Data Master; not on FRED/ALFRED). Release timing: FRED UMCSENT "
+                      "release dates (same survey release)",
+         "Unit": "Index (survey)", "Transformation": "Monthly level (bounded, stationary)",
+         "Seasonal Adj.": "Not seasonally adjusted",
+         "Direction Convention": "Higher = more respondents expect better business conditions",
+         "Effective Start": str(lv["umcsent"].first_valid_index().date()),
+         "Known Quirks": "No public archive of past values: only today's values exist, so earlier months may "
+                         "differ from first publication (unquantified). Published in the Michigan survey release "
+                         "(preliminary mid-month, final at or before the end of the survey month). Data Master "
+                         "series ends 2025-09",
+         "Display Note": "Rising expected business conditions are read as a sign of stronger spending ahead.",
+         "Refresh Freq.": "Monthly",
+         "Refresh Source": "data/release_calendar/snapshots/20261016T232733Z/UMICH_EXP_BUS_COND.csv"},
+        {"Column Name": "spy", "Display Name": "SPY adjusted close", "Description": "SPDR S&P 500 ETF adjusted close",
+         "Source": "Yahoo Finance (pinned)", "Series ID": "SPY", "Unit": "USD",
+         "Transformation": "Month-end adjusted close", "Seasonal Adj.": "N/A",
+         "Direction Convention": "Higher = higher equity price",
+         "Effective Start": str(df["spy"].first_valid_index().date()), "Known Quirks": "ETF history begins in 1993",
+         "Display Note": "Used as the equity-market target and benchmark.", "Refresh Freq.": "Daily",
+         "Refresh Source": "data/phaseB_inputs/spy_month_end_20261017.csv"},
+    ]).to_csv(DATA_DIR / f"data_dictionary_{PAIR_ID}_{DATE_TAG}.csv", index=False)
+    print(f"  Panel rows: {len(df)}, {df.index.min().date()} to {df.index.max().date()}")
+    return df
 
 
-def build_threshold(series: pd.Series, code: str) -> pd.Series | float:
-    if code in ("T0_zero", "T_z_0"):
-        return 0.0
-    if code == "T_z_1.0":
-        return 1.0
-    if code == "T_roll_p50":
-        return series.rolling(60, min_periods=24).quantile(0.50)
-    if code == "T_roll_p75":
-        return series.rolling(60, min_periods=24).quantile(0.75)
-    if code == "T_roll_p25":
-        return series.rolling(60, min_periods=24).quantile(0.25)
-    raise ValueError(code)
+def run_tournament(K: int = 100) -> tuple[pd.DataFrame, dict, dict]:
+    out = run_pair(PAIR_ID, DATE_TAG, K=K, extra={
+        "target_symbol": TARGET_SYMBOL, "cost_bps": COST_BPS,
+        "lookback": "LB60 where rolling thresholds apply",
+        "strategy_description": "Hold SPY when the lagged Michigan Expected Business Conditions signal is on the "
+                                "favourable side "
+                                "of its threshold; otherwise hold cash (P1 long/cash).",
+        "notes": "The University of Michigan Expected Business Conditions index (Data Master; not the headline "
+                 "Consumer Sentiment index) is a bounded survey index. One track: no public archive of past values "
+                 "exists, so the results use today's values (revisions may add hindsight) with release-calendar "
+                 "timing (UMCSENT release dates); still a search-selected rule. The rule published on the main site "
+                 "(20260912, commit d1b68ecd, selected on out-of-sample Sharpe) is replayed exactly and kept as the "
+                 "previous rule."})
+    winner = json.loads((RES / "winner_summary.json").read_text())
+    tourn = pd.read_csv(RES / f"tournament_results_{DATE_TAG}.csv")
+    tourn["valid"] = tourn["valid"].astype(bool)
+    res = out["results"]["main"]
+    ws = winner_series(res, res.selection["winner"])
+    reason = f"{winner['signal_code']} {winner['direction']} rule crossed {winner['threshold_code']}"
+    log = trade_log(ws, TARGET_SYMBOL, COST_BPS, reason)
+    log.to_csv(RES / "winner_trade_log.csv", index=False)
+    log.to_csv(RES / "winner_trades_broker_style.csv", index=False)
+    return tourn, winner, out
 
 
-def threshold_codes_for(signal_code: str) -> list[str]:
-    if signal_code in {"diff_1m", "chg_12m"}:
-        return ["T0_zero", "T_roll_p50", "T_roll_p75"]
-    if signal_code == "zscore_60m":
-        return ["T_z_0", "T_z_1.0", "T_roll_p50"]
-    return ["T_roll_p25", "T_roll_p50", "T_roll_p75"]  # level: percentile thresholds
+def hac_corr_p(x: pd.Series, y: pd.Series, h: int) -> float:
+    """p-value of a correlation robust to overlapping h-month returns: slope of standardized y on standardized x
+    with HAC (Newey-West) errors, maxlags = hac_lags(n, h)."""
+    zx, zy = (x - x.mean()) / x.std(), (y - y.mean()) / y.std()
+    fit = sm.OLS(zy.to_numpy(), sm.add_constant(zx.to_numpy())).fit(
+        cov_type="HAC", cov_kwds={"maxlags": hac_lags(len(x), h)})
+    return float(fit.pvalues[1])
 
 
-def make_position(signal: pd.Series, threshold: pd.Series | float, direction: str) -> pd.Series:
-    thresh = threshold.reindex(signal.index) if isinstance(threshold, pd.Series) else pd.Series(float(threshold), index=signal.index)
-    if direction == "countercyclical":
-        # long SPY when signal is BELOW threshold (favorable regime for a countercyclical prior)
-        pos = (signal <= thresh).astype(float)
-    else:
-        pos = (signal >= thresh).astype(float)
-    return pos.where(signal.notna() & thresh.notna())
-
-
-def run_tournament(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
-    work = df.dropna(subset=["spy_ret"])
-    n = len(work)
-    oos_n = int(min(max(60, round(n * 0.25)), 120))
-    oos_start = work.index[-oos_n]
-    leads = list(range(1, 14))  # #255 floor L1 shifted grid [1..13] (months)
-    LEAD_COL = "lead_months"
-    MIN_IS_N, MIN_OOS_N = 60, 20
-    PPY = PERIODS_PER_YEAR
-    cands = []
-    for signal_code, col in SIGNALS.items():
-        raw = df[col].astype(float)
-        for tcode in threshold_codes_for(signal_code):
-            threshold = build_threshold(raw, tcode)
-            for direction in ["countercyclical", "procyclical"]:
-                for lead in leads:
-                    sig = raw.shift(lead)
-                    thr = threshold.shift(lead) if isinstance(threshold, pd.Series) else threshold
-                    pos = make_position(sig, thr, direction)
-                    rets = (pos * df["spy_ret"]).dropna()
-                    cands.append((signal_code, col, tcode, direction, lead, pos, rets))
-    # GH #251/#268 COMMON IS START: latest first-valid-return date across the whole grid
-    common_is_start = max(c[6].index.min() for c in cands)
-    is_mask_bh = (work.index >= common_is_start) & (work.index < oos_start)
-    bh_is = ann_metrics(work.loc[is_mask_bh, "spy_ret"].dropna())
-    bh = ann_metrics(df.loc[oos_start:, "spy_ret"].dropna())
-
-    def _is_block(rets, pos, start):
-        r = rets.loc[(rets.index >= start) & (rets.index < oos_start)]
-        p = pos.loc[(pos.index >= start) & (pos.index < oos_start)].dropna()
-        expo = p.mean() if len(p) else np.nan
-        ok = bool(len(r) >= MIN_IS_N and 0.05 <= expo <= 0.95 and r.std() > 0)
-        return r, expo, ok
-
+def quantile_regression_block(x: pd.Series, y: pd.Series, taus=(0.10, 0.25, 0.50, 0.75, 0.90)):
+    """Quantile regression of y on x per tau with moving-block bootstrap inference (overlapping forward returns):
+    per-tau standard error, two-sided p-value of slope = 0, and a Wald test of equal slopes across taus built
+    from the bootstrap covariance of the slope differences from the median tau."""
+    d = pd.DataFrame({"x": x.to_numpy(float), "y": y.to_numpy(float)}).dropna().reset_index(drop=True)
+    n = len(d)
+    taus = list(taus)
+    beta = {t: float(smf.quantreg("y ~ x", d).fit(q=t).params["x"]) for t in taus}
+    rng = np.random.default_rng(QR_SEED)
+    nb = int(np.ceil(n / QR_BLOCK))
+    boot = []
+    for _ in range(QR_DRAWS):
+        starts = rng.integers(0, n - QR_BLOCK + 1, size=nb)
+        idx = np.concatenate([np.arange(s0, s0 + QR_BLOCK) for s0 in starts])[:n]
+        m = smf.quantreg("y ~ x", d.iloc[idx])
+        try:
+            boot.append([float(m.fit(q=t).params["x"]) for t in taus])
+        except Exception:  # noqa: BLE001 - a degenerate resample is skipped and counted
+            continue
+    b = np.asarray(boot)
     rows = []
-    for signal_code, col, tcode, direction, lead, pos, rets in cands:
-        is_rets, is_exposure, is_valid = _is_block(rets, pos, common_is_start)
-        own_rets, _own_expo, own_valid = _is_block(rets, pos, rets.index.min())  # sensitivity only
-        oos = rets.loc[rets.index >= oos_start]
-        pos_oos = pos.loc[pos.index >= oos_start].dropna()
-        exposure = pos_oos.mean() if len(pos_oos) else np.nan
-        n_trades = int(pos_oos.diff().abs().fillna(0).sum())
-        oos_valid = bool(len(oos) >= MIN_OOS_N and 0.05 <= exposure <= 0.95 and oos.std() > 0)  # legacy/info only
-        mi, mo, m = ann_metrics(is_rets), ann_metrics(own_rets), ann_metrics(oos)
-        rows.append({"signal": signal_code, "signal_column": col, "threshold": tcode,
-                     "strategy": "P1_long_cash", LEAD_COL: lead, "direction": direction,
-                     "is_sharpe": mi["oos_sharpe"], "is_ann_return": mi["oos_ann_return"],
-                     "is_max_drawdown": mi["max_drawdown"], "is_exposure": is_exposure,
-                     "is_start": is_rets.index.min().date().isoformat() if len(is_rets) else None,
-                     "is_end": is_rets.index.max().date().isoformat() if len(is_rets) else None,
-                     "common_is_start": common_is_start.date().isoformat(),
-                     "own_is_start": own_rets.index.min().date().isoformat() if len(own_rets) else None,
-                     "own_is_sharpe": mo["oos_sharpe"], "own_is_n": mo["oos_n"], "own_is_valid": own_valid,
-                     "oos_sharpe": m["oos_sharpe"], "oos_sortino": m["oos_sortino"],
-                     "oos_calmar": m["oos_calmar"], "oos_ann_return": m["oos_ann_return"], "oos_ann_vol": m["oos_ann_vol"],
-                     "max_drawdown": m["max_drawdown"], "win_rate": m["win_rate"], "n_trades": n_trades,
-                     "annual_turnover": n_trades / max(len(pos_oos) / PPY, 1),
-                     "is_n": mi["oos_n"], "oos_n": m["oos_n"], "is_valid": is_valid, "oos_valid": oos_valid,
-                     "valid": is_valid})  # selection validity = IS (common window) only
-    rows.append({"signal": "BENCHMARK", "signal_column": "spy", "threshold": "BUY_HOLD", "strategy": "BUY_HOLD",
-                 LEAD_COL: 0, "direction": "benchmark", "is_sharpe": bh_is["oos_sharpe"], "is_ann_return": bh_is["oos_ann_return"],
-                 "is_max_drawdown": bh_is["max_drawdown"], "is_exposure": 1.0,
-                 "is_start": common_is_start.date().isoformat(), "is_end": work.index[is_mask_bh][-1].date().isoformat(),
-                 "common_is_start": common_is_start.date().isoformat(), "own_is_start": None,
-                 "own_is_sharpe": np.nan, "own_is_n": 0, "own_is_valid": False,
-                 "oos_sharpe": bh["oos_sharpe"], "oos_sortino": bh["oos_sortino"], "oos_calmar": bh["oos_calmar"],
-                 "oos_ann_return": bh["oos_ann_return"], "oos_ann_vol": bh["oos_ann_vol"], "max_drawdown": bh["max_drawdown"],
-                 "win_rate": bh["win_rate"], "n_trades": 0, "annual_turnover": 0.0, "is_n": bh_is["oos_n"],
-                 "oos_n": bh["oos_n"], "is_valid": False, "oos_valid": False, "valid": False})
-    tourn = pd.DataFrame(rows)
-    valid = tourn[(tourn["valid"]) & (tourn["signal"] != "BENCHMARK")]
-    if valid.empty:
-        raise RuntimeError("No valid tournament strategies")
-    wi = valid["is_sharpe"].idxmax()                                   # PRIMARY (no OOS consulted)
-    own_pool = tourn[(tourn["own_is_valid"]) & (tourn["signal"] != "BENCHMARK")]
-    oi = own_pool["own_is_sharpe"].idxmax()                            # SENSITIVITY: no common start
-    legacy_pool = tourn[(tourn["oos_valid"]) & (tourn["signal"] != "BENCHMARK")]
-    li = legacy_pool["oos_sharpe"].idxmax()                            # LEGACY: pre-#251 OOS argmax
-    nb = tourn["signal"] != "BENCHMARK"
-    tourn["is_rank"] = tourn["is_sharpe"].where(nb).rank(ascending=False, method="min")
-    tourn["oos_rank"] = tourn["oos_sharpe"].where(nb).rank(ascending=False, method="min")
-    tourn.to_csv(RES / f"tournament_results_{DATE_TAG}.csv", index=False)
-    side_cols = ["signal", "threshold", "direction", LEAD_COL, "is_start", "is_end", "is_n", "is_sharpe",
-                 "own_is_start", "own_is_n", "own_is_sharpe", "oos_sharpe", "oos_ann_return",
-                 "max_drawdown", "n_trades", "oos_n", "is_rank", "oos_rank"]
-    pd.DataFrame([dict(role="primary_is_selected_common_start", **tourn.loc[wi, side_cols].to_dict()),
-                  dict(role="sensitivity_is_selected_own_start", **tourn.loc[oi, side_cols].to_dict()),
-                  dict(role="legacy_oos_selected", **tourn.loc[li, side_cols].to_dict())]
-                 ).to_csv(RES / f"legacy_oos_selection_{DATE_TAG}.csv", index=False)
-    wr = tourn.loc[wi].copy()
-    winner_key = f"{wr['signal']}|{wr['threshold']}|{wr['direction']}|{int(wr['lead_months'])}"
-
-    raw = df[wr["signal_column"]].astype(float)
-    threshold = build_threshold(raw, str(wr["threshold"]))
-    sig_for_rule = raw.shift(int(wr["lead_months"]))
-    thr_for_rule = threshold.shift(int(wr["lead_months"])) if isinstance(threshold, pd.Series) else threshold
-    position = make_position(sig_for_rule, thr_for_rule, str(wr["direction"])).fillna(0.0)
-    strat_ret = (position * df["spy_ret"]).fillna(0.0)   # ECON-T4 deployable cash-fill
-    bench_ret = df["spy_ret"].fillna(0.0)
-    sdf = pd.DataFrame({"date": df.index, "signal": sig_for_rule.values,
-                        "threshold": thr_for_rule.reindex(df.index).values if isinstance(thr_for_rule, pd.Series) else np.repeat(float(thr_for_rule), len(df)),
-                        "position": position.values, "strategy_return": strat_ret.values, "benchmark_return": bench_ret.values})
-    sdf["strategy_equity"] = (1 + sdf["strategy_return"]).cumprod()
-    sdf["benchmark_equity"] = (1 + sdf["benchmark_return"]).cumprod()
-    sdf.to_csv(RES / f"strategy_returns_{DATE_TAG}.csv", index=False)
-    (RES / f"strategy_returns_{DATE_TAG}_meta.json").write_text(json.dumps({"pair_id": PAIR_ID, "winner_key": winner_key, "generated_at": NOW_ISO}, indent=2) + "\n")
-    df[list(SIGNALS.values())].to_parquet(RES / f"signals_{DATE_TAG}.parquet")
-    changes = position.diff().fillna(0)
-    trades = [{"trade_date": dt.date().isoformat(), "side": "BUY" if d > 0 else "SELL", "instrument": TARGET_SYMBOL,
-               "quantity_pct": abs(float(d)) * 100, "commission_bps": COST_BPS,
-               "signal_value": float(sig_for_rule.loc[dt]) if pd.notna(sig_for_rule.loc[dt]) else np.nan,
-               "threshold_value": float(sdf.loc[sdf["date"] == dt, "threshold"].iloc[0]),
-               "position_before": float(position.shift(1).fillna(0).loc[dt]), "position_after": float(position.loc[dt]),
-               "reason": f"{wr['signal']} {wr['direction']} rule crossed {wr['threshold']}"} for dt, d in changes[changes != 0].items()]
-    pd.DataFrame(trades).to_csv(RES / "winner_trade_log.csv", index=False)
-    pd.DataFrame(trades).to_csv(RES / "winner_trades_broker_style.csv", index=False)
-
-    oos = strat_ret.loc[oos_start:].dropna()
-    n_trades = int(position.loc[oos_start:].dropna().diff().abs().fillna(0).sum())
-    om = ann_metrics(oos)
-    bm = ann_metrics(bench_ret.loc[oos_start:].dropna())
-    thr_latest = float(threshold.dropna().iloc[-1]) if isinstance(threshold, pd.Series) else float(threshold)
-    runner = valid.drop(index=wi).sort_values("is_sharpe", ascending=False).head(1)
-    runner_obj = None
-    if not runner.empty:
-        r = runner.iloc[0]
-        runner_obj = {"signal": str(r["signal"]), "threshold": str(r["threshold"]), "strategy": str(r["strategy"]),
-                      "lead_value": int(r[LEAD_COL]), "objective_value": round(float(r["is_sharpe"]), 6),
-                      "oos_sharpe": round(float(r["oos_sharpe"]), 6)}
-    is_window = {"start": str(wr["is_start"]), "end": str(wr["is_end"]), "n": int(wr["is_n"]),
-                 "common_is_start": common_is_start.date().isoformat(), "oos_start": oos_start.date().isoformat(),
-                 "rule": "common_is_start = latest first-valid-return date across all grid candidates; "
-                         "IS metrics for every candidate computed on [common_is_start, oos_start)",
-                 "bh_is_sharpe": round(float(bh_is["oos_sharpe"]), 6)}
-    winner = {
-        "pair_id": PAIR_ID, "generated_at": NOW_ISO, "signal_column": str(wr["signal_column"]),
-        "signal_code": str(wr["signal"]), "signal_display_name": SIGNAL_DISPLAY[str(wr["signal"])],
-        "target_symbol": TARGET_SYMBOL, "threshold_code": str(wr["threshold"]), "threshold_value": round(thr_latest, 6),
-        "threshold_rule": "lte" if wr["direction"] == "countercyclical" else "gte",
-        "threshold_note": f"{wr['threshold']} threshold; latest if rolling", "strategy_family": "P1_long_cash",
-        "strategy_code": "P1", "strategy_display_name": "P1 long cash",
-        "strategy_description": "Hold SPY when the lagged U. Michigan Expected Business Conditions signal is favorable (expansion/optimism); else cash.",
-        "lead_value": int(wr["lead_months"]), "lead_unit": "months",
-        "lead_description": f"Signal is lagged {int(wr['lead_months'])} month(s) before allocation.",
-        "lookback": "60m where rolling thresholds apply", "direction": str(wr["direction"]),
-        "oos_sharpe": round(om["oos_sharpe"], 6), "oos_sortino": round(om["oos_sortino"], 6), "oos_calmar": round(om["oos_calmar"], 6),
-        "oos_ann_return": round(om["oos_ann_return"], 6), "oos_ann_vol": round(om["oos_ann_vol"], 6),
-        "oos_max_drawdown": round(om["max_drawdown"], 6), "oos_win_rate": round(om["win_rate"], 6), "oos_n_trades": n_trades,
-        "annual_turnover": round(n_trades / max(len(oos) / PERIODS_PER_YEAR, 1), 6), "oos_n": int(len(oos)),
-        "oos_period_start": oos.index.min().date().isoformat(), "oos_period_end": oos.index.max().date().isoformat(),
-        "bh_sharpe": round(bm["oos_sharpe"], 6), "bh_ann_return": round(bm["oos_ann_return"], 6), "bh_max_drawdown": round(bm["max_drawdown"], 6),
-        "cost_assumption_bps": COST_BPS, "total_combos": int((tourn["signal"] != "BENCHMARK").sum()), "valid_combos": int(valid.shape[0]),
-        "schema_version": "1.2.0",
-        "notes": f"Rising expected business conditions precede stronger spending and risk-on equity conditions. The bounded diffusion level is stationary. Winner ({wr['signal']}) is selected by in-sample Sharpe on the common IS window ({is_window['start']} to {is_window['end']}) over a floored lead grid [1..13] and evaluated on the held-out OOS window; still a search-selected rule — read as found-in-search, not validated.",
-        "is_sharpe": round(float(wr["is_sharpe"]), 6), "is_n": int(wr["is_n"]),
-        "is_period_start": is_window["start"], "is_period_end": is_window["end"],
-        "selection": {"objective": "max_is_sharpe", "objective_formula": "in-sample (common window [common_is_start, OOS start)) monthly mean/std*sqrt(12); winner evaluated on OOS window",
-                      "is_window": is_window,
-                      "grid_scanned": {"leads": leads, "n_signals": len(SIGNALS),
-                                       "n_thresholds": int(sum(len(threshold_codes_for(s)) for s in SIGNALS)),
-                                       "n_strategies": 1, "n_valid_combos": int(valid.shape[0]),
-                                       "median_valid_objective": round(float(valid["is_sharpe"].median()), 6)},
-                      "tie_break_step": None,
-                      "raw_winner_row": {"signal": str(wr["signal"]), "threshold": str(wr["threshold"]), "strategy": str(wr["strategy"]),
-                                         "lead_column": "lead_months", "lead_value": int(wr["lead_months"]),
-                                         "source_tournament_file": f"tournament_results_{DATE_TAG}.csv", "source_row_index": int(wi)},
-                      "runner_up": runner_obj, "rationale": "Winner is the IS-valid row with the highest IN-SAMPLE Sharpe (common IS window) over the published grid; OOS metrics are reported for that row only (no OOS look-ahead in selection).",
-                      "legacy_oos_selected_row": {"signal": str(tourn.loc[li, "signal"]), "threshold": str(tourn.loc[li, "threshold"]),
-                                                  "direction": str(tourn.loc[li, "direction"]), "lead_value": int(tourn.loc[li, LEAD_COL]),
-                                                  "oos_sharpe": round(float(tourn.loc[li, "oos_sharpe"]), 6),
-                                                  "note": f"Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_{DATE_TAG}.csv"},
-                      "sensitivity_own_is_start_row": {"signal": str(tourn.loc[oi, "signal"]), "threshold": str(tourn.loc[oi, "threshold"]),
-                                                       "direction": str(tourn.loc[oi, "direction"]), "lead_value": int(tourn.loc[oi, LEAD_COL]),
-                                                       "own_is_start": str(tourn.loc[oi, "own_is_start"]),
-                                                       "own_is_sharpe": round(float(tourn.loc[oi, "own_is_sharpe"]), 6),
-                                                       "note": "IS argmax without common-start alignment; sensitivity only"},
-                      "objective_runner_up_divergence": None}}
-    (RES / "winner_summary.json").write_text(json.dumps(winner, indent=2) + "\n")
-    (RES / "tournament_winner.json").write_text(json.dumps(winner, indent=2) + "\n")
-    print(f"  Winner: {winner['signal_code']}/{winner['threshold_code']}/{winner['direction']}/L{winner['lead_value']} "
-          f"Sharpe={winner['oos_sharpe']:.3f} vs B&H {winner['bh_sharpe']:.3f} (OOS {winner['oos_n']}mo)")
-    return tourn, winner
-
-
-REP_SIGNAL = "umcsent_chg_12m"
+    for j, t in enumerate(taus):
+        col = b[:, j]
+        p = min(1.0, 2 * min((col <= 0).mean(), (col >= 0).mean()))
+        rows.append({"quantile": t, "coef": beta[t], "se": float(col.std(ddof=1)), "p_value": float(p),
+                     "ci_low": float(np.quantile(col, 0.025)), "ci_high": float(np.quantile(col, 0.975)), "n": n,
+                     "boot_draws": int(len(col))})
+    ref = taus.index(0.50)
+    others = [j for j in range(len(taus)) if j != ref]
+    d_obs = np.array([beta[taus[j]] - beta[taus[ref]] for j in others])
+    diffs = b[:, others] - b[:, [ref]]
+    stat = float(d_obs @ np.linalg.pinv(np.atleast_2d(np.cov(diffs, rowvar=False))) @ d_obs)
+    p = float(stats.chi2.sf(stat, len(others)))
+    test = {"method": f"moving-block bootstrap Wald (block {QR_BLOCK}, {len(b)} draws)", "stat": stat,
+            "df": len(others), "p_value": p, "reject_equality": bool(p < 0.05), "n": n}
+    return rows, test
 
 
 def write_evidence(df: pd.DataFrame, tourn: pd.DataFrame, winner: dict) -> None:
-    from scipy import stats
-    from statsmodels.tsa.stattools import grangercausalitytests
-    tcols = ["spy_fwd_1m", "spy_fwd_3m", "spy_fwd_6m"]
+    x_col = EVIDENCE_SIGNAL
     corr_rows = []
-    for sc, col in SIGNALS.items():
-        for fwd in tcols:
+    for col in SIGNALS.values():
+        for h in HORIZONS:
+            fwd = f"spy_fwd_{h}m"
             sub = df[[col, fwd]].dropna()
-            if len(sub) < 24:
+            if len(sub) < 20 or sub[col].std() == 0:
                 continue
-            r, p = stats.pearsonr(sub[col], sub[fwd])
-            corr_rows.append({"pair_name": f"{col}_to_{fwd}", "metric": "pearson", "value": r, "p_value": p})
+            r, p_iid = stats.pearsonr(sub[col], sub[fwd])
+            corr_rows.append({"pair_name": f"{col}_to_{fwd}", "metric": "pearson", "value": r,
+                              "p_value": hac_corr_p(sub[col], sub[fwd], h), "p_value_iid": p_iid,
+                              "hac_lags": hac_lags(len(sub), h), "n": len(sub)})
     pd.DataFrame(corr_rows).to_csv(CORE / "correlations.csv", index=False)
-    granger_rows = []
-    g = df[["spy_ret", REP_SIGNAL]].dropna()
-    if len(g) > 40:
-        tests = grangercausalitytests(g[["spy_ret", REP_SIGNAL]], maxlag=6, verbose=False)
-        for lag, res in tests.items():
-            f, p, _, _ = res[0]["ssr_ftest"]
-            granger_rows.append({"lag": lag, "f_stat": f, "p_value": p, "direction": "signal_to_SPY"})
-    pd.DataFrame(granger_rows).to_csv(CORE / "granger_causality.csv", index=False)
-    pd.DataFrame(granger_rows).to_csv(RES / "granger_by_lag.csv", index=False)
+
+    gdata = df[["spy_ret", x_col]].dropna()
+    tests = grangercausalitytests(gdata[["spy_ret", x_col]], maxlag=GRANGER_MAX_LAG, verbose=False)
+    gr = pd.DataFrame([{"lag": lag, "f_stat": res[0]["ssr_ftest"][0], "p_value": res[0]["ssr_ftest"][1],
+                        "direction": "UMICH_EBC_to_SPY", "n": len(gdata)} for lag, res in tests.items()])
+    gr["p_value_holm"] = multipletests(gr["p_value"], method="holm")[1]
+    gr.to_csv(CORE / "granger_causality.csv", index=False)
+    gr.to_csv(RES / "granger_by_lag.csv", index=False)
+
     ccf_rows = []
-    x, y = df[REP_SIGNAL], df["spy_ret"]
-    for lag in range(-6, 7):
+    x = df[x_col].diff()      # pre-whitening by first differences (the survey level is persistent month to month)
+    y = df["spy_ret"]
+    for lag in range(-12, 13):
         sub = pd.concat([x.shift(lag), y], axis=1).dropna()
-        c = sub.iloc[:, 0].corr(sub.iloc[:, 1]) if len(sub) > 24 else np.nan
-        ci = 1.96 / np.sqrt(max(len(sub), 1))
-        ccf_rows.append({"lag": lag, "ccf": c, "upper_ci": ci, "lower_ci": -ci, "significant": abs(c) > ci if pd.notna(c) else False})
+        corr = sub.iloc[:, 0].corr(sub.iloc[:, 1]) if len(sub) > 20 else np.nan
+        band = 1.96 / np.sqrt(max(len(sub), 1))
+        ccf_rows.append({"lag": lag, "ccf": corr, "upper_ci": band, "lower_ci": -band,
+                         "significant": bool(abs(corr) > band) if pd.notna(corr) else False})
     pd.DataFrame(ccf_rows).to_csv(CORE / "ccf_prewhitened.csv", index=False)
-    q = pd.qcut(df[REP_SIGNAL].dropna(), 4, labels=["Q1", "Q2", "Q3", "Q4"])
+
+    sub = df[[x_col, "spy_ret"]].dropna()
+    q = pd.qcut(sub[x_col], 4, labels=["Q1", "Q2", "Q3", "Q4"])
     q_rows = []
-    for lab in ["Q1", "Q2", "Q3", "Q4"]:
-        rets = df.loc[q[q == lab].index, "spy_ret"].dropna()
-        m = ann_metrics(rets)
-        q_rows.append({"quartile": lab, "mean_return": rets.mean(), "sharpe": m["oos_sharpe"], "n": len(rets)})
+    for label in ["Q1", "Q2", "Q3", "Q4"]:
+        rets = sub.loc[q == label, "spy_ret"]
+        q_rows.append({"quartile": label, "mean_return": rets.mean(), "sharpe": ann_metrics(rets)["sharpe"],
+                       "n": len(rets), "signal_low": float(sub.loc[q == label, x_col].min()),
+                       "signal_high": float(sub.loc[q == label, x_col].max())})
     pd.DataFrame(q_rows).to_csv(RES / "regime_quartile_returns.csv", index=False)
+
     rcorr = []
     for dt in df.index:
-        w = df.loc[:dt, [REP_SIGNAL, "spy_ret"]].tail(24).dropna()
-        if len(w) >= 12:
-            rcorr.append({"date": dt, "rolling_corr": w[REP_SIGNAL].corr(w["spy_ret"])})
-    pd.DataFrame(rcorr).to_csv(RES / f"rolling_correlation_{PAIR_ID}.csv", index=False)
+        window = df.loc[:dt, [x_col, "spy_ret"]].tail(ROLL_CORR_WINDOW).dropna()
+        if len(window) >= ROLL_CORR_MIN:
+            rcorr.append({"date": dt, "rolling_corr": window[x_col].corr(window["spy_ret"])})
     rc = pd.DataFrame(rcorr)
-    maz = float(((rc["rolling_corr"] - rc["rolling_corr"].mean()) / rc["rolling_corr"].std()).abs().max()) if not rc.empty and rc["rolling_corr"].std() > 0 else 0.0
-    (RES / f"structural_break_{PAIR_ID}.json").write_text(json.dumps({"pair_id": PAIR_ID, "method": "rolling-correlation z-score proxy", "max_abs_z": maz}, indent=2) + "\n")
+    rc.to_csv(RES / f"rolling_correlation_{PAIR_ID}.csv", index=False)
+    max_abs_z = 0.0
+    if not rc.empty and rc["rolling_corr"].std() > 0:
+        max_abs_z = float(((rc["rolling_corr"] - rc["rolling_corr"].mean()) / rc["rolling_corr"].std()).abs().max())
+    (RES / f"structural_break_{PAIR_ID}.json").write_text(
+        json.dumps({"pair_id": PAIR_ID, "method": "rolling-correlation z-score proxy", "max_abs_z": max_abs_z},
+                   indent=2) + "\n")
+
     lp_rows = []
-    for h in [1, 3, 6]:
-        sub = df[[REP_SIGNAL, f"spy_fwd_{h}m"]].dropna()
-        if len(sub) > 24:
-            sl, ic, r, p, se = stats.linregress(sub[REP_SIGNAL], sub[f"spy_fwd_{h}m"])
-            lp_rows.append({"horizon": h, "coef": sl, "p_value": p, "r_squared": r * r})
+    for h in HORIZONS:
+        s = df[[x_col, f"spy_fwd_{h}m"]].dropna()
+        lags = hac_lags(len(s), h)
+        fit = sm.OLS(s[f"spy_fwd_{h}m"].to_numpy(), sm.add_constant(s[x_col].to_numpy())).fit(
+            cov_type="HAC", cov_kwds={"maxlags": lags})
+        lp_rows.append({"horizon": h, "coef": float(fit.params[1]), "se": float(fit.bse[1]),
+                        "p_value": float(fit.pvalues[1]), "r_squared": float(fit.rsquared), "n": len(s),
+                        "hac_lags": lags})
     pd.DataFrame(lp_rows).to_csv(CORE / "local_projections.csv", index=False)
     pd.DataFrame(lp_rows).to_csv(CORE / "predictive_regressions.csv", index=False)
-    qr_rows = []
-    for qt in [0.25, 0.5, 0.75]:
-        sub = df[[REP_SIGNAL, "spy_fwd_3m"]].dropna()
-        if len(sub) > 24:
-            sl, ic, r, p, se = stats.linregress(sub[REP_SIGNAL], sub["spy_fwd_3m"])
-            qr_rows.append({"quantile": qt, "coef": sl, "p_value": p})
+
+    qs = df[[x_col, f"spy_fwd_{QR_HORIZON}m"]].dropna()
+    qr_rows, qr_test = quantile_regression_block(qs[x_col], qs[f"spy_fwd_{QR_HORIZON}m"])
     pd.DataFrame(qr_rows).to_csv(CORE / "quantile_regression.csv", index=False)
-    subs = [("Dot_Com", "2000-03-31", "2002-10-31"), ("GFC", "2007-12-31", "2009-06-30"),
-            ("COVID", "2020-02-29", "2020-06-30"), ("Rate_Hike_2022", "2022-01-31", "2022-12-31")]
+    (CORE / "quantile_equality_test.json").write_text(json.dumps(qr_test, indent=2) + "\n")
+
     strat = pd.read_csv(RES / f"strategy_returns_{DATE_TAG}.csv", parse_dates=["date"]).set_index("date")
     sp_rows = []
-    for name, s, e in subs:
-        sr = strat.loc[s:e, "strategy_return"]; br = strat.loc[s:e, "benchmark_return"]
-        sp_rows.append({"period": name, "strategy_sharpe": ann_metrics(sr)["oos_sharpe"], "buy_hold_sharpe": ann_metrics(br)["oos_sharpe"],
-                        "strategy_return": (1 + sr).prod() - 1, "buy_hold_return": (1 + br).prod() - 1})
+    for name, start, end in STRESS_PERIODS:
+        seg = strat.loc[start:end]
+        cnt = seg["sample"].value_counts()
+        n_pre, n_is, n_oos = int(cnt.get("pre_IS", 0)), int(cnt.get("IS", 0)), int(cnt.get("OOS", 0))
+        phase = ("test" if n_oos == len(seg) else "training" if n_is == len(seg) else
+                 "before training" if n_pre == len(seg) else
+                 "mostly before training" if n_pre > max(n_is, n_oos) else "mixed")
+        sret, bret = seg["strategy_return"], seg["benchmark_return"]
+        sp_rows.append({"period": name, "start_date": start, "end_date": end, "phase": phase,
+                        "n_pre_is": n_pre, "n_is": n_is, "n_oos": n_oos, "n_obs": int(len(seg)),
+                        "strategy_sharpe": ann_metrics(sret)["sharpe"], "buy_hold_sharpe": ann_metrics(bret)["sharpe"],
+                        "strategy_return": float((1 + sret).prod() - 1), "buy_hold_return": float((1 + bret).prod() - 1)})
     pd.DataFrame(sp_rows).to_csv(RES / "subperiod_sharpe.csv", index=False)
-    stationarity_report(df)
+
+    station_rows = []
+    for col in ["umcsent_level", "umcsent_diff_1m", "umcsent_chg_12m", "umcsent_zscore_60m", "spy_ret"]:
+        s = df[col].dropna()
+        adf = adfuller(s, autolag="AIC")
+        station_rows.append({"variable": col, "test": "ADF", "statistic": adf[0], "p_value": adf[1], "lags": adf[2],
+                             "conclusion": "stationary" if adf[1] < 0.05 else "unit_root_not_rejected"})
+        kp = kpss(s, regression="c", nlags="auto")
+        station_rows.append({"variable": col, "test": "KPSS", "statistic": kp[0], "p_value": kp[1], "lags": kp[2],
+                             "conclusion": "stationary_not_rejected" if kp[1] > 0.05 else "nonstationary"})
+    pd.DataFrame(station_rows).to_csv(RES / f"stationarity_tests_{DATE_TAG}.csv", index=False)
+
     valid = tourn[(tourn["valid"]) & (tourn["signal"] != "BENCHMARK")]
-    bp = float((valid["oos_sharpe"] >= winner["oos_sharpe"]).mean())
-    pd.DataFrame([{"signal": winner["signal_code"], "threshold": winner["threshold_code"], "strategy": winner["strategy_family"],
-                   "oos_sharpe": winner["oos_sharpe"], "bootstrap_p_value": bp, "significant_at_5pct": bp < 0.05}]).to_csv(VALID / "bootstrap.csv", index=False)
-    pd.DataFrame([{"signal": winner["signal_code"], "threshold": winner["threshold_code"], "strategy": winner["strategy_family"],
-                   "tx_cost_bps": COST_BPS, "gross_sharpe": winner["oos_sharpe"]}]).to_csv(VALID / "transaction_costs.csv", index=False)
+    pct_in_grid = float((valid["oos_sharpe"] >= winner["oos_sharpe"]).mean())
+    bs = winner["selection"]["inference"]["oos_sharpe_diff_vs_bh_bootstrap"]
+    pd.DataFrame([{"signal": winner["signal_code"], "threshold": winner["threshold_code"],
+                   "strategy": winner["strategy_family"], "track": "as revised today (single track)",
+                   "oos_sharpe": winner["oos_sharpe"], "oos_percentile_in_grid": pct_in_grid,
+                   "sharpe_diff_vs_bh": bs["observed"], "ci_95_low": bs["ci_95"][0], "ci_95_high": bs["ci_95"][1],
+                   "p_diff_le_0": bs["p_diff_le_0"], "method": bs["method"], "block_length": bs["block_length"],
+                   "draws": bs["draws"], "seed": bs["seed"]}]).to_csv(VALID / "bootstrap.csv", index=False)
+    pd.DataFrame([{"signal": winner["signal_code"], "threshold": winner["threshold_code"],
+                   "strategy": winner["strategy_family"], "tx_cost_bps": COST_BPS,
+                   "gross_sharpe": winner["oos_sharpe"]}]).to_csv(VALID / "transaction_costs.csv", index=False)
 
 
 def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
     interp = {
         "pair_id": PAIR_ID, "schema_version": "1.1.0", "indicator_nature": "leading", "indicator_type": "sentiment",
         "strategy_objective": "procyclical_capture",
-        "owner_writes": {"dana": ["indicator_nature", "indicator_type", "known_stress_episodes", "data_provenance"],
-                         "evan": ["observed_direction", "direction_consistent", "key_finding", "confidence"],
-                         "ray": ["strategy_objective", "narrative_summary", "expected_direction", "mechanism", "caveats"]},
+        "owner_writes": {
+            "dana": ["indicator_nature", "indicator_type", "known_stress_episodes", "data_provenance"],
+            "evan": ["observed_direction", "direction_consistent", "key_finding", "confidence"],
+            "ray": ["strategy_objective", "narrative_summary", "expected_direction", "mechanism", "caveats"],
+        },
         "last_updated_by": "ray", "last_updated_at": NOW_ISO, "indicator": "umcsent", "target": "spy",
         "expected_direction": "procyclical", "observed_direction": winner["direction"],
         "direction_consistent": winner["direction"] == "procyclical",
-        "mechanism": "The University of Michigan expected-change-in-business-conditions series is a consumer diffusion measure of forward economic optimism. Rising optimism precedes stronger spending and risk-on equity conditions; falling optimism precedes retrenchment. The strategy holds SPY when optimism is elevated.",
+        "mechanism": "The University of Michigan Surveys of Consumers ask households whether they expect business "
+                     "conditions to improve or worsen. Rising expectations are read as a sign of stronger spending "
+                     "and risk-on equity conditions; falling expectations as the opposite. The procyclical prior "
+                     "holds SPY when expectations are high or rising.",
         "confidence": "low",
-        "key_finding": f"In-sample-selected rule uses {winner['signal_code']} at L{winner['lead_value']}; held-out OOS Sharpe "
-                       f"{winner['oos_sharpe']:.2f} versus buy-and-hold {winner['bh_sharpe']:.2f}.",
-        "caveats": ["Winner is search-selected on a single monthly sample and needs holdout validation.", "Level thresholds are rolling-percentile based; regime pivots can drift across decades.", "Lead estimates rest on a limited number of cycles in the sample."],
-        "narrative_summary": "U. Michigan expected business conditions is tested as a procyclical sentiment overlay for SPY.",
-        "known_stress_episodes": [{"label": "Dot-Com recession", "start": "2001-03-01", "end": "2001-11-30", "note": "NBER recession."}, {"label": "Global Financial Crisis", "start": "2007-12-01", "end": "2009-06-30", "note": "NBER recession."}, {"label": "COVID shock", "start": "2020-02-01", "end": "2020-04-30", "note": "NBER recession."}, {"label": "2022 drawdown", "start": "2022-01-01", "end": "2022-12-31", "note": "Rate-hike bear market."}],
-        "data_provenance": {"source": "Data Master.xlsx (University of Michigan)", "series_id": "UMCSENT", "accessed_at": NOW_ISO}}
+        "key_finding": f"On today's Michigan Expected Business Conditions values (no archive of past values exists), the rule selected on in-sample "
+                       f"data uses {winner['signal_code']} at L{winner['lead_value']} (IS Sharpe "
+                       f"{winner['is_sharpe']:.2f}) with test-period Sharpe {winner['oos_sharpe']:.2f} versus "
+                       f"buy-and-hold {winner['bh_sharpe']:.2f}.",
+        "caveats": [
+            "No public archive of past values of this index exists, so the backtest uses today's values; any "
+            "revision would add hindsight that cannot be measured.",
+            "The strategy is search-selected and needs fresh holdout validation.",
+            "The Data Master series ends 2025-09, so the test period ends there.",
+            "The rule published on the main site (20260912) was the highest out-of-sample Sharpe with fixed "
+            "lags (the test period was used to choose it); it is replaced here.",
+        ],
+        "narrative_summary": "The University of Michigan Expected Business Conditions index is tested as a "
+                             "procyclical sentiment overlay for SPY: hold equity when expectations are favourable.",
+        "known_stress_episodes": [
+            {"label": "Dot-Com recession", "start": "2001-03-01", "end": "2001-11-30", "note": "NBER recession."},
+            {"label": "Global Financial Crisis", "start": "2007-12-01", "end": "2009-06-30", "note": "NBER recession."},
+            {"label": "COVID shock", "start": "2020-02-01", "end": "2020-04-30", "note": "NBER recession."},
+            {"label": "2022 drawdown", "start": "2022-01-01", "end": "2022-12-31", "note": "Rate-hike bear market."},
+        ],
+        "data_provenance": {"source": "Data Master.xlsx (sheet UoM_ExptdChgBinesCyle), pinned snapshot "
+                                      "20261016T232733Z; release timing from FRED UMCSENT release dates",
+                            "series_id": "UMICH_EXP_BUS_COND", "accessed_at": NOW_ISO},
+    }
     (RES / "interpretation_metadata.json").write_text(json.dumps(interp, indent=2) + "\n")
+
+    defs = [
+        ("umcsent", "Michigan Expected Business Conditions index", "Data Master (UoM_ExptdChgBinesCyle)", "raw", ["hero"]),
+        ("umcsent_level", "Index level (bounded survey index, used as is)", "identity", "threshold_input",
+         ["hero", "regime_stats", "local_projections", "quantile_coef", "rolling_correlation", "granger_f_by_lag",
+          "ccf_prewhitened"]),
+        ("umcsent_diff_1m", "Month-on-month change", "x_t - x_{t-1}", "derivative", []),
+        ("umcsent_chg_12m", "12-month change", "x_t - x_{t-12}", "derivative", []),
+        ("umcsent_zscore_60m", "Level versus its five-year history", "(x - mean60)/std60", "derivative", []),
+    ]
     signal_scope = {
-        "pair_id": PAIR_ID, "schema_version": "1.0.0", "owner": "evan", "last_updated_by": "evan", "last_updated_at": NOW_ISO,
+        "pair_id": PAIR_ID, "schema_version": "1.0.0", "owner": "evan", "last_updated_by": "evan",
+        "last_updated_at": NOW_ISO,
         "indicator_axis": {"canonical_column": "umcsent", "display_name": "U. Michigan Expected Business Conditions",
-            "derivatives": [{"name": c, "definition": d, "formula": f, "role": r, "appears_in_charts": ch} for c, d, f, r, ch in [
-                ("umcsent", "U. Michigan Expected Business Conditions", "Data Master (University of Michigan)", "raw", ["hero"]),
-                ("umcsent_level", "Expected-conditions level (diffusion)", "identity", "threshold_input", ["hero", "regime_stats"]),
-                ("umcsent_diff_1m", "Month-on-month change", "x_t - x_{t-1}", "derivative", []),
-                ("umcsent_chg_12m", "12-month change", "x_t - x_{t-12}", "threshold_input", ["local_projections"]),
-                ("umcsent_zscore_60m", "Level vs 5-year history", "(x-mean60m)/std60m", "threshold_input", [])]]},
-        "target_axis": {"canonical_column": "spy", "display_name": "SPY adjusted close",
-            "derivatives": [{"name": "spy", "definition": "SPY adjusted month-end close", "formula": "month-end adjusted close", "role": "raw", "appears_in_charts": ["hero", "equity_curves"]},
-                {"name": "spy_ret", "definition": "SPY monthly return", "formula": "spy_t/spy_{t-1}-1", "role": "derivative", "appears_in_charts": []},
-                {"name": "spy_fwd_1m", "definition": "1-month forward SPY return", "formula": "spy_{t+1}/spy_t-1", "role": "derivative", "appears_in_charts": ["correlation_heatmap"]},
-                {"name": "spy_fwd_3m", "definition": "3-month forward SPY return", "formula": "spy_{t+3}/spy_t-1", "role": "derivative", "appears_in_charts": ["local_projections", "quantile_coef"]},
-                {"name": "spy_fwd_6m", "definition": "6-month forward SPY return", "formula": "spy_{t+6}/spy_t-1", "role": "derivative", "appears_in_charts": ["correlation_heatmap"]}]},
-        "notes": "Scope limited to U. Michigan Expected Business Conditions signals and SPY returns."}
+                           "derivatives": [{"name": c, "definition": d, "formula": f, "role": r, "appears_in_charts": ch}
+                                           for c, d, f, r, ch in defs]},
+        "target_axis": {
+            "canonical_column": "spy", "display_name": "SPY adjusted close",
+            "derivatives": [
+                {"name": "spy", "definition": "SPY adjusted month-end close", "formula": "month-end adjusted close",
+                 "role": "raw", "appears_in_charts": ["hero", "equity_curves"]},
+                {"name": "spy_ret", "definition": "SPY monthly return", "formula": "spy_t / spy_{t-1} - 1",
+                 "role": "derivative", "appears_in_charts": ["regime_stats", "ccf_prewhitened"]},
+                {"name": "spy_fwd_1m", "definition": "One-month forward SPY return", "formula": "spy_{t+1} / spy_t - 1",
+                 "role": "derivative", "appears_in_charts": ["correlation_heatmap", "local_projections"]},
+                {"name": "spy_fwd_3m", "definition": "Three-month forward SPY return",
+                 "formula": "spy_{t+3} / spy_t - 1", "role": "derivative",
+                 "appears_in_charts": ["correlation_heatmap", "local_projections", "quantile_coef"]},
+                {"name": "spy_fwd_6m", "definition": "Six-month forward SPY return", "formula": "spy_{t+6} / spy_t - 1",
+                 "role": "derivative", "appears_in_charts": ["correlation_heatmap", "local_projections"]},
+                {"name": "spy_fwd_12m", "definition": "Twelve-month forward SPY return",
+                 "formula": "spy_{t+12} / spy_t - 1", "role": "derivative",
+                 "appears_in_charts": ["correlation_heatmap", "local_projections"]},
+            ],
+        },
+        "notes": "Scope limited to Michigan Expected Business Conditions signals and SPY returns.",
+    }
     (RES / "signal_scope.json").write_text(json.dumps(signal_scope, indent=2) + "\n")
     (RES / "kpis.json").write_text(json.dumps({"pair_id": PAIR_ID, "winner_oos_sharpe": winner["oos_sharpe"],
-        "benchmark_oos_sharpe": winner["bh_sharpe"], "oos_max_drawdown": winner["oos_max_drawdown"], "bh_max_drawdown": winner["bh_max_drawdown"]}, indent=2) + "\n")
-    (RES / "evidence_status.json").write_text(json.dumps({"pair_id": PAIR_ID, "schema_version": "1.2.0", "status": "found_in_search",
-        "updated_at": NOW_ISO, "plain_english": "A winning rule was found in the search grid, but it has not passed a fresh final exam.",
-        "technical_note": f"Winner selected by in-sample Sharpe (common pre-OOS window) from the {DATE_TAG} monthly tournament and evaluated on the held-out OOS window; the OOS window is limited.",
-        "next_step": "Freeze the selected rule and run a confirmation test on future data.", "owner": "evan"}, indent=2) + "\n")
-    (RES / f"pipeline_timing_{DATE_TAG}.json").write_text(json.dumps({"pair_id": PAIR_ID, "elapsed_seconds": elapsed, "generated_at": NOW_ISO}, indent=2) + "\n")
-    (RES / "analyst_suggestions.json").write_text(json.dumps({"pair_id": PAIR_ID, "schema_version": "1.0.0", "last_updated_at": NOW_ISO,
-        "suggestions": [{"signal_name": "Lead robustness", "proposed_by": "evan", "source": "Data Master",
-            "observation": f"The rule uses an L{winner['lead_value']} lead on {winner['signal_code']}; verify adjacent-lead durability.",
-            "rationale": "Cycles in the sample are few, so the lead needs adjacent-lead durability and a cycle-count caveat.",
-            "possible_use_case": "robustness check", "caveats": "Search-selected on a limited OOS; needs final-exam validation.",
-            "date_filed": DATE_TAG[:4] + "-" + DATE_TAG[4:6] + "-" + DATE_TAG[6:]}], "notes": "Generated with the U. Michigan Expected Business Conditions x SPY pair pipeline."}, indent=2) + "\n")
+                                               "benchmark_oos_sharpe": winner["bh_sharpe"],
+                                               "oos_max_drawdown": winner["oos_max_drawdown"],
+                                               "bh_max_drawdown": winner["bh_max_drawdown"]}, indent=2) + "\n")
+    evidence_status = {
+        "pair_id": PAIR_ID, "schema_version": "1.2.0", "status": "found_in_search", "updated_at": NOW_ISO,
+        "plain_english": "A winning rule was found in the search grid, but it has not passed a fresh final exam.",
+        "technical_note": f"Winner selected on in-sample data by the lead-plateau rule (D9) from the {DATE_TAG} "
+                          "tournament on today's values of this index (no archive of past values exists); its test-period "
+                          "window has been seen by earlier tournaments of this pair, so it is not a frozen-rule "
+                          "hold-out result.",
+        "next_step": "Freeze the selected rule and run a confirmation test on future data or a reserved holdout window.",
+        "owner": "evan",
+    }
+    (RES / "evidence_status.json").write_text(json.dumps(evidence_status, indent=2) + "\n")
+    (RES / f"pipeline_timing_{DATE_TAG}.json").write_text(
+        json.dumps({"pair_id": PAIR_ID, "elapsed_seconds": elapsed, "generated_at": NOW_ISO}, indent=2) + "\n")
+    analyst_suggestions = {
+        "pair_id": PAIR_ID, "schema_version": "1.0.0", "last_updated_at": NOW_ISO,
+        "suggestions": [{
+            "signal_name": "Start a vintage record of this index", "proposed_by": "evan", "source": "Data Master",
+            "observation": f"The rule selected on in-sample data uses a {winner['lead_value']}-month lead on the "
+                           f"{winner['signal_display_name']} ({winner['direction']}, {winner['threshold_code']}); "
+                           f"test-period max drawdown {winner['oos_max_drawdown']:.1%} vs buy-and-hold "
+                           f"{winner['bh_max_drawdown']:.1%}.",
+            "rationale": "Only today's values exist; the monthly Data Master snapshots started 2026-10-16 build "
+                         "a record of values as published, which a later rerun can use for a forward test.",
+            "possible_use_case": "robustness check",
+            "caveats": "Search-selected rule; the live tradability assumptions are not final-exam validated.",
+            "date_filed": DATE_TAG[:4] + "-" + DATE_TAG[4:6] + "-" + DATE_TAG[6:],
+        }],
+        "notes": "Generated with the Michigan Expected Business Conditions x SPY pair pipeline.",
+    }
+    (RES / "analyst_suggestions.json").write_text(json.dumps(analyst_suggestions, indent=2) + "\n")
 
 
-def main() -> None:
+NARRATIVE_SOURCES = ["regime_quartile_returns.csv", "granger_by_lag.csv", "subperiod_sharpe.csv",
+                     f"core_models_{DATE_TAG}/quantile_regression.csv",
+                     f"core_models_{DATE_TAG}/quantile_equality_test.json",
+                     f"core_models_{DATE_TAG}/local_projections.csv"]
+
+
+def write_narrative_provenance() -> None:
+    """evidence_facts_<tag>.json: the evidence tables the page prose cites (scripts/gate_number_provenance.py)."""
+    n_rows = len(pd.read_csv(RES / "winner_trades_broker_style.csv"))
+    sr = pd.read_csv(RES / f"strategy_returns_{DATE_TAG}.csv")
+    oos = sr.loc[sr["sample"] == "OOS", "position"].to_numpy(float)
+    d = np.abs(np.diff(oos[~np.isnan(oos)]))
+    gr = pd.read_csv(RES / "granger_by_lag.csv")
+    best = gr.loc[gr["p_value"].idxmin()]
+    write_evidence_facts(PAIR_ID, DATE_TAG, sources=NARRATIVE_SOURCES, derived={
+        "n_trade_log_rows": n_rows,
+        "position_change_threshold_pp": POSITION_CHANGE_THRESHOLD_PP,
+        "oos_months_position_change_gt_5pct": int((d > POSITION_CHANGE_THRESHOLD_PP / 100).sum()),
+        "oos_sum_abs_position_change": round(float(d.sum()), 4),
+        "n_granger_lags": GRANGER_MAX_LAG,
+        "granger_best": {"lag": int(best["lag"])},
+        "granger_min_p_single": round(float(best["p_value"]), 4),
+        "granger_min_p_holm": round(float(best["p_value_holm"]), 4),
+        "n_months_qr_horizon": QR_HORIZON, "n_months_qr_block": QR_BLOCK,
+        "n_months_roll_corr_window": ROLL_CORR_WINDOW})
+
+
+def main(K: int = 100) -> None:
     t0 = time.time()
-    df = source_data()
-    tourn, winner = run_tournament(df)
+    for path in (RES, CORE, VALID):
+        path.mkdir(parents=True, exist_ok=True)
+    df = build_panel()
+    df[list(SIGNALS.values())].to_parquet(RES / f"signals_{DATE_TAG}.parquet")
+    tourn, winner, _ = run_tournament(K)
     write_evidence(df, tourn, winner)
     write_metadata(df, winner, time.time() - t0)
+    write_narrative_provenance()
     print(f"Done. Results saved to {RES}")
 
 
