@@ -112,6 +112,14 @@ def fields_from_summary(ws: dict) -> dict:
                                + [p.get("is_sharpe") for p in prev] + [p.get("hac_t") for p in prev]
                                if isinstance(x, (int, float))]
     f["_legacy_lead"] = [x for x in [leg.get("lead_value")] + [p.get("lead") for p in prev] if isinstance(x, (int, float))]
+    # the previous published rule is also in winner_fields.previous_* (the only place when MAIN has no winner and
+    # winner_summary carries no selection block: retail_inv_sales class)
+    wfp = ws.get("winner_fields") or {}
+    for k, dest in (("previous_oos_sharpe", "_legacy_oos_sharpe"), ("previous_is_sharpe", "_legacy_oos_sharpe"),
+                    ("previous_lead", "_legacy_lead")):
+        v = (wfp.get(k) or {}).get("value") if isinstance(wfp.get(k), dict) else None
+        if isinstance(v, (int, float)) and not isinstance(v, bool) and v not in f[dest]:
+            f[dest].append(v)
     ce = ws.get("cross_eval") or {}
     for k in ("main_winner_on_revised", "revised_winner_on_main"):
         if isinstance(ce.get(k), dict):

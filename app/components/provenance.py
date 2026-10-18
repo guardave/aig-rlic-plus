@@ -254,19 +254,59 @@ def artifact(data, path):
     return _wrap(data, f"art:{_rel(path)}#", dates=False) if gate_on() else data
 
 
-def run_tag(ws: dict, pair_dir) -> str | None:
-    """A pair's current run tag (plain text, untagged: it names files): winner_summary run_tag (Phase B, written
-    even when MAIN has no winner), else the published winner's source tournament file, else the latest dated
-    tournament_results file. Mirrors scripts/chart_provenance.run_tag_of."""
+def run_tag(ws: dict, pair_dir=None) -> str | None:
+    """A pair's current run tag (plain text, untagged: it names files): winner_summary run_tag (Phase B harness),
+    else the published winner's source tournament file. None when neither exists. No latest-dated-file guess
+    (QA nomain F2: a deleted current-run file silently fell back to a superseded run). Mirrors
+    scripts/chart_provenance.run_tag_of."""
     if ws.get("run_tag"):
         return str(ws["run_tag"])
     try:
         return str(ws["selection"]["raw_winner_row"]["source_tournament_file"]).split("_")[-1].removesuffix(".csv")
     except (KeyError, TypeError, AttributeError):
-        pass
-    tags = sorted(f.stem.rsplit("_", 1)[-1] for f in Path(pair_dir).glob("tournament_results_*.csv")
-                  if f.stem.rsplit("_", 1)[-1].isdigit())
-    return tags[-1] if tags else None
+        return None
+
+
+class CurrentRunFileError(FileNotFoundError):
+    """A Phase B pair's current-run file is missing (or its run tag is unknown): pages show the error."""
+
+
+def is_phase_b(pair_id: str, rdir=None) -> bool:
+    """winner_summary 1.3.x with per-track records (Phase B harness pair)."""
+    try:
+        return "tracks" in json.loads((Path(rdir or RESULTS / pair_id) / "winner_summary.json").read_text())
+    except (OSError, ValueError):
+        return False
+
+
+def current_file(pair_id: str, stem: str, ext: str = "csv", rdir=None) -> Path | None:
+    """results/<pair>/<stem>_<tag>.<ext> of the pair's CURRENT run. Phase B pairs: the tag is winner_summary's run
+    tag and a missing file raises CurrentRunFileError (never a guess). Legacy pairs (not yet ported): the latest
+    dated file, None when there is none (their pre-Phase-B behaviour)."""
+    rdir = Path(rdir or RESULTS / pair_id)
+    if is_phase_b(pair_id, rdir):
+        tag = run_tag(json.loads((rdir / "winner_summary.json").read_text()), rdir)
+        if not tag:
+            raise CurrentRunFileError(f"{pair_id}: winner_summary.json names no run tag, so the current run's "
+                                      f"{stem} file cannot be resolved")
+        f = rdir / f"{stem}_{tag}.{ext}"
+        if not f.is_file():
+            raise CurrentRunFileError(f"{pair_id}: the current run's file results/{pair_id}/{f.name} is missing "
+                                      f"(run {tag}); rebuild with python scripts/pair_pipeline_{pair_id}.py")
+        return f
+    files = sorted(rdir.glob(f"{stem}_*.{ext}"))
+    return files[-1] if files else None
+
+
+def resolve_current(pair_id: str, stem: str, ext: str = "csv", rdir=None) -> Path | None:
+    """current_file for page components: a missing Phase B current-run file is shown as an error on the page and
+    the component renders nothing from another run."""
+    try:
+        return current_file(pair_id, stem, ext, rdir)
+    except CurrentRunFileError as e:
+        import streamlit as st
+        st.error(f"**Current-run file missing.** {e}")
+        return None
 
 
 def json_file(path) -> dict:
@@ -477,7 +517,8 @@ def _ppy(pair: str | None):
     if not pair:
         return None
     try:
-        for f in sorted((RESULTS / pair).glob("candidates_manifest_*.json")):
+        f = current_file(pair, "candidates_manifest", "json")
+        if f is not None:
             return float(json.loads(f.read_text()).get("ppy"))
     except (OSError, ValueError, TypeError):
         return None

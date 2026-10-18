@@ -40,9 +40,9 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _latest_signals_file(pair_dir: Path) -> Path | None:
-    """Return the most recent ``signals_*.parquet`` under ``pair_dir``."""
-    matches = sorted(glob.glob(str(pair_dir / "signals_*.parquet")))
-    return Path(matches[-1]) if matches else None
+    """The pair's current-run ``signals_<tag>.parquet`` (provenance.resolve_current; no superseded-run guess)."""
+    from components.provenance import resolve_current
+    return resolve_current(Path(pair_dir).name, "signals", "parquet", rdir=pair_dir)
 
 
 def _find_real_crossings(

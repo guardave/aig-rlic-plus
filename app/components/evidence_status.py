@@ -154,7 +154,17 @@ def render_evidence_status_note(pair_id: str) -> None:
         )
 
     status_key = status.get("status", "found_in_search")
-    st.info(f"**Evidence status: {status['label']}**  \n{status['plain_english']}")
+    label = status["label"]
+    try:                       # Phase B pair whose MAIN track has no rule: no 'best rule found' label
+        import json as _json
+        from pathlib import Path as _Path
+        _ws = _json.loads((_Path(__file__).resolve().parents[2] / "results" / pair_id / "winner_summary.json")
+                          .read_text())
+        if _ws.get("main_eligible") is False and "tracks" in _ws:
+            label = "unranked (no rule on data as known at the time)"
+    except (OSError, ValueError):
+        pass
+    st.info(f"**Evidence status: {label}**  \n{status['plain_english']}")
 
     # DPS-PRE1 — disclosure banner for failed_final_exam
     if status_key == "failed_final_exam":

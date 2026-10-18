@@ -79,12 +79,12 @@ def _load_target_price_overlay(pair_id: str, target_symbol: str) -> pd.Series | 
 
 def _load_winner_strategy_cumulative_return(pair_id: str) -> pd.Series | None:
     """Best-effort winner strategy cumulative return from strategy_returns CSV."""
-    pair_dir = _REPO_ROOT / "results" / pair_id
-    matches = sorted(pair_dir.glob("strategy_returns_*.csv"))
-    if not matches:
+    from components.provenance import resolve_current
+    f = resolve_current(pair_id, "strategy_returns")
+    if f is None:
         return None
     try:
-        df = pd.read_csv(matches[-1], parse_dates=["date"]).set_index("date")
+        df = pd.read_csv(f, parse_dates=["date"]).set_index("date")
         if "strategy_equity" in df.columns:
             return (df["strategy_equity"].astype(float) - 1.0) * 100.0
         if "strategy_return" in df.columns:
@@ -95,9 +95,9 @@ def _load_winner_strategy_cumulative_return(pair_id: str) -> pd.Series | None:
 
 
 def _latest_signals_file(pair_dir: Path) -> Path | None:
-    """Return the most recent ``signals_*.parquet`` under ``pair_dir``."""
-    matches = sorted(glob.glob(str(pair_dir / "signals_*.parquet")))
-    return Path(matches[-1]) if matches else None
+    """The pair's current-run ``signals_<tag>.parquet`` (provenance.resolve_current; no superseded-run guess)."""
+    from components.provenance import resolve_current
+    return resolve_current(Path(pair_dir).name, "signals", "parquet", rdir=pair_dir)
 
 
 def _validate_signal(

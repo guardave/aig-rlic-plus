@@ -539,13 +539,14 @@ def _render_exploratory_insights(pair_id: str) -> None:
 
 
 def _latest_dated_file(pair_id: str, prefix: str, ext: str = "csv") -> Path | None:
-    """Return the latest file matching ``{prefix}_YYYYMMDD.{ext}`` under the
-    pair's results dir, or None if no match. APP-PT1 §dated-file-globbing."""
-    pattern = str(_REPO_ROOT / "results" / pair_id / f"{prefix}_*.{ext}")
-    matches = sorted(glob.glob(pattern))
-    if not matches:
+    """The pair's current-run ``{prefix}_<tag>.{ext}`` (provenance.current_file): Phase B pairs resolve it from
+    winner_summary's run tag and a missing file shows an error here (never a superseded run, QA nomain F2);
+    legacy pairs keep the latest dated file (APP-PT1)."""
+    try:
+        return _P.current_file(pair_id, prefix, ext)
+    except _P.CurrentRunFileError as e:
+        st.error(f"**Current-run file missing.** {e}")
         return None
-    return Path(matches[-1])
 
 
 def _indicator_target_display(pair_id: str, interp: dict[str, Any]) -> tuple[str, str, str]:
@@ -654,10 +655,11 @@ def _dd_kpi_delta(winner: dict) -> tuple[str | None, str]:
     return (f"vs {bh_fmt} B&H" if bh_fmt != "N/A" else None), "inverse"
 
 
-def _kpi_or_note(no_main: bool, cards: list) -> None:
-    """The headline KPI row, or (MAIN has no rule: rt_insufficient) the factual note that there is none."""
+def _kpi_or_note(no_main: bool, cards: list, pair_id: str = "", target: str = "SPY") -> None:
+    """The headline KPI row, or (MAIN has no rule: rt_insufficient) the reason plus the labelled hindsight
+    figures next to buy-and-hold (two_track.render_no_main_headline)."""
     if no_main:
-        st.info(two_track.NO_MAIN_KPI)
+        two_track.render_no_main_headline(pair_id, target)
     else:
         kpi_row(cards)
 
@@ -770,7 +772,7 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
         )
     _no_main = two_track.no_main(_ts_story)
     st.markdown(
-        two_track.NO_MAIN_KPI if _no_main else
+        "" if _no_main else       # rt_insufficient: the reason + hindsight cards follow (render_no_main_headline)
         f"{_key_metrics_header}\n\n"
         f"- **Sharpe ratio: {oos_sharpe}**{_vs_bh_clause(bh_sharpe, target)}\n"
         f"- **Annualized return: {oos_return}**{_vs_bh_clause(bh_ret, target)}\n"
@@ -862,7 +864,7 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
             "value": oos_years,
             "delta": oos_range_label,
         },
-    ])
+    ], pair_id, target)
 
     kpi_caption = getattr(config, "KPI_CAPTION", None)
     if kpi_caption:
@@ -1625,7 +1627,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
          "value": (lambda _wr: f"{_wr:.0%}" if _wr is not None else "N/A")(
              winner.get('oos_win_rate') if winner.get('oos_win_rate') is not None
              else winner.get('win_rate'))},
-    ])
+    ], pair_id, target)
     if _ts:
         two_track.render_kpi_caption(_ts, winner)
         two_track.render_vs_buy_hold(_ts, winner)
@@ -1771,8 +1773,9 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         # EXECUTIVE_CONFIDENCE_SUMMARY; absent → no-op.
         _exec_conf = getattr(config, "EXECUTIVE_CONFIDENCE_SUMMARY", None)
         if _exec_conf and _ts:   # design 7b: the badge is driven by the MAIN (as-known-at-the-time) result only
-            _exec_conf = dict(_exec_conf, status=two_track.badge_status(_ts) or "No status",
-                              chance_fact=two_track.chance_fact(_ts))
+            _exec_conf = dict(_exec_conf, status=two_track.badge_status(_ts) or
+                              ("Unranked" if two_track.no_main(_ts) else "No status"),
+                              chance_fact=two_track.chance_fact(_ts, pair_id))
         if _exec_conf:
             _render_executive_confidence_summary(_exec_conf)
             if _ts:

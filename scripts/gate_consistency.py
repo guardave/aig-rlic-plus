@@ -285,6 +285,72 @@ def _check_plateau_winner(tr_path: Path, ws: dict, lk: str) -> list[str]:
     return []
 
 
+def _check_no_main_winner(pair: str, rdir: Path, ws: dict) -> tuple[list[str], list[str]]:
+    """Phase B pair whose MAIN (as known at the time) track has no eligible candidate (QA nomain F3): every claim
+    on the page is checked against the CURRENT run's files (run_tag; a missing file or column is a hard fail):
+    no MAIN row valid / eligible; the candidate count; the ineligibility reason (first training month, training
+    rows available, rows required = the pair spec's min_is_n); the hindsight (comparison) winner row and its
+    buy-and-hold row."""
+    import pandas as pd
+    hard: list[str] = []
+    tag = ws.get("run_tag")
+    if not tag:
+        return ["A: MAIN not eligible but winner_summary has no run_tag; the current run's files cannot be named"], []
+    main_f, hind_f = rdir / f"tournament_results_{tag}.csv", rdir / f"hindsight_tournament_results_{tag}.csv"
+    for f in (main_f, hind_f):
+        if not f.exists():
+            hard.append(f"A: current-run file {f.name} is missing")
+    if hard:
+        return hard, []
+    t = pd.read_csv(main_f)
+    need = {"signal", "valid", "is_eligible", "own_is_n", "own_is_start", "key"}
+    if not need <= set(t.columns):
+        return [f"A: {main_f.name} lacks column(s) {sorted(need - set(t.columns))}"], []
+    t = t[t["signal"] != "BENCHMARK"]
+    ok = t[(t["valid"].astype(str).str.lower() == "true") | (t["is_eligible"].astype(str).str.lower() == "true")]
+    if len(ok):
+        hard.append(f"A: winner_summary says MAIN has no eligible candidate, but {len(ok)} row(s) of "
+                    f"{main_f.name} are valid/eligible")
+    mtr = (ws.get("tracks") or {}).get("main") or {}
+    if mtr.get("n_candidates") != len(t):
+        hard.append(f"A: MAIN candidate count {mtr.get('n_candidates')} != {len(t)} rows of {main_f.name}")
+    ir = (ws.get("status") or {}).get("main_not_eligible") or {}
+    starts = sorted(str(x)[:10] for x in t["own_is_start"].dropna())
+    if str(ir.get("rt_start"))[:10] != (starts[0] if starts else "None"):
+        hard.append(f"A: first training month {ir.get('rt_start')} != earliest own_is_start "
+                    f"{starts[0] if starts else None} in {main_f.name}")
+    n_rows = int(t["own_is_n"].max()) if len(t) and t["own_is_n"].notna().any() else 0
+    if ir.get("n_is_rows") != n_rows:
+        hard.append(f"A: training rows available {ir.get('n_is_rows')} != max own_is_n {n_rows} in {main_f.name}")
+    try:
+        sys.path.insert(0, str(REPO / "scripts"))
+        import importlib.util
+        sp = importlib.util.spec_from_file_location(f"_spec_{pair}", REPO / "scripts" / f"pair_spec_{pair}.py")
+        mod = importlib.util.module_from_spec(sp)
+        sp.loader.exec_module(mod)
+        if ir.get("min_required") != mod.SPEC.min_is_n:
+            hard.append(f"A: rows required {ir.get('min_required')} != pair spec min_is_n {mod.SPEC.min_is_n}")
+    except (OSError, AttributeError, ImportError, SyntaxError) as e:
+        hard.append(f"A: cannot load scripts/pair_spec_{pair}.py to check the rows required ({e})")
+    comp = (ws.get("tracks") or {}).get("comparison") or {}
+    w, bh = comp.get("winner") or {}, comp.get("bh_oos") or {}
+    h = pd.read_csv(hind_f)
+    if w:
+        row = h[h["key"].astype(str) == str(w.get("key"))]
+        if len(row) != 1:
+            hard.append(f"A: hindsight winner {w.get('key')} is not one row of {hind_f.name}")
+        else:
+            for col in ("is_sharpe", "oos_sharpe"):
+                if abs(float(row[col].iloc[0]) - float(w.get(col))) > 1e-4:
+                    hard.append(f"A: hindsight winner {col} {w.get(col)} != {float(row[col].iloc[0]):.6f} in "
+                                f"{hind_f.name}")
+    b = h[h["signal"] == "BENCHMARK"]
+    if len(b) != 1 or abs(float(b["oos_sharpe"].iloc[0]) - float(bh.get("sharpe", float("nan")))) > 1e-4:
+        hard.append(f"A: hindsight buy-and-hold Sharpe {bh.get('sharpe')} != the BENCHMARK row of {hind_f.name}")
+    return hard, [f"INFO: MAIN not eligible ({ir}); checked against run {tag}: no eligible MAIN row, "
+                  f"{len(t)} candidates, reason, hindsight winner and buy-and-hold"]
+
+
 def check_pair(pair: str) -> tuple[list[str], list[str]]:
     """(hard_failures, soft_warnings)."""
     rdir = REPO / "results" / pair
@@ -296,19 +362,7 @@ def check_pair(pair: str) -> tuple[list[str], list[str]]:
     soft: list[str] = []
 
     if ws.get("main_eligible") is False and not ws.get("selection"):
-        # Phase B: MAIN (as known at the time) has no eligible candidate, so no winner is published; the claim
-        # must agree with the MAIN tournament table (no row valid / eligible there)
-        reason = ((ws.get("status") or {}).get("main_not_eligible")) or {}
-        tr_files = sorted(rdir.glob("tournament_results_*.csv"))
-        if tr_files:
-            rows = [r for r in _read_csv(tr_files[-1]) if r["signal"] != "BENCHMARK"]
-            ok = [r for r in rows if str(r.get("valid", "False")).lower() == "true"
-                  or str(r.get("is_eligible", "False")).lower() == "true"]
-            if ok:
-                hard.append(f"A: winner_summary says MAIN has no eligible candidate, but {len(ok)} row(s) of "
-                            f"{tr_files[-1].name} are valid/eligible")
-        return hard, [f"INFO: MAIN not eligible ({reason or 'no reason recorded'}); no published winner, "
-                      "winner consistency checks skipped"]
+        return _check_no_main_winner(pair, rdir, ws)
 
     win_lead = int(ws.get("lead_value", ws.get("lead_months")))
     win_sharpe = float(ws["oos_sharpe"])

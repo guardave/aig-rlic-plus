@@ -5,8 +5,9 @@ The real-time null shifts reference-period values inside each vintage; at large 
 readings and the common IS start moves later, so a draw can train on a much shorter window than the real winner
 (QA B1 umcsent_xlv M1). Runs recorded since harness.null.draw_record gained is_start / is_n carry this per draw;
 this script back-fills it for existing null CSVs by rebuilding each draw's inputs and re-scoring the window (no
-selection is re-run). Output: results/<pair>/null_is_windows_<tag>.csv for the MAIN (headline) track: draw,
-offset, is_start, is_n_draw (training rows of each draw), is_n_actual (one row, draw = -1: the actual tournament).
+selection is re-run). Output: results/<pair>/null_is_windows_<tag>.csv for every track that has a null (MAIN and
+the comparison / hindsight track; QA nomain F4): track, draw, offset, is_start, is_n_draw (training rows of each
+draw), is_n_actual (one row per track, draw = -1: the actual tournament).
 Separate columns keep the draws' min / max and the actual value readable as tagged column statistics
 (components.provenance colmin / colmax) by the chance-check panel.
 
@@ -29,7 +30,10 @@ from harness.engine import run_tournament  # noqa: E402
 NULL_FILE = {"main": "null_tournament_{tag}.csv", "comparison": "hindsight_null_tournament_{tag}.csv"}
 
 
-def windows(pair: str, tag: str, roles=("main",), log=print) -> pd.DataFrame:
+COLS = ["track", "draw", "offset", "is_start", "is_n_draw", "is_n_actual"]
+
+
+def windows(pair: str, tag: str, roles=("main", "comparison"), log=print) -> pd.DataFrame:
     mod = R.load_pair(pair)
     tracks = R.build_tracks(mod)
     rows = []
@@ -53,10 +57,12 @@ def windows(pair: str, tag: str, roles=("main",), log=print) -> pd.DataFrame:
                          "is_start": str(res.common_is_start.date()) if res.common_is_start is not None else None,
                          "is_n": int(np.sum(res.is_mask))})
             log(f"  {pair} {role} draw {d} offset {k}: IS from {rows[-1]['is_start']}, {rows[-1]['is_n']} rows")
+    if not rows:
+        return pd.DataFrame(columns=COLS)
     out = pd.DataFrame(rows)
     out["is_n_draw"] = out["is_n"].where(out["draw"] >= 0)
     out["is_n_actual"] = out["is_n"].where(out["draw"] < 0)
-    return out.drop(columns=["is_n", "track"])[["draw", "offset", "is_start", "is_n_draw", "is_n_actual"]]
+    return out[COLS]
 
 
 def main(argv=None) -> int:

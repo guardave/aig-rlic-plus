@@ -89,6 +89,50 @@ def _badge(label: str, help_text: str, color: str = "blue") -> None:
 NO_MAIN_KPI = ("**No headline metrics.** There is no rule on data as known at the time: the archive of past releases "
                "is too short to train one, so this pair is unranked (no Candidate, Watchlist or Reject status). "
                "Figures computed on today's revised data are hindsight context only.")
+
+
+def no_main_reason(pair_id: str) -> str:
+    """'Real-time track: not eligible: ...' with the vintage start, training months available and required, tagged
+    from winner_summary (Lead spec for MAIN-ineligible pairs). Falls back to NO_MAIN_KPI without the record."""
+    try:
+        ws = P.json_file(Path(__file__).resolve().parents[2] / "results" / pair_id / "winner_summary.json")
+        ir = ws["status"]["main_not_eligible"]
+        fv = ws["tracks"]["main"]["sample"].get("first_vintage")
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        return NO_MAIN_KPI
+    unit = _lead_unit(ws) or _lead_unit((ws.get("tracks") or {}).get("comparison") or {}) or "periods"
+    start = (f"real-time vintages start {P.field_text(ws['tracks']['main']['sample'], 'first_vintage')}; "
+             if fv else "")
+    return (f"**Real-time track: not eligible.** {start[:1].upper() + start[1:] if start else ''}"
+            f"{ir['n_is_rows']:.0f} training {unit} available before the test period, {ir['min_required']:.0f} "
+            "required. There is no rule on data as known at the time, so this pair is unranked (no Candidate, "
+            "Watchlist or Reject status). The figures below are hindsight: a rule found on today's revised data.")
+
+
+def render_no_main_headline(pair_id: str, target: str = "SPY") -> None:
+    """Headline for rt_insufficient: the reason, then the hindsight (revised data) test-period figures, each
+    labelled, next to buy-and-hold. Never in MAIN slots, never N/A cards."""
+    st.info(no_main_reason(pair_id))
+    try:
+        ws = P.json_file(Path(__file__).resolve().parents[2] / "results" / pair_id / "winner_summary.json")
+        c = ws["tracks"]["comparison"]
+        w, b = c["winner"], c["bh_oos"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return
+    if not w:
+        return
+    from components.metrics import kpi_row
+    off = {"delta_color": "off", "delta_arrow": "off"}      # buy-and-hold is a reference value, not a change
+    kpi_row([
+        dict(off, label="Hindsight test-period Sharpe (revised data)", value=f"{w['oos_sharpe']:.2f}",
+             delta=f"buy-and-hold {target}: {b['sharpe']:.2f}"),
+        dict(off, label="Hindsight annual return (revised data)", value=f"{w['oos_ann_return']:.1%}",
+             delta=f"buy-and-hold: {b['ann_return']:.1%}"),
+        dict(off, label="Hindsight max drawdown (revised data)", value=f"{w['oos_max_drawdown']:.1%}",
+             delta=f"buy-and-hold: {b['max_drawdown']:.1%}"),
+        dict(off, label="Hindsight rule (revised data)", value=f"{w['signal']}",
+             delta=f"lead {P.field_text(w, 'lead')} {_lead_unit(c)}".strip()),
+    ])
 NO_MAIN_EXECUTE = ("There is no rule on data as known at the time, so there is nothing to execute. The hindsight rule "
                    "found on today's revised data is not an execution plan.")
 NO_MAIN_TRADES = ("No trade log: there is no rule on data as known at the time. The hindsight rule's trades are not "
@@ -151,7 +195,15 @@ def render_chips(ts: dict, winner: dict) -> None:
             _badge(f"Stable lead range L{min(leads)}-L{max(leads)}", TIPS["plateau"])
     with cols[2]:
         pct = nt.get("winner_percentile")
-        if pct is None:
+        hn = None
+        if pct is None and ts["track_state"] == "rt_insufficient":
+            try:
+                hn = (winner.get("tracks") or {}).get("comparison", {}).get("null_tournament")
+            except AttributeError:
+                hn = None
+        if pct is None and hn and hn.get("selection_stat_percentile") is not None:
+            label = f"Chance check (hindsight): above {round(hn['selection_stat_percentile'] * 100)}% of scrambled runs"
+        elif pct is None:
             label = "Chance check not yet run for this pair."
         elif pct >= 1:
             label = f"Chance check: above all {nt.get('n_draws')} scrambled runs"
@@ -256,8 +308,12 @@ def render_cross_eval_table(pair_id: str, ts: dict, ws: dict) -> None:
             return [rule(rec), label, "Not scorable: the rule is not in this track's candidate set", "", "", "", ""]
         tr = _tourn_row(pair_id, prefix, tag, rec["winner"]["key"]) or {}
         note = "" if r.get("valid") else " (did not meet the training validity filters on this data)"
-        return [rule(rec), label, _num(r["is_sharpe"]) + note, _num(r["oos_sharpe"]), _num(rec["bh_oos"]["sharpe"]),
-                f"{_ym(r['window'], 'is_start')} to {_ym(r['window'], 'oos_end')}", _pct(tr.get("max_drawdown"))]
+        no_train = r.get("is_sharpe") is None or not (r.get("window") or {}).get("is_start")
+        train = "No training window on this data" if no_train else _num(r["is_sharpe"]) + note   # nomain F5
+        win = (f"test only: {_ym(r['window'], 'oos_start')} to {_ym(r['window'], 'oos_end')}" if no_train else
+               f"{_ym(r['window'], 'is_start')} to {_ym(r['window'], 'oos_end')}")
+        return [rule(rec), label, train, _num(r["oos_sharpe"]), _num(rec["bh_oos"]["sharpe"]), win,
+                _pct(tr.get("max_drawdown"))]
 
     cols = ["Rule", "Data scored on", "Training Sharpe", "Test Sharpe", "B&H test Sharpe", "Window",
             "Test max drawdown"]
@@ -274,7 +330,10 @@ def render_cross_eval_table(pair_id: str, ts: dict, ws: dict) -> None:
         css = pd.DataFrame("color: #595959", index=df.index, columns=df.columns)
         css.iloc[0] = "font-weight: bold"
         st.table(df.style.apply(lambda _: css, axis=None).hide(axis="index"))
-    if comp:
+    if comp and not (main and main.get("eligible")):
+        st.caption("Only the as-revised-today (hindsight) track has a winner. Row 2 shows how that rule fares on "
+                   "data as known at the time, over the test period only (that track has no training window).")
+    elif comp:
         st.caption("Each data track picks its own winner. Rows 2 and 4 show how each winner fares on the other data.")
 
 
@@ -282,6 +341,12 @@ def render_chance_check(pair_id: str, ts: dict) -> None:
     """Chance-check panel (section 8): histogram chart + the percentile sentence (never hidden)."""
     nt = ts.get("null_tournament")
     st.markdown("### Chance check")
+    if (not nt or nt.get("winner_percentile") is None) and no_main(ts):
+        hn = hindsight_null(pair_id)
+        st.markdown(_hindsight_chance_text(pair_id, hn) if hn else
+                    "There is no rule on data as known at the time, so there is no chance check on that track, "
+                    "and no hindsight null was run.")
+        return
     if not nt or nt.get("winner_percentile") is None:
         st.info("Chance check not yet run for this pair.")
         return
@@ -337,22 +402,31 @@ def badge_status(ts: dict) -> str | None:
     return "Candidate" if lo > 0 else ("Reject" if hi < 0 else "Watchlist")
 
 
-def is_window_note(pair_id: str) -> str:
+def is_window_note(pair_id: str, track: str = "main") -> str:
     """The training windows of the scrambled contests against the real winner's (QA B1 umcsent M1: real-time
     contests at large shifts train on much shorter windows, so the percentile compares unlike samples). Read from
     results/<pair>/null_is_windows_<tag>.csv (scripts/null_is_windows.py); '' when the pair has none."""
     from components import provenance as P
     rdir = Path(__file__).resolve().parents[2] / "results" / pair_id
-    files = sorted(rdir.glob("null_is_windows_*.csv"))
-    if not files:
+    try:
+        f = P.current_file(pair_id, "null_is_windows")
+    except P.CurrentRunFileError as e:
+        return f" (The training-window comparison file is missing: {e}.)"
+    if f is None:
         return ""
     try:
-        df = P.csv_file(files[-1])
+        df = P.csv_file(f)
         ws = json.loads((rdir / "winner_summary.json").read_text())
     except (OSError, ValueError):
         return ""
     unit = _lead_unit(ws) or "periods"
     if not {"is_n_draw", "is_n_actual"} <= set(df.columns):
+        return ""
+    if "track" in df.columns:                  # files since QA nomain F4 carry every track's rows
+        df = df[df["track"].astype(str) == track]
+    elif track != "main":
+        return ""
+    if df["is_n_actual"].notna().sum() == 0:
         return ""
     lo, hi, act = P.colmin(df, "is_n_draw"), P.colmax(df, "is_n_draw"), P.colmax(df, "is_n_actual")
     if float(lo) == float(hi) == float(act):
@@ -377,7 +451,7 @@ def draws_note(nt: dict) -> str:
             f" percentile from {nt['n_draws']:,}.")
 
 
-def coarse_note(pair_id: str, nt: dict) -> str:
+def coarse_note(pair_id: str, nt: dict, track: str = "main") -> str:
     """When the span allows fewer contests than the null's target and every admissible shift was run (cc: 36), the
     percentile is coarse; says so with the number of effectively independent contests (Bartlett effective draws of
     the R7.1 timing-Sharpe SE, results/<pair>/winner_summary.json). '' otherwise (Lead v3.1 item 2)."""
@@ -386,7 +460,7 @@ def coarse_note(pair_id: str, nt: dict) -> str:
         return ""
     try:
         ws = P.json_file(Path(__file__).resolve().parents[2] / "results" / pair_id / "winner_summary.json")
-        eff = ws["tracks"]["main"]["null_tournament"]["timing_sharpe_effective_draws"]
+        eff = ws["tracks"][track]["null_tournament"]["timing_sharpe_effective_draws"]
     except (OSError, ValueError, KeyError, TypeError):
         eff = None
     out = f" The percentile is coarse: this span allows only {nt['n_draws']:,} contests"
@@ -396,24 +470,24 @@ def coarse_note(pair_id: str, nt: dict) -> str:
     return out + "."
 
 
-def oos_rank_note(nt: dict) -> str:
+def oos_rank_note(nt: dict, who: str = "real winner") -> str:
     """Where the real winner's TEST-period Sharpe falls among the scrambled contests' winners' test-period Sharpes
     (QA B1 permit N2: stored, never shown; the plateau percentile above is a training-period statistic). Tagged
     from track_summary null_tournament.winner_oos_percentile (share of null winners strictly below)."""
     q = nt.get("winner_oos_percentile")
     if q is None:
         return ""
-    return (" On the test period, the real winner's Sharpe ranks at the "
+    return (f" On the test period, the {who}'s Sharpe ranks at the "
             f"{_ordinal(round(q * 100))} percentile of the scrambled contests' winners' test-period Sharpes.")
 
 
-def r71_note(pair_id: str) -> str:
+def r71_note(pair_id: str, track: str = "main") -> str:
     """The R7.1 calibration result stated on every pair, pass or fail (QA B1 umcsent F2: a pass 0.001 inside the
     tolerance was invisible): the mean timing Sharpe of the scrambled contests' winners, its dependence-aware SE,
     the tolerance and the outcome, tagged from winner_summary tracks.main.null_tournament. '' without a null."""
     try:
         ws = P.json_file(Path(__file__).resolve().parents[2] / "results" / pair_id / "winner_summary.json")
-        n = ws["tracks"]["main"]["null_tournament"]
+        n = ws["tracks"][track]["null_tournament"]
         m, se, tol, ok = (n["timing_sharpe_mean"], n["timing_sharpe_se_dependent"], n["r71_tolerance"],
                           n["r71_pass"])
     except (OSError, ValueError, KeyError, TypeError):
@@ -428,10 +502,45 @@ def r71_note(pair_id: str) -> str:
     return out + "."
 
 
-def chance_fact(ts: dict) -> str | None:
+def hindsight_null(pair_id: str) -> dict | None:
+    """rt_insufficient: the comparison (hindsight, revised data) track's null summary in the track_summary
+    null_tournament shape, tagged from winner_summary tracks.comparison.null_tournament (QA nomain F1: the page
+    said 'not yet run' although the hindsight null exists). None when there is none."""
+    try:
+        ws = P.json_file(Path(__file__).resolve().parents[2] / "results" / pair_id / "winner_summary.json")
+        n = ws["tracks"]["comparison"]["null_tournament"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+    if not n or n.get("selection_stat_percentile") is None:
+        return None
+    return {"n_draws": n["n_draws"], "winner_percentile": n["selection_stat_percentile"],
+            "p_selection_stat": n.get("p_selection_stat"), "winner_oos_percentile": n.get("winner_oos_percentile"),
+            "n_admissible_offsets": n.get("n_admissible_offsets"),
+            "n_draws_without_winner": n.get("n_draws_without_winner", 0), "r71_pass": n.get("r71_pass")}
+
+
+HINDSIGHT_NULL_HEAD = ("There is no rule on data as known at the time, so that track has no chance check. Hindsight "
+                       "(today's revised data): ")
+
+
+def _hindsight_chance_text(pair_id: str, hn: dict) -> str:
+    pos = (f"is above all {hn['n_draws']:,}" if hn["winner_percentile"] >= 1 else
+           f"ranks at the {_ordinal(round(hn['winner_percentile'] * 100))} percentile of {hn['n_draws']:,}")
+    p = hn.get("p_selection_stat")
+    return (HINDSIGHT_NULL_HEAD + f"the hindsight winner's stable-range score {pos} scrambled-signal contests"
+            + ("" if p is None else " (no contest scored as high)" if float(p) == 0 else
+               f" (share of contests scoring at least as high: {p:.2f})") + "."
+            + oos_rank_note(hn, "hindsight winner") + draws_note(hn) + coarse_note(pair_id, hn, "comparison")
+            + is_window_note(pair_id, "comparison") + r71_note(pair_id, "comparison"))
+
+
+def chance_fact(ts: dict, pair_id: str | None = None) -> str | None:
     """Neutral one-line chance-check fact for the Executive Confidence Summary (same place on every pair; it
     is neither a strength nor a risk). None when the null has not been run."""
     nt = ts.get("null_tournament")
+    if (not nt or nt.get("winner_percentile") is None) and no_main(ts) and pair_id:
+        hn = hindsight_null(pair_id)
+        return _hindsight_chance_text(pair_id, hn) if hn else None
     if not nt or nt.get("winner_percentile") is None:
         return None
     pos = (f"is above all {nt['n_draws']:,}" if nt["winner_percentile"] >= 1 else
@@ -455,6 +564,7 @@ BADGE_RULE = ("Badge rule (as-known-at-the-time result only): Candidate when the
 def render_badge_note(ts: dict) -> None:
     """Line next to the Candidate / Watchlist / Reject badge (section 7b)."""
     if ts["track_state"] == "rt_insufficient":
-        st.caption("No status: no winner on data as known at the time.")
+        st.caption("Unranked: there is no rule on data as known at the time, so no Candidate, Watchlist or Reject "
+                   "status.")
     else:
         st.caption("Suggestion from the as-known-at-the-time result; you judge. " + BADGE_RULE)

@@ -86,7 +86,7 @@
       "why": "Sharpe difference vs buy-and-hold and its bootstrap interval"
     },
     {
-      "pattern": "/insufficient_reason/min_required$",
+      "pattern": "/(?:insufficient_reason|main_not_eligible)/min_required$",
       "kind": "count",
       "why": "minimum training rows the method requires (rt_insufficient reason)"
     },

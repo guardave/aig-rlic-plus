@@ -116,18 +116,16 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def run_tag_of(ws: dict, rdir: Path) -> str | None:
+def run_tag_of(ws: dict, rdir: Path | None = None) -> str | None:
     """A pair's current run tag: winner_summary run_tag (Phase B harness, written even when MAIN has no winner),
-    else the tournament file the published winner came from, else the latest dated tournament_results file."""
+    else the tournament file the published winner came from; None otherwise (no latest-dated-file guess, QA
+    nomain F2)."""
     if ws.get("run_tag"):
         return str(ws["run_tag"])
     try:
         return ws["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
     except (KeyError, TypeError, AttributeError):
-        pass
-    tags = sorted(f.stem.rsplit("_", 1)[-1] for f in Path(rdir).glob("tournament_results_*.csv")
-                  if f.stem.rsplit("_", 1)[-1].isdigit())
-    return tags[-1] if tags else None
+        return None
 
 
 def results_tag(pair: str) -> str | None:

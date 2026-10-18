@@ -3,9 +3,11 @@
 import streamlit as st
 
 
-def kpi_card(label: str, value: str, delta: str = None, delta_color: str = "normal"):
-    """Render a single KPI metric card. A neutral delta that reports no difference ('(same)') shows no arrow."""
-    arrow = "off" if delta_color == "off" and delta is not None and str(delta).endswith("(same)") else "auto"
+def kpi_card(label: str, value: str, delta: str = None, delta_color: str = "normal", delta_arrow: str | None = None):
+    """Render a single KPI metric card. A neutral delta that reports no difference ('(same)') shows no arrow;
+    ``delta_arrow='off'`` for a delta that is a reference value, not a change (e.g. buy-and-hold)."""
+    arrow = delta_arrow or ("off" if delta_color == "off" and delta is not None and str(delta).endswith("(same)")
+                            else "auto")
     st.metric(label=label, value=value, delta=delta, delta_color=delta_color, delta_arrow=arrow)
 
 

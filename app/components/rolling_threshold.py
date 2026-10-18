@@ -143,7 +143,15 @@ def resolve_threshold(pair_id: str, winner: dict[str, Any], repo_root: Path | No
     value = None
     if spec and spec.get("window"):
         root = repo_root or Path(__file__).resolve().parents[2]
-        files = sorted((root / "results" / pair_id).glob("signals_*.parquet"))
+        if repo_root is None:
+            from components.provenance import CurrentRunFileError, current_file
+            try:
+                cur = current_file(pair_id, "signals", "parquet")
+            except CurrentRunFileError:
+                cur = None
+            files = [cur] if cur else []
+        else:
+            files = sorted((root / "results" / pair_id).glob("signals_*.parquet"))
         col = winner.get("signal_column")
         if files and col:
             try:

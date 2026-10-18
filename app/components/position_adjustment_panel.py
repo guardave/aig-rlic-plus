@@ -101,12 +101,8 @@ def _deployed_positions(pair_dir: Path, winner: dict) -> tuple[pd.Series | None,
     """The winner's DEPLOYED positions from its strategy-returns artifact (the file the headline numbers come
     from: winner_summary's source tag, else the latest dated file), as exposure in percent. For harness pairs
     this is the as-known-at-the-time (MAIN) track. (None, None) when no file records positions."""
-    from components.provenance import run_tag
-    tag = run_tag(winner or {}, pair_dir)
-    f = pair_dir / f"strategy_returns_{tag}.csv" if tag else None
-    if f is None or not f.exists():
-        files = sorted(pair_dir.glob("strategy_returns_2*.csv"))
-        f = files[-1] if files else None
+    from components.provenance import resolve_current
+    f = resolve_current(Path(pair_dir).name, "strategy_returns", rdir=pair_dir)
     if f is None:
         return None, None
     try:

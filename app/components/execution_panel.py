@@ -36,8 +36,9 @@ def _resolve_paths(pair_id: str) -> dict:
     pair_dir = os.path.join(_RESULTS_DIR, pair_id)
 
     # Tournament results
-    tourn_files = sorted(glob(os.path.join(pair_dir, "tournament_results_*.csv")))
-    tourn_path = tourn_files[-1] if tourn_files else None
+    from components.provenance import resolve_current
+    _tp = resolve_current(pair_id, "tournament_results")      # Phase B: current run only; legacy: latest dated
+    tourn_path = str(_tp) if _tp else None
 
     # Date tag from tournament file
     date_tag = None

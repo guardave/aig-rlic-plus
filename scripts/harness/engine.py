@@ -182,7 +182,9 @@ def score_candidate(res: TrackResult, key: str) -> dict | None:
     if not len(hit):
         return None
     r = res.table.loc[hit[0]]
-    return {"is_sharpe": float(r["is_sharpe"]), "oos_sharpe": float(r["oos_sharpe"]), "valid": bool(r["valid"]),
+    # no training window on this track (rt_insufficient: no common IS start): there is no training Sharpe, not 0.0
+    is_s = None if res.common_is_start is None or pd.isna(r["is_sharpe"]) else float(r["is_sharpe"])
+    return {"is_sharpe": is_s, "oos_sharpe": float(r["oos_sharpe"]), "valid": bool(r["valid"]),
             "is_eligible": bool(r["is_eligible"]),
             "window": {"is_start": None if res.common_is_start is None else res.common_is_start.date().isoformat(),
                        "oos_start": res.spec.oos_start, "oos_end": res.index[-1].date().isoformat()}}
