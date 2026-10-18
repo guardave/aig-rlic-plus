@@ -1,10 +1,10 @@
 {
   "chart_name": "history_zoom_gfc",
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-15T18:16:22.337491+00:00",
+  "generated_at": "2026-10-18T07:17:35.071723+00:00",
   "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "caption": "Global Financial Crisis: Net-Tightening Spiked to Record Highs; gray bands are NBER recessions.",
-  "narrative_alignment_note": "Global Financial Crisis: Net-Tightening Spiked to Record Highs; gray bands are NBER recessions.",
+  "caption": "Financial Crisis: Net Tightening Reached Survey Highs; gray bands are NBER recessions, pink bands quarters with net tightening above zero.",
+  "narrative_alignment_note": "Financial Crisis: Net Tightening Reached Survey Highs; gray bands are NBER recessions, pink bands quarters with net tightening above zero.",
   "disposition": "consumed",
   "source_artifacts": [
     "data/sloos_ci_small_spy_quarterly_latest.parquet"

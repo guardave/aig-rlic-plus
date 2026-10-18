@@ -1,10 +1,10 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-15T18:16:22.161509+00:00",
+  "generated_at": "2026-10-18T07:17:20.675090+00:00",
   "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "caption": "Rolling correlation between SLOOS tightening and SPY returns; the sign swings through time, so the relationship needs ongoing monitoring.",
-  "narrative_alignment_note": "Rolling correlation between SLOOS tightening and SPY returns; the sign swings through time, so the relationship needs ongoing monitoring.",
+  "caption": "Rolling 20-quarter correlation between the 4-quarter change in net tightening and same-quarter SPY returns; range -0.84 to 0.66.",
+  "narrative_alignment_note": "Rolling 20-quarter correlation between the 4-quarter change in net tightening and same-quarter SPY returns; range -0.84 to 0.66.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/sloos_ci_small_spy/rolling_correlation_sloos_ci_small_spy.csv"

@@ -1,12 +1,12 @@
 {
   "chart_name": "equity_curves",
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-15T18:16:22.030634+00:00",
+  "generated_at": "2026-10-18T07:17:06.739980+00:00",
   "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "caption": "Winner strategy equity curve vs buy-and-hold SPY (found-in-search candidate; full-sample path, OOS from 2017-12).",
-  "narrative_alignment_note": "Winner strategy equity curve vs buy-and-hold SPY (found-in-search candidate; full-sample path, OOS from 2017-12).",
+  "caption": "Growth of $1 from the training start (2010-09-30) for the winner rule on data as known at the time and for buy-and-hold SPY; the test period starts 2017-12-31.",
+  "narrative_alignment_note": "Growth of $1 from the training start (2010-09-30) for the winner rule on data as known at the time and for buy-and-hold SPY; the test period starts 2017-12-31.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/sloos_ci_small_spy/strategy_returns_20261015.csv"
+    "results/sloos_ci_small_spy/strategy_returns_20261018.csv"
   ]
 }

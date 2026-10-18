@@ -1,318 +1,263 @@
-"""SLOOS C&I Lending Standards (Large & Middle-Market Firms, DRTSCILM, net-% tightening) × SPY config (Rule APP-PT1).
+"""SLOOS C&I lending standards (DRTSCILM) x SPY pair configuration (Rule APP-PT1).
 
-SERIES NOTE: despite the "small" in the pair_id / column name (kept for URL and
-file stability), the data is FRED DRTSCILM (large and middle-market firms), not
-the small-firm series DRTSCIS — verified against ALFRED vintages.
-
-QUARTERLY pair, page-31 prefix. Templated on the quarterly archetype
-(eci_total_comp_spy_config.py): explicit quarterly units everywhere,
-EXECUTIVE_CONFIDENCE_SUMMARY, honest found-in-search framing. The chart set
-matches the simpler unrate_spy family (no lead-tournament / transfer-entropy /
-HMM blocks — those artifacts do not exist for this pair).
-
-HONEST FRAMING (binding). Every number below is verbatim from
-results/sloos_ci_small_spy/* (winner_summary.json, kpis.json,
-evidence_status.json, interpretation_metadata.json,
-core_models_20261015/*, granger_by_lag.csv, regime_quartile_returns.csv,
-subperiod_sharpe.csv, tournament_validation_20261015/bootstrap.csv,
-structural_break_sloos_ci_small_spy.json). Do NOT oversell:
-
-  - The winner (`level / T0_zero / procyclical / L3 QUARTERS`; OOS Sharpe 1.51
-    vs B&H 0.89) is a FOUND-IN-SEARCH CANDIDATE. The median valid combo (0.60)
-    UNDERPERFORMS buy-and-hold (0.89); the OOS window is just 32 QUARTERS
-    (~8 years); there is no untouched holdout. Bootstrap p = 0.0 is reported,
-    but the winner IS the grid maximum, so that p is selection-biased — it is
-    NOT independent validation.
-  - The winner's DIRECTION CONTRADICTS the economic prior. The credit-crunch
-    prior is COUNTERCYCLICAL (reduce SPY when tightening rises), yet the search
-    selected a PROCYCLICAL rule at a 3-quarter lead. This is flagged as a
-    likely search artifact / small-sample fragility (fleet-wide long-lead
-    pattern is issue #28) — NOT as evidence that tightening is bullish. The
-    concurrent quartiles (Q4, most tightening, worst SPY Sharpe 0.31) DO
-    support the countercyclical reading; note the tension, never smooth it.
-  - The defensible virtue is DRAWDOWN reduction (OOS -4.3% vs -23.9%); read the
-    Sharpe as volatility avoidance, not forecasting skill (OOS return 15.1% is
-    barely above B&H 14.8%).
-  - SLOOS does NOT Granger-cause SPY at the tested quarterly lags (min p 0.23);
-    present it as a leading credit-stress CONTEXT overlay, not a validated
-    forecast.
-  - Quarterly, NSA, revised; few credit cycles → the lead rests on a handful of
-    episodes.
-
-QUARTERLY conventions: leads in QUARTERS (winner L3q ≈ 9 months); Sharpe
-annualized by √4; OOS window = 32 quarters (2017-12-31 → 2025-09-30);
-grid of 120 valid combos (leads L0..L4).
+QUARTERLY credit-survey pair. The data is the net percentage of banks tightening C&I standards for LARGE and
+MIDDLE-MARKET firms (FRED DRTSCILM), not the small-firm series DRTSCIS that the pair id names. Phase B: every result
+number is rendered from the structured winner fields (results/sloos_ci_small_spy/winner_summary.json
+`winner_fields`, via components.winner_fields) or from the evidence tables listed in evidence_facts; none is typed
+here (scripts/gate_structured_prose.py, scripts/gate_number_provenance.py). MAIN = as known at the time (real-time
+DRTSCILM vintages, archive from 2010); COMPARISON = as revised today (hindsight). The previously published rule was
+the raw in-sample Sharpe argmax on revised data with fixed lags; it replays through the harness.
 """
 
 from __future__ import annotations
 
+from pathlib import Path
+
+from components import provenance as P
 from components.page_templates import MethodologyConfig
+from components.winner_fields import load
+
+PAIR = "sloos_ci_small_spy"
+W = load(PAIR)
+_RES = Path(__file__).resolve().parents[2] / "results" / PAIR
+_WS = P.json_file(_RES / "winner_summary.json")
+_TAG = _WS["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
+_CORE = _RES / f"core_models_{_TAG}"
+_Q = P.col_dict(P.csv_file(_RES / "regime_quartile_returns.csv"), "quartile", "sharpe")
+_G = P.csv_file(_RES / "granger_by_lag.csv")
+_G_MIN = P.colmin(_G, "p_value")
+_G_MIN_HOLM = P.colmin(_G, "p_holm")
+_C = P.csv_file(_CORE / "correlations.csv")
+_C_MAX = P.colmaxabs(_C, "value")
+_C_MINP = P.colmin(_C, "p_value")
+_CCF = P.csv_file(_CORE / "ccf_prewhitened.csv")
+_CCF_SIG = _CCF[_CCF["significant"].astype(bool)]
+_CCF_POS = [int(x) for x in _CCF_SIG["lag"] if x > 0]
+_CCF_TXT = ", ".join(str(x) for x in _CCF_SIG["lag"]) if len(_CCF_SIG) else "none"
+_LP = P.csv_file(_CORE / "local_projections.csv")
+_LP_MINP = P.colmin(_LP, "p_value")
+_QT = P.json_file(_CORE / "quantile_equality_test.json")
+_SP = P.csv_file(_RES / "subperiod_sharpe.csv")
+_SB = P.json_file(_RES / f"structural_break_{PAIR}.json")
+_ST = P.csv_file(_RES / f"stationarity_tests_{_TAG}.csv").set_index(["variable", "test"])["p_value"]
+_TS = P.json_file(_RES / "track_summary.json")
+_NT = _TS.get("null_tournament") or {}
+_EV = P.json_file(_RES / f"evidence_facts_{_TAG}.json")["derived"]
+_MAN = P.json_file(_RES / f"candidates_manifest_{_TAG}.json")
+_GRID = P.lead_grid(PAIR)
+_GRID_RANGE = f"L{_GRID[0]}-L{_GRID[-1]}"
+_VIN0 = P.year(_WS["tracks"]["main"]["sample"]["first_vintage"])  # first archived real-time vintage (year)
+_EDGE = bool(((_WS.get("tracks") or {}).get("main") or {}).get("plateau", {}).get("grid_edge"))
+_HZ = list(_LP["horizon"])
+_HZ_TXT = ", ".join(str(h) for h in _HZ[:-1]) + f" and {_HZ[-1]}"
+_ANY_SIG = bool(_C_MINP < 0.05 or _G_MIN_HOLM < 0.05 or _LP_MINP < 0.05)
+
+SIGNAL_TEXT = P.definitions({
+    "level": "net share of banks tightening",
+    "diff_1q": "quarterly change in the net share of banks tightening",
+    "chg_4q": "4-quarter change in the net share of banks tightening",
+    "zscore_20q": "net share of banks tightening versus its 5-year history (20-quarter z-score)",
+})
+THRESHOLD_TEXT = P.definitions({
+    "T0_zero": "zero", "T_z_0": "zero", "T_z_1.0": "a z-score of 1.0",
+    "T_roll_p50": "its rolling 20-quarter median", "T_roll_p75": "its rolling 20-quarter 75th percentile",
+})
+SIDE = {"countercyclical": "at or below", "procyclical": "at or above"}
+LEAN = {"countercyclical": "countercyclical, the credit-crunch prior (hold equities when bank tightening is low or "
+                           "falling)",
+        "procyclical": "procyclical, against the credit-crunch prior (hold equities when bank tightening is high or "
+                       "rising)"}
+
+
+def _rule(prefix: str = "") -> str:
+    """Plain-English rule of a track's winner, from its structured fields (P1 long/cash only on this pair)."""
+    g = lambda n: W.text(prefix + n)  # noqa: E731
+    return (f"hold SPY when the {SIGNAL_TEXT.get(W.value(prefix + 'signal_code'), g('signal_code'))} from "
+            f"{g('lead_word')} quarters earlier is {SIDE.get(W.value(prefix + 'direction'), g('direction'))} "
+            f"{THRESHOLD_TEXT.get(W.value(prefix + 'threshold_code'), g('threshold_code'))}; otherwise hold cash")
+
+
+def _rid(prefix: str = "") -> str:
+    g = lambda n: W.text(prefix + n)  # noqa: E731
+    return " / ".join([g("signal_code"), g("threshold_code"), g("strategy_family"), f"L{g('lead')}"])
+
+
+def _r71_caveat() -> str:
+    """R7.1 failures flagged in the caveats from the null diagnosis flags; the numbers (pass or fail) are stated on
+    the chance-check panel by components.two_track.r71_note."""
+    out = []
+    for lbl, key in (("as known at the time", "main"), ("as revised today", "comparison")):
+        n = (_WS["tracks"].get(key) or {}).get("null_tournament") or {}
+        if n.get("r71_pass") is not False:
+            continue
+        d = n.get("r71_diagnosis") or {}
+        sign = "negative" if str(n.get("timing_sharpe_mean")).startswith("-") else "positive"
+        where = ("only in the scrambled contests' selected winners on the real return path, not in unselected "
+                 "candidates or with the returns permuted" if d.get("bias_only_in_selected_winners_on_real_returns")
+                 else "also without selection or without the real return path")
+        out.append(f"on data {lbl} they do not meet it: the average timing Sharpe is {sign}, and the bias appears "
+                   f"{where}; its cause is not established (diagnosis in winner_summary.json). Read that track's "
+                   "chance-check percentile with this in mind")
+    if not out:
+        return ""
+    return ("6. **Chance-check calibration.** The scrambled contests should show no timing skill on average (the R7.1 "
+            "check); " + "; ".join(out) + ".\n")
+
+
+_RULE = _rule()
+_RULE_REVISED = _rule("comparison_")
+_RID = _rid()
+_RID_REVISED = _rid("comparison_")
+_DIR = W.value("direction")
+_SIG = SIGNAL_TEXT.get(W.value("signal_code"), W.signal_code)
+_THR = THRESHOLD_TEXT.get(W.value("threshold_code"), W.threshold_code)
+_SAME_RULE = _RID == _RID_REVISED
+_R71 = _r71_caveat()
+_CHANCE_TEXT = (f"the real winner's stable-range score is above the winners of all {W.null_draws} scrambled contests"
+                if W.value("null_percentile") == 1 else
+                f"the real winner's stable-range score ranks at the {W.null_percentile} point of the scrambled scores")
+_IS_BELOW_BH = W.value("is_sharpe") < W.value("bh_is_sharpe")
+_LOG_OOS_TXT = (f"the trade log has the same {_EV['n_trade_log_rows_test_period']} rows dated in the test period"
+                if _EV["n_trade_log_rows_test_period"] == W.value("oos_n_trades") else
+                f"the trade log has {_EV['n_trade_log_rows_test_period']} rows dated in the test period, because it "
+                "also records the switch into the first test-period quarter")
 
 
 # =========================================================================
 # STORY PAGE
 # =========================================================================
 class StoryConfig:
-    PAGE_TITLE = "The Story: A Credit-Tightening Overlay Whose Winner Runs the Wrong Way"
+    PAGE_TITLE = "The Story: Bank Lending Standards as a Credit-Cycle Overlay"
     PAGE_SUBTITLE = (
-        "Fed Senior Loan Officer Survey (SLOOS) — net % of banks tightening "
-        "C&I standards to LARGE and MIDDLE-MARKET firms (series DRTSCILM, NSA) × S&P 500 (SPY). "
-        "QUARTERLY, analytical sample 1993-Q1 → 2025-Q3 (~131 quarters). A "
-        "leading CREDIT indicator: all leads and windows are in QUARTERS."
+        "Fed Senior Loan Officer Survey (SLOOS): net share of banks tightening standards for commercial and "
+        "industrial loans to large and middle-market firms (FRED DRTSCILM) x S&P 500 (SPY). QUARTERLY: all leads and "
+        "windows are in quarters."
     )
 
     HEADLINE_H2 = (
-        "## The credit prior is countercyclical — tighten lending, trim equity "
-        "— yet the search's best rule (OOS Sharpe 1.51 vs 0.89 buy-and-hold) "
-        "is PROCYCLICAL at a 3-quarter lead. On a 32-quarter window whose "
-        "median rule UNDERPERFORMS buy-and-hold, treat that winner as a "
-        "found-in-search candidate, not a validated edge."
+        f"## Test-period Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, on survey data as known at "
+        f"the time (archive from {_VIN0})"
     )
 
     PLAIN_ENGLISH = (
-        "The Fed's Senior Loan Officer Opinion Survey (SLOOS) asks banks each "
-        "quarter whether they are tightening or easing the credit standards "
-        "they apply to business (C&I) loans. This pair uses the net percentage "
-        "tightening toward LARGE and MIDDLE-MARKET firms (FRED DRTSCILM) — the "
-        "core of bank business lending. The economic prior is countercyclical: when banks tighten, "
-        "credit-dependent activity slows and recession risk rises, so you would "
-        "want LESS equity, not more. We tested that, and the honest result is "
-        "two-sided. The concurrent evidence supports the prior — the quarters "
-        "with the MOST tightening have the WORST SPY Sharpe. But the strategy "
-        "search latched onto the opposite orientation (procyclical) at a "
-        "3-quarter lag, on a small 32-quarter window where the typical rule "
-        "loses to simply holding SPY. So we present the rule as a candidate "
-        "with its warning labels attached, and read its main benefit as "
-        "drawdown control rather than forecasting."
+        "Every quarter the Federal Reserve asks senior loan officers whether their bank has tightened or eased "
+        "its standards for business loans. The measure used here is the share of banks that tightened minus the "
+        "share that eased, for loans to large and middle-market firms. The economic prior is countercyclical: when "
+        "banks tighten, credit becomes scarce, investment slows, and equities have historically struggled. The "
+        "headline result uses the survey figures as they were published at each date. Those published figures are "
+        f"archived only from {_VIN0}, so the training period for the headline result is short."
     )
 
     WHERE_THIS_FITS = (
-        "This is a leading CREDIT-STRESS context overlay for broad U.S. "
-        "equities. It belongs in the portal as macro context — rising "
-        "C&I tightening has historically preceded credit crunches — "
-        "not as a validated timing signal. The formal tests do not find SLOOS "
-        "Granger-causing SPY, so use it to read the credit cycle, not to time "
-        "the market."
+        "This is a credit-cycle overlay for broad U.S. equities. The pair id says small firms, but the series tested "
+        "is the large and middle-market one (DRTSCILM); the small-firm series (DRTSCIS) is published in the same "
+        "survey and has not been tested here."
     )
 
     ONE_SENTENCE_THESIS = (
-        "C&I credit tightening (large & middle-market firms) is a leading credit-stress gauge whose "
-        "concurrent evidence is countercyclical (most-tightening quarters have "
-        "the weakest SPY Sharpe), yet the search's best QUARTERLY rule is a "
-        "procyclical 3-quarter-lag candidate (OOS Sharpe 1.51 vs 0.89) on a "
-        "32-quarter window whose median rule underperforms buy-and-hold — a "
-        "found-in-search candidate, not a validated edge."
+        f"On data as known at the time, the rule selected on the training period is to {_RULE}; it is "
+        f"{LEAN.get(_DIR, _DIR)}, and in the test period it scored Sharpe {W.oos_sharpe} against "
+        f"{W.bh_oos_sharpe} for buy-and-hold."
     )
 
     KPI_CAPTION = (
-        "every performance number on this page is a SEARCH-PHASE, "
-        "out-of-sample figure on a 32-QUARTER window (2017-12-31 → "
-        "2025-09-30 ≈ 8 years) — a small quarterly sample. The winner was "
-        "found as the best of 120 valid combinations; the MEDIAN valid combo "
-        "scored 0.60, BELOW buy-and-hold's 0.89. The winner's direction "
-        "(procyclical, L3q) contradicts the countercyclical credit prior. "
-        "Sharpe ratios use quarterly √4 annualization. Treat it as a "
-        "candidate, not a verdict."
+        f"Winner selected on training data ({W.is_start} to {W.is_end}, {W.is_n} quarters as known at the time) by "
+        f"{W.selection_objective}. Test period {W.oos_start} to {W.oos_end} ({W.oos_n} quarters). Sharpe ratios use "
+        "quarterly annualization."
     )
 
-    HERO_TITLE = "SLOOS C&I Tightening (Large & Middle-Market Firms) vs the S&P 500 (SPY)"
+    HERO_TITLE = "Bank C&I Lending Standards vs the S&P 500 (SPY)"
     HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
-        "How to read it: dual-axis view — net % of banks tightening C&I "
-        "standards to large and middle-market firms (DRTSCILM, quarterly) and the S&P 500 (SPY) on a "
-        "common time axis, NBER recessions shaded. Watch the spikes: "
-        "net-tightening surged into every recession (2001, 2008, 2020) — the "
-        "visual signature of a leading credit-stress gauge."
+        "How to read it: the net share of banks tightening (left axis; above zero = more banks tightening than "
+        "easing) is shown with SPY (right axis) on the same time axis. Gray bands are NBER recessions; pink bands "
+        "mark quarters with net tightening above zero."
     )
 
-    REGIME_TITLE = "What History Shows: SPY Performance by SLOOS-Tightening Quartile"
+    REGIME_TITLE = "What History Shows: SPY Performance by Lending-Standards Regime"
     REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
-        "What this shows: concurrent S&P 500 (SPY) performance in each "
-        "quartile of SLOOS net-% tightening, from least (Q1) to most (Q4) — "
-        "annualized Sharpe and return. The most-tightening quartile (Q4) has "
-        "the WORST Sharpe (0.31) versus 0.78 / 1.00 / 0.98 in Q1–Q3. The "
-        "pattern is NOT a smooth quartile gradient — Q1–Q3 are non-monotonic "
-        "(Q2 > Q3 > Q1) — so it is best read as a distinctly weak "
-        "EXTREME-tightening (Q4) regime, not a clean 'more tightening = "
-        "progressively worse' relationship. It still points countercyclically "
-        "at the extreme, which is the OPPOSITE of the procyclical winner the "
-        "search selected at a 3-quarter lag. Descriptive and concurrent, not a "
-        "tradable lead."
+        "What this shows: quarters sorted by the 4-quarter change in net tightening, from fastest easing (Q1) to "
+        f"fastest tightening (Q4). Same-quarter SPY Sharpe is {_Q['Q1']:.2f} in Q1, {_Q['Q2']:.2f} in Q2, "
+        f"{_Q['Q3']:.2f} in Q3 and {_Q['Q4']:.2f} in Q4. Descriptive and concurrent, not a tradable lead."
     )
 
-    NARRATIVE_SECTION_1 = """
-### C&I credit tightening (large & middle-market firms): a leading credit-stress gauge, tested honestly
+    NARRATIVE_SECTION_1 = f"""
+### Bank lending standards: the credit channel
 
-The Fed's Senior Loan Officer Opinion Survey (SLOOS) is the cleanest quarterly
-read on whether bank credit is loosening or tightening. This pair uses the net
-percentage of banks tightening C&I lending standards toward LARGE and
-MIDDLE-MARKET firms (FRED `DRTSCILM`) — the bulk of bank business lending. These
-borrowers have more alternatives to a bank loan (bond and syndicated-loan
-markets) than small firms do, so this series reads the broad bank credit
-cycle rather than the most bank-dependent corner of it; the classic
-"small firms feel the squeeze first" argument is NOT what this series tests.
-Because the series is a bounded, mean-reverting net
-percentage, its level is stationary and is used directly (ADF p < 0.001).
+This result uses data as known at the time, covering {W.is_start} to {W.oos_end}: each quarter the rule reads the survey as it was published then. That archive starts in {_VIN0}, so the training period is only {W.is_n} quarters and contains no recession.
 
-The economic prior is **countercyclical**: when banks pull back, credit-
-dependent activity slows, recession and earnings risk rise, and equity exposure
-should be REDUCED. Historically net-tightening leads the cycle by roughly one to
-four quarters — it spiked ahead of the 2001, 2008, and 2020 downturns.
+The Senior Loan Officer Opinion Survey asks banks whether their standards for commercial and industrial (C&I) loans have tightened or eased since the previous survey. The net share tightening (FRED series `DRTSCILM`) rose sharply before and during the 2001 and 2008 recessions and again in 2020 and 2022-23. The economic prior is **countercyclical**: when more banks tighten, firms lose access to credit, and equity exposure should be reduced.
 
-**What the concurrent evidence says:** it supports the prior. Sorting quarters
-by how much banks were tightening, the most-tightening quartile (Q4) delivered
-the weakest concurrent SPY Sharpe (0.31) versus 0.78–1.00 in the calmer
-quartiles. High tightening coincides with poor equity conditions — exactly the
-countercyclical reading.
+**What the search selected.** The rule chosen on the training period is to {_RULE}. Its orientation is {LEAN.get(_DIR, _DIR)}. It was selected by {W.selection_objective} (stable lead range {W.plateau_range}) out of {W.n_valid} valid combinations. In the test period ({W.oos_start} to {W.oos_end}, {W.oos_n} quarters) it records Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, with maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}. The test-period Sharpe difference is {W.sharpe_gap} (95% interval {W.ci_low} to {W.ci_high}).
 
-**What the strategy search did instead:** it selected the OPPOSITE orientation.
-The best rule on the 32-quarter out-of-sample window is *procyclical* — long SPY
-when the 3-quarter-lagged SLOOS level is on the NET-TIGHTENING side of zero
-(≥ 0), cash when it is easing (< 0). That is the counter-intuitive part: the rule
-buys equities precisely when C&I credit was tightening three quarters
-earlier — the opposite of the countercyclical prior. We flag that contradiction rather than paper over it (see the
-Strategy page); on a small quarterly sample it is most plausibly a search
-artifact / small-sample fragility, not evidence that tightening is bullish.
+**On today's revised data (hindsight, for comparison only)** the rule selected over the longer revised history is to {_RULE_REVISED}; its test-period Sharpe is {W.comparison_oos_sharpe}.
 
-<!-- expander: What exactly is the SLOOS large & middle-market C&I series? -->
-The Senior Loan Officer Opinion Survey on Bank Lending Practices (FRED series
-`DRTSCILM`) reports the NET percentage of domestic banks reporting tighter
-standards on commercial & industrial loans to large and middle-market firms
-(firms with annual sales of $50 million or more). It is quarterly, NOT seasonally adjusted, and is
-qualitative (a diffusion index of banker sentiment, not a hard activity
-measure). Positive readings mean net tightening; negative mean net easing. The
-survey is released a few weeks after each quarter's reference period.
+<!-- expander: What exactly is the SLOOS tightening series? -->
+`DRTSCILM` is the net percentage of domestic banks reporting tighter standards for C&I loans to large and middle-market firms (the survey's larger-firm size class): the share reporting tighter standards minus the share reporting easier standards. It is a quarterly diffusion measure, bounded because it is a difference of shares, published in the Fed's survey release in early February, May, August and November, inside the quarter it describes. The archive of published figures (ALFRED) starts in {_VIN0}; a later vintage revised the history. The small-firm series `DRTSCIS` comes from the same survey.
 <!-- /expander -->
 
-### A quarterly credit pair — small samples, few cycles, explicit units
+### A quarterly credit pair: small samples, few cycles, explicit units
 
-Leads are in QUARTERS (the winner's L3 lead ≈ 9 months); Sharpe ratios are
-annualized by √4; and the out-of-sample window is **32 quarterly observations**
-(2017-Q4 → 2025-Q3, ~8 years). Just as important, credit-tightening episodes are
-FEW — a handful of cycles over the whole sample — so any lead estimate rests on
-a small number of episodes. Every performance number on these pages carries a
-found-in-search candidate label.
+Leads are in QUARTERS; Sharpe ratios are annualized by the square root of 4. Credit cycles are few, and the as-known-at-the-time training period covers none of the past recessions, so any lead estimate rests on a small number of episodes.
 """
 
     HISTORY_ZOOM_EPISODES = [
         {
             "slug": "dotcom",
-            "title": "Dot-Com Recession (2001)",
+            "title": "Dot-Com Bust (2000-2002)",
             "narrative": (
-                "Net C&I tightening toward large and middle-market firms rose sharply ahead of the "
-                "2001 downturn, an early credit-stress warning consistent with "
-                "the leading-indicator reading. The market weakened as credit "
-                "conditions deteriorated."
+                "Banks tightened C&I standards through 2000 and 2001 as corporate credit quality deteriorated, "
+                "while the equity bear market ran from 2000 to 2002. The real-time survey archive does not reach "
+                "back this far."
             ),
-            "caption": "Dot-Com: tightening rose ahead of the downturn.",
+            "caption": "Dot-Com: banks tightened through the downturn.",
         },
         {
             "slug": "gfc",
-            "title": "Global Financial Crisis (2007–2009)",
+            "title": "Global Financial Crisis (2007-2009)",
             "narrative": (
-                "Net-tightening spiked to RECORD highs as the banking system "
-                "seized up — the clearest single illustration of SLOOS as a "
-                "credit-stress gauge. Tightening led and then confirmed the "
-                "deepest equity drawdown in the sample."
+                "Net tightening rose from near zero in mid-2007 to its survey highs in late 2008, alongside the "
+                "deepest equity drawdown in the sample, and fell back as equities recovered in 2009."
             ),
-            "caption": "GFC: net-tightening spiked to record highs.",
+            "caption": "GFC: net tightening reached its survey highs.",
         },
         {
             "slug": "covid",
             "title": "COVID Shock (2020)",
             "narrative": (
-                "Banks tightened sharply in 2020-Q2 as the pandemic hit. The "
-                "equity crash and rebound played out within two quarters, far "
-                "faster than a quarterly survey can time — a reminder that the "
-                "signal reads the credit cycle, not fast market shocks."
+                "Tightening jumped in the second and third quarters of 2020, after the equity crash had already "
+                "happened and while equities were recovering. A quarterly survey cannot time a shock that plays out "
+                "within weeks."
             ),
-            "caption": "COVID: banks tightened sharply in 2020-Q2.",
+            "caption": "COVID: a sharp, brief tightening after the crash.",
         },
         {
             "slug": "rate_hike_2022",
-            "title": "2022–23 Tightening (Post-SVB Credit Squeeze)",
+            "title": "2022-2024 Rate Hikes",
             "narrative": (
-                "Net-tightening climbed through the 2022 rate-hike cycle and "
-                "the March 2023 regional-bank stress. In this window the "
-                "procyclical rule sat in cash and avoided part of the 2022 "
-                "equity drawdown — the drawdown-control virtue at work, on a "
-                "single episode."
+                "Banks tightened again from late 2022 into 2023 as policy rates rose and regional banks came under "
+                "stress, while equities fell in 2022 and recovered through 2023-24. This episode lies inside the "
+                "test period."
             ),
-            "caption": "2022–23: post-SVB credit squeeze; the rule sat defensive.",
+            "caption": "2022-2024: tightening rose again as rates climbed.",
         },
     ]
 
-    NARRATIVE_SECTION_2 = """
-### "Leading credit gauge" — so why is the winning rule procyclical?
+    NARRATIVE_SECTION_2 = f"""
+### What the evidence and the search say together
 
-The fair question. The Evidence page shows the concurrent relationship is
-countercyclical (most tightening → worst SPY), and the formal lead-lag tests do
-not find SLOOS forecasting SPY (Granger min p 0.23). The rule on the Strategy
-page does not overturn that — it does not claim a validated forecast. What the
-search found is a *state* description on a short window: quarters in which the
-(9-month-old) tightening level sat on the net-tightening side of zero (≥ 0)
-coincided, in the 2017–2025 window, with strong equity performance. Mechanizing that split
-scored well *in that window*. Because the direction contradicts the prior, the
-sample is only 32 quarters, and the median searched rule loses to buy-and-hold,
-we treat the result as a candidate pattern awaiting a frozen-rule hold-out
-exam — and we note it is part of the fleet-wide long-lead pattern flagged as
-issue #28.
-
-### What the search surfaced: a long/cash candidate, honestly labelled
-
-Across **120 valid strategy combinations** on the quarterly lead grid L0..L4,
-the best rule was: hold the S&P 500 (SPY) when the 3-quarter-lagged SLOOS
-tightening level is on the NET-TIGHTENING side of its zero threshold (≥ 0), and hold
-cash otherwise — a **procyclical** orientation that CONTRADICTS the
-countercyclical credit prior. In the 32-quarter window it scored an OOS Sharpe
-of 1.51 versus 0.89 for buy-and-hold, with a maximum drawdown of −4.3% versus
-−23.9%.
-
-This finding comes with non-negotiable context, stated here rather than in a
-footnote:
-
-- **Small quarterly sample.** The out-of-sample test is 32 QUARTERS — a
-  handful of independent observations; quarterly Sharpe ratios this unstable
-  are routinely over-optimistic. Any winner here is FOUND-IN-SEARCH by
-  construction, and there is no untouched holdout yet.
-- **The median rule loses.** The median of the 120 valid combinations scored
-  0.60 — BELOW buy-and-hold's 0.89. The winner is the right tail of its own
-  search.
-- **No forecasting mechanism.** SLOOS does not Granger-cause SPY at any tested
-  quarterly lag (min p 0.23); the pre-whitened CCF shows only a mild inverse
-  concurrent echo, no clean predictive lead.
-- **Direction contradicts the prior.** The winner is procyclical
-  (`direction_consistent: false`); the concurrent quartile evidence points the
-  countercyclical way. The search picked the orientation that fit the window.
-- **Bootstrap p = 0.0 — but it is the grid maximum.** The winner beat resampled
-  buy-and-hold in every draw, yet it was SELECTED as the best of 120 combos, so
-  that p is selection-biased and is NOT independent validation.
-- **Few credit cycles.** Quarterly, NSA, revised data with only a handful of
-  tightening episodes; the lead rests on those few cycles.
-
-**What this means:** treat this as *"a candidate pattern found by search on a
-small quarterly window, running against its own prior, awaiting its final
-exam"* — expectations for a frozen-rule hold-out test should be calibrated low.
+The Evidence page reports the formal lead-lag tests (smallest Granger p-value across the {P.length(_G)} lags {_G_MIN:.2f}, Holm-adjusted {_G_MIN_HOLM:.2f}). The rule on the Strategy page is a state description chosen on a short training window. Because that window covers no recession, the result is a candidate pattern awaiting a frozen-rule hold-out exam.
 
 ### What this means for investors
 
-- **Read SLOOS as credit-cycle context, not a market-timing signal** — rising
-  C&I tightening (large & middle-market firms) is a genuine credit-stress warning, but the tests do
-  not find it forecasting SPY.
-- **Do not read the winner as "tightening is bullish."** Its procyclical
-  direction contradicts the prior and the concurrent evidence; it is most
-  plausibly a small-sample artifact.
-- **The defensible benefit is drawdown control** — OOS −4.3% versus −23.9%.
-  Read the Sharpe as volatility avoidance, not forecasting skill (OOS return
-  15.1% barely clears buy-and-hold's 14.8%).
+- **Read bank lending standards as credit-cycle context.** Tightening has accompanied every recession in the sample.
+- **Compare the two data views.** The rule selected on revised data {'is the same' if _SAME_RULE else 'differs from the rule selected on data as known at the time'}; the as-revised-today result is hindsight.
 """
 
     TRANSITION_TEXT = (
-        "The Evidence page tests whether this credit-stress story survives "
-        "correlation, Granger, regime-quartile, cross-correlation, "
-        "local-projection, and quantile checks — and whether any searched rule "
-        "beats simply holding SPY."
+        "The Evidence page tests whether this credit-cycle story survives correlation, Granger, regime-quartile, "
+        "cross-correlation, local-projection and quantile checks."
     )
 
 
@@ -320,296 +265,174 @@ STORY_CONFIG = StoryConfig()
 
 
 # =========================================================================
-# EVIDENCE PAGE — method blocks (chart-name constants as module vars so
-# smoke_loader's AST scan of *_CHART_NAME assigns covers each evidence chart)
+# EVIDENCE PAGE
 # =========================================================================
-CORRELATION_CHART_NAME = "correlation_heatmap"
-GRANGER_CHART_NAME = "granger_f_by_lag"
-CCF_CHART_NAME = "ccf_prewhitened"
-LOCAL_PROJECTIONS_CHART_NAME = "local_projections"
-QUANTILE_CHART_NAME = "quantile_coef"
-
-
 CORRELATION_BLOCK = dict(
     chart_status="ready",
     method_name="Correlation Battery",
     method_theory=(
-        "Pearson correlations between every SLOOS tightening transform "
-        "(level, quarter-on-quarter change, 4-quarter change, 20-quarter "
-        "z-score) and forward SPY returns at 1-, 2-, and 4-quarter horizons."
+        "Pearson correlations between every tightening transform (level, quarterly change, 4-quarter change, "
+        f"20-quarter z-score) and forward SPY returns at horizons of {_HZ_TXT} quarters. p-values use HAC "
+        "(Newey-West) errors because multi-quarter forward returns overlap."
     ),
-    question=(
-        "Is there any raw statistical association between C&I credit "
-        "tightening today and stock returns over the coming quarters?"
-    ),
+    question="Is there any raw association between bank tightening today and stock returns over the coming quarters?",
     how_to_read=(
-        "Rows are SLOOS transforms, columns are forward-return horizons in "
-        "QUARTERS; each cell's color shows the correlation — deeper color = "
-        "stronger. Pale cells mean no association."
+        "Rows are tightening transforms, columns are forward-return horizons in QUARTERS; each cell shows the "
+        "correlation and its p-value. Pale cells mean little association."
     ),
-    chart_name=CORRELATION_CHART_NAME,
+    chart_name="correlation_heatmap",
     chart_caption=(
-        "What this shows: correlations between SLOOS transforms and forward "
-        "S&P 500 (SPY) returns across quarterly horizons. The grid is weak "
-        "throughout (|r| < 0.15) and mostly mildly NEGATIVE — the sign the "
-        "countercyclical prior expects, but far too weak to trade."
+        f"What this shows: the largest absolute correlation in the grid is {_C_MAX:.2f}; the smallest HAC p-value is "
+        f"{_C_MINP:.2f}."
     ),
     observation=(
-        "No transform shows a strong linear association with forward SPY at "
-        "any quarterly horizon. Cells are small (|r| < 0.15) and mostly "
-        "mildly negative; none is statistically significant (smallest p ≈ "
-        "0.12) on ~120 overlapping quarterly observations."
+        f"The largest |r| is {_C_MAX:.2f} and the smallest p-value {_C_MINP:.2f}"
+        + ("; no cell is statistically significant at conventional levels." if _C_MINP >= 0.05 else ".")
     ),
     interpretation=(
-        "The negative sign is directionally consistent with the "
-        "countercyclical credit prior, but the magnitudes are too small and "
-        "the p-values too weak to support a linear trading rule. Treat the "
-        "heatmap as descriptive triage; the formal tests carry the weight."
+        "Correlations this small do not support a linear trading rule on their own; the tournament asks whether a "
+        "lagged threshold rule changes portfolio behavior."
     ),
-    key_message=(
-        "At every tradeable quarterly horizon the raw association between "
-        "credit tightening and future stock returns is weak (and mildly "
-        "negative, per the prior)."
-    ),
+    key_message=f"Raw association: largest |r| {_C_MAX:.2f}, smallest p {_C_MINP:.2f}.",
 )
 
 GRANGER_BLOCK = dict(
     chart_status="ready",
     method_name="Granger Causality by Lag",
     method_theory=(
-        "Granger causality tests whether past values of SLOOS tightening "
-        "improve forecasts of SPY returns after accounting for SPY's own "
-        "history, across quarterly lags 1–4."
+        "Granger causality tests whether past values of the 4-quarter change in net tightening improve forecasts of "
+        "SPY returns after accounting for SPY's own history, at each quarterly lag up to "
+        f"{P.length(_G)}. Because the smallest of these p-values is the one quoted, it is Holm-adjusted."
     ),
-    question="Does SLOOS tightening lead SPY returns in a formal lag test?",
-    how_to_read=(
-        "Bars show the p-value at each quarterly lag; a bar below the dashed "
-        "0.05 line would indicate a statistically meaningful lead. None is."
-    ),
-    chart_name=GRANGER_CHART_NAME,
+    question="Does bank tightening lead SPY returns in a formal lag test?",
+    how_to_read="Bars show the p-value at each quarterly lag; diamonds the Holm-adjusted p-values across all lags.",
+    chart_name="granger_f_by_lag",
     chart_caption=(
-        "What this shows: SLOOS-to-SPY p-values are insignificant at every "
-        "tested quarterly lag (min p 0.23) — SLOOS does not Granger-cause SPY."
+        f"What this shows: the smallest p-value across lags is {_G_MIN:.2f} (Holm-adjusted {_G_MIN_HOLM:.2f})."
     ),
     observation=(
-        "Across lags 1–4 quarters, SLOOS → SPY p-values are 0.34, 0.23, 0.34, "
-        "0.50 — none below 0.05. The smallest is 0.23."
+        f"The smallest p-value across the {P.length(_G)} lags is {_G_MIN:.2f}; adjusted for testing all of them it "
+        f"is {_G_MIN_HOLM:.2f}" + ("; no lag is significant at conventional levels." if _G_MIN_HOLM >= 0.05 else ".")
     ),
     interpretation=(
-        "This prevents any causal-forecasting claim. SLOOS should be framed "
-        "as a leading credit-stress CONTEXT overlay, not proof that tightening "
-        "forecasts SPY. The strategy on the next page is a searched allocation "
-        "overlay, not a validated forecast."
+        "A Granger result is a statement about linear forecasting on revised data, not proof that lending standards "
+        "cause SPY returns."
     ),
-    key_message="Formal lead-lag evidence is absent (min p 0.23); use the signal as context only.",
+    key_message=f"Formal lead-lag test: Holm-adjusted smallest p {_G_MIN_HOLM:.2f}.",
 )
 
 QUARTILE_BLOCK = dict(
     chart_status="ready",
     method_name="Regime Quartile Analysis",
-    method_theory=(
-        "Quartile analysis sorts quarters by SLOOS tightening level and "
-        "compares concurrent SPY returns across credit regimes."
-    ),
-    question="Do low- and high-tightening regimes produce different SPY outcomes?",
-    how_to_read=(
-        "Q1 is the least-tightening regime; Q4 is the most-tightening regime. "
-        "Compare Sharpe and average return across the four buckets."
-    ),
+    method_theory="Quartile analysis sorts quarters by the 4-quarter change in net tightening and compares same-quarter SPY returns.",
+    question="Do quarters of easing and tightening produce different SPY outcomes?",
+    how_to_read="Q1 is the fastest easing; Q4 the fastest tightening. Compare Sharpe, average return and sample size.",
     chart_name="regime_stats",
     chart_caption=(
-        "What this shows: the most-tightening quartile (Q4) has the WORST "
-        "concurrent SPY Sharpe (0.31) versus 0.78 (Q1), 1.00 (Q2), 0.98 "
-        "(Q3). Q1–Q3 are NON-monotonic (Q2 > Q3 > Q1), so this is a distinctly "
-        "weak EXTREME-tightening (Q4) regime, not a smooth quartile-by-quartile "
-        "gradient."
+        f"What this shows: same-quarter SPY Sharpe is {_Q['Q1']:.2f} / {_Q['Q2']:.2f} / {_Q['Q3']:.2f} / "
+        f"{_Q['Q4']:.2f} from Q1 to Q4."
     ),
     observation=(
-        "Concurrent SPY Sharpe is 0.78 / 1.00 / 0.98 / 0.31 from Q1 (least "
-        "tightening) to Q4 (most tightening). Only the extreme (Q4) is clearly "
-        "weak; Q1–Q3 are non-monotonic, so the evidence supports a weak "
-        "extreme-tightening regime rather than a monotonic countercyclical "
-        "gradient."
+        f"Same-quarter SPY Sharpe is {_Q['Q1']:.2f} (Q1), {_Q['Q2']:.2f} (Q2), {_Q['Q3']:.2f} (Q3) and "
+        f"{_Q['Q4']:.2f} (Q4)."
     ),
     interpretation=(
-        "This is the cleanest evidence FOR the countercyclical credit prior — "
-        "and it points the OPPOSITE way from the procyclical rule the search "
-        "selected on the next page. The tension is real and is flagged, not "
-        "smoothed over."
+        "Quartiles are concurrent, not predictive: they describe the equity backdrop in each credit regime, while the "
+        "tournament tests lagged rules."
     ),
-    key_message="High-tightening regimes are worst for concurrent SPY — the countercyclical prior holds here.",
+    key_message="Lending-standards regimes describe the equity backdrop; they are not a forecast.",
 )
 
 CCF_BLOCK = dict(
     chart_status="ready",
     method_name="Pre-Whitened Cross-Correlation",
     method_theory=(
-        "Pre-whitened cross-correlation filters each series' persistence "
-        "before testing whether tightening tends to move before or after SPY "
-        "returns."
+        "Both series are filtered with the same autoregressive model fitted to the 4-quarter change in net "
+        "tightening (Box-Jenkins pre-whitening) before testing whether one tends to move before the other."
     ),
-    question="At which quarterly offsets does the tightening signal line up with SPY returns?",
+    question="At which quarterly offsets does the change in tightening line up with SPY returns?",
     how_to_read=(
-        "Bars outside the dashed confidence band mark unusual lead-lag "
-        "correlation after filtering autocorrelation. Offset convention: at "
-        "offset −k we correlate the SLOOS level k quarters EARLIER with this "
-        "quarter's SPY return — so a negative-offset bar is the signal's past "
-        "versus the current return (i.e. the signal leading the return by k "
-        "quarters)."
+        "Bars outside the dashed 95% band mark unusual correlation after filtering persistence. Positive offsets "
+        "mean the tightening change comes first; negative offsets mean the SPY return comes first."
     ),
-    chart_name=CCF_CHART_NAME,
-    chart_caption=(
-        "What this shows: the only bars breaching the band sit at short lead "
-        "offsets −1 and −2 (r ≈ −0.25), inverse in sign. These ARE technically "
-        "1–2-quarter lead offsets, but they are borderline, short-horizon, and "
-        "unsupported by Granger/local projections — read as near-term "
-        "co-movement around the same stress episodes, not a dependable "
-        "forecasting lead."
-    ),
+    chart_name="ccf_prewhitened",
+    chart_caption=f"What this shows: offsets outside the band: {_CCF_TXT}.",
     observation=(
-        "After pre-whitening, the only significant bars are at offsets −1 and "
-        "−2 quarters (r ≈ −0.25) — technically the signal leading the return by "
-        "1–2 quarters, with an inverse sign consistent with the countercyclical "
-        "story. There is no significant bar at longer lead offsets."
+        f"After pre-whitening, the offsets outside the 95% band are: {_CCF_TXT}"
+        + (" (none with the tightening change first)." if not _CCF_POS else ".")
     ),
-    interpretation=(
-        "Why we do NOT call this a predictive lead despite the −1/−2 bars being "
-        "lead offsets: the correlations are borderline (|r| ≈ 0.25), confined "
-        "to the two shortest offsets, and driven by a few overlapping crisis "
-        "windows where tightening and weak returns cluster together; Granger "
-        "(min p 0.23) and local projections find no forecasting content. So the "
-        "honest reading is near-concurrent co-movement in stress episodes, not "
-        "an exploitable forecast."
-    ),
-    key_message=(
-        "Significant only at the two shortest lead offsets (−1, −2), inverse "
-        "and borderline — near-concurrent co-movement, not a dependable "
-        "predictive lead (Granger/LP find nothing)."
-    ),
+    interpretation=(f"With {P.length(_CCF)} offsets tested, an isolated bar outside a 95% band is about what chance "
+                    "alone produces."),
+    key_message="No clean lead from tightening to SPY returns." if not _CCF_POS else "Read isolated bars with care.",
 )
 
 LOCAL_PROJECTIONS_BLOCK = dict(
     chart_status="ready",
     method_name="Local Projections",
     method_theory=(
-        "Local projections estimate how future SPY returns respond across "
-        "1-, 2-, and 4-quarter horizons after a change in the SLOOS tightening "
-        "signal."
+        f"Local projections regress the forward SPY return at horizons of {_HZ_TXT} quarters on the 4-quarter "
+        "change in net tightening, with HAC errors (lags at least h-1)."
     ),
-    question="How does SPY respond after credit tightening changes?",
-    how_to_read=(
-        "Each bar is an estimated future SPY response after a rise in the "
-        "4-quarter SLOOS tightening change, with a 95% confidence whisker. A "
-        "whisker that straddles zero means the response is not statistically "
-        "distinguishable from zero; bars near zero mean little measurable "
-        "response."
-    ),
-    chart_name=LOCAL_PROJECTIONS_CHART_NAME,
+    question="How do forward SPY returns relate to the change in tightening at different horizons?",
+    how_to_read=("Each bar is the forward SPY return for a rise in the 4-quarter change (the axis states the scale); "
+                 "whiskers are 95% intervals."),
+    chart_name="local_projections",
     chart_caption=(
-        "What this shows: local-projection coefficients are near zero and "
-        "insignificant across horizons (R² < 0.01) — no robust dynamic "
-        "response."
+        f"What this shows: HAC p-values {', '.join(f'{p:.2f}' for p in _LP['p_value'])} at horizons of {_HZ_TXT} "
+        "quarters."
     ),
-    observation=(
-        "Coefficients are tiny (order 1e-4) with p-values 0.33 / 0.65 / 0.45 "
-        "and R² below 0.01 at every horizon — no measurable forward response."
-    ),
-    interpretation=(
-        "Consistent with the Granger and CCF results: the raw macro "
-        "relationship carries no exploitable forward signal. Any edge in the "
-        "tournament comes from a state split on a short window, not a dynamic "
-        "response."
-    ),
-    key_message="SPY shows no robust dynamic response to SLOOS tightening changes.",
+    observation=f"The largest R-squared across horizons is {P.colmax(_LP, 'r_squared'):.3f}; the smallest p-value {_LP_MINP:.2f}.",
+    interpretation="Overlapping horizons share observations, so the longer-horizon estimates are less independent than they look.",
+    key_message=f"Forward response: smallest HAC p {_LP_MINP:.2f}.",
 )
 
 QUANTILE_BLOCK = dict(
     chart_status="ready",
     method_name="Quantile Regression",
     method_theory=(
-        "Quantile regression checks whether the tightening signal matters "
-        "differently in weak, normal, and strong SPY return environments."
+        "Quantile regression (statsmodels QuantReg per quantile) of the next quarter's SPY return on the 4-quarter "
+        "change in net tightening; next-quarter returns do not overlap. A bootstrap Wald test checks equality of the "
+        "slopes across quantiles."
     ),
-    question="Does SLOOS behave differently in market tails?",
-    how_to_read=(
-        "Compare the signal coefficient across return quantiles; each point now "
-        "carries a 95% confidence whisker. A flat line near zero, with whiskers "
-        "that all straddle zero, means the signal has no state-dependent "
-        "association."
-    ),
-    chart_name=QUANTILE_CHART_NAME,
+    question="Does bank tightening matter differently in weak and strong market quarters?",
+    how_to_read="Compare the coefficient across return quantiles; whiskers are 95% intervals.",
+    chart_name="quantile_coef",
     chart_caption=(
-        "What this shows: the SLOOS coefficient is flat and near zero across "
-        "the return distribution — no tail or state-dependent content."
+        f"What this shows: the cross-quantile equality test {'rejects' if _QT['reject_equality'] else 'does not reject'} "
+        f"a uniform slope (Wald p={_QT['p_value']:.2f})."
     ),
     observation=(
-        "The coefficient is essentially constant and near zero across the "
-        "0.25 / 0.50 / 0.75 quantiles (p ≈ 0.65) — no evidence the signal "
-        "sharpens in market tails."
+        f"The bootstrap Wald test {'rejects' if _QT['reject_equality'] else 'does not reject'} slope equality across "
+        f"quantiles (p={_QT['p_value']:.2f})."
     ),
-    interpretation=(
-        "There is no left-tail rescue for the signal; it does not become "
-        "informative in weak markets. This reinforces the context-only "
-        "reading."
-    ),
-    key_message="No state-dependent or tail predictive content.",
+    interpretation="Tail asymmetry is only established if the equality test rejects; otherwise read the slopes as imprecise.",
+    key_message=f"Cross-quantile equality Wald p={_QT['p_value']:.2f}.",
 )
 
 
 EVIDENCE_METHOD_BLOCKS = {
-    "title": "The Evidence: A Countercyclical Concurrent Signal With No Forecasting Lead",
+    "title": "The Evidence: Bank Lending Standards and SPY",
     "overview": (
-        "*One question, attacked several independent ways: does C&I "
-        "credit tightening (large & middle-market firms) carry information about FUTURE S&P 500 (SPY) "
-        "returns? The tests converge on: not as a forecast. The concurrent "
-        "relationship is countercyclical (most tightening → worst SPY), but "
-        "SLOOS does not Granger-cause SPY at any tested quarterly lag "
-        "(min p 0.23), and the cross-correlation shows only a mild inverse "
-        "concurrent echo.*\n\n"
-        "All statistics computed on QUARTERLY data from "
-        "`results/sloos_ci_small_spy/core_models_20261015/` and companion "
-        "artifacts.\n\n"
-        "**Read this page before the Strategy page.** The Strategy page "
-        "reports an out-of-sample Sharpe of 1.51 for a searched rule — do NOT "
-        "read that as a validated predictive edge. These tests find no "
-        "forecasting lead, the MEDIAN searched rule (0.60) UNDERPERFORMS "
-        "buy-and-hold (0.89), and the winner's direction (procyclical) "
-        "contradicts the countercyclical prior the concurrent evidence "
-        "supports. The 1.51 is a found-in-search CANDIDATE whose only "
-        "defensible virtue is drawdown control (-4.3% vs -23.9%); read its "
-        "Sharpe as volatility avoidance, not forecasting skill."
+        "*One question, asked several ways: does the net share of banks tightening carry information about FUTURE "
+        f"S&P 500 (SPY) returns? Smallest Holm-adjusted Granger p {_G_MIN_HOLM:.2f}; smallest correlation p "
+        f"{_C_MINP:.2f}.*\n\n"
+        f"All statistics on this page are computed on QUARTERLY revised data (`results/{PAIR}/core_models_{_TAG}/`)."
     ),
     "plain_english": (
-        "This page asks whether C&I credit tightening (large & middle-market firms) helps forecast "
-        "the stock market. The answer is: not as a forecast. When we sort "
-        "quarters by how much banks were tightening, the most-tightening "
-        "quarters had the WORST concurrent equity performance — the "
-        "countercyclical pattern the credit prior expects. But the formal "
-        "lead-lag tests (Granger, cross-correlation, local projections) find "
-        "no reliable way to forecast SPY from SLOOS at any quarterly lag. The "
-        "strategy the search surfaces on the next page leans the OPPOSITE "
-        "(procyclical) way on a small window; we flag that contradiction "
-        "rather than hide it."
+        "This page asks whether bank lending standards help forecast the stock market, first with descriptive tests "
+        "on today's revised data, then with the tournament on data as known at the time."
     ),
     "downloads": [
-        {"label": "Granger F-statistics by lag, SLOOS → SPY (4 rows)",
-         "path": "results/sloos_ci_small_spy/granger_by_lag.csv"},
-        {"label": "Correlation battery, signal × horizon (12 rows)",
-         "path": "results/sloos_ci_small_spy/core_models_20261015/correlations.csv"},
-        {"label": "Pre-whitened CCF, quarterly offsets −4..+4 (9 rows)",
-         "path": "results/sloos_ci_small_spy/core_models_20261015/ccf_prewhitened.csv"},
-        {"label": "Local projections, 1/2/4-quarter horizons (3 rows)",
-         "path": "results/sloos_ci_small_spy/core_models_20261015/local_projections.csv"},
-        {"label": "Quantile regression, 3 quantiles (3 rows)",
-         "path": "results/sloos_ci_small_spy/core_models_20261015/quantile_regression.csv"},
-        {"label": "Regime quartile returns, Q1–Q4 (4 rows)",
-         "path": "results/sloos_ci_small_spy/regime_quartile_returns.csv"},
-        {"label": "Sub-period Sharpe, credit-stress episodes (4 rows)",
-         "path": "results/sloos_ci_small_spy/subperiod_sharpe.csv"},
-        {"label": "Rolling correlation (SLOOS vs SPY)",
-         "path": "results/sloos_ci_small_spy/rolling_correlation_sloos_ci_small_spy.csv"},
-        {"label": "Stationarity tests (ADF/KPSS)",
-         "path": "results/sloos_ci_small_spy/stationarity_tests_20261015.csv"},
+        {"label": "Granger by lag, tightening to SPY", "path": f"results/{PAIR}/granger_by_lag.csv"},
+        {"label": "Correlation battery", "path": f"results/{PAIR}/core_models_{_TAG}/correlations.csv"},
+        {"label": "Pre-whitened CCF", "path": f"results/{PAIR}/core_models_{_TAG}/ccf_prewhitened.csv"},
+        {"label": "Local projections", "path": f"results/{PAIR}/core_models_{_TAG}/local_projections.csv"},
+        {"label": "Quantile regression", "path": f"results/{PAIR}/core_models_{_TAG}/quantile_regression.csv"},
+        {"label": "Regime quartile returns", "path": f"results/{PAIR}/regime_quartile_returns.csv"},
+        {"label": "Stress-episode returns", "path": f"results/{PAIR}/subperiod_sharpe.csv"},
+        {"label": "Rolling correlation", "path": f"results/{PAIR}/rolling_correlation_{PAIR}.csv"},
+        {"label": "Structural break test", "path": f"results/{PAIR}/structural_break_{PAIR}.json"},
+        {"label": "Stationarity tests (ADF/KPSS)", "path": f"results/{PAIR}/stationarity_tests_{_TAG}.csv"},
     ],
     "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
     "level1_labels": ["Correlation", "Granger", "Quartiles", "CCF"],
@@ -618,56 +441,28 @@ EVIDENCE_METHOD_BLOCKS = {
     "level2_summary": {
         "title": "What the evidence adds up to",
         "body": (
-            "Put the tests side by side and they tell one consistent story. "
-            "The correlation battery finds only weak, mildly negative cells at "
-            "every tradeable quarterly horizon (|r| < 0.15, none significant). "
-            "Granger causality is decisive in the negative: SLOOS → SPY is "
-            "insignificant at every tested lag (p = 0.34/0.23/0.34/0.50), so "
-            "there is no forecasting lead. The pre-whitened CCF adds only a "
-            "mild INVERSE concurrent echo at offsets −1 and −2 (r ≈ −0.25), "
-            "with nothing on the forecasting side. Local projections and "
-            "quantile regression both come back near zero. The one clear "
-            "signal is CONCURRENT and countercyclical: the most-tightening "
-            "quartile has the worst SPY Sharpe (0.31 vs 0.78–1.00) — which "
-            "points the OPPOSITE way from the procyclical rule the search "
-            "selected. And the search distribution shows the median valid "
-            "combo (0.60) UNDERPERFORMS buy-and-hold (0.89). **Bottom line:** "
-            "SLOOS is a genuine leading credit-STRESS gauge but a "
-            "non-forecasting one for SPY; the concurrent evidence is "
-            "countercyclical. The strategy on the next page is best understood "
-            "as a searched procyclical overlay on a small quarterly window "
-            "whose only defensible edge is drawdown control, not a validated "
-            "forecasting signal."
+            f"Correlations: largest |r| {_C_MAX:.2f}, smallest HAC p {_C_MINP:.2f}. Granger: smallest p {_G_MIN:.2f}, "
+            f"Holm-adjusted {_G_MIN_HOLM:.2f}. Pre-whitened CCF offsets outside the band: {_CCF_TXT}. Local "
+            f"projections: smallest HAC p {_LP_MINP:.2f}. Quantile slopes: equality Wald p {_QT['p_value']:.2f}. "
+            + ("**Bottom line:** none of the formal tests finds a statistically significant forecasting lead from "
+               "bank tightening to SPY; the quartile sort is descriptive and concurrent."
+               if not _ANY_SIG else
+               "**Bottom line:** at least one formal test is statistically significant; read it with the number of "
+               "tests in mind.")
         ),
-        "key_message": (
-            "No forecasting lead (Granger min p 0.23); the clean signal is a "
-            "CONCURRENT countercyclical one (Q4 worst). The next page's rule "
-            "runs procyclical against that prior — read its Sharpe as "
-            "drawdown/volatility avoidance, not a forecasting edge."
-        ),
+        "key_message": f"Smallest Holm-adjusted Granger p {_G_MIN_HOLM:.2f}.",
     },
     "tournament_intro": (
-        "The statistical tests above ask whether the indicator *forecasts* — "
-        "and answer no. The tournament asks a more pragmatic question: across "
-        "every reasonable QUARTERLY trading rule you could build from this "
-        "series, does *any* of them beat simply holding the S&P 500 (SPY)?\n\n"
-        "We tested a grid of **120 valid combinations** — 4 signal transforms "
-        "× threshold schemes × long/cash strategy × quarterly leads L0..L4. "
-        "The MEDIAN valid combination scored an OOS Sharpe of 0.60, BELOW "
-        "buy-and-hold's 0.89. The headline rule on the Strategy page is the "
-        "search MAXIMUM (1.51) on a 32-QUARTER out-of-sample window. In plain "
-        "English: on a small quarterly sample, with no forecasting lead and a "
-        "direction that contradicts the prior, the winner is a candidate found "
-        "in search — not a validated edge."
+        "The statistical tests above ask whether the indicator forecasts. The tournament asks a pragmatic question: "
+        "across the declared QUARTERLY trading rules built from this series, which one did best on the training "
+        f"period? We tested {W.n_candidates} combinations ({W.n_valid} valid as known at the time; {W.n_distinct} "
+        f"distinct position series): {P.length(_MAN['signals'])} signal transforms x threshold schemes x long/cash x "
+        f"both orientations x quarterly leads {_GRID_RANGE}. The winner is `{_RID}`, chosen on the training period by "
+        f"{W.selection_objective}."
     ),
     "transition": (
-        "**Transition:** the lead-lag verdict is no forecasting lead, and the "
-        "one clean signal (concurrent, countercyclical) points the opposite "
-        "way from the winner. The next page shows the single candidate rule "
-        "the search surfaced, with every fragility flag attached. Carry one "
-        "guard-rail across: its 1.51 Sharpe is NOT a validated predictive "
-        "edge — it is a found-in-search candidate whose defensible virtue is "
-        "the shallow drawdown, so read the Sharpe as volatility avoidance."
+        "**Transition:** the next page shows the single rule the search selected on each data track, with its "
+        "caveats."
     ),
 }
 
@@ -676,235 +471,159 @@ EVIDENCE_METHOD_BLOCKS = {
 # STRATEGY PAGE
 # =========================================================================
 class StrategyConfig:
-    PAGE_TITLE = "The Strategy: A Procyclical Long/Cash Overlay Found on 32 Quarters"
+    PAGE_TITLE = "The Strategy: A Quarterly Long/Cash Lending-Standards Overlay"
     PAGE_SUBTITLE = (
-        "— the search maximum on a quarterly credit series with NO forecasting "
-        "lead and a direction that CONTRADICTS the countercyclical prior: a "
-        "32-quarter candidate whose median peer rule underperforms buy-and-"
-        "hold. No frozen-rule hold-out test has been run yet."
+        f"The rule selected on the training period from survey data as known at the time ({W.is_n} quarters from "
+        f"{_VIN0}); no frozen-rule hold-out test has been run yet."
+    )
+
+    STATISTICAL_FRAMING_BANNER = (
+        f"Correction (2026-10-18). This page previously reported the rule {W.previous_rule} (training Sharpe "
+        f"{W.previous_is_sharpe}, test-period Sharpe {W.previous_oos_sharpe}, published {W.previous_tag}), which "
+        "was the single highest training Sharpe on revised data with fixed lags, using the survey figures as "
+        "downloaded for that run. It now reports the rule selected on data as known at the time, with point-in-time "
+        "release dates and the stable-lead-range rule; today's revised data are shown for comparison only."
     )
 
     PLAIN_ENGLISH = (
-        "The best rule from a 120-combination quarterly search: hold the S&P "
-        "500 (SPY) when the SLOOS tightening level — viewed with a 3-QUARTER "
-        "(~9-month) delay — is on the NET-TIGHTENING side of its zero threshold "
-        "(≥ 0), and hold CASH otherwise (i.e. it buys equities when C&I "
-        "credit was tightening three quarters earlier — the counter-intuitive, "
-        "against-prior part). In the 32-quarter search window (2017-Q4 → "
-        "2025-Q3) it scored a Sharpe of 1.51 versus 0.89 for buy-and-hold, "
-        "with a −4.3% maximum drawdown versus −23.9%. But the window is 32 "
-        "quarterly observations, the tests find no forecasting lead (Granger "
-        "min p 0.23), the median searched rule (0.60) LOSES to buy-and-hold, "
-        "and the direction is PROCYCLICAL — the opposite of the countercyclical "
-        "credit prior the concurrent evidence supports. Read it as a candidate "
-        "overlay found by search — its final exam on untouched data has not "
-        "been run. And read the Sharpe honestly: the defensible virtue here is "
-        "the shallow drawdown (-4.3% vs -23.9%), i.e. volatility avoidance — "
-        "not a forecasting edge (OOS return 15.1% barely clears B&H 14.8%)."
+        f"The rule is to {_RULE}. In the test period ({W.oos_start} to {W.oos_end}) it scored Sharpe "
+        f"{W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, with maximum drawdown {W.oos_max_drawdown} "
+        f"versus {W.bh_oos_max_drawdown}. The test-period Sharpe difference is {W.sharpe_gap} (95% interval "
+        f"{W.ci_low} to {W.ci_high}). It is a candidate overlay found by search; its final exam on untouched data has "
+        "not been run."
     )
 
+    # Status and badge rule come from track_summary.json (components.two_track.badge_status); facts only here.
     EXECUTIVE_CONFIDENCE_SUMMARY = dict(
-        status="Candidate",
+        status="",
         status_detail=(
-            "A low-confidence, FOUND-IN-SEARCH candidate whose direction "
-            "CONTRADICTS the countercyclical credit prior — NOT a validated, "
-            "deployable predictive edge. It has not faced a frozen-rule "
-            "hold-out final exam, and it is read on a 32-QUARTER out-of-sample "
-            "window (2017-Q4 → 2025-Q3, ~8 years)."
+            "Found in search: selected on a short as-known-at-the-time training period; it has not faced a "
+            "frozen-rule hold-out final exam."
         ),
         strengths=[
-            "Shallow drawdown is the one defensible virtue: max drawdown "
-            "-4.3% vs -23.9% buy-and-hold over the OOS window. Read the Sharpe "
-            "(1.51 vs 0.89) as volatility/drawdown avoidance, not evidence of "
-            "forecasting skill — the OOS return edge is negligible (15.1% vs "
-            "14.8%).",
-            "The signal itself is well-behaved statistically: the SLOOS level "
-            "is stationary (ADF p < 0.001, KPSS not rejected), so no "
-            "regime-contamination flag on the traded transform.",
-            "SLOOS is a genuine leading credit-STRESS gauge — net-tightening "
-            "spiked ahead of the 2001, 2008, and 2020 recessions — so as "
-            "credit-cycle CONTEXT (not a forecast) the series has real "
-            "economic content.",
+            "Bank lending standards are a direct read on credit supply, and net tightening rose around every "
+            "recession in the sample.",
+            f"The chosen lead sits in a stable lead range ({W.plateau_range}) rather than an isolated peak.",
         ],
         risks=[
-            "No forecasting mechanism. SLOOS does not Granger-cause SPY at any "
-            "tested quarterly lag (min p 0.23); the pre-whitened CCF shows "
-            "only a mild inverse concurrent echo, no predictive lead. The "
-            "rule is a state split, not a forecast.",
-            "Tiny out-of-sample sample: 32 QUARTERS (~8 years), on a series "
-            "with only a handful of credit-tightening cycles; the quarterly "
-            "Sharpe is high-variance and found-in-search by construction, with "
-            "no untouched hold-out yet.",
-            "Selection / overfitting flags: the winner is the MAXIMUM of 120 "
-            "combos while the MEDIAN valid combo (0.60) LOST to buy-and-hold "
-            "(0.89). Bootstrap p = 0.0 is reported, but because the winner IS "
-            "the grid maximum that p is selection-biased — not independent "
-            "validation.",
-            "Direction contradicts the prior (procyclical vs the "
-            "countercyclical credit hypothesis, `direction_consistent: "
-            "false`); the concurrent quartile evidence (Q4 most-tightening = "
-            "worst SPY Sharpe 0.31) points the OTHER way. This is most "
-            "plausibly a small-sample search artifact — part of the "
-            "fleet-wide long-lead pattern flagged as issue #28.",
-            "The rolling correlation is sign-unstable through time and a "
-            "structural-break proxy flags a large shift (max |z| = 2.41); the "
-            "edge leans on few episodes, including the strategy sitting in "
-            "cash through part of the 2022 drawdown.",
-        ],
+            f"Short training period as known at the time: {W.is_n} quarters ({W.is_start} to {W.is_end}), with no "
+            "recession in it.",
+            f"Test-period Sharpe difference versus buy-and-hold {W.sharpe_gap}, 95% interval {W.ci_low} to {W.ci_high}.",
+            f"The orientation is {LEAN.get(_DIR, _DIR)}.",
+            f"The rule selected on revised data {'is the same' if _SAME_RULE else 'differs'} (hindsight test-period "
+            f"Sharpe {W.comparison_oos_sharpe}, 95% interval {W.comparison_ci_low} to {W.comparison_ci_high}).",
+        ] + ([f"The winner's training Sharpe ({W.is_sharpe}) is below buy-and-hold's over the same training quarters "
+              f"({W.bh_is_sharpe})."] if _IS_BELOW_BH else [])
+          + ([f"The stable lead range {W.plateau_range} sits at the edge of the declared lead grid ({_GRID_RANGE} "
+              "quarters); leads beyond the grid were not tested."] if _EDGE else []),
         conclusion=(
-            "In one paragraph: this long/cash overlay is a low-confidence, "
-            "found-in-search CANDIDATE. Its only defensible virtue is drawdown "
-            "control (-4.3% vs -23.9%); the 1.51 Sharpe should be read as "
-            "volatility avoidance, not a predictive edge, because the tests "
-            "find no forecasting lead (Granger min p 0.23) and the return edge "
-            "is negligible (15.1% vs 14.8%). It sits on just 32 quarterly "
-            "observations, the median of its own search lost to buy-and-hold, "
-            "and its procyclical direction contradicts the pair's "
-            "countercyclical prior (and the concurrent quartile evidence). It "
-            "has not passed a frozen-rule hold-out. Treat it as a candidate "
-            "pattern awaiting its final exam, not proof that credit tightening "
-            "times the S&P 500."
+            f"Rule {_RID}: test-period Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold "
+            f"({W.oos_start} to {W.oos_end}), maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}, "
+            "on survey data as known at the time."
         ),
     )
 
     DOWNLOADS = [
-        {"label": "Winner summary", "path": "results/sloos_ci_small_spy/winner_summary.json"},
-        {"label": "Granger causality by lag", "path": "results/sloos_ci_small_spy/granger_by_lag.csv"},
-        {"label": "Regime quartile returns", "path": "results/sloos_ci_small_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/sloos_ci_small_spy/tournament_results_20261015.csv"},
-        {"label": "Bootstrap validation", "path": "results/sloos_ci_small_spy/tournament_validation_20261015/bootstrap.csv"},
-        {"label": "Stationarity tests", "path": "results/sloos_ci_small_spy/stationarity_tests_20261015.csv"},
-        {"label": "Winner trade log (broker style)", "path": "results/sloos_ci_small_spy/winner_trades_broker_style.csv"},
+        {"label": "Winner summary", "path": f"results/{PAIR}/winner_summary.json"},
+        {"label": "Granger causality by lag", "path": f"results/{PAIR}/granger_by_lag.csv"},
+        {"label": "Regime quartile returns", "path": f"results/{PAIR}/regime_quartile_returns.csv"},
+        {"label": "Tournament results (as known at the time)", "path": f"results/{PAIR}/tournament_results_{_TAG}.csv"},
+        {"label": "Tournament results (as revised today, hindsight)",
+         "path": f"results/{PAIR}/hindsight_tournament_results_{_TAG}.csv"},
+        {"label": "Previously published tournament", "path": f"results/{PAIR}/tournament_results_20261015.csv"},
+        {"label": "Bootstrap validation", "path": f"results/{PAIR}/tournament_validation_{_TAG}/bootstrap.csv"},
+        {"label": "Stationarity tests", "path": f"results/{PAIR}/stationarity_tests_{_TAG}.csv"},
+        {"label": "Winner trade log (broker style)", "path": f"results/{PAIR}/winner_trades_broker_style.csv"},
     ]
 
-    SIGNAL_RULE_MD = """
-**Rule:** Hold the S&P 500 (SPY) **when the 3-QUARTER-lagged SLOOS net-% tightening level (large & middle-market firms, DRTSCILM) is on the NET-TIGHTENING side of its zero threshold — i.e. the lagged level is ≥ 0 (`gte 0.0`); otherwise hold CASH.** Counter-intuitively, the rule is long equities precisely when C&I credit was TIGHTENING three quarters earlier. This is a **procyclical** orientation (in the search's sense of long-when-the-signal-is-high); because high SLOOS means tightening, it **contradicts the countercyclical credit-crunch prior** the pair was designed to test (`direction_consistent: false` in `interpretation_metadata.json`) — flagged, not smoothed over. (Family: P1 long/cash; signal `level`, threshold T0_zero (gte), lead L3 QUARTERS ≈ 9 months — per `winner_summary.json`; `direction: procyclical`.)
+    SIGNAL_RULE_MD = f"""
+**Rule:** {_RULE}. Orientation: {LEAN.get(_DIR, _DIR)}. (Family: {W.strategy_family}; signal `{W.signal_code}`, threshold `{W.threshold_code}`, lead L{W.lead} quarters, per `winner_summary.json`.)
 
 If-then form (evaluated once per quarter):
-- **IF** the 3-quarter-old SLOOS tightening level is ≥ 0 (net-tightening side of the zero threshold) → **HOLD SPY (100% invested)**.
-- **ELSE** (lagged level < 0, net easing) → **HOLD CASH**.
+- **IF** the {_SIG} from {W.lead_word} quarters earlier is {SIDE.get(_DIR, _DIR)} {_THR} -> **HOLD SPY (100% invested)**.
+- **ELSE** -> **HOLD CASH**.
 
-Search-phase results (2017-12-31 → 2025-09-30, 32 QUARTERS — **small sample, no hold-out test yet**; Sharpe annualized by √4): OOS Sharpe 1.51 vs 0.89 buy-and-hold; annualized return 15.1% vs 14.8%; maximum drawdown −4.3% vs −23.9%; 6 trades in the OOS window (annual turnover 0.75); quarterly win rate 50%.
-
-**Read this as a candidate, not a validated edge.** The window is 32 quarterly observations, the tests find NO forecasting lead (Granger min p 0.23), the median of the 120 valid combos (0.60) LOSES to buy-and-hold, and the direction contradicts the countercyclical prior. This pair's `strategy_objective` (per `interpretation_metadata.json`) is **countercyclical_protection**; the fact that the max-Sharpe search selected a *procyclical* rule instead is itself a caution — most plausibly a small-sample artifact (issue #28), not a sign that tightening is bullish.
+Test-period results on data as known at the time ({W.oos_start} to {W.oos_end}, {W.oos_n} quarters; Sharpe annualized by the square root of 4): Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} buy-and-hold; annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; {W.oos_n_trades} position changes between consecutive test-period quarters, each a full switch between SPY and cash ({_LOG_OOS_TXT}); annual turnover {W.annual_turnover}; in SPY {W.oos_exposure} of the test-period quarters.
 """
 
-    HOW_SIGNAL_IS_GENERATED_MD = """
-No formulas — three steps:
+    HOW_SIGNAL_IS_GENERATED_MD = f"""
+No formulas, three steps:
 
-**What changes in the world:** banks tighten or ease the credit standards they apply to business (C&I) loans to large and middle-market firms. The Fed's quarterly SLOOS captures that as a NET percentage tightening (released a few weeks after each quarter's reference period).
+**What changes in the world:** banks tighten or ease the terms on which they lend to businesses. The Federal Reserve surveys senior loan officers every quarter and publishes the net share tightening (series `DRTSCILM`) inside the same quarter.
 
-**What the signal measures:** each quarter, the rule takes the SLOOS net-% tightening LEVEL as it stood **three quarters (~9 months) ago** and asks which side of zero it sits on (net easing < 0 vs net tightening ≥ 0). The level is bounded and mean-reverting, so it is used directly (it is stationary — ADF p < 0.001).
+**What the signal measures:** each quarter, the rule takes the survey series as it was published at that date, computes the {_SIG} inside that published series, and reads its value from {W.lead_word} quarters earlier against {_THR} (also computed inside that published series).
 
-**What decision it drives:** lagged level on the NET-TIGHTENING side (≥ 0) → HOLD the market; net-easing side (< 0) → HOLD cash. That is deliberately the opposite of what the countercyclical prior expects. Because the causality tests find no forecasting lead, this is best understood as a *state* description that happened to sort the 2017–2025 window well — not a forecast of where stocks are going, and running procyclically against the pair's own countercyclical prior.
+**What decision it drives:** {SIDE.get(_DIR, _DIR)} the threshold -> HOLD SPY for the next quarter; otherwise -> HOLD cash.
+
+OOS Sharpe means test-period (out-of-sample) risk-adjusted return. OOS Return is the annualized test-period return. Maximum Drawdown is the largest peak-to-trough loss at quarter ends. Turnover is the sum of position changes per year. Win Rate is the share of test-period quarters with positive strategy return.
 """
 
     MANUAL_USE_MD = (
-        "First, the framing: what follows describes how the backtested rule "
-        "works so you can replicate and audit it — it is **not** a "
-        "recommendation to trade it. This rule is a small-sample search-phase "
-        "candidate (best of 120 valid; 32-QUARTER OOS; no hold-out test yet; "
-        "no forecasting lead, Granger min p 0.23; median valid combo LOSES to "
-        "buy-and-hold; direction contradicts the countercyclical prior). With "
-        "that understood, the quarterly routine — no code required — is:\n\n"
-        "1. **Pull the credit series** — FRED series `DRTSCILM` (SLOOS net % of "
-        "banks tightening C&I standards to large and middle-market firms; released a few weeks "
-        "after each quarter).\n"
-        "2. **Read the level** — the net-% tightening value itself (no "
-        "transform; the level is stationary and used directly).\n"
-        "3. **Apply the 3-quarter delay** — the reading the rule acts on this "
-        "quarter is the level from three quarters (~9 months) ago.\n"
-        "4. **Check the zero threshold** — is that delayed level ≥ 0 (the "
-        "net-tightening side of zero, which is what this rule treats as its "
-        "'go-long' condition)? See `winner_trade_log.csv` for "
-        "the full signal/threshold path.\n"
-        "5. **Take the position** — lagged level ≥ 0 → HOLD SPY (100%); < 0 → "
-        "HOLD cash. Re-evaluate once a QUARTER.\n\n"
-        "Remember the warning labels: 32-quarter window, no forecasting lead, "
-        "a median searched rule that loses to buy-and-hold, and a procyclical "
-        "direction that runs against the pair's countercyclical prior — the "
-        "defensible benefit is drawdown control, not forecasting."
+        "First, the framing: what follows describes how the backtested rule works so you can replicate and audit "
+        "it; it is **not** a recommendation to trade it. The quarterly routine is:\n\n"
+        "1. **Pull the survey series** as currently published: FRED series `DRTSCILM`.\n"
+        f"2. **Compute the signal**: the {_SIG}.\n"
+        f"3. **Apply the delay**: use the value from {W.lead_word} quarters earlier.\n"
+        f"4. **Check the threshold**: is it {SIDE.get(_DIR, _DIR)} {_THR}? See `winner_trade_log.csv` for the full "
+        "signal and threshold path.\n"
+        "5. **Take the position** at the quarter end: yes -> HOLD SPY (100%); otherwise -> HOLD cash. Re-evaluate "
+        "once a QUARTER."
     )
 
     EQUITY_CHART_NAME = "equity_curves"
     DRAWDOWN_CHART_NAME = "drawdown"
     WALK_FORWARD_CHART_NAME = "walk_forward"
-    WALK_FORWARD_TITLE = "Subperiod Sharpe and Durability"
+    WALK_FORWARD_TITLE = "Stress Episodes"
     WALK_FORWARD_CAPTION = (
-        "What this shows: strategy vs buy-and-hold Sharpe across major "
-        "credit-stress episodes. A green strategy bar that is FLAT AT ZERO means "
-        "the rule was in CASH for that whole episode, so its return and Sharpe "
-        "are exactly 0 by construction — not missing or undefined. That is the "
-        "case for COVID (strategy 0.00 vs B&H 0.03) and the 2022 rate shock "
-        "(strategy 0.00 vs B&H −0.94): sitting in cash is precisely how the "
-        "rule avoided the 2022 drawdown. Dot-Com shows the strategy matching "
-        "B&H (both −1.02, fully invested in-sample) and GFC beating it "
-        "(−0.78 vs −1.01). Several episodes (Dot-Com, GFC) precede the "
-        "strategy's 2017-Q4 out-of-sample window, so the durability read rests "
-        "on a handful of cycles — treat it as a stability sniff-test, not "
-        "confirmation."
+        "What this shows: cumulative return of the as-known-at-the-time winner, the hindsight winner and buy-and-hold "
+        f"SPY in {P.length(_SP)} stress episodes. Episodes before {_VIN0} precede the as-known-at-the-time archive, so the "
+        "headline rule has no position there."
     )
     CROSS_PERIOD_CAPTIONS = {
         "rolling_correlation": (
-            "How to read it: the indicator is the SLOOS net-% tightening "
-            "level; the target is SPY returns. The rolling correlation tests "
-            "whether their linear relationship is stable through time. The "
-            "sign swings, so the strategy needs ongoing monitoring rather than "
-            "one fixed model."
+            "How to read it: the indicator is the 4-quarter change in net tightening; the target is SPY returns in "
+            "the same quarter. The 20-quarter rolling correlation shows whether their linear relationship is stable "
+            "through time."
         ),
         "structural_break": (
-            "How to read it: the structural-break proxy asks whether the "
-            "SLOOS-SPY relationship changes enough that one fixed model is "
-            "unlikely to describe the whole sample. A larger statistic means a "
-            "larger shift; here max |z| = 2.41."
+            f"How to read it: a Quandt-Andrews test for one break in the regression of SPY returns on the lagged "
+            f"tightening change; the largest F is {_SB['statistic']:.2f} at {_SB['breakpoint_date']} with "
+            f"bootstrap p {_SB['p_value']:.2f}."
         ),
     }
     SHOW_TOURNAMENT_SCATTER = True
-    TOURNAMENT_SCATTER_CHART_NAME = "tournament_scatter"
+    TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
     TOURNAMENT_SCATTER_CAPTION = (
-        "What this shows: OOS Sharpe distribution across the 120 valid "
-        "searched combinations, with the selected rule highlighted as the best "
-        "search-phase result (1.51). The dashed line marks buy-and-hold "
-        "(0.89); the median valid combo (0.60) sits BELOW it — the winner is "
-        "the right tail of its own search."
+        "What this shows: test-period Sharpe of every valid searched combination by lead (data as known at the "
+        "time). The winner is chosen on the training period, not on this test-period score."
     )
 
-    CAVEATS_MD = """
-**Why we do not call this a validated edge** — flags, none softened (all from `winner_summary.json`, `evidence_status.json`, `granger_by_lag.csv`, `structural_break_sloos_ci_small_spy.json`, and `tournament_validation_20261015/bootstrap.csv`):
+    CAVEATS_MD = f"""
+**Main caveats:**
 
-1. **Small quarterly out-of-sample sample.** The test window is **32 QUARTERS** (2017-12-31 → 2025-09-30, ~8 years). That is a handful of independent quarterly observations, on a series with only a few credit-tightening cycles. Any winner here is FOUND-IN-SEARCH by construction, and there is no untouched hold-out yet.
-2. **No forecasting lead.** SLOOS → SPY Granger causality is insignificant at every tested quarterly lag (p = 0.34/0.23/0.34/0.50, min 0.23); the pre-whitened CCF shows only a mild inverse concurrent echo, no predictive lead. The rule reads a *state*, it does not forecast.
-3. **The median searched rule loses.** The median of the 120 valid combinations scored OOS Sharpe 0.60 — BELOW buy-and-hold's 0.89. The winner is the maximum of its own search.
-4. **Bootstrap significance is selection-biased.** `bootstrap.csv` reports p = 0.0 (significant at 5%), but that test is run on the SELECTED winner — the grid maximum of 120 combos — so it does not correct for selection and is NOT independent validation.
-5. **Direction contradicts the prior.** The pair was designed around a countercyclical credit-crunch hypothesis (`strategy_objective: countercyclical_protection`); the winner is PROCYCLICAL (`direction_consistent: false`), and the concurrent quartile evidence (Q4 most-tightening = worst SPY Sharpe 0.31) points the countercyclical way. Most plausibly a small-sample search artifact — part of the fleet-wide long-lead pattern (issue #28) — not a sign that tightening is bullish.
-6. **Relationship not stable through time.** A structural-break proxy flags a large shift (max |z| = 2.41) and the rolling correlation is sign-unstable — one fixed model is unlikely to hold across the whole sample.
-7. **Data character.** SLOOS is QUARTERLY, NOT seasonally adjusted, revised, and qualitative (a diffusion index of banker sentiment, not a hard activity measure). The lead rests on a small number of credit cycles.
-
-**What this means:** the honest label is a **found-in-search CANDIDATE** — "the best rule we found by searching a small quarterly window, running against its own prior, not a rule that has passed an independent test." The prescribed next step is a final exam: freeze this rule and test it once on an untouched window. Given the flags above and the absence of a forecasting lead, expectations should be calibrated LOW.
-
-**Further caveats:**
-
-- **The edge is drawdown control, not return.** OOS annualized return (15.1%) is barely above buy-and-hold (14.8%); the Sharpe gap comes from lower volatility and a shallow drawdown, partly from sitting in cash through part of the 2022 drawdown — one regime sequence.
-- **Quarterly units throughout.** Sharpe ratios use √4 annualization; with 32 observations the sampling error on a quarterly Sharpe is large even before selection effects.
-- **Costs.** Returns are gross of costs; at 5 bps per trade and 0.75 turnover/yr the haircut is negligible (see `tournament_validation_20261015/transaction_costs.csv`) — cost drag is not this pair's problem; the small sample, missing forecasting lead, and against-prior direction are.
+1. **Short history as known at the time.** Published (real-time) survey figures are archived from {_VIN0}, so the training period is {W.is_n} quarters ({W.is_start} to {W.is_end}) and the test period {W.oos_n} quarters; the training period contains no recession.
+2. **Search selection.** The winner is one of {W.n_valid} valid combinations; across {W.null_draws} contests run on data shifted against the returns by a fixed number of quarters (wrapping around once), {_CHANCE_TEXT}.
+3. **Two data views.** On today's revised data the selected rule is to {_RULE_REVISED} (hindsight; test-period Sharpe {W.comparison_oos_sharpe}).
+4. **The series is the large and middle-market one.** The pair id names small firms; the small-firm series (DRTSCIS) has not been tested.
+5. **Data character.** QUARTERLY, bounded diffusion measure; a later vintage revised part of the early history. The level's ADF p-value is {_ST[('sloos_level', 'ADF')]:.2f}; the 4-quarter change's is {_ST[('sloos_chg_4q', 'ADF')]:.2f}.
+{_R71}
+**What this means:** the result was found in search and has not been tested on untouched data. The prescribed next step is a final exam: freeze this rule and test it once on an untouched window.
 """
 
     TRADE_LOG_EXAMPLE_MD = (
-        "**A concrete example from this pair:** the broker-style log records a "
-        "BUY when the 3-quarter-lagged SLOOS tightening level crosses to the "
-        "NET-TIGHTENING side of the zero threshold (≥ 0), taking exposure "
-        "from 0% to 100% SPY. A SELL moves back to cash when the lagged "
-        "reading crosses to the net-easing side (< 0). Every row is in "
-        "`winner_trades_broker_style.csv`."
+        "**A concrete example from this pair:** the broker-style log records a BUY when the lagged "
+        f"{_SIG} moves {SIDE.get(_DIR, _DIR)} {_THR}, taking exposure from 0% to 100% SPY. A SELL moves back to "
+        f"cash when the condition no longer holds. The log has {_EV['n_trade_log_rows']} rows over the full history; "
+        f"every row is in `winner_trades_broker_style.csv`."
     )
 
     TRADE_LOG_COLUMN_EXAMPLES = {
-        "trade_date": "2020-06-30",
+        "trade_date": "quarter end",
         "side": "BUY",
         "instrument": "SPY",
         "quantity_pct": "100.0",
         "commission_bps": "5",
-        "reason": "P1_long_cash: lagged SLOOS level >= 0 (net-tightening side) vs T0_zero; position 0% to 100%",
+        "reason": f"{W.signal_code} {_DIR} rule crossed {W.threshold_code}",
     }
 
 
@@ -914,52 +633,61 @@ STRATEGY_CONFIG = StrategyConfig()
 # =========================================================================
 # METHODOLOGY PAGE
 # =========================================================================
-_DATA_SOURCES_MD = """
+_DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator | FRED — Federal Reserve SLOOS | `DRTSCILM` (Net % of banks tightening C&I standards to LARGE and MIDDLE-MARKET firms, NSA) | **Quarterly** (1993-Q1 → 2025-Q3, ~131 quarters) |
-| Target | Yahoo Finance | SPY (SPDR S&P 500 ETF, dividend-adjusted, quarter-end) | Quarterly (quarter-end) |
+| Indicator (as known at the time) | ALFRED (Fed SLOOS vintages, pinned: data/release_calendar/vintages/DRTSCILM.csv.gz) | `DRTSCILM`, net % of banks tightening C&I standards, large and middle-market firms, every published vintage | Quarterly |
+| Indicator (as revised today) | Latest vintage of the same file | `DRTSCILM` | Quarterly |
+| Release dates | data/release_calendar/release_calendar.csv | first publication date per quarter | Quarterly |
+| Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted quarter-end close | Quarterly |
 
-QUARTERLY credit-survey pair. The series is native quarterly and NOT seasonally adjusted (a diffusion index of banker sentiment, not a hard activity measure). Because net-% is bounded and mean-reverting, the LEVEL is stationary (ADF p < 0.001; KPSS not rejected) and is used directly — no differencing required for the traded transform.
-"""
+QUARTERLY credit-survey pair. The survey is published inside the quarter it describes, so even the shortest lead in the grid uses only published data.
+""")
 
 _INDICATOR_CONSTRUCTION_MD = (
-    "The raw indicator is the SLOOS net percentage of banks tightening C&I "
-    "standards to large and middle-market firms (FRED DRTSCILM). Because the net-% level is bounded and "
-    "mean-reverting it is stationary and used directly (the winning signal is "
-    "`level`). The pipeline also constructs a 1-quarter change, a 4-quarter "
-    "change, and a 20-quarter rolling z-score as alternative signal transforms "
-    "— all of which test stationary. The survey's publication schedule (a few "
-    "weeks after each quarter) makes a short signal delay realistic; the "
-    "tradeable lead grid runs L0..L4 QUARTERS, and the winner uses L3."
+    "The raw indicator is the net percentage of banks tightening C&I standards for large and middle-market firms. "
+    "The pipeline builds the level, the quarterly change, the 4-quarter change and a 20-quarter rolling z-score; "
+    "rolling thresholds use 20-quarter windows. On the as-known-at-the-time track every signal and threshold is "
+    "recomputed inside the vintage published when each quarter's return window opens. The tradeable lead grid runs "
+    f"{_GRID_RANGE} QUARTERS (strict publication floor); the winner uses `{W.signal_code}` ({_SIG}) at L{W.lead}."
 )
 
-_METHODS_TABLE_MD = """
+_METHODS_TABLE_MD = P.definition_text("""
 | Method | Question It Answers | Why We Chose It |
 |---|---|---|
-| Correlation battery (Pearson) | Any raw association at any quarterly horizon? | Cheap triage before formal tests |
-| Granger causality (lags 1–4q) | Does past tightening forecast SPY? | Formal lead-lag check; the decisive test for a suspected credit-context indicator |
-| Regime quartiles | Do low- and high-tightening regimes behave differently? | Makes the countercyclical credit story interpretable |
-| Pre-whitened CCF (offsets −4..+4q) | At which quarterly offsets do the series echo? | Filters autocorrelation that fakes lead-lag patterns |
-| Local projections | Where is SPY h quarters after a tightening move? | Horizon-by-horizon honesty; robust to overlapping returns |
-| Quantile regression | Does the signal predict tail risk? | Cyclical signals sometimes work at the left tail only |
-| Structural break / rolling correlation | Is the relationship stable across time? | Durability and overfit guard |
-"""
+| Correlation battery (Pearson, HAC p-values) | Any raw association at any quarterly horizon? | Cheap triage before formal tests |
+| Granger causality (lags 1-4q, Holm-adjusted minimum) | Does past tightening forecast SPY? | Formal lead-lag check |
+| Regime quartiles | Do easing and tightening quarters behave differently? | Makes the credit story interpretable |
+| Pre-whitened CCF (offsets -4..+4q) | At which quarterly offsets do the series echo? | Filters autocorrelation that fakes lead-lag patterns |
+| Local projections (HAC) | Where is SPY h quarters after a tightening move? | Horizon-by-horizon view |
+| Quantile regression (QuantReg + equality Wald test) | Does the signal matter more in market tails? | Credit signals sometimes work in the left tail only |
+| Structural break (Quandt-Andrews) / rolling correlation | Is the relationship stable across time? | Durability and overfit guard |
+| Lead-plateau selection (D9) | Is the chosen lead part of a stable range? | Guards against a lucky single lead |
+| Chance check (null tournament) | How does the winner compare with contests on scrambled signals? | Measures what selection alone can produce |
+| Paired block bootstrap | How uncertain is the Sharpe difference versus buy-and-hold? | Interval for the headline comparison |
+""")
 
-_TOURNAMENT_DESIGN_MD = """
-Grid: 4 signal transforms (level, 1-quarter change, 4-quarter change, 20-quarter z-score) × threshold schemes (zero-line, rolling percentiles, z-score bands) × the long/cash strategy family × procyclical/countercyclical orientations × QUARTERLY leads {0…4} = **120 valid combinations** plus a buy-and-hold benchmark row (valid=False per ECON-T4). Median valid OOS Sharpe 0.60 (below buy-and-hold's 0.89). The objective is max OOS Sharpe (√4 QUARTERLY annualization) over the full valid population. Out-of-sample window 2017-12-31 → 2025-09-30 (**32 QUARTERS** — a small sample; any winner is found-in-search). Winner: `level / T0_zero / P1_long_cash` (procyclical), lead L3 quarters; OOS Sharpe 1.5085, bootstrap p = 0.0 on the selected row (selection-biased — the winner is the grid maximum, so this is not independent validation).
+_TOURNAMENT_DESIGN_MD = f"""
+Grid: {P.length(_MAN['signals'])} signal transforms x threshold schemes x long/cash x both orientations x QUARTERLY leads {_GRID_RANGE} ({W.n_candidates} combinations; {W.n_distinct} distinct position series). Each position is held for the quarter after it is set. Each data track selects its own winner on its training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it.
 
-**Reproducibility notes.** Producer script: `scripts/pair_pipeline_sloos_ci_small_spy.py` — deterministic, fixed seeds. The canonical quarterly return series for chart producers is `strategy_returns_20261015.csv`; its Sharpe/drawdown/return reconcile with `winner_summary.json`. Charts are produced by `scripts/generate_charts_sloos_ci_small_spy.py`.
+- As known at the time (headline): `{_RID}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe} ({W.is_start} to {W.is_end}), test-period Sharpe {W.oos_sharpe}. The single highest training Sharpe on this track ({W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}, shown for reference and not the selection rule.
+- As revised today (hindsight): `{_RID_REVISED}`, training Sharpe {W.comparison_is_sharpe} ({W.comparison_is_start} to {W.comparison_is_end}), test-period Sharpe {W.comparison_oos_sharpe}.
+- Cross-evaluation: the headline rule scored on revised data has test-period Sharpe {W.ce_main_on_revised_oos_sharpe}; the hindsight rule scored on data as known at the time has {W.ce_revised_on_main_oos_sharpe}.
+- Chance check: across {W.null_draws} contests run on circularly shifted survey data, {_CHANCE_TEXT}.
+- Previously published rule: `{W.previous_rule}` ({W.previous_selection}), training Sharpe {W.previous_is_sharpe}, test-period Sharpe {W.previous_oos_sharpe}; the harness replays it exactly from the published panel.
+
+**Reproducibility notes.** Producer script: `scripts/pair_pipeline_{PAIR}.py` (harness spec `scripts/pair_spec_{PAIR}.py`), deterministic with fixed seeds. Charts: `scripts/generate_charts_{PAIR}.py`.
 """
 
 _REFERENCES_MD = """
-1. Board of Governors of the Federal Reserve System, *Senior Loan Officer Opinion Survey on Bank Lending Practices* (SLOOS) — methodology and net-percentage construction.
-2. Federal Reserve Economic Data (FRED), series `DRTSCILM`, Net Percentage of Domestic Banks Tightening Standards for Commercial and Industrial Loans to Large and Middle-Market Firms.
+1. Board of Governors of the Federal Reserve System, *Senior Loan Officer Opinion Survey on Bank Lending Practices*.
+2. Federal Reserve Bank of St. Louis, ALFRED / FRED series `DRTSCILM` (all vintages).
 3. Yahoo Finance, SPY adjusted price history.
-4. Granger, C. W. J. (1969). "Investigating Causal Relations by Econometric Models and Cross-spectral Methods." *Econometrica*, 37(3), 424–438.
-5. Lown, C. & Morgan, D. P. (2006). "The Credit Cycle and the Business Cycle: New Findings Using the Loan Officer Opinion Survey." *Journal of Money, Credit and Banking*, 38(6), 1575–1597.
-6. Jordà, Ò. (2005). "Estimation and inference of impulse responses by local projections." *American Economic Review*, 95(1), 161–182.
-7. Bailey, D. H. & López de Prado, M. (2014). "The deflated Sharpe ratio: correcting for selection bias, backtest overfitting and non-normality." *Journal of Portfolio Management*, 40(5), 94–107.
+4. Lown, C., and Morgan, D. P. (2006). "The Credit Cycle and the Business Cycle: New Findings Using the Loan Officer Opinion Survey." *Journal of Money, Credit and Banking*, 38(6), 1575-1597.
+5. Granger, C. W. J. (1969). "Investigating Causal Relations by Econometric Models and Cross-spectral Methods." *Econometrica*, 37(3), 424-438.
+6. Jorda, O. (2005). "Estimation and Inference of Impulse Responses by Local Projections." *American Economic Review*, 95(1), 161-182.
+7. Andrews, D. W. K. (1993). "Tests for Parameter Instability and Structural Change with Unknown Change Point." *Econometrica*, 61(4), 821-856.
+8. Politis, D. N., and Romano, J. P. (1992). "A Circular Block-Resampling Procedure for Stationary Data." In *Exploring the Limits of Bootstrap*, Wiley, 263-270.
 """
 
 METHODOLOGY_CONFIG = MethodologyConfig(
@@ -969,44 +697,16 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     tournament_design_md=_TOURNAMENT_DESIGN_MD,
     references_md=_REFERENCES_MD,
     sample_period_note=(
-        "QUARTERLY credit-survey pair. Keep three periods separate:\n\n"
-        "(a) **Full analytical dataset** — 1993-Q1 → 2025-Q3 (~131 quarters); "
-        "the span on which the lead-lag statistics are computed.\n\n"
-        "(b) **Out-of-sample SCORING & SELECTION window** — 2017-12-31 → "
-        "2025-09-30 (32 QUARTERS ≈ 8 years). This is where every headline "
-        "number is scored AND where the winner was selected — so it is a "
-        "selection set, NOT an independent validation window. Calling it "
-        "'validation' would overstate the test: the same 32 quarters were used "
-        "to search 120 rules and pick the best, and the untouched final-exam "
-        "hold-out has not been run. Thirty-two quarterly observations — on a "
-        "series with only a handful of credit cycles — is a SMALL sample.\n\n"
-        "(c) **Research workflow: search → select → validate.** We searched "
-        "120 quarterly rule combinations, then SELECTED the winner by "
-        "maximizing OOS Sharpe. Because the same window is used to pick the "
-        "winner, it is a selection set, not an untouched hold-out — which is "
-        "exactly why the winner is labelled found-in-search / CANDIDATE. The "
-        "final validate step — freezing the rule and scoring it once on a "
-        "genuinely untouched window — has NOT yet been run.\n\n"
-        "Sharpe ratios use √4 annualization; leads are in quarters (winner "
-        "L3q ≈ 9 months)."
+        f"QUARTERLY credit-survey pair. As known at the time: training {W.is_start} to {W.is_end} ({W.is_n} "
+        f"quarters), test {W.oos_start} to {W.oos_end} ({W.oos_n} quarters). As revised today: training "
+        f"{W.comparison_is_start} to {W.comparison_is_end}. Sharpe ratios use quarterly annualization; leads are in "
+        "quarters."
     ),
     plain_english=(
-        "One QUARTERLY credit-survey series (the Fed's SLOOS net-% of banks "
-        "tightening loan standards to large and middle-market firms, from 1993) and the S&P 500 "
-        "ETF (SPY). Keep three things separate. First, the FULL dataset: every "
-        "quarter from 1993 to 2025, which is what the lead-lag tests use. "
-        "Second, the OUT-OF-SAMPLE window, 2017 to 2025 — just 32 quarters — "
-        "where we score how the rules actually did. Third, the WORKFLOW: we "
-        "searched 120 quarterly rule combinations, then picked the winner by "
-        "its score on that window. Because we used that same window to choose "
-        "the winner, it is a candidate found by search, not a rule that has "
-        "passed an independent final exam — that untouched hold-out test is "
-        "still to come. The lead-lag tests find no reliable way to forecast "
-        "SPY from tightening; the one clean signal is concurrent and "
-        "countercyclical (heavy tightening lines up with weak equity "
-        "conditions), which points the opposite way from the procyclical rule "
-        "the search selected. Every number on these pages can be reproduced by "
-        "one deterministic script, and every number is labelled a candidate "
-        "because the sample is small and there is no forecasting lead."
+        "One QUARTERLY bank-credit survey series (net share of banks tightening C&I standards, large and "
+        "middle-market firms) and the S&P 500 ETF (SPY). The headline uses the survey figures as they were "
+        f"published at each date, archived from {_VIN0}; the as-revised-today view uses today's figures over the "
+        "longer history and is shown for comparison only. Every number on these pages is reproduced by one "
+        "deterministic script."
     ),
 )

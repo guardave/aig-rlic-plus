@@ -1,12 +1,13 @@
 {
   "chart_name": "structural_break",
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-15T18:16:22.184398+00:00",
+  "generated_at": "2026-10-18T07:17:23.362067+00:00",
   "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "caption": "Proxy check for large changes in the SLOOS-SPY relationship (rolling-correlation z-score); max |z| = 2.41.",
-  "narrative_alignment_note": "Proxy check for large changes in the SLOOS-SPY relationship (rolling-correlation z-score); max |z| = 2.41.",
+  "caption": "Sup-F 4.73 at 2009-06-30; bootstrap p = 0.13 (residual bootstrap under the no-break null, 499 draws, seed 42).",
+  "narrative_alignment_note": "Sup-F 4.73 at 2009-06-30; bootstrap p = 0.13 (residual bootstrap under the no-break null, 499 draws, seed 42).",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/sloos_ci_small_spy/structural_break_sloos_ci_small_spy.json"
+    "results/sloos_ci_small_spy/structural_break_sloos_ci_small_spy.json",
+    "results/sloos_ci_small_spy/structural_break_fseq_sloos_ci_small_spy.csv"
   ]
 }

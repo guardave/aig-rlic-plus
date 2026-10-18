@@ -1,0 +1,13 @@
+{
+  "chart_name": "chance_check",
+  "pair_id": "sloos_ci_small_spy",
+  "generated_at": "2026-10-18T07:07:37.671888+00:00",
+  "generated_by": "scripts/harness/charts.py",
+  "caption": "The real winner's plateau score ranks at the 18th percentile of 40 scrambled-signal contests.",
+  "narrative_alignment_note": "The real winner's plateau score ranks at the 18th percentile of 40 scrambled-signal contests.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/sloos_ci_small_spy/null_tournament_20261018.csv",
+    "results/sloos_ci_small_spy/track_summary.json"
+  ]
+}

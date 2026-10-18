@@ -1,10 +1,10 @@
 {
   "chart_name": "history_zoom_covid",
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-15T18:16:22.388598+00:00",
+  "generated_at": "2026-10-18T07:17:40.590131+00:00",
   "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "caption": "COVID Shock: Banks Tightened Sharply in 2020-Q2; gray bands are NBER recessions.",
-  "narrative_alignment_note": "COVID Shock: Banks Tightened Sharply in 2020-Q2; gray bands are NBER recessions.",
+  "caption": "COVID Shock: A Sharp, Brief Tightening; gray bands are NBER recessions, pink bands quarters with net tightening above zero.",
+  "narrative_alignment_note": "COVID Shock: A Sharp, Brief Tightening; gray bands are NBER recessions, pink bands quarters with net tightening above zero.",
   "disposition": "consumed",
   "source_artifacts": [
     "data/sloos_ci_small_spy_quarterly_latest.parquet"

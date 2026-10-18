@@ -253,10 +253,12 @@ def chart_tournament() -> None:
     valid = t[(t["valid"]) & (t["signal"] != "BENCHMARK")]
     fig = go.Figure(go.Box(x=valid["lead_quarters"].astype(str), y=valid["oos_sharpe"], name="Valid rules",
                            marker_color=C_IND, boxpoints="all", jitter=0.4, pointpos=0))
-    fig.add_hline(y=bh, line_dash="dash", line_color=C_BENCH, annotation_text=f"Buy-and-hold {bh:.2f}",
-                  annotation_position="top left")
+    leads = sorted(valid["lead_quarters"].astype(str).unique(), key=int)
+    fig.add_trace(go.Scatter(x=leads, y=[bh] * len(leads), mode="lines", name=f"Buy-and-hold test Sharpe {bh:.2f}",
+                             line=dict(color=C_BENCH, dash="dash")))
     fig.update_layout(title="Test-Period Sharpe of Every Valid Rule, by Lead", xaxis_title="Lead (quarters)",
-                      yaxis_title="Test-period Sharpe", template="plotly_white", height=450, showlegend=False)
+                      yaxis_title="Test-period Sharpe", template="plotly_white", height=450,
+                      legend=dict(orientation="h", y=-0.2))
     cap = (f"Test-period Sharpe of the {len(valid)} valid rules by lead (data as known at the time); median "
            f"{valid['oos_sharpe'].median():.2f} versus buy-and-hold {bh:.2f}. The winner is chosen on the training "
            "period, not on this score.")

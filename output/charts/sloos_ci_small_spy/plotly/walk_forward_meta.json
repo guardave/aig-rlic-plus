@@ -1,12 +1,13 @@
 {
   "chart_name": "walk_forward",
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-15T18:16:22.238811+00:00",
+  "generated_at": "2026-10-18T07:17:28.414989+00:00",
   "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "caption": "Sub-period Sharpe by credit-stress episode (walk-forward durability slot); the lead rests on few credit cycles.",
-  "narrative_alignment_note": "Sub-period Sharpe by credit-stress episode (walk-forward durability slot); the lead rests on few credit cycles.",
+  "caption": "Cumulative return of the as-known-at-the-time winner, the hindsight winner and buy-and-hold SPY in four stress episodes; the real-time archive starts after the Dot-Com and GFC episodes.",
+  "narrative_alignment_note": "Cumulative return of the as-known-at-the-time winner, the hindsight winner and buy-and-hold SPY in four stress episodes; the real-time archive starts after the Dot-Com and GFC episodes.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/sloos_ci_small_spy/subperiod_sharpe.csv"
+    "results/sloos_ci_small_spy/subperiod_sharpe.csv",
+    "results/sloos_ci_small_spy/winner_summary.json"
   ]
 }

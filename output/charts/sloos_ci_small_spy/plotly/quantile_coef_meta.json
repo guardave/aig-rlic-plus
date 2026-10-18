@@ -1,12 +1,13 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-15T18:16:22.002887+00:00",
+  "generated_at": "2026-10-18T07:17:03.905100+00:00",
   "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "caption": "SLOOS coefficient across SPY forward-return quantiles, with 95% confidence whiskers (reconstructed from coef + p-value). Flat, near-zero, and every interval straddles zero (p \u2248 0.65) \u2014 no state-dependent predictive content.",
-  "narrative_alignment_note": "SLOOS coefficient across SPY forward-return quantiles, with 95% confidence whiskers (reconstructed from coef + p-value). Flat, near-zero, and every interval straddles zero (p \u2248 0.65) \u2014 no state-dependent predictive content.",
+  "caption": "Slope of the next-quarter SPY return on the 4-quarter change in net tightening at each return quantile; cross-quantile equality Wald p = 0.30 (not rejected).",
+  "narrative_alignment_note": "Slope of the next-quarter SPY return on the 4-quarter change in net tightening at each return quantile; cross-quantile equality Wald p = 0.30 (not rejected).",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/sloos_ci_small_spy/core_models_20261015/quantile_regression.csv"
+    "results/sloos_ci_small_spy/core_models_20261018/quantile_regression.csv",
+    "results/sloos_ci_small_spy/core_models_20261018/quantile_equality_test.json"
   ]
 }

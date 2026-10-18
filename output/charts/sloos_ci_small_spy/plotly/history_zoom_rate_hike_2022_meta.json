@@ -1,10 +1,10 @@
 {
   "chart_name": "history_zoom_rate_hike_2022",
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-15T18:16:22.429817+00:00",
+  "generated_at": "2026-10-18T07:17:45.203823+00:00",
   "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "caption": "2022-23 Tightening: Post-SVB Credit Squeeze; gray bands are NBER recessions.",
-  "narrative_alignment_note": "2022-23 Tightening: Post-SVB Credit Squeeze; gray bands are NBER recessions.",
+  "caption": "2022-2024 Rate Hikes: Tightening Rose Again; gray bands are NBER recessions, pink bands quarters with net tightening above zero.",
+  "narrative_alignment_note": "2022-2024 Rate Hikes: Tightening Rose Again; gray bands are NBER recessions, pink bands quarters with net tightening above zero.",
   "disposition": "consumed",
   "source_artifacts": [
     "data/sloos_ci_small_spy_quarterly_latest.parquet"

@@ -1,10 +1,10 @@
 {
   "chart_name": "granger_f_by_lag",
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-15T18:16:21.179755+00:00",
+  "generated_at": "2026-10-18T07:16:56.602814+00:00",
   "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "caption": "Granger p-values by quarterly lag for SLOOS tightening predicting SPY returns; every lag is insignificant (min p 0.23) \u2014 SLOOS does not Granger-cause SPY at the tested lags.",
-  "narrative_alignment_note": "Granger p-values by quarterly lag for SLOOS tightening predicting SPY returns; every lag is insignificant (min p 0.23) \u2014 SLOOS does not Granger-cause SPY at the tested lags.",
+  "caption": "Granger p-values by quarterly lag for the 4-quarter change in net tightening predicting SPY returns; smallest p 0.20 (Holm-adjusted 0.82).",
+  "narrative_alignment_note": "Granger p-values by quarterly lag for the 4-quarter change in net tightening predicting SPY returns; smallest p 0.20 (Holm-adjusted 0.82).",
   "disposition": "consumed",
   "source_artifacts": [
     "results/sloos_ci_small_spy/granger_by_lag.csv"
