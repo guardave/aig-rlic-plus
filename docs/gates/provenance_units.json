@@ -16,6 +16,11 @@
       "why": "stored already in percent (43.48 = 43.48%): hmm/pct_*, *_ann_return_pct; *_pp: percentage points"
     },
     {
+      "pattern": "/undefined_tail/(?:benchmark_return_over_tail|last_defined_position)$",
+      "kind": "ratio",
+      "why": "benchmark return over the undefined tail and the last defined position, fractions"
+    },
+    {
       "pattern": "(?:^|[/#])(?:ann_return|ann_vol|max_dd|max_drawdown|oos_ann_return|oos_ann_vol|oos_max_drawdown|bh_ann_return|bh_max_drawdown|win_rate|oos_win_rate|exposure|oos_exposure|is_exposure)(?:/|$)",
       "kind": "ratio",
       "why": "fractions of capital or of time (0.152 = 15.2%)"

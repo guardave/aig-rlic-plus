@@ -157,9 +157,36 @@ def track_record(res: TrackResult, signal_display: dict, null_summary: dict | No
                                   max_dd={"strat": _r(pw["max_drawdown"]), "bh": _r(pb["max_drawdown"])})
         rec["hac"] = {"oos_strategy_mean": hac_t_mean(oos["strategy_return"].to_numpy()),
                       "oos_excess_mean": hac_t_mean((oos["strategy_return"] - oos["benchmark_return"]).to_numpy())}
+    rec["undefined_tail"] = undefined_tail(ws, res.oos_mask, spec.ppy, pw["sharpe"])
     if null_summary is not None:
         rec["null_tournament"] = null_summary
     return rec
+
+
+def undefined_tail(ws: pd.DataFrame, oos_mask: np.ndarray, ppy: int, oos_sharpe: float) -> dict | None:
+    """Trailing test periods whose position is undefined (no published reading: the fleet rule holds cash), and the
+    test-period Sharpe had the last defined position been held instead (a SENSITIVITY, not the rule; QA pilot-visual
+    H1 / Lead ruling: undefined means cash stays). None when the test period ends on a defined position."""
+    o = ws.loc[oos_mask].reset_index(drop=True)
+    pos = o["position"]
+    k = 0
+    for v in pos.iloc[::-1]:
+        if pd.isna(v):
+            k += 1
+        else:
+            break
+    if k == 0 or k == len(o):
+        return None
+    last = float(pos.iloc[len(o) - k - 1])
+    held = o["strategy_return"].to_numpy(float).copy()
+    br = o["benchmark_return"].to_numpy(float)
+    held[len(o) - k:] = last * br[len(o) - k:]        # the same holding, no trade: no extra cost
+    return {"n_periods": int(k), "first_date": _iso(o["date"].iloc[len(o) - k]),
+            "last_date": _iso(o["date"].iloc[-1]), "last_defined_position": _r(last),
+            "benchmark_return_over_tail": _r(float(np.prod(1 + br[len(o) - k:]) - 1)),
+            "oos_sharpe_as_published": _r(oos_sharpe),
+            "oos_sharpe_hold_last_position": _r(M.perf(held, ppy)["sharpe"]),
+            "rule": "undefined signal = cash (pre-registered fleet rule); the hold-last figure is a sensitivity"}
 
 
 def _runner_up(tab: pd.DataFrame, ru: dict | None) -> dict | None:
@@ -232,12 +259,14 @@ def trade_log(ws: pd.DataFrame, instrument: str, cost_bps: int, reason: str) -> 
     ch = pos - before
     rows = []
     for dt, d in ch[ch != 0].items():
+        undefined = pd.isna(sig.loc[dt]) and pd.isna(ws.set_index("date")["position"].loc[dt])
         rows.append({"trade_date": dt.date().isoformat(), "side": "BUY" if d > 0 else "SELL",
                      "instrument": instrument, "quantity_pct": float(pos.loc[dt]) * 100,
                      "trade_size_pct": abs(float(d)) * 100, "commission_bps": cost_bps,
                      "signal_value": _r(sig.loc[dt]), "threshold_value": _r(thr.loc[dt]),
                      "position_before": float(before.loc[dt]), "position_after": float(pos.loc[dt]),
-                     "reason": reason})
+                     "reason": ("signal undefined (no published reading for this month): cash under the "
+                                "undefined-means-cash rule") if undefined else reason})
     return pd.DataFrame(rows)
 
 

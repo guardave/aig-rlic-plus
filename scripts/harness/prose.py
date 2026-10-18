@@ -125,6 +125,14 @@ def build(rec: dict, prefix: str = "") -> dict:
         f["ci_low"] = field(vb["ci_95"][0], _num(vb["ci_95"][0]))
         f["ci_high"] = field(vb["ci_95"][1], _num(vb["ci_95"][1]))
         f["p_diff_le_0"] = field(vb["p_diff_le_0"], _num(vb["p_diff_le_0"]))
+    ut = rec.get("undefined_tail")
+    if ut:
+        f["tail_n_periods"] = field(ut["n_periods"], str(ut["n_periods"]))
+        f["tail_first_date"] = field(ut["first_date"], ut["first_date"])
+        f["tail_last_date"] = field(ut["last_date"], ut["last_date"])
+        f["tail_bh_return"] = field(ut["benchmark_return_over_tail"], _pct(ut["benchmark_return_over_tail"]))
+        f["tail_hold_last_sharpe"] = field(ut["oos_sharpe_hold_last_position"],
+                                           _num(ut["oos_sharpe_hold_last_position"]))
     nt = rec.get("null_tournament")
     if nt:
         f["null_percentile"] = field(nt.get("selection_stat_percentile"), _pct(nt.get("selection_stat_percentile"), 0))

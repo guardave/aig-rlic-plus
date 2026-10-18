@@ -39,3 +39,39 @@ def test_previous_values_are_the_published_record_not_the_replay():
     assert published_value(rec, pub, 0, wrow, "is_sharpe") == 0.2825
     assert published_value(pd.Series({"oos_sharpe": 0.5}), pub, 0, wrow, "is_sharpe") == 0.29   # table row next
     assert published_value(None, pub.drop(columns="is_sharpe"), 0, wrow, "is_sharpe") == 0.3107
+
+
+def test_undefined_tail_is_reported_with_a_hold_last_sensitivity():
+    # QA pilot-visual H1: unrate's last 6 test months had no published reading; the rule held cash (pre-registered)
+    import numpy as np
+    from harness.artifacts import undefined_tail
+    n = 24
+    d = pd.date_range("2024-01-31", periods=n, freq="ME")
+    pos = [1.0] * 18 + [np.nan] * 6
+    br = np.full(n, 0.01)
+    sr = np.where(np.isnan(pos), 0.0, br)
+    ws = pd.DataFrame({"date": d, "position": pos, "strategy_return": sr, "benchmark_return": br})
+    ut = undefined_tail(ws, np.ones(n, bool), 12, 1.0)
+    assert ut["n_periods"] == 6 and ut["first_date"] == "2025-07-31" and ut["last_defined_position"] == 1.0
+    assert round(ut["benchmark_return_over_tail"], 6) == round(1.01 ** 6 - 1, 6)
+    assert undefined_tail(ws.assign(position=1.0), np.ones(n, bool), 12, 1.0) is None
+
+
+def test_move_to_cash_on_an_undefined_signal_says_why():
+    import numpy as np
+    log = trade_log(pd.DataFrame({"date": pd.date_range("2026-01-31", periods=4, freq="ME"),
+                                  "position": [1.0, 1.0, np.nan, np.nan], "signal": [0.2, 0.2, np.nan, np.nan],
+                                  "threshold": 0.3}), "SPY", 5, "rule crossed")
+    last = log.iloc[-1]
+    assert last["side"] == "SELL" and "signal undefined" in last["reason"]
+
+
+def test_position_chart_keeps_undefined_months_as_cash(tmp_path):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "app"))
+    from components.position_adjustment_panel import _deployed_positions
+    import numpy as np
+    pd.DataFrame({"date": pd.date_range("2026-01-31", periods=5, freq="ME"),
+                  "position": [np.nan, 1.0, 1.0, np.nan, np.nan]}).to_csv(tmp_path / "strategy_returns_20261017.csv",
+                                                                         index=False)
+    pos, _f = _deployed_positions(tmp_path, {})
+    assert list(pos) == [100.0, 100.0, 0.0, 0.0]          # warm-up dropped, undefined tail shown at 0%
