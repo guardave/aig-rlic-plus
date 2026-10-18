@@ -1,0 +1,11 @@
+variable,test,statistic,p_value,lags,conclusion
+import_price,ADF,-1.0451578812909432,0.7364399378987093,2,unit_root_not_rejected
+import_price,KPSS,2.568206310031828,0.01,12,nonstationary
+import_price_yoy,ADF,-4.454348762438264,0.00023756101085207942,15,stationary
+import_price_yoy,KPSS,0.07228184149920917,0.1,11,stationary_not_rejected
+import_price_mom,ADF,-6.065241852581083,1.1861106828504632e-07,11,stationary
+import_price_mom,KPSS,0.05102557268835357,0.1,8,stationary_not_rejected
+import_price_yoy_zscore_60m,ADF,-4.3565142580798675,0.0003540898052969814,15,stationary
+import_price_yoy_zscore_60m,KPSS,0.0707720350058018,0.1,11,stationary_not_rejected
+spy_ret,ADF,-11.025396819642882,5.845492736095785e-20,2,stationary
+spy_ret,KPSS,0.1493775537113095,0.1,3,stationary_not_rejected

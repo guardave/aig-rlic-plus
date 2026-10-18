@@ -26,51 +26,51 @@
     ]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-10-16T18:23:49.430313+00:00",
+  "last_updated_at": "2026-10-18T08:35:26.363382+00:00",
   "indicator": "import_price",
   "target": "spy",
   "expected_direction": "countercyclical",
   "observed_direction": "countercyclical",
   "direction_consistent": true,
-  "mechanism": "The import price index measures the dollar cost of imported goods; rising import-price growth signals imported inflation and cost pressure that tightens financial conditions and weighs on equity valuations, while low or falling import-price growth is supportive. Exposure is scaled toward SPY when import-price growth is low.",
+  "mechanism": "The import price index measures the dollar cost of imported goods; rising import-price growth signals imported inflation and cost pressure that can tighten financial conditions and weigh on equity valuations, while low or falling import-price growth is supportive.",
   "confidence": "low",
-  "key_finding": "Best search-phase rule uses yoy_zscore_60m at L4 with OOS Sharpe 0.82 versus buy-and-hold 0.96.",
+  "key_finding": "As known at the time (real-time IR vintages), the rule selected on in-sample data uses yoy at L4 (IS Sharpe 1.33) with held-out OOS Sharpe 0.83 versus buy-and-hold 1.00.",
   "caveats": [
-    "Even a leading indicator selected at a long lead can be a search artifact \u2014 check adjacent-lead durability.",
+    "ALFRED holds import-price vintages only from 2010-03, so the as-known-at-the-time training window is short (2010 to 2016); the as-revised-today result uses the full history and is shown for comparison.",
     "The strategy is search-selected and needs fresh holdout validation.",
-    "The 2020-21 COVID collapse/rebound is an extreme in-window outlier that can dominate the fit.",
-    "Import Price Index figures are nominal."
+    "Import prices move with oil and the dollar; the 2008-09 collapse and the 2021-22 spike dominate the growth series.",
+    "The previous rule (20261016) was the single highest in-sample Sharpe on revised data with fixed lags; it is replaced here."
   ],
-  "narrative_summary": "Import Price Index growth is tested as a countercyclical inflation/cost overlay for SPY \u2014 favor equities when imported inflation is low.",
+  "narrative_summary": "Import-price growth is tested as a countercyclical inflation / cost overlay for SPY.",
   "known_stress_episodes": [
     {
       "label": "Dot-Com recession",
       "start": "2001-03-01",
       "end": "2001-11-30",
-      "note": "Import prices fell as global demand cratered."
+      "note": "Import prices fell as global demand weakened."
     },
     {
       "label": "Global Financial Crisis",
       "start": "2007-12-01",
       "end": "2009-06-30",
-      "note": "Import prices collapsed 2008-09."
+      "note": "Import prices peaked with oil in mid-2008 and then collapsed."
     },
     {
       "label": "COVID shock",
       "start": "2020-02-01",
       "end": "2020-04-30",
-      "note": "Orders collapsed then rebounded."
+      "note": "Import prices dropped with oil in spring 2020."
     },
     {
       "label": "2022 rate shock",
       "start": "2022-01-01",
       "end": "2022-12-31",
-      "note": "Nominal sales stayed high on inflation."
+      "note": "Import-price growth peaked in early 2022 as equities sold off on rate hikes."
     }
   ],
   "data_provenance": {
-    "source": "Data Master.xlsx (BLS Import/Export Price Indexes)",
-    "series_id": "IR (BLS Import Price Index)",
-    "accessed_at": "2026-10-16T18:23:49.430313+00:00"
+    "source": "FRED / ALFRED",
+    "series_id": "IR",
+    "accessed_at": "2026-10-18T08:35:26.363382+00:00"
   }
 }

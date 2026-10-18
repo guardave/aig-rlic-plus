@@ -666,8 +666,10 @@
       "position_shift": 0,
       "lead_floor_effective": 2,
       "release_calendar_series": "IR",
-      "alignment": "fixed_lag",
-      "value_vintage": "revised_alfred"
+      "alignment": "pit_asof",
+      "value_vintage": "revised_alfred",
+      "track_policy": "compute_twice",
+      "note": "Phase B port (2026-10-18): rebuilt on scripts/harness (two tracks: real-time ALFRED vintages = MAIN, IR vintages from 2010-03-16 only; revised = comparison; D9 lead plateau; point-in-time release timing), registry grid L2..L13 with position_shift 0. The 20261016 rule (yoy_zscore_60m/T_roll_p50/P1/countercyclical/L4, raw IS argmax on a common IS start, commit 1d06839f) is replayed exactly by the harness and kept as the previous rule."
     },
     "rsxfs_spy": {
       "signal_frequency": "monthly",

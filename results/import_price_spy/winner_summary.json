@@ -1,58 +1,63 @@
 {
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-16T18:23:49.430313+00:00",
-  "signal_column": "import_price_yoy_zscore_60m",
-  "signal_code": "yoy_zscore_60m",
-  "signal_display_name": "YoY growth 60-month z-score",
+  "generated_at": "2026-10-18T08:37:56.088122+00:00",
+  "schema_version": "1.3.0",
   "target_symbol": "SPY",
+  "track_policy": "compute_twice",
+  "main_eligible": true,
+  "cost_assumption_bps": 5,
+  "signal_column": "import_price_yoy",
+  "signal_code": "yoy",
+  "signal_display_name": "Year-over-year growth in import prices",
   "threshold_code": "T_roll_p50",
-  "threshold_value": -0.144107,
+  "threshold_value": 0.997862,
   "threshold_rule": "lte",
-  "threshold_note": "T_roll_p50 threshold; threshold_value is latest if rolling",
+  "threshold_note": "T_roll_p50 threshold; threshold_value is the value in force at the last row",
+  "lookback": "LB60 where rolling thresholds apply",
   "strategy_family": "P1_long_cash",
   "strategy_code": "P1",
   "strategy_display_name": "P1 long cash",
-  "strategy_description": "Hold SPY when the lagged import-price-growth signal is favorable (low/falling); otherwise hold cash.",
+  "strategy_description": "Hold SPY when the lagged import-price-growth signal is on the favourable side of its threshold; otherwise hold cash (P1 long/cash).",
   "lead_value": 4,
   "lead_unit": "months",
-  "lead_description": "Signal is lagged 4 month(s) before allocation.",
-  "lookback": "LB60 where rolling thresholds apply",
+  "lead_description": "Signal is lagged 4 months before allocation.",
   "direction": "countercyclical",
-  "oos_sharpe": 0.821489,
-  "oos_sortino": 0.799733,
-  "oos_calmar": 0.449702,
-  "oos_ann_return": 0.087457,
-  "oos_ann_vol": 0.10967,
+  "oos_sharpe": 0.828011,
+  "oos_sortino": 0.74204,
+  "oos_calmar": 0.439254,
+  "oos_ann_return": 0.085425,
+  "oos_ann_vol": 0.106037,
   "oos_max_drawdown": -0.194477,
-  "oos_win_rate": 0.326923,
-  "oos_n_trades": 7,
-  "annual_turnover": 0.807692,
-  "oos_n": 104,
+  "oos_win_rate": 0.299145,
+  "oos_n_trades": 14,
+  "annual_turnover": 1.435897,
+  "oos_n": 117,
   "oos_period_start": "2017-01-31",
-  "oos_period_end": "2025-08-31",
-  "bh_sharpe": 0.957364,
-  "bh_ann_return": 0.148272,
+  "oos_period_end": "2026-09-30",
+  "bh_sharpe": 0.996397,
+  "bh_ann_return": 0.151948,
   "bh_max_drawdown": -0.239272,
-  "cost_assumption_bps": 5,
-  "total_combos": 432,
-  "valid_combos": 432,
-  "schema_version": "1.2.0",
-  "notes": "Import Price Index is a nominal price index; the level is non-stationary so all signals are growth transforms (YoY etc.). Winner (yoy_zscore_60m) is selected by in-sample Sharpe on the common IS window (2000-12-31 to 2016-12-31) and evaluated on the held-out OOS window; still a search-selected rule \u2014 read any lead/threshold as found-in-search.",
-  "is_sharpe": 0.790824,
-  "is_n": 193,
-  "is_period_start": "2000-12-31",
+  "is_sharpe": 1.331406,
+  "is_n": 81,
+  "is_period_start": "2010-04-30",
   "is_period_end": "2016-12-31",
+  "total_combos": 432,
+  "valid_combos": 408,
+  "notes": "Import prices are a nominal price index (imported inflation / cost pressure); signals are growth transforms only. Headline = as known at the time (real-time IR vintages, available from 2010-03 only); still a search-selected rule. The 20261016 rule (raw IS argmax on a common IS start, commit 1d06839f) is replayed exactly and kept as the previous rule.",
   "selection": {
-    "objective": "max_is_sharpe",
-    "objective_formula": "in-sample (common window [common_is_start, OOS start 2017-01)) monthly mean/std*sqrt(12); winner evaluated on OOS window",
+    "objective": "max_is_sharpe_lead_plateau_w3",
+    "objective_formula": "D9: min IS Sharpe over 3 adjacent grid leads (edge-clamped); best window = plateau; winner = highest raw IS Sharpe inside it. IS = deployable returns on [common_is_start, oos_start); OOS never consulted",
     "is_window": {
-      "start": "2000-12-31",
+      "start": "2010-04-30",
       "end": "2016-12-31",
-      "n": 193,
-      "common_is_start": "2000-12-31",
+      "n": 81,
+      "common_is_start": "2010-04-30",
       "oos_start": "2017-01-31",
-      "rule": "common_is_start = latest first-valid-return date across all grid candidates; IS metrics for every candidate computed on [common_is_start, oos_start)",
-      "bh_is_sharpe": 0.428302
+      "min_is_n": 60,
+      "n_candidates": 432,
+      "n_eligible": 432,
+      "rule": "R3.3 eligibility before alignment; common_is_start = latest first-valid return among eligible candidates",
+      "bh_is_sharpe": 0.990573
     },
     "grid_scanned": {
       "leads": [
@@ -70,47 +75,1070 @@
         13
       ],
       "n_signals": 6,
-      "n_thresholds": 18,
+      "n_thresholds": 5,
       "n_strategies": 1,
-      "n_valid_combos": 432,
-      "median_valid_objective": 0.312188
+      "n_combos": 432,
+      "n_valid_combos": 408,
+      "n_distinct_position_series": 408,
+      "median_valid_objective": 0.7048658570493189
     },
     "tie_break_step": null,
     "raw_winner_row": {
-      "signal": "yoy_zscore_60m",
+      "signal": "yoy",
       "threshold": "T_roll_p50",
-      "strategy": "P1_long_cash",
+      "strategy": "P1",
       "lead_column": "lead_months",
       "lead_value": 4,
-      "source_tournament_file": "tournament_results_20261016.csv",
-      "source_row_index": 338
+      "source_tournament_file": "tournament_results_20261018.csv",
+      "source_row_index": 50
     },
     "runner_up": {
-      "signal": "mom",
-      "threshold": "T_roll_p25",
-      "strategy": "P1_long_cash",
-      "lead_value": 8,
-      "objective_value": 0.771794,
-      "oos_sharpe": 0.522992
-    },
-    "rationale": "Winner is the IS-valid row with the highest IN-SAMPLE Sharpe (common IS window) over the published grid; OOS metrics are reported for that row only (no OOS look-ahead in selection).",
-    "legacy_oos_selected_row": {
       "signal": "chg_3m",
-      "threshold": "T0_zero",
-      "direction": "countercyclical",
-      "lead_value": 10,
-      "oos_sharpe": 1.374943,
-      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261016.csv"
+      "threshold": "T_roll_p50",
+      "strategy": "P1",
+      "lead_value": 7,
+      "objective": "plateau_score_J",
+      "objective_value": 1.227895,
+      "window_leads": [
+        5,
+        6,
+        7
+      ],
+      "is_sharpe": 1.328443,
+      "oos_sharpe": 0.611858
     },
-    "sensitivity_own_is_start_row": {
-      "signal": "accel",
-      "threshold": "T0_zero",
+    "window_leads": [
+      3,
+      4,
+      5
+    ],
+    "J": 1.284279,
+    "raw_is_argmax": {
+      "key": "mom|T_roll_p50|P1|countercyclical|7",
+      "signal": "mom",
+      "threshold": "T_roll_p50",
+      "strategy": "P1",
       "direction": "countercyclical",
-      "lead_value": 5,
-      "own_is_start": "1994-07-31",
-      "own_is_sharpe": 0.918349,
-      "note": "IS argmax without common-start alignment; sensitivity only"
+      "lead": 7,
+      "is_sharpe": 1.505869,
+      "oos_sharpe": 0.714862,
+      "note": "highest single in-sample Sharpe in the grid; reference only, not the selection rule"
     },
-    "objective_runner_up_divergence": null
+    "rationale": "Winner selected on IS data only by the D9 lead-plateau rule; OOS reported for it only.",
+    "inference": {
+      "oos_sharpe_diff_vs_bh_bootstrap": {
+        "observed": -0.1684,
+        "mean": -0.1682,
+        "ci_95": [
+          -0.6607,
+          0.3995
+        ],
+        "p_diff_le_0": 0.741,
+        "block_length": 6,
+        "draws": 5000,
+        "seed": 42,
+        "method": "paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H)",
+        "sharpe_diff": -0.1684,
+        "ann_return": {
+          "strat": 0.085425,
+          "bh": 0.151948
+        },
+        "ann_vol": {
+          "strat": 0.106037,
+          "bh": 0.154753
+        },
+        "max_dd": {
+          "strat": -0.194477,
+          "bh": -0.239272
+        }
+      },
+      "hac": {
+        "oos_strategy_mean": {
+          "t": 2.5642,
+          "p_value": 0.0103,
+          "nw_lag": 4,
+          "n": 117
+        },
+        "oos_excess_mean": {
+          "t": -2.2147,
+          "p_value": 0.0268,
+          "nw_lag": 4,
+          "n": 117
+        }
+      }
+    },
+    "previously_published": [
+      {
+        "key": "yoy_zscore_60m|T_roll_p50|P1|countercyclical|4",
+        "signal": "yoy_zscore_60m",
+        "threshold": "T_roll_p50",
+        "strategy": "P1",
+        "direction": "countercyclical",
+        "lead": 4,
+        "is_sharpe": 0.7908240619900425,
+        "oos_sharpe": 0.8214891401775886,
+        "replay_is_sharpe": 0.7908240619900426,
+        "replay_oos_sharpe": 0.821489140177589,
+        "tag": "20261016",
+        "selection": "raw in-sample Sharpe argmax, revised values, fixed lag"
+      }
+    ]
+  },
+  "tracks": {
+    "main": {
+      "track": "real_time",
+      "lead_unit": "months",
+      "lead_column": "lead_months",
+      "n_candidates": 432,
+      "n_eligible": 432,
+      "n_valid": 408,
+      "n_distinct": 408,
+      "sample": {
+        "alignment": "realtime_vintage",
+        "vintage_series": "IR",
+        "after_close": false,
+        "first_vintage": "2010-03-16"
+      },
+      "eligible": true,
+      "winner": {
+        "key": "yoy|T_roll_p50|P1|countercyclical|4",
+        "signal": "yoy",
+        "signal_column": "import_price_yoy",
+        "signal_display": "Year-over-year growth in import prices",
+        "threshold": "T_roll_p50",
+        "threshold_value": 0.997862,
+        "threshold_rule": "lte",
+        "direction": "countercyclical",
+        "strategy": "P1",
+        "strategy_family": "P1_long_cash",
+        "lead": 4,
+        "is_sharpe": 1.331406,
+        "oos_sharpe": 0.828011,
+        "oos_sortino": 0.74204,
+        "oos_calmar": 0.439254,
+        "oos_ann_return": 0.085425,
+        "oos_ann_vol": 0.106037,
+        "oos_max_drawdown": -0.194477,
+        "oos_win_rate": 0.299145,
+        "oos_n_trades": 14,
+        "annual_turnover": 1.435897,
+        "oos_exposure": 0.42735,
+        "source_row_index": 50,
+        "oos_sharpe_net_5bp": 0.820971
+      },
+      "bh_is": {
+        "sharpe": 0.990573,
+        "sortino": 1.619296,
+        "calmar": 0.761739,
+        "ann_return": 0.123564,
+        "ann_vol": 0.126056,
+        "max_drawdown": -0.162213,
+        "win_rate": 0.654321,
+        "n": 81.0
+      },
+      "bh_oos": {
+        "sharpe": 0.996397,
+        "sortino": 1.429498,
+        "calmar": 0.635043,
+        "ann_return": 0.151948,
+        "ann_vol": 0.154753,
+        "max_drawdown": -0.239272,
+        "win_rate": 0.700855,
+        "n": 117.0
+      },
+      "is_window": [
+        "2010-04-30",
+        "2016-12-31"
+      ],
+      "oos_window": [
+        "2017-01-31",
+        "2026-09-30"
+      ],
+      "is_n": 81,
+      "oos_n": 117,
+      "objective": "max_is_sharpe_lead_plateau_w3",
+      "plateau": {
+        "leads": [
+          3,
+          4,
+          5
+        ],
+        "score": 1.284279,
+        "winner_lead": 4,
+        "global_max_lead": 4,
+        "global_max_inside_plateau": true,
+        "grid_edge": false,
+        "single_window_grid": false,
+        "family": {
+          "signal": "yoy",
+          "threshold": "T_roll_p50",
+          "strategy": "P1",
+          "direction": "countercyclical"
+        }
+      },
+      "raw_argmax": {
+        "key": "mom|T_roll_p50|P1|countercyclical|7",
+        "signal": "mom",
+        "threshold": "T_roll_p50",
+        "strategy": "P1",
+        "direction": "countercyclical",
+        "lead": 7,
+        "is_sharpe": 1.505869,
+        "oos_sharpe": 0.714862,
+        "note": "highest single in-sample Sharpe in the grid; reference only, not the selection rule"
+      },
+      "runner_up": {
+        "signal": "chg_3m",
+        "threshold": "T_roll_p50",
+        "strategy": "P1",
+        "lead_value": 7,
+        "objective": "plateau_score_J",
+        "objective_value": 1.227895,
+        "window_leads": [
+          5,
+          6,
+          7
+        ],
+        "is_sharpe": 1.328443,
+        "oos_sharpe": 0.611858
+      },
+      "spearman_is_oos": 0.1697,
+      "vs_buy_hold": {
+        "observed": -0.1684,
+        "mean": -0.1682,
+        "ci_95": [
+          -0.6607,
+          0.3995
+        ],
+        "p_diff_le_0": 0.741,
+        "block_length": 6,
+        "draws": 5000,
+        "seed": 42,
+        "method": "paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H)",
+        "sharpe_diff": -0.1684,
+        "ann_return": {
+          "strat": 0.085425,
+          "bh": 0.151948
+        },
+        "ann_vol": {
+          "strat": 0.106037,
+          "bh": 0.154753
+        },
+        "max_dd": {
+          "strat": -0.194477,
+          "bh": -0.239272
+        }
+      },
+      "hac": {
+        "oos_strategy_mean": {
+          "t": 2.5642,
+          "p_value": 0.0103,
+          "nw_lag": 4,
+          "n": 117
+        },
+        "oos_excess_mean": {
+          "t": -2.2147,
+          "p_value": 0.0268,
+          "nw_lag": 4,
+          "n": 117
+        }
+      },
+      "undefined_tail": null,
+      "null_tournament": {
+        "n_draws": 100,
+        "n_unique_offsets": 100,
+        "n_draws_without_winner": 0,
+        "n_admissible_offsets": 119,
+        "span": 198,
+        "max_usable_offset": 158,
+        "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
+        "seed_base": 20261016,
+        "is_max_percentile": 0.56,
+        "p_is": 0.44,
+        "selection_stat_percentile": 0.63,
+        "p_selection_stat": 0.37,
+        "winner_oos_percentile": 0.55,
+        "p_oos": 0.45,
+        "null_is_max_p5_p50_p95": [
+          1.2583,
+          1.4862,
+          1.6911
+        ],
+        "null_winner_oos_median": 0.8275,
+        "edge_share": 0.09,
+        "edge_share_uniform": 0.1667,
+        "edge_share_bound": 0.2785,
+        "edge_flag": false,
+        "timing_sharpe_mean": 0.0693,
+        "timing_sharpe_sd": 0.3863,
+        "timing_sharpe_se_dependent": 0.0894,
+        "timing_sharpe_se_bandwidth": 12,
+        "timing_sharpe_effective_draws": 18.7,
+        "r71_tolerance": 0.1787,
+        "timing_sharpe_mean_all_valid_candidates": 0.0004,
+        "r71_pass": true,
+        "null_scores_hist": {
+          "bins": [
+            1.022,
+            1.0417,
+            1.0614,
+            1.0812,
+            1.1009,
+            1.1206,
+            1.1403,
+            1.16,
+            1.1798,
+            1.1995,
+            1.2192,
+            1.2389,
+            1.2586,
+            1.2784,
+            1.2981,
+            1.3178,
+            1.3375,
+            1.3573,
+            1.377,
+            1.3967,
+            1.4164
+          ],
+          "counts": [
+            6,
+            3,
+            7,
+            0,
+            12,
+            1,
+            10,
+            1,
+            4,
+            1,
+            8,
+            3,
+            7,
+            2,
+            11,
+            2,
+            17,
+            1,
+            0,
+            4
+          ]
+        }
+      }
+    },
+    "comparison": {
+      "track": "revised",
+      "lead_unit": "months",
+      "lead_column": "lead_months",
+      "n_candidates": 432,
+      "n_eligible": 432,
+      "n_valid": 432,
+      "n_distinct": 432,
+      "sample": {
+        "alignment": "pit_asof",
+        "release_series": "IR",
+        "harsh": false
+      },
+      "eligible": true,
+      "winner": {
+        "key": "yoy_zscore_60m|T_z_1.0|P1|countercyclical|5",
+        "signal": "yoy_zscore_60m",
+        "signal_column": "import_price_yoy_zscore_60m",
+        "signal_display": "Year-over-year import-price growth versus its 60-month history (z-score)",
+        "threshold": "T_z_1.0",
+        "threshold_value": 1.0,
+        "threshold_rule": "lte",
+        "direction": "countercyclical",
+        "strategy": "P1",
+        "strategy_family": "P1_long_cash",
+        "lead": 5,
+        "is_sharpe": 0.892211,
+        "oos_sharpe": 1.230783,
+        "oos_sortino": 1.471793,
+        "oos_calmar": 0.779443,
+        "oos_ann_return": 0.151584,
+        "oos_ann_vol": 0.121213,
+        "oos_max_drawdown": -0.194477,
+        "oos_win_rate": 0.504274,
+        "oos_n_trades": 6,
+        "annual_turnover": 0.615385,
+        "oos_exposure": 0.692308,
+        "source_row_index": 315,
+        "oos_sharpe_net_5bp": 1.22846
+      },
+      "bh_is": {
+        "sharpe": 0.621101,
+        "sortino": 0.780815,
+        "calmar": 0.167348,
+        "ann_return": 0.084987,
+        "ann_vol": 0.150064,
+        "max_drawdown": -0.507848,
+        "win_rate": 0.622047,
+        "n": 254.0
+      },
+      "bh_oos": {
+        "sharpe": 0.996397,
+        "sortino": 1.429498,
+        "calmar": 0.635043,
+        "ann_return": 0.151948,
+        "ann_vol": 0.154753,
+        "max_drawdown": -0.239272,
+        "win_rate": 0.700855,
+        "n": 117.0
+      },
+      "is_window": [
+        "1995-11-30",
+        "2016-12-31"
+      ],
+      "oos_window": [
+        "2017-01-31",
+        "2026-09-30"
+      ],
+      "is_n": 254,
+      "oos_n": 117,
+      "objective": "max_is_sharpe_lead_plateau_w3",
+      "plateau": {
+        "leads": [
+          4,
+          5,
+          6
+        ],
+        "score": 0.837362,
+        "winner_lead": 5,
+        "global_max_lead": 5,
+        "global_max_inside_plateau": true,
+        "grid_edge": false,
+        "single_window_grid": false,
+        "family": {
+          "signal": "yoy_zscore_60m",
+          "threshold": "T_z_1.0",
+          "strategy": "P1",
+          "direction": "countercyclical"
+        }
+      },
+      "raw_argmax": {
+        "key": "yoy_zscore_60m|T_roll_p50|P1|countercyclical|4",
+        "signal": "yoy_zscore_60m",
+        "threshold": "T_roll_p50",
+        "strategy": "P1",
+        "direction": "countercyclical",
+        "lead": 4,
+        "is_sharpe": 0.923327,
+        "oos_sharpe": 0.872164,
+        "note": "highest single in-sample Sharpe in the grid; reference only, not the selection rule"
+      },
+      "runner_up": {
+        "signal": "yoy_zscore_60m",
+        "threshold": "T_roll_p50",
+        "strategy": "P1",
+        "lead_value": 4,
+        "objective": "plateau_score_J",
+        "objective_value": 0.823615,
+        "window_leads": [
+          2,
+          3,
+          4
+        ],
+        "is_sharpe": 0.923327,
+        "oos_sharpe": 0.872164
+      },
+      "spearman_is_oos": 0.391,
+      "vs_buy_hold": {
+        "observed": 0.2344,
+        "mean": 0.2445,
+        "ci_95": [
+          -0.1268,
+          0.7315
+        ],
+        "p_diff_le_0": 0.1166,
+        "block_length": 6,
+        "draws": 5000,
+        "seed": 42,
+        "method": "paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H)",
+        "sharpe_diff": 0.2344,
+        "ann_return": {
+          "strat": 0.151584,
+          "bh": 0.151948
+        },
+        "ann_vol": {
+          "strat": 0.121213,
+          "bh": 0.154753
+        },
+        "max_dd": {
+          "strat": -0.194477,
+          "bh": -0.239272
+        }
+      },
+      "hac": {
+        "oos_strategy_mean": {
+          "t": 4.4931,
+          "p_value": 0.0,
+          "nw_lag": 4,
+          "n": 117
+        },
+        "oos_excess_mean": {
+          "t": -0.2445,
+          "p_value": 0.8068,
+          "nw_lag": 4,
+          "n": 117
+        }
+      },
+      "undefined_tail": null,
+      "null_tournament": {
+        "n_draws": 100,
+        "n_unique_offsets": 100,
+        "n_draws_without_winner": 0,
+        "n_admissible_offsets": 318,
+        "span": 529,
+        "max_usable_offset": null,
+        "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
+        "seed_base": 20261016,
+        "is_max_percentile": 0.56,
+        "p_is": 0.44,
+        "selection_stat_percentile": 0.73,
+        "p_selection_stat": 0.27,
+        "winner_oos_percentile": 1.0,
+        "p_oos": 0.0,
+        "null_is_max_p5_p50_p95": [
+          0.7873,
+          0.9062,
+          1.136
+        ],
+        "null_winner_oos_median": 0.702,
+        "edge_share": 0.21,
+        "edge_share_uniform": 0.1667,
+        "edge_share_bound": 0.2785,
+        "edge_flag": false,
+        "timing_sharpe_mean": -0.039,
+        "timing_sharpe_sd": 0.2522,
+        "timing_sharpe_se_dependent": 0.0404,
+        "timing_sharpe_se_bandwidth": 4,
+        "timing_sharpe_effective_draws": 38.9,
+        "r71_tolerance": 0.1,
+        "timing_sharpe_mean_all_valid_candidates": 0.0064,
+        "r71_pass": true,
+        "null_scores_hist": {
+          "bins": [
+            0.5355,
+            0.5654,
+            0.5952,
+            0.6251,
+            0.655,
+            0.6848,
+            0.7147,
+            0.7445,
+            0.7744,
+            0.8043,
+            0.8341,
+            0.864,
+            0.8939,
+            0.9237,
+            0.9536,
+            0.9834,
+            1.0133,
+            1.0432,
+            1.073,
+            1.1029,
+            1.1328
+          ],
+          "counts": [
+            4,
+            0,
+            3,
+            3,
+            8,
+            6,
+            16,
+            16,
+            4,
+            11,
+            7,
+            2,
+            7,
+            9,
+            0,
+            0,
+            0,
+            0,
+            1,
+            3
+          ]
+        }
+      }
+    }
+  },
+  "cross_eval": {
+    "main_winner_on_revised": {
+      "is_sharpe": 0.7685505358515957,
+      "oos_sharpe": 0.8280113685963522,
+      "valid": true,
+      "is_eligible": true,
+      "window": {
+        "is_start": "1995-11-30",
+        "oos_start": "2017-01-31",
+        "oos_end": "2026-09-30"
+      }
+    },
+    "revised_winner_on_main": {
+      "is_sharpe": 0.9905726441812128,
+      "oos_sharpe": 1.2307827715917432,
+      "valid": false,
+      "is_eligible": true,
+      "window": {
+        "is_start": "2010-04-30",
+        "oos_start": "2017-01-31",
+        "oos_end": "2026-09-30"
+      }
+    }
+  },
+  "winner_fields": {
+    "eligible": {
+      "value": true,
+      "text": "eligible"
+    },
+    "track_label": {
+      "value": "real_time",
+      "text": "As known at the time"
+    },
+    "signal_code": {
+      "value": "yoy",
+      "text": "yoy"
+    },
+    "signal_display": {
+      "value": "yoy",
+      "text": "Year-over-year growth in import prices"
+    },
+    "threshold_code": {
+      "value": "T_roll_p50",
+      "text": "T_roll_p50"
+    },
+    "threshold_value": {
+      "value": 0.997862,
+      "text": "1.00"
+    },
+    "direction": {
+      "value": "countercyclical",
+      "text": "countercyclical"
+    },
+    "strategy_family": {
+      "value": "P1_long_cash",
+      "text": "P1_long_cash"
+    },
+    "lead": {
+      "value": 4,
+      "text": "4"
+    },
+    "lead_text": {
+      "value": 4,
+      "text": "4 months"
+    },
+    "lead_word": {
+      "value": 4,
+      "text": "four"
+    },
+    "is_sharpe": {
+      "value": 1.331406,
+      "text": "1.33"
+    },
+    "oos_sharpe": {
+      "value": 0.828011,
+      "text": "0.83"
+    },
+    "oos_ann_return": {
+      "value": 0.085425,
+      "text": "8.5%"
+    },
+    "oos_sharpe_net_5bp": {
+      "value": 0.820971,
+      "text": "0.82"
+    },
+    "oos_max_drawdown": {
+      "value": -0.194477,
+      "text": "-19.4%"
+    },
+    "oos_n_trades": {
+      "value": 14,
+      "text": "14"
+    },
+    "bh_is_sharpe": {
+      "value": 0.990573,
+      "text": "0.99"
+    },
+    "bh_oos_sharpe": {
+      "value": 0.996397,
+      "text": "1.00"
+    },
+    "bh_oos_ann_return": {
+      "value": 0.151948,
+      "text": "15.2%"
+    },
+    "bh_oos_max_drawdown": {
+      "value": -0.239272,
+      "text": "-23.9%"
+    },
+    "sharpe_gap": {
+      "value": -0.16838599999999992,
+      "text": "-0.17"
+    },
+    "is_start": {
+      "value": "2010-04-30",
+      "text": "2010-04-30"
+    },
+    "is_end": {
+      "value": "2016-12-31",
+      "text": "2016-12-31"
+    },
+    "oos_start": {
+      "value": "2017-01-31",
+      "text": "2017-01-31"
+    },
+    "oos_end": {
+      "value": "2026-09-30",
+      "text": "2026-09-30"
+    },
+    "is_n": {
+      "value": 81,
+      "text": "81"
+    },
+    "oos_n": {
+      "value": 117,
+      "text": "117"
+    },
+    "n_candidates": {
+      "value": 432,
+      "text": "432"
+    },
+    "n_valid": {
+      "value": 408,
+      "text": "408"
+    },
+    "n_distinct": {
+      "value": 408,
+      "text": "408"
+    },
+    "selection_objective": {
+      "value": "max_is_sharpe_lead_plateau_w3",
+      "text": "the highest in-sample Sharpe ratio on a plateau of three neighbouring leads"
+    },
+    "plateau_leads": {
+      "value": [
+        3,
+        4,
+        5
+      ],
+      "text": "3, 4, 5"
+    },
+    "plateau_score": {
+      "value": 1.284279,
+      "text": "1.28"
+    },
+    "plateau_range": {
+      "value": [
+        3,
+        4,
+        5
+      ],
+      "text": "L3-L5"
+    },
+    "annual_turnover": {
+      "value": 1.435897,
+      "text": "1.44"
+    },
+    "oos_exposure": {
+      "value": 0.42735,
+      "text": "43%"
+    },
+    "raw_argmax_lead": {
+      "value": 7,
+      "text": "7"
+    },
+    "raw_argmax_is_sharpe": {
+      "value": 1.505869,
+      "text": "1.51"
+    },
+    "raw_argmax_rule": {
+      "value": "mom|T_roll_p50|P1|countercyclical|7",
+      "text": "mom / T_roll_p50 / P1"
+    },
+    "raw_argmax_position": {
+      "value": false,
+      "text": "outside the stable lead range"
+    },
+    "raw_argmax_is_winner": {
+      "value": false,
+      "text": "a different rule from the winner"
+    },
+    "ci_low": {
+      "value": -0.6607,
+      "text": "-0.66"
+    },
+    "ci_high": {
+      "value": 0.3995,
+      "text": "0.40"
+    },
+    "p_diff_le_0": {
+      "value": 0.741,
+      "text": "0.74"
+    },
+    "null_percentile": {
+      "value": 0.63,
+      "text": "63%"
+    },
+    "null_p_is": {
+      "value": 0.44,
+      "text": "0.44"
+    },
+    "null_draws": {
+      "value": 100,
+      "text": "100"
+    },
+    "comparison_eligible": {
+      "value": true,
+      "text": "eligible"
+    },
+    "comparison_track_label": {
+      "value": "revised",
+      "text": "As revised today (hindsight)"
+    },
+    "comparison_signal_code": {
+      "value": "yoy_zscore_60m",
+      "text": "yoy_zscore_60m"
+    },
+    "comparison_signal_display": {
+      "value": "yoy_zscore_60m",
+      "text": "Year-over-year import-price growth versus its 60-month history (z-score)"
+    },
+    "comparison_threshold_code": {
+      "value": "T_z_1.0",
+      "text": "T_z_1.0"
+    },
+    "comparison_threshold_value": {
+      "value": 1.0,
+      "text": "1.00"
+    },
+    "comparison_direction": {
+      "value": "countercyclical",
+      "text": "countercyclical"
+    },
+    "comparison_strategy_family": {
+      "value": "P1_long_cash",
+      "text": "P1_long_cash"
+    },
+    "comparison_lead": {
+      "value": 5,
+      "text": "5"
+    },
+    "comparison_lead_text": {
+      "value": 5,
+      "text": "5 months"
+    },
+    "comparison_lead_word": {
+      "value": 5,
+      "text": "five"
+    },
+    "comparison_is_sharpe": {
+      "value": 0.892211,
+      "text": "0.89"
+    },
+    "comparison_oos_sharpe": {
+      "value": 1.230783,
+      "text": "1.23"
+    },
+    "comparison_oos_ann_return": {
+      "value": 0.151584,
+      "text": "15.2%"
+    },
+    "comparison_oos_sharpe_net_5bp": {
+      "value": 1.22846,
+      "text": "1.23"
+    },
+    "comparison_oos_max_drawdown": {
+      "value": -0.194477,
+      "text": "-19.4%"
+    },
+    "comparison_oos_n_trades": {
+      "value": 6,
+      "text": "6"
+    },
+    "comparison_bh_is_sharpe": {
+      "value": 0.621101,
+      "text": "0.62"
+    },
+    "comparison_bh_oos_sharpe": {
+      "value": 0.996397,
+      "text": "1.00"
+    },
+    "comparison_bh_oos_ann_return": {
+      "value": 0.151948,
+      "text": "15.2%"
+    },
+    "comparison_bh_oos_max_drawdown": {
+      "value": -0.239272,
+      "text": "-23.9%"
+    },
+    "comparison_sharpe_gap": {
+      "value": 0.23438599999999998,
+      "text": "0.23"
+    },
+    "comparison_is_start": {
+      "value": "1995-11-30",
+      "text": "1995-11-30"
+    },
+    "comparison_is_end": {
+      "value": "2016-12-31",
+      "text": "2016-12-31"
+    },
+    "comparison_oos_start": {
+      "value": "2017-01-31",
+      "text": "2017-01-31"
+    },
+    "comparison_oos_end": {
+      "value": "2026-09-30",
+      "text": "2026-09-30"
+    },
+    "comparison_is_n": {
+      "value": 254,
+      "text": "254"
+    },
+    "comparison_oos_n": {
+      "value": 117,
+      "text": "117"
+    },
+    "comparison_n_candidates": {
+      "value": 432,
+      "text": "432"
+    },
+    "comparison_n_valid": {
+      "value": 432,
+      "text": "432"
+    },
+    "comparison_n_distinct": {
+      "value": 432,
+      "text": "432"
+    },
+    "comparison_selection_objective": {
+      "value": "max_is_sharpe_lead_plateau_w3",
+      "text": "the highest in-sample Sharpe ratio on a plateau of three neighbouring leads"
+    },
+    "comparison_plateau_leads": {
+      "value": [
+        4,
+        5,
+        6
+      ],
+      "text": "4, 5, 6"
+    },
+    "comparison_plateau_score": {
+      "value": 0.837362,
+      "text": "0.84"
+    },
+    "comparison_plateau_range": {
+      "value": [
+        4,
+        5,
+        6
+      ],
+      "text": "L4-L6"
+    },
+    "comparison_annual_turnover": {
+      "value": 0.615385,
+      "text": "0.62"
+    },
+    "comparison_oos_exposure": {
+      "value": 0.692308,
+      "text": "69%"
+    },
+    "comparison_raw_argmax_lead": {
+      "value": 4,
+      "text": "4"
+    },
+    "comparison_raw_argmax_is_sharpe": {
+      "value": 0.923327,
+      "text": "0.92"
+    },
+    "comparison_raw_argmax_rule": {
+      "value": "yoy_zscore_60m|T_roll_p50|P1|countercyclical|4",
+      "text": "yoy_zscore_60m / T_roll_p50 / P1"
+    },
+    "comparison_raw_argmax_position": {
+      "value": true,
+      "text": "inside the stable lead range"
+    },
+    "comparison_raw_argmax_is_winner": {
+      "value": false,
+      "text": "a different rule from the winner"
+    },
+    "comparison_ci_low": {
+      "value": -0.1268,
+      "text": "-0.13"
+    },
+    "comparison_ci_high": {
+      "value": 0.7315,
+      "text": "0.73"
+    },
+    "comparison_p_diff_le_0": {
+      "value": 0.1166,
+      "text": "0.12"
+    },
+    "comparison_null_percentile": {
+      "value": 0.73,
+      "text": "73%"
+    },
+    "comparison_null_p_is": {
+      "value": 0.44,
+      "text": "0.44"
+    },
+    "comparison_null_draws": {
+      "value": 100,
+      "text": "100"
+    },
+    "ce_main_on_revised_is_sharpe": {
+      "value": 0.7685505358515957,
+      "text": "0.77"
+    },
+    "ce_main_on_revised_oos_sharpe": {
+      "value": 0.8280113685963522,
+      "text": "0.83"
+    },
+    "ce_revised_on_main_is_sharpe": {
+      "value": 0.9905726441812128,
+      "text": "0.99"
+    },
+    "ce_revised_on_main_oos_sharpe": {
+      "value": 1.2307827715917432,
+      "text": "1.23"
+    },
+    "track_state": {
+      "value": "both",
+      "text": "both"
+    },
+    "previous_rule": {
+      "value": "yoy_zscore_60m|T_roll_p50|P1|countercyclical|4",
+      "text": "yoy_zscore_60m / T_roll_p50 / L4"
+    },
+    "previous_selection": {
+      "value": "raw in-sample Sharpe argmax, revised values, fixed lag",
+      "text": "raw in-sample Sharpe argmax, revised values, fixed lag"
+    },
+    "previous_lead": {
+      "value": 4,
+      "text": "4"
+    },
+    "previous_lead_text": {
+      "value": 4,
+      "text": "4 months"
+    },
+    "previous_oos_sharpe": {
+      "value": 0.8214891401775886,
+      "text": "0.82"
+    },
+    "previous_is_sharpe": {
+      "value": 0.7908240619900425,
+      "text": "0.79"
+    },
+    "previous_tag": {
+      "value": "20261016",
+      "text": "2026-10-16"
+    }
   }
 }

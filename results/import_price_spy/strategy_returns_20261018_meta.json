@@ -1,0 +1,15 @@
+{
+  "pair_id": "import_price_spy",
+  "track": "real_time",
+  "role": "main",
+  "winner_key": "yoy|T_roll_p50|P1|countercyclical|4",
+  "generated_at": "2026-10-18T08:37:55.903591+00:00",
+  "vintage_policy": {
+    "alignment": "realtime_vintage",
+    "vintage_series": "IR",
+    "after_close": false,
+    "first_vintage": "2010-03-16"
+  },
+  "calendar_sha256": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
+  "vintage_file_sha256": "ca17a53bae9669a90d6577515376c447d68b751a044860e73ab51ebfcf78f845"
+}

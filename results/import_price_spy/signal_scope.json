@@ -3,15 +3,15 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-16T18:23:49.430313+00:00",
+  "last_updated_at": "2026-10-18T08:35:26.363382+00:00",
   "indicator_axis": {
     "canonical_column": "import_price",
-    "display_name": "Import Price Index",
+    "display_name": "Import Price Index (IR)",
     "derivatives": [
       {
         "name": "import_price",
-        "definition": "Import Price Index level (nominal)",
-        "formula": "Data Master",
+        "definition": "Import Price Index level (all commodities, 2000 = 100)",
+        "formula": "FRED IR",
         "role": "raw",
         "appears_in_charts": [
           "hero"
@@ -19,41 +19,44 @@
       },
       {
         "name": "import_price_yoy",
-        "definition": "12-month growth",
+        "definition": "Year-over-year percent change",
         "formula": "100*(x_t/x_{t-12}-1)",
-        "role": "threshold_input",
+        "role": "derivative",
         "appears_in_charts": [
-          "hero",
+          "regime_stats",
           "local_projections",
-          "regime_stats"
+          "quantile_coef",
+          "rolling_correlation",
+          "granger_f_by_lag",
+          "ccf_prewhitened"
         ]
       },
       {
         "name": "import_price_mom",
-        "definition": "1-month growth",
+        "definition": "Month-over-month percent change",
         "formula": "100*(x_t/x_{t-1}-1)",
         "role": "derivative",
         "appears_in_charts": []
       },
       {
         "name": "import_price_3m",
-        "definition": "3-month growth",
+        "definition": "Three-month percent change",
         "formula": "100*(x_t/x_{t-3}-1)",
         "role": "derivative",
         "appears_in_charts": []
       },
       {
         "name": "import_price_6m",
-        "definition": "6-month growth",
+        "definition": "Six-month percent change",
         "formula": "100*(x_t/x_{t-6}-1)",
         "role": "derivative",
         "appears_in_charts": []
       },
       {
         "name": "import_price_yoy_zscore_60m",
-        "definition": "YoY growth vs its five-year history",
+        "definition": "YoY growth versus its five-year history",
         "formula": "(yoy - mean60)/std60",
-        "role": "threshold_input",
+        "role": "derivative",
         "appears_in_charts": []
       },
       {
@@ -84,23 +87,28 @@
         "definition": "SPY monthly return",
         "formula": "spy_t / spy_{t-1} - 1",
         "role": "derivative",
-        "appears_in_charts": []
+        "appears_in_charts": [
+          "regime_stats",
+          "ccf_prewhitened"
+        ]
       },
       {
         "name": "spy_fwd_1m",
         "definition": "One-month forward SPY return",
-        "formula": "spy_{t+1}/spy_t - 1",
+        "formula": "spy_{t+1} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "correlation_heatmap",
+          "local_projections"
         ]
       },
       {
         "name": "spy_fwd_3m",
         "definition": "Three-month forward SPY return",
-        "formula": "spy_{t+3}/spy_t - 1",
+        "formula": "spy_{t+3} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
+          "correlation_heatmap",
           "local_projections",
           "quantile_coef"
         ]
@@ -108,22 +116,24 @@
       {
         "name": "spy_fwd_6m",
         "definition": "Six-month forward SPY return",
-        "formula": "spy_{t+6}/spy_t - 1",
+        "formula": "spy_{t+6} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "correlation_heatmap",
+          "local_projections"
         ]
       },
       {
         "name": "spy_fwd_12m",
         "definition": "Twelve-month forward SPY return",
-        "formula": "spy_{t+12}/spy_t - 1",
+        "formula": "spy_{t+12} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "correlation_heatmap",
+          "local_projections"
         ]
       }
     ]
   },
-  "notes": "Scope limited to Import Price Index growth signals and SPY returns."
+  "notes": "Scope limited to IR-derived import-price growth signals and SPY returns."
 }

@@ -1,0 +1,14 @@
+{
+  "pair_id": "import_price_spy",
+  "track": "revised",
+  "role": "comparison",
+  "winner_key": "yoy_zscore_60m|T_z_1.0|P1|countercyclical|5",
+  "generated_at": "2026-10-18T08:37:56.073383+00:00",
+  "vintage_policy": {
+    "alignment": "pit_asof",
+    "release_series": "IR",
+    "harsh": false
+  },
+  "calendar_sha256": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
+  "vintage_file_sha256": "ca17a53bae9669a90d6577515376c447d68b751a044860e73ab51ebfcf78f845"
+}
