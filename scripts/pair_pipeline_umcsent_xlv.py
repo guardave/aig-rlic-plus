@@ -78,6 +78,38 @@ def sharpe(r: pd.Series) -> float:
     return float(r.mean() / r.std() * np.sqrt(12)) if len(r) > 1 and r.std() > 0 else 0.0
 
 
+
+def _hac_corr_p(x: pd.Series, y: pd.Series, h: int) -> float:
+    """p-value of a correlation robust to overlapping h-month returns: slope of standardized y on standardized x
+    with HAC (Newey-West) errors, maxlags >= h-1."""
+    import statsmodels.api as sm
+    zx, zy = (x - x.mean()) / x.std(), (y - y.mean()) / y.std()
+    lags = max(int(0.75 * len(x) ** (1 / 3)), h - 1)
+    fit = sm.OLS(zy.to_numpy(), sm.add_constant(zx.to_numpy())).fit(cov_type="HAC", cov_kwds={"maxlags": lags})
+    return float(fit.pvalues[1])
+
+
+def _qr_block_bootstrap(data: pd.DataFrame, tau: float, block: int = 6, draws: int = 999, seed: int = 42):
+    """Moving-block bootstrap of the quantile-regression slope (overlapping forward returns): standard error,
+    95% percentile interval and a two-sided p-value of slope = 0."""
+    import statsmodels.formula.api as smf
+    rng = np.random.default_rng(seed)
+    n = len(data)
+    nb = int(np.ceil(n / block))
+    out = []
+    for _ in range(draws):
+        starts = rng.integers(0, n - block + 1, size=nb)
+        idx = np.concatenate([np.arange(s0, s0 + block) for s0 in starts])[:n]
+        try:
+            out.append(float(smf.quantreg("xlv_fwd_3m ~ umcsent_yoy", data=data.iloc[idx]).fit(q=tau)
+                             .params["umcsent_yoy"]))
+        except Exception:
+            continue
+    b = np.array(out)
+    p = min(1.0, 2 * min((b <= 0).mean(), (b >= 0).mean()))
+    return float(b.std(ddof=1)), float(np.quantile(b, 0.025)), float(np.quantile(b, 0.975)), float(p), len(b)
+
+
 @log_stage("1_2_panel")
 def build_panel() -> pd.DataFrame:
     """Revised UMCSENT (latest pinned ALFRED vintage) and pinned XLV month-end closes on the full monthly grid,
@@ -225,15 +257,16 @@ def stage_exploratory(df_monthly):
 
             x, y = valid[sig], valid[fwd]
 
+            h = int(fwd.split("_")[-1].rstrip("m"))       # overlapping h-month forward returns
             r_p, p_p = stats.pearsonr(x, y)
             corr_results.append({"signal": sig, "horizon": fwd, "method": "Pearson",
-                                 "correlation": round(r_p, 4), "p_value": round(p_p, 4),
-                                 "n": len(valid)})
+                                 "correlation": round(r_p, 4), "p_value_iid": round(p_p, 4),
+                                 "p_value": round(_hac_corr_p(x, y, h), 4), "n": len(valid)})
 
             r_s, p_s = stats.spearmanr(x, y)
             corr_results.append({"signal": sig, "horizon": fwd, "method": "Spearman",
-                                 "correlation": round(r_s, 4), "p_value": round(p_s, 4),
-                                 "n": len(valid)})
+                                 "correlation": round(r_s, 4), "p_value_iid": round(p_s, 4),
+                                 "p_value": round(_hac_corr_p(x.rank(), y.rank(), h), 4), "n": len(valid)})
 
     corr_df = pd.DataFrame(corr_results)
     corr_path = os.path.join(EXPLORE_DIR, "correlations.csv")
@@ -538,14 +571,19 @@ def stage_core_models(df_monthly):
             try:
                 qr_model = smf.quantreg("xlv_fwd_3m ~ umcsent_yoy", data=valid_qr)
                 qr_fit = qr_model.fit(q=tau)
+                # overlapping 3-month returns: inference from a moving-block bootstrap (block 6, 999 draws);
+                # the default (iid) QuantReg p-value is kept as p_value_iid for reference
+                se_b, lo_b, hi_b, p_b, nb = _qr_block_bootstrap(valid_qr, tau)
                 qr_results.append({
                     "quantile": tau,
                     "intercept": round(qr_fit.params["Intercept"], 6),
                     "coef_umcsent_yoy": round(qr_fit.params["umcsent_yoy"], 6),
-                    "se": round(qr_fit.bse["umcsent_yoy"], 6),
-                    "p_value": round(qr_fit.pvalues["umcsent_yoy"], 4),
-                    "ci_lower": round(qr_fit.conf_int().loc["umcsent_yoy", 0], 6),
-                    "ci_upper": round(qr_fit.conf_int().loc["umcsent_yoy", 1], 6),
+                    "se": round(se_b, 6),
+                    "p_value": round(p_b, 4),
+                    "ci_lower": round(lo_b, 6),
+                    "ci_upper": round(hi_b, 6),
+                    "p_value_iid": round(qr_fit.pvalues["umcsent_yoy"], 4),
+                    "inference": f"moving-block bootstrap, block 6, {nb} draws, seed 42",
                 })
             except Exception as e:
                 print(f"    QR at tau={tau} failed: {e}")
@@ -836,8 +874,14 @@ def stage_validation(winner: dict) -> None:
         seg = strat.loc[start:end]
         r, b = seg["strategy_return"], seg["benchmark_return"]
         eq = (1 + r).cumprod()
+        cnt = seg["sample"].value_counts()
+        n_pre, n_is, n_oos = int(cnt.get("pre_IS", 0)), int(cnt.get("IS", 0)), int(cnt.get("OOS", 0))
+        phase = ("test" if n_oos == len(seg) else "training" if n_is == len(seg) else
+                 "before training" if n_pre == len(seg) else
+                 "mostly before training" if n_pre > max(n_is, n_oos) else "mixed")
         rows.append({"period_name": name, "start_date": start, "end_date": end,
-                     "is_oos": bool(pd.Timestamp(end) >= OOS_START),
+                     "is_oos": bool(n_oos == len(seg)), "phase": phase,
+                     "n_pre_is": n_pre, "n_is": n_is, "n_oos": n_oos,
                      "ann_return": float(r.mean() * 12), "ann_vol": float(r.std() * np.sqrt(12)),
                      "sharpe": sharpe(r), "buy_hold_sharpe": sharpe(b), "n_obs": int(len(r)),
                      "max_drawdown": float((eq / eq.cummax() - 1).min()),
@@ -890,13 +934,65 @@ def write_metadata(model_results: dict, winner: dict, elapsed: float) -> None:
     }
     (RES / "interpretation_metadata.json").write_text(json.dumps(interp, indent=2) + "\n")
 
-    scope = json.loads((RES / "signal_scope.json").read_text())
-    for d in scope["indicator_axis"]["derivatives"]:
-        note = d.get("notes", "")
-        if note.startswith("WINNER signal"):
-            note = note.split(". ", 1)[1] if ". " in note else ""
-        d["notes"] = note
-    scope["last_updated_at"] = NOW_ISO
+    def der(name, definition, formula, role, charts, notes=""):
+        return {"name": name, "definition": definition, "formula": formula, "role": role,
+                "appears_in_charts": charts, "notes": notes}
+    code = {v: k for k, v in SIGNALS.items()}
+    sig_note = lambda col: f"Tournament signal {code[col]}."  # noqa: E731
+    scope = {
+        "pair_id": PAIR_ID, "schema_version": "1.0.0", "owner": "evan", "last_updated_by": "evan",
+        "last_updated_at": NOW_ISO,
+        "indicator_axis": {
+            "canonical_column": "umcsent", "display_name": "University of Michigan Consumer Sentiment",
+            "derivatives": [
+                der("umcsent", "The University of Michigan index of consumer sentiment (monthly survey).",
+                    "raw column (ALFRED/FRED UMCSENT; real-time vintages on the headline track)", "raw",
+                    ["hero", "history_zoom_dotcom", "history_zoom_gfc", "history_zoom_covid",
+                     "history_zoom_inflation_2022"], sig_note("umcsent")),
+                der("umcsent_yoy", "Year-over-year percent change in consumer sentiment.",
+                    "(umcsent / umcsent.shift(12) - 1) * 100", "derivative",
+                    ["hero", "correlation_scatter", "correlations", "regime_stats", "ccf", "signal_dist",
+                     "local_projections", "quantile_coef", "rolling_correlation", "rolling_granger",
+                     "structural_break"], sig_note("umcsent_yoy")),
+                der("umcsent_mom", "Month-over-month percent change in consumer sentiment.",
+                    "(umcsent / umcsent.shift(1) - 1) * 100", "derivative", ["correlations"],
+                    sig_note("umcsent_mom")),
+                der("umcsent_zscore", "Consumer sentiment relative to its trailing 36-month mean, in standard deviations.",
+                    "(umcsent - rolling_mean_36(umcsent)) / rolling_std_36(umcsent), min 24 readings", "derivative",
+                    ["correlations", "equity_curves", "drawdown", "lead_plateau"], sig_note("umcsent_zscore")),
+                der("umcsent_3m_ma", "Three-month moving average of consumer sentiment.",
+                    "umcsent.rolling(3, min_periods=2).mean()", "derivative", ["correlations"],
+                    sig_note("umcsent_3m_ma")),
+                der("umcsent_direction", "Direction of the monthly change: +1 rising, -1 falling, 0 unchanged.",
+                    "sign(umcsent_mom)", "derivative", ["correlations", "signal_dist"],
+                    sig_note("umcsent_direction") + " Long/cash only (P2/P3 excluded on this flag)."),
+                der("umcsent_dev_ma", "Consumer sentiment minus its three-month moving average.",
+                    "umcsent - umcsent_3m_ma", "derivative", ["correlations"], sig_note("umcsent_dev_ma")),
+            ],
+        },
+        "target_axis": {
+            "canonical_column": "xlv", "display_name": "Health Care Select Sector (XLV)",
+            "derivatives": [
+                der("xlv", "XLV adjusted month-end close (dividends and splits).",
+                    "pinned: data/phaseB_inputs/xlv_month_end_20261017.csv", "raw",
+                    ["hero", "history_zoom_dotcom", "history_zoom_gfc", "history_zoom_covid",
+                     "history_zoom_inflation_2022"]),
+                der("xlv_ret", "XLV monthly return.", "xlv.pct_change()", "derivative",
+                    ["equity_curves", "drawdown", "rolling_sharpe", "walk_forward", "subperiod_sharpe", "ccf",
+                     "regime_stats", "rolling_correlation", "rolling_granger", "structural_break"]),
+                der("xlv_fwd_1m", "XLV return over the next month.", "xlv.shift(-1) / xlv - 1", "derivative",
+                    ["correlations"]),
+                der("xlv_fwd_3m", "XLV return over the next three months.", "xlv.shift(-3) / xlv - 1", "derivative",
+                    ["correlations", "signal_dist", "quantile_coef", "local_projections"]),
+                der("xlv_fwd_6m", "XLV return over the next six months.", "xlv.shift(-6) / xlv - 1", "derivative",
+                    ["correlations", "correlation_scatter", "local_projections"]),
+                der("xlv_fwd_12m", "XLV return over the next twelve months.", "xlv.shift(-12) / xlv - 1",
+                    "derivative", ["correlations", "local_projections"]),
+            ],
+        },
+        "notes": ("Seven UMCSENT transforms are the tournament signals (pair spec SIGNALS). VIX, DGS10 and UNRATE "
+                  "are regression controls only (local projections, random forest), not signals."),
+    }
     (RES / "signal_scope.json").write_text(json.dumps(scope, indent=2) + "\n")
 
     (RES / "kpis.json").write_text(json.dumps({
@@ -906,7 +1002,8 @@ def write_metadata(model_results: dict, winner: dict, elapsed: float) -> None:
         "pair_id": PAIR_ID, "schema_version": "1.2.0", "status": "found_in_search", "updated_at": NOW_ISO,
         "plain_english": "A winning rule was found in the search grid, but it has not passed a fresh final exam.",
         "technical_note": (f"Winner selected on in-sample data by the lead-plateau rule (D9) from the {DATE_TAG} "
-                           "tournament on real-time UMCSENT vintages and evaluated on the held-out OOS window; "
+                           "tournament on real-time UMCSENT vintages and reported on the test window (seen by earlier runs, so "
+                           "not a frozen hold-out); "
                            "formal lead-lag (Granger) evidence is weak."),
         "next_step": "Freeze the selected rule and run a confirmation test on future data or a reserved holdout window.",
         "owner": "evan"}, indent=2) + "\n")
@@ -946,6 +1043,13 @@ def write_narrative_provenance(df: pd.DataFrame) -> None:
     rk = v["is_sharpe"].rank(ascending=False, method="min")
     sel = v.index[v["selected"].astype(bool)]
     derived["winner_is_rank_among_valid"] = int(rk.loc[sel[0]]) if len(sel) else None
+    # test-period position changes of the MAIN winner (winner_summary oos_n_trades is the harness abs_sum count:
+    # int(sum |position change|), i.e. full XLV units traded); the P2 rule resizes most months
+    sr = pd.read_csv(RES / f"strategy_returns_{DATE_TAG}.csv")
+    dpos = np.abs(np.diff(sr.loc[sr["sample"] == "OOS", "position"].dropna().to_numpy(float)))
+    derived["position_change_threshold_pp"] = 5
+    derived["oos_months_position_change_gt_5pct"] = int((dpos > 0.05).sum())
+    derived["oos_sum_abs_position_change"] = round(float(dpos.sum()), 4)
     # XLV pin splice (legacy closes through 2025-11, Yahoo from 2025-12): adjusted-close basis check
     sc = json.loads((Path(DATA_DIR) / "phaseB_inputs" / "xlv_splice_check_20261017.json").read_text())
     derived["xlv_splice_close_ratio_max_abs_dev"] = max(abs(sc["close_ratio_yahoo_over_legacy_min"] - 1),

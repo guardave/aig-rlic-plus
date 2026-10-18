@@ -21,6 +21,9 @@
     "winner_is_rank_among_valid": 34,
     "xlv_splice_close_ratio_max_abs_dev": 7.680112559249608e-07,
     "xlv_splice_overlap_return_max_abs_diff": 1.1349560729012609e-06,
-    "xlv_splice_join_month_return_abs_diff": 0.0
+    "xlv_splice_join_month_return_abs_diff": 0.0,
+    "position_change_threshold_pp": 5,
+    "oos_months_position_change_gt_5pct": 54,
+    "oos_sum_abs_position_change": 8.2845
   }
 }

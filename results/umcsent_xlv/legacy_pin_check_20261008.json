@@ -1,0 +1,41 @@
+{
+  "pair_id": "umcsent_xlv",
+  "legacy_commit": "c64a609a",
+  "pinned_panel": "data/phaseB_inputs/umcsent_xlv_monthly_legacy_20261008.csv",
+  "published_table": "results/umcsent_xlv/tournament_results_20261008.csv",
+  "rows": 3394,
+  "same_rows_in_order": true,
+  "is_end": "2019-03-31",
+  "oos_start": "2019-04-30",
+  "columns": {
+    "is_sharpe": {
+      "max_abs_diff": 0.0,
+      "rows_differing": 0
+    },
+    "oos_sharpe": {
+      "max_abs_diff": 0.0,
+      "rows_differing": 0
+    },
+    "is_n": {
+      "max_abs_diff": 0.0,
+      "rows_differing": 0
+    },
+    "oos_n": {
+      "max_abs_diff": 0.0,
+      "rows_differing": 0
+    },
+    "annual_turnover": {
+      "max_abs_diff": 0.0,
+      "rows_differing": 0
+    },
+    "max_drawdown": {
+      "max_abs_diff": 0.0,
+      "rows_differing": 0
+    },
+    "valid": {
+      "max_abs_diff": 0.0,
+      "rows_differing": 0
+    }
+  },
+  "pass": true
+}
