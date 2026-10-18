@@ -25,11 +25,17 @@ def _w(pair):
     ("phlxsox_spy", "rolling 63-day 75th percentile"),       # daily LB63
     ("cass_freight_spy", "rolling 60-month 75th percentile"),
     ("sloos_ci_small_spy", "rolling 20-quarter 75th percentile"),
-    ("retail_inv_sales_spy", "rolling 60-month median"),
     ("indpro_spy", "rolling 60-month 75th percentile"),      # window only in display name
 ])
 def test_rolling_label_from_artifacts(pair, label):
     assert rolling_quantile_spec(_w(pair))["label"] == label
+
+
+def test_retail_has_no_main_winner_threshold():
+    """Phase B: retail_inv_sales_spy has no MAIN winner (rt_insufficient), so there is no headline threshold to label."""
+    w = _w("retail_inv_sales_spy")
+    assert w["main_eligible"] is False and "threshold_code" not in w
+    assert rolling_quantile_spec(w) is None
 
 
 def test_unknown_window_is_neutral():

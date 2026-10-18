@@ -1,9 +1,9 @@
 {
  "correlation_heatmap": {
   "chart_sha256": "3c9688170cf6191f9a538ce1a169541126a7e7cb548400fcdc464145e00d14d8",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:58:07+00:00",
+  "recorded_at": "2026-10-18T09:59:42+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf",
@@ -14,9 +14,9 @@
  },
  "drawdown": {
   "chart_sha256": "7282992f8cb2c9b4a37c54bd5f4b3d5cf5bfcf6f1606b1baaa62fe09ea5f6c50",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:58:28+00:00",
+  "recorded_at": "2026-10-18T09:59:58+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf",
@@ -32,9 +32,9 @@
  },
  "equity_curves": {
   "chart_sha256": "7018a0e34435b1fa18613df0fecb4b7a936c2ba4e188c5f4a1d3a64e54a01549",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:58:24+00:00",
+  "recorded_at": "2026-10-18T09:59:55+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf",
@@ -50,9 +50,9 @@
  },
  "granger_f_by_lag": {
   "chart_sha256": "f24d7d010804f6577336be276275944f2038313b2f750ec73caacb7f0b74ef5c",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:58:11+00:00",
+  "recorded_at": "2026-10-18T09:59:46+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf",
@@ -64,9 +64,9 @@
  },
  "hero": {
   "chart_sha256": "05eb993fa5223d3d496cadba200b3ead7f61a6954a1a74c9cf2b857fac829436",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:57:59+00:00",
+  "recorded_at": "2026-10-18T09:59:34+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf"
@@ -74,9 +74,9 @@
  },
  "history_zoom_covid": {
   "chart_sha256": "a45aa0a007d0ad8adc1d27fc2f347f2e87e035fab904283219640652935646a2",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:59:06+00:00",
+  "recorded_at": "2026-10-18T10:00:35+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf",
@@ -96,9 +96,9 @@
  },
  "history_zoom_dotcom": {
   "chart_sha256": "80fd7e1d96c84a67aa88fef917ca217543d31164db57a26fea536f49fb143849",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:58:57+00:00",
+  "recorded_at": "2026-10-18T10:00:28+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf",
@@ -118,9 +118,9 @@
  },
  "history_zoom_gfc": {
   "chart_sha256": "d141680a6ef91ca134a41d756ca23e9313b18dba0788bbe131cf73c8baad6003",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:59:01+00:00",
+  "recorded_at": "2026-10-18T10:00:31+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf",
@@ -140,9 +140,9 @@
  },
  "history_zoom_inflation_2022": {
   "chart_sha256": "87a1bf3376afdce81af846908e0c2b1c43dc722b752ea38a728444e2e2ed31df",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:59:10+00:00",
+  "recorded_at": "2026-10-18T10:00:38+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf",
@@ -162,9 +162,9 @@
  },
  "local_projections": {
   "chart_sha256": "c137764242e59c0cddd4c127158820072a59aa92699173d50c596fdbfd6daeff",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:58:16+00:00",
+  "recorded_at": "2026-10-18T09:59:49+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf",
@@ -177,9 +177,9 @@
  },
  "quantile_coef": {
   "chart_sha256": "f454bc6367102b99665655a612b8427f76e1766385e902354fbcb4e4c68f1986",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:58:20+00:00",
+  "recorded_at": "2026-10-18T09:59:52+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf",
@@ -194,9 +194,9 @@
  },
  "regime_stats": {
   "chart_sha256": "ce76c2e0a63bd181e0df57c18afd5fa73e9e8acf0641c2b0b774cb8480fbce75",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:58:02+00:00",
+  "recorded_at": "2026-10-18T09:59:38+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf",
@@ -206,9 +206,9 @@
  },
  "rolling_correlation": {
   "chart_sha256": "e94ddc3735493a707f4f3ee04310c22e9067ad0980112bce31c52b791c9e620b",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:58:41+00:00",
+  "recorded_at": "2026-10-18T10:00:09+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf",
@@ -226,9 +226,9 @@
  },
  "structural_break": {
   "chart_sha256": "c21c33e0c6ea0f712ff7395e52b99202bc81e781ac58cd5dc2d55589e463d1c8",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:58:45+00:00",
+  "recorded_at": "2026-10-18T10:00:16+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf",
@@ -247,9 +247,9 @@
  },
  "subperiod_sharpe": {
   "chart_sha256": "b6049a32a743bb7c39033acdf52b574ef68ae00a258f39fac9273a463eb11cd8",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:58:49+00:00",
+  "recorded_at": "2026-10-18T10:00:22+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf",
@@ -269,9 +269,9 @@
  },
  "tournament_scatter": {
   "chart_sha256": "afc51b645dbcb132f527b79b32703e53acf14a2a9f78fa93c61819fc50d8c0dd",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:58:37+00:00",
+  "recorded_at": "2026-10-18T10:00:05+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf",
@@ -288,9 +288,9 @@
  },
  "tournament_sharpe_dist": {
   "chart_sha256": "afc51b645dbcb132f527b79b32703e53acf14a2a9f78fa93c61819fc50d8c0dd",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:58:33+00:00",
+  "recorded_at": "2026-10-18T10:00:02+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf",
@@ -307,9 +307,9 @@
  },
  "walk_forward": {
   "chart_sha256": "b6049a32a743bb7c39033acdf52b574ef68ae00a258f39fac9273a463eb11cd8",
-  "results_tag": null,
+  "results_tag": "20261018",
   "producer": "scripts/generate_charts_retail_inv_sales_spy.py",
-  "recorded_at": "2026-10-18T07:58:53+00:00",
+  "recorded_at": "2026-10-18T10:00:25+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/retail_inv_sales_spy_monthly_latest.parquet": "5683eed16009c5834f8bf61b9591b7eebef00e2d7189f1dbe685983473c258bf",
