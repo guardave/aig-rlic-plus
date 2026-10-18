@@ -610,7 +610,12 @@ def check_pair(repo: Path, pair: str, rec: dict | None, mode: str = "per-period"
                 fails.append(f"grid {n}={g} != registry lead_grid {rg} ({r}:{l})")
     wl, wk, wdetail = winner_lead(repo, pair)
     res["winner_lead"] = wl
-    if wl is None:
+    infos = []
+    if wl is None and _main_not_eligible(repo, pair):
+        # Lead (LEAD_DIRECTIVES §1): a Phase B pair whose MAIN track has no eligible candidate publishes no winner;
+        # that is a stated result, not a missing field (the grid and per-period checks still run)
+        infos.append("INFO: no published winner (MAIN not eligible: too little history as known at the time)")
+    elif wl is None:
         warns.append(f"winner lead unavailable: {wdetail}")
     elif isinstance(floor_eff, int) and wl + reg_shift < floor_eff:
         fails.append(f"published winner {wk}={wl} + shift {reg_shift} = effective lag {wl + reg_shift} < strict floor E{floor_eff} ({wdetail})")
@@ -626,12 +631,22 @@ def check_pair(repo: Path, pair: str, rec: dict | None, mode: str = "per-period"
         pp_txt = "; " + res["per_period"].get("summary", "") if res.get("per_period") else ""
     res["reasons"] = fails + warns
     res["status"] = "FAIL" if fails else ("WARN" if warns else "PASS")
-    if res["status"] == "PASS":
+    if res["status"] == "PASS" and infos:
+        res["reasons"] = infos + [f"floor E{floor_eff} (L{floor}+shift {reg_shift}){pp_txt}"]
+    elif res["status"] == "PASS":
         g0 = sorted(uniq)[0] if uniq else None
         gtxt = f"L{g0[0]}..L{g0[-1]} (n={len(g0)})" if g0 else "n/a"
         res["reasons"] = [f"floor E{floor_eff} (L{floor}+shift {reg_shift}); grid {gtxt}; winner L{wl}; files {len(file_grids)}{pp_txt}"]
     res["where"] = where
     return res
+
+
+def _main_not_eligible(repo, pair: str) -> bool:
+    try:
+        ws = json.loads((Path(repo) / "results" / pair / "winner_summary.json").read_text())
+    except (OSError, ValueError):
+        return False
+    return ws.get("main_eligible") is False and "tracks" in ws
 
 
 def _release_series(tree, rel) -> str | None:
