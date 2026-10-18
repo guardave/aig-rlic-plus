@@ -1,272 +1,236 @@
-"""ISM Manufacturing PMI x SPY pair configuration (Rule APP-PT1).
+"""ISM Manufacturing PMI x SPY pair configuration (Rule APP-PT1). Pair `ism_mfg_spy`, page 35.
 
-MONTHLY business-cycle pair. The ISM Manufacturing PMI (Data Master NAPM; the
-Institute for Supply Management's manufacturing diffusion index) is a classic
-LEADING indicator whose economic PRIOR is PROCYCLICAL: readings above ~50 mark
-expansion and risk-on conditions, below 50 mark contraction. Unlike a
-nominal-dollar level, the PMI is a BOUNDED, MEAN-REVERTING diffusion index --
-it is LEVEL-STATIONARY (ADF rejects a unit root, p ~ 3.8e-5; KPSS does not
-reject stationarity), so the level can be used directly. The tested signals are
-the PMI level, its one-month change (diff_1m), its 12-month change (chg_12m),
-and a 60-month z-score -- NOT growth/YoY transforms.
+Phase B: every result number is rendered from the structured winner fields (results/ism_mfg_spy/winner_summary.json
+`winner_fields`, via components.winner_fields) or from the evidence tables listed in evidence_facts; none is typed
+here (scripts/gate_structured_prose.py, scripts/gate_number_provenance.py).
 
-RE-RUN NOTE (Step C #255, publication-lag floor). The lead grid was FLOORED and
-SHIFTED to L1-L13 months -- the concurrent, look-ahead L0 lead was removed so no
-signal can be read at or before the month it allocates -- and the tournament was
-re-run. The winner CHANGED. The prior run's winner (`chg_12m / T0_zero /
-PROCYCLICAL / L0 concurrent`, OOS Sharpe 1.44) is replaced by `diff_1m /
-T_roll_p50 / COUNTERCYCLICAL / L4` at OOS Sharpe 1.51. The story has FLIPPED
-from a procyclical, same-month level filter to a COUNTERCYCLICAL (contrarian)
-momentum filter read at a 4-month lead.
-
-HONEST FRAMING (binding). This is a found-in-search CANDIDATE, not a validated
-edge. Every number below is sourced from results/ism_mfg_spy/*:
-  - The tournament winner (`diff_1m` one-month PMI change / `T_roll_p50` rolling
-    60-month median threshold, rule "lte", latest median value -0.25 /
-    COUNTERCYCLICAL / L4 months / P1_long_cash; OOS Sharpe 1.51 vs 0.95 B&H) is
-    the grid maximum over 312 combinations (all 312 valid). The MEDIAN valid
-    combo scores 0.68 -- it UNDERPERFORMS buy-and-hold (0.95)
-    (winner_summary.json).
-  - DIRECTION CONTRADICTS THE PRIOR (flag this, it is a caution not a selling
-    point). The PMI's naive prior is procyclical, but the search selected a
-    COUNTERCYCLICAL rule: hold SPY when the PMI's one-month change four months
-    earlier was AT OR BELOW its rolling median (i.e. when manufacturing momentum
-    was WEAK/falling), the OPPOSITE of "ride equity while the factory is
-    accelerating". `interpretation_metadata.json` records expected_direction
-    procyclical, observed_direction countercyclical, direction_consistent =
-    false, confidence = low.
-  - THE CONCURRENT LEVEL EVIDENCE IS STILL PROCYCLICAL -- and therefore does NOT
-    match the traded winner. Sorting months by PMI LEVEL, the weakest-PMI
-    quartiles Q1 and Q2 have the lower concurrent SPY Sharpe (0.44 and 0.43) and
-    the strong-PMI quartiles Q3 and Q4 the higher (1.56 and 0.95) -- broadly
-    procyclical, though not perfectly monotonic (Q3, not Q4, is the peak)
-    (regime_quartile_returns.csv). But that is a CONCURRENT LEVEL relationship;
-    the winner trades the 4-month-lagged one-month CHANGE in a COUNTERCYCLICAL
-    direction, so the quartile picture and the winner's sign point opposite ways
-    -- do not present them as mutually confirming.
-  - NOT A FORECAST IN THE FORMAL TESTS EITHER. PMI changes do NOT Granger-cause
-    SPY at any tested lag (minimum p = 0.31 at lag 2) (granger_by_lag.csv).
-    Forward-return correlations are near zero and none is significant at any
-    horizon (largest |r| ~ 0.07, diff_1m vs 6-month-forward SPY, p = 0.15 -- and
-    that weak correlation is POSITIVE, the procyclical sign, i.e. the opposite
-    of what the countercyclical winner trades) (core_models_20261008/
-    correlations.csv). Local projections are null at every horizon (no
-    coefficient significant; trivial R^2) (local_projections.csv). Pre-whitened
-    cross-correlation is significant ONLY at NEGATIVE lags (SPY tends to move
-    BEFORE the PMI); the concurrent (lag 0) bar and every lead-side
-    (PMI-leads-SPY) bar -- INCLUDING the winner's +4 offset -- sit inside the
-    confidence band (ccf_prewhitened.csv). The 4-month lead is a
-    search-surface maximum, not a formally significant forecasting horizon.
-  - The defensible virtue is RISK-ADJUSTED and DRAWDOWN behaviour in the
-    searched sample: OOS max drawdown -8.9% vs -23.9% for buy-and-hold, lower
-    volatility (10.5%), and -- unusually -- a HIGHER annualized return than B&H
-    (16.4% vs 15.1%). But the win rate is BELOW 50% (39.8%): the rule wins by
-    sidestepping large losses, not by being right most months.
-  - TURNOVER IS MODERATE. The one-month change crossing a rolling median is a
-    faster signal than a year-over-year filter: annual turnover 6.1, 50 OOS
-    trades. Transaction costs (assumed 5 bps) are a more material (though still
-    modest) drag than for a slow filter, and a fast monthly filter can whipsaw.
-  - Status is `found_in_search` (evidence_status.json): the winner still needs
-    a frozen-rule holdout / final exam.
-  - This is ISM MANUFACTURING, distinct from the separate ISM Services pair.
-    PMI is survey-based (diffusion of respondents reporting improvement),
-    lightly revised via seasonal-factor updates; the COVID 2020 collapse and
-    violent rebound is an extreme in-window episode that can dominate the fit.
-
-MONTHLY conventions: leads in MONTHS (grid L1-L13, winner L4); Sharpe annualized
-by sqrt(12); OOS window 2017-09-30 -> 2025-10-31 (98 months). Numbers sourced
-from results/ism_mfg_spy/ (winner_summary.json, kpis.json, evidence_status.json,
-interpretation_metadata.json, core_models_20261008/*, regime_quartile_returns.csv,
-subperiod_sharpe.csv, granger_by_lag.csv, stationarity_tests_20261008.csv,
-structural_break_ism_mfg_spy.json, tournament_results_20261008.csv).
+ONE track (track_policy single_revised_no_archive): the ISM Manufacturing PMI has no public archive of past values
+(registry value_vintage revised_no_archive), so the backtest uses today's values with release-calendar timing; the
+shared data-basis strip states that from track_summary.json. The previous rule of this page (20261016 run, commit
+1d06839f, development lineage) is replayed exactly by the harness and named from the previous_* fields. The main
+site still shows an older rule from an earlier run.
 """
 
 from __future__ import annotations
 
+from pathlib import Path
+
+from components import provenance as P
 from components.page_templates import MethodologyConfig
+from components.winner_fields import load
+
+PAIR = "ism_mfg_spy"
+W = load(PAIR)
+_RES = Path(__file__).resolve().parents[2] / "results" / PAIR
+_WS = P.json_file(_RES / "winner_summary.json")
+_TAG = _WS["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
+_Q = P.col_dict(P.csv_file(_RES / "regime_quartile_returns.csv"), "quartile", "sharpe")
+_QR = P.col_dict(P.csv_file(_RES / f"core_models_{_TAG}" / "quantile_regression.csv"), "quantile", "coef")
+_QR_P = P.col_dict(P.csv_file(_RES / f"core_models_{_TAG}" / "quantile_regression.csv"), "quantile", "p_value")
+_QT = P.json_file(_RES / f"core_models_{_TAG}" / "quantile_equality_test.json")
+_LP_T = P.csv_file(_RES / f"core_models_{_TAG}" / "local_projections.csv")
+_LP_COEF = P.col_dict(_LP_T, "horizon", "coef")
+_LP_P = P.col_dict(_LP_T, "horizon", "p_value")
+_TS = P.json_file(_RES / "track_summary.json")
+_EV = P.json_file(_RES / f"evidence_facts_{_TAG}.json")["derived"]
+_G_SIG = bool(_EV["granger_min_p_holm"] < 0.05)
+_NT = _TS.get("null_tournament") or {}
+_MAN = P.json_file(_RES / f"candidates_manifest_{_TAG}.json")
+_GRID = P.lead_grid(PAIR)
+_GRID_RANGE = f"L{_GRID[0]}-L{_GRID[-1]}"
+_PLATEAU = W.value("plateau_leads") or []
+_AT_TOP = bool(_PLATEAU) and _PLATEAU[-1] == _GRID[-1]
+_QR_T = P.csv_file(_RES / f"core_models_{_TAG}" / "quantile_regression.csv")
+_QR_ALL_CI_ZERO = bool(((_QR_T["ci_low"] <= 0) & (_QR_T["ci_high"] >= 0)).all())
+
+
+def _r71_caveat() -> str:
+    """Chance-check calibration disclosure (R7.1), rendered from the null diagnosis in track_summary.json."""
+    if _NT.get("r71_pass") is not False:
+        return ""
+    d = _NT.get("r71_diagnosis")
+    return ("- **Chance-check calibration.** The scrambled contests should show no timing skill on average "
+            "(the R7.1 check); here they do not meet it. " + (d["reading"] if d else "No diagnosis recorded.")
+            + " The chance-check percentile therefore compares the winner against a null that carries the same "
+            "effect.\n")
+
+
+_R71_CAVEAT = _r71_caveat()
+_CHANCE_TEXT = (f"the real winner's stable-range score is above the winners of all {W.null_draws} scrambled contests"
+                if W.value("null_percentile") == 1 else
+                f"the real winner's stable-range score ranks at the {W.null_percentile} point of the scrambled scores")
+
+THRESHOLD_TEXT = P.definitions({
+    "T0_zero": "zero",
+    "T_z_0": "zero (its own five-year average)",
+    "T_z_1.0": "a z-score of one",
+    "T_roll_p25": "its rolling 60-month 25th percentile",
+    "T_roll_p50": "its rolling 60-month median",
+    "T_roll_p75": "its rolling 60-month 75th percentile",
+})
+SIGNAL_TEXT = P.definitions({
+    "level": "ISM Manufacturing PMI level",
+    "diff_1m": "month-on-month change in the ISM Manufacturing PMI",
+    "chg_12m": "12-month change in the ISM Manufacturing PMI",
+    "zscore_60m": "z-score of the ISM Manufacturing PMI against its own five-year history",
+})
+# the ISM diffusion-index convention (spec PMI_NEUTRAL), in words: the page never types the number
+PMI_TEXT = {
+    "neutral": "the line between expansion and contraction",
+    "below": "in contraction territory (more firms reporting decline than growth)",
+}
+SIDE = {"countercyclical": "at or below", "procyclical": "at or above"}
+_EVID_SIG = SIGNAL_TEXT["level"]      # the transform the descriptive tests use (pipeline EVIDENCE_SIGNAL)
+_NO_ARCHIVE = ("No archive of earlier ISM values exists, so every result on these pages uses today's values: months "
+               "whose seasonal factors were later re-estimated may differ from what was first published, and that "
+               "hindsight cannot be measured.")
+
+
+def _rule() -> str:
+    """Plain-English rule of the winner (long/cash), from its structured fields."""
+    sig = f"the {SIGNAL_TEXT.get(W.value('signal_code'), W.signal_code)} from {W.lead_word} months earlier"
+    side = SIDE.get(W.value("direction"), W.direction)
+    thr = THRESHOLD_TEXT.get(W.value("threshold_code"), W.threshold_code)
+    return f"hold SPY when {sig} is {side} {thr}; otherwise hold cash"
+
+
+_SIG = SIGNAL_TEXT.get(W.value("signal_code"), W.signal_code)
+_THR = THRESHOLD_TEXT.get(W.value("threshold_code"), W.threshold_code)
+_RULE = _rule()
+_RID = " / ".join([W.signal_code, W.threshold_code, W.strategy_family, f"L{W.lead}"])
+_IF_THEN = (
+    f"- **IF** `{W.signal_code}` from {W.lead_word} months earlier is {SIDE.get(W.value('direction'), W.direction)} "
+    f"{_THR} -> hold SPY.\n"
+    "- **ELSE** -> hold cash."
+)
+_MAIN_TAIL = (
+    f" The test period ends with {W.tail_n_periods} month(s) without a defined position ({W.tail_first_date} to "
+    f"{W.tail_last_date}), held in cash under the undefined-means-cash rule; holding the last position instead would "
+    f"give a test-period Sharpe of {W.tail_hold_last_sharpe}."
+    if W.has("tail_n_periods") else "")
 
 
 class StoryConfig:
-    PAGE_TITLE = "The Story: ISM Manufacturing PMI as a Countercyclical SPY Overlay"
+    PAGE_TITLE = "The Story: The ISM Manufacturing PMI as a Growth Signal for SPY"
     PAGE_SUBTITLE = (
-        "ISM Manufacturing PMI (Data Master NAPM diffusion index) x "
-        "S&P 500 (SPY), monthly business-cycle signals tested against SPY "
-        "returns."
+        "ISM Manufacturing PMI x S&P 500 (SPY): a monthly survey of purchasing managers tested as a timing signal "
+        "for SPY."
     )
 
     HEADLINE_H2 = (
-        "## Sharpe 1.51 OOS vs 0.95 buy-and-hold, with a shallower drawdown "
-        "(-8.9% vs -23.9%) AND a higher return (16.4% vs 15.1%) -- but the "
-        "winning rule runs COUNTERCYCLICAL (buy SPY after WEAK factory "
-        "momentum), the OPPOSITE of the procyclical prior, and it is "
-        "search-found, not validated"
+        f"## Test-period Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, "
+        "on today's ISM values (no archive of earlier values)"
     )
 
     PLAIN_ENGLISH = (
-        "The ISM Manufacturing PMI is a monthly survey diffusion index: a "
-        "reading above 50 means more factory managers report conditions "
-        "improving than worsening (expansion), below 50 means the reverse "
-        "(contraction). It is a classic LEADING indicator of the business "
-        "cycle, and the naive prior is procyclical: a firm or rising PMI is "
-        "risk-on for equities. This pair tests whether the PMI can improve SPY "
-        "timing. The search's best rule, however, runs the OTHER way: it holds "
-        "SPY when the PMI's one-month change FOUR MONTHS EARLIER was at or below "
-        "its rolling median -- that is, when factory momentum was weak or "
-        "falling -- and holds cash otherwise. Weak momentum predicting BETTER "
-        "forward SPY is a CONTRARIAN (countercyclical) reading, and it "
-        "contradicts the simple procyclical prior, so treat it with caution. "
-        "The economic story, if there is one, is that fading manufacturing "
-        "momentum tends to precede policy accommodation and often marks a point "
-        "near the cycle's trough, and the four-month lead gives that dynamic "
-        "time to play into equities. But read it honestly as a search-found "
-        "candidate: the formal lead-lag tests find no predictive edge, the win "
-        "rate is below 50%, and the rule trades a few times a year."
+        "Every month the Institute for Supply Management asks purchasing managers at manufacturing firms whether new "
+        "orders, output, employment, supplier deliveries and inventories rose or fell. The answers are combined into "
+        "one diffusion index, which swings around the line between expansion and contraction: a high reading means "
+        "more firms report growth than decline. Because it comes out on the first "
+        "business day of the following month, it is one of the earliest readings of the business cycle. This pair "
+        "tests whether that reading can improve SPY timing by stepping aside when manufacturing weakens. "
+        + _NO_ARCHIVE
     )
 
     WHERE_THIS_FITS = (
-        "This is a contrarian business-cycle overlay for broad U.S. equities. "
-        "It belongs in the portal as a search-found candidate whose edge in the "
-        "sample was risk reduction -- a shallower worst-case loss and lower "
-        "volatility -- while also, unusually, beating buy-and-hold's return. "
-        "Readers should treat it as 'lean back INTO equity after factory "
-        "momentum has weakened', the reverse of the naive procyclical instinct, "
-        "and should weigh that the direction contradicts the economic prior, the "
-        "signal shows no formal forecasting power, and the rule has not passed a "
-        "frozen-rule holdout."
+        f"The PMI is a survey of activity, not a price: it is bounded and swings around {PMI_TEXT['neutral']} rather "
+        "than trending. In the portal it is a business-cycle (growth) signal for broad U.S. equities. Manufacturing "
+        "is a smaller part of the U.S. economy than services, so the PMI can signal contraction without a recession."
     )
 
     ONE_SENTENCE_THESIS = (
-        "The search's best rule is CONTRARIAN -- it holds SPY when the ISM PMI's "
-        "one-month change four months earlier was AT OR BELOW its rolling median "
-        "(weak/falling factory momentum) -- earning OOS Sharpe 1.51 vs 0.95 for "
-        "buy-and-hold with a shallower drawdown (-8.9% vs -23.9%) and a higher "
-        "return (16.4% vs 15.1%), but this COUNTERCYCLICAL direction contradicts "
-        "the procyclical prior AND the procyclical concurrent level quartiles "
-        "(Q3 1.56 vs Q1 0.44), the formal lead-lag tests are null (Granger min "
-        "p = 0.31, local projections flat, the 4-month lead sits inside the CCF "
-        "band), the win rate is below 50% (39.8% -- it wins by avoiding losses, "
-        "not by being right often), and the winner is found-in-search, not "
-        "validated."
+        f"On today's ISM values, the rule selected on the training period is to {_RULE}; in the test period it "
+        f"scored Sharpe {W.oos_sharpe} against {W.bh_oos_sharpe} for buy-and-hold."
     )
 
     KPI_CAPTION = (
-        "every performance number here is a SEARCH-PHASE, out-of-sample figure "
-        "on a 98-month window (2017-09-30 -> 2025-10-31). The winner was found "
-        "as the best of 312 valid combinations, and the MEDIAN valid combo "
-        "(0.68) UNDERPERFORMS buy-and-hold (0.95) -- the typical rule subtracts "
-        "value. In the searched sample the winner beats B&H on Sharpe (1.51 vs "
-        "0.95), on return (16.4% vs 15.1%) and on max drawdown (-8.9% vs "
-        "-23.9%) at lower volatility (10.5%) -- but the win rate is BELOW 50% "
-        "(39.8%): it wins by sidestepping losses, not by being right most "
-        "months. Turnover is moderate (6.1/yr, 50 trades), so costs are a "
-        "modest drag. Sharpe ratios use monthly sqrt(12) annualization."
+        f"Winner selected on training data ({W.is_start} to {W.is_end}) by {W.selection_objective}: "
+        f"{_SIG}, {W.threshold_code}, long/cash, {W.direction}, lead {W.lead_text}. Test-period Sharpe {W.oos_sharpe} "
+        f"versus {W.bh_oos_sharpe} for buy-and-hold ({W.oos_start} to {W.oos_end}). One data track: today's ISM "
+        "values (no archive of earlier values)."
     )
 
-    HERO_TITLE = "ISM Manufacturing PMI vs the S&P 500 (SPY)"
+    HERO_TITLE = "The ISM Manufacturing PMI vs the S&P 500 (SPY)"
     HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
-        "How to read it: the PMI level (left axis, with the 50 expansion/"
-        "contraction line marked) is shown with SPY on the same time axis, "
-        "NBER recessions shaded. The PMI is a bounded, mean-reverting diffusion "
-        "index -- it oscillates around 50 rather than trending -- so it can be "
-        "used directly (it is stationary). Watch the shaded recessions: the PMI "
-        "dropped below 50 into each one. The traded signal is not the level but "
-        "its one-month CHANGE (whether the PMI rose or fell versus the prior "
-        "month), read with a four-month lead."
+        "How to read it: the ISM Manufacturing PMI (left axis) is shown with SPY (right axis) on the same time axis. "
+        f"Gray bands are NBER recessions; pink bands mark months with the PMI {PMI_TEXT['below']}, and the dotted "
+        f"line marks {PMI_TEXT['neutral']}. The values are today's; no archive of earlier values exists."
     )
 
     REGIME_TITLE = "What History Shows: SPY Performance by PMI Regime"
     REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
-        "What this shows: months are sorted from Q1 (weakest PMI) to Q4 "
-        "(strongest), with concurrent SPY Sharpe in each. It is broadly "
-        "PROCYCLICAL -- the two weakest-PMI quartiles (Q1 0.44, Q2 0.43) trail "
-        "the two strongest (Q3 1.56, Q4 0.95), though the pattern is not "
-        "perfectly monotonic (Q3, not Q4, is the peak). Note the TENSION: this "
-        "is a concurrent LEVEL relationship and it is procyclical, whereas the "
-        "traded winner keys off the 4-month-lagged one-month CHANGE in a "
-        "COUNTERCYCLICAL direction -- so the quartiles and the winner point "
-        "opposite ways. Descriptive and concurrent, not a tradable lead."
+        f"What this shows: months sorted by the {_EVID_SIG}, from Q1 (lowest) to Q4 (highest). "
+        f"Same-month SPY Sharpe is {_Q['Q1']:.2f} in Q1, {_Q['Q2']:.2f} in Q2, {_Q['Q3']:.2f} in Q3 and "
+        f"{_Q['Q4']:.2f} in Q4."
     )
 
-    NARRATIVE_SECTION_1 = """
+    NARRATIVE_SECTION_1 = f"""
 ### Headline Findings
 
-The winning rule is a **countercyclical, contrarian PMI-momentum filter**. It holds SPY when the one-month change in the ISM Manufacturing PMI, taken **four months earlier**, is at or below its rolling 60-month median (i.e. when factory momentum was weak or falling), and holds cash otherwise. Out-of-sample (2017-09 to 2025-10), this rule earns a Sharpe of 1.51 versus 0.95 for buy-and-hold, with a maximum drawdown of **-8.9% versus -23.9%**, lower volatility (10.5%), and -- unusually -- a slightly **higher** annualized return (16.4% versus 15.1%). The honest caution is the direction: the rule runs **against** the naive procyclical prior, it buys equity *after* manufacturing momentum has faded. Its win rate is **below 50%** (39.8%) -- it earns its keep by avoiding large losses, not by being right most months -- and because it keys off a one-month change it trades a few times a year (turnover 6.1/yr, 50 OOS trades), so costs are a modest but non-trivial drag.
+This result uses one data track: today's ISM values, read with point-in-time release dates (a month's reading is used only after its publication on the first business day of the following month). {_NO_ARCHIVE} The sample runs from {W.is_start} to {W.oos_end}, where the ISM series in the project's data ends.
 
-### The Business-Cycle Hypothesis -- and Why the Winner Inverts It
+The winning rule is a **{_SIG} rule** (long/cash): {_RULE}. It was selected on the training period ({W.is_start} to {W.is_end}) by {W.selection_objective} (stable lead range {W.plateau_range}), out of {W.n_valid} valid combinations ({W.n_distinct} distinct position series). In the test period ({W.oos_start} to {W.oos_end}) it records Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, with maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}. The test-period Sharpe difference is {W.sharpe_gap} (95% interval {W.ci_low} to {W.ci_high}).
 
-The ISM Manufacturing PMI is a monthly diffusion index built from a survey of purchasing managers -- the share reporting improving conditions, netted against those reporting deterioration. Above 50 signals expansion, below 50 contraction. Because purchasing managers see order books and supplier deliveries early, the PMI is a **leading** indicator, and the naive prior is **procyclical**: a firm or rising PMI is risk-on for equities. The concurrent *level* evidence agrees: sort months by PMI level and the weak-PMI quartiles have the lower concurrent SPY Sharpe (0.44, 0.43), while the strong-PMI quartiles have the higher (1.56, 0.95).
+### The Business-Cycle Hypothesis
 
-The tournament's winning rule runs the **opposite** way. It does not trade the level, and it does not go long into strength -- it goes long SPY *after* the one-month PMI change was weak four months earlier. A plausible economic reading is contrarian: fading factory momentum tends to precede policy accommodation and often marks a point near the cycle's trough, so a four-month lead lets that dynamic feed through to equities. That is defensible, but it **contradicts** both the simple prior and the procyclical concurrent quartiles -- flag it as a caution, not a confirmation.
+Manufacturing orders and output turn early in the business cycle. A PMI that is high relative to its recent range marks expanding activity and usually rising earnings expectations; a PMI that drops into the bottom of its range marks contraction risk. A procyclical rule therefore holds SPY while the PMI is strong and steps aside when it falls into the bottom of its range.
 
-### Why This Is Not a Validated Forecast
+### Why Timing Is Difficult
 
-The sign is contrarian, but the formal timing evidence is simply absent. The PMI change does **not** Granger-cause SPY returns at any tested lag (minimum p = 0.31), forward-return correlations are near zero at every horizon (none significant, and the largest is positive -- the *procyclical* sign, opposite to what the winner trades), and local projections are essentially null. The pre-whitened cross-correlation is significant only at *negative* lags -- SPY tends to move *before* the PMI -- while the concurrent bar and every lead-side offset, **including the winner's four-month lead**, sit inside the confidence band. So the four-month lead is a selection maximum over the search grid, not a horizon with demonstrated forecasting content. This dashboard therefore treats the pair as a search-found contrarian overlay whose sampled value was risk-adjusted, not a proven early-warning signal.
+Equity prices also anticipate the cycle, and they often turn before the PMI does: stocks bottomed in early 2009 while the PMI was still deep in contraction. The selected rule reacts to the PMI from {W.lead_word} months earlier, so it responds to manufacturing conditions with a long delay.
 """
 
     HISTORY_ZOOM_EPISODES = [
         {
             "slug": "dotcom",
-            "title": "Dot-Com Recession",
+            "title": "Dot-Com Bust",
             "narrative": (
-                "The PMI slid below 50 as the tech-capex bust hit "
-                "manufacturing. Through the bear the contrarian rule lost LESS "
-                "in level than buy-and-hold (subperiod return -22.4% vs -33.4%) "
-                "though at a similar risk-adjusted Sharpe (-0.70 vs -0.70)."
+                "The PMI fell into contraction in 2000 and bottomed in late 2001, around the trough of the recession. "
+                "Equities kept falling into 2002, after the PMI had already started to recover."
             ),
-            "caption": "Dot-Com: PMI fell below 50; the contrarian rule lost less in level than SPY (-22.4% vs -33.4%).",
+            "caption": "Dot-Com: the PMI fell into contraction in 2000 and bottomed in late 2001.",
         },
         {
             "slug": "gfc",
             "title": "Global Financial Crisis",
             "narrative": (
-                "The PMI collapsed into the low 30s through 2008-09 as the "
-                "goods economy seized up. The contrarian momentum rule came "
-                "through with a far better Sharpe (-0.54 vs -1.03) and a much "
-                "smaller loss (-14.4% vs -35.5%) than buy-and-hold."
+                "The PMI slipped into contraction in early 2008 and collapsed after the Lehman failure, reaching its cycle low "
+                "in December 2008. SPY bottomed in March 2009, and both recovered together through 2009."
             ),
-            "caption": "GFC: PMI collapsed 2008-09; the rule lost far less than SPY (-14.4% vs -35.5%).",
+            "caption": "GFC: the PMI reached its cycle low in December 2008; SPY bottomed in March 2009.",
         },
         {
             "slug": "covid",
             "title": "COVID Shock",
             "narrative": (
-                "The PMI plunged in spring 2020 and rebounded violently. The "
-                "rule stepped to cash at end-February 2020 (ahead of the "
-                "collapse) and bought back at end-April, and this is its best "
-                "subperiod (Sharpe +1.81 vs -0.08; return +14.7% vs -3.2%). "
-                "Read it with caution: it is one extreme, exogenous episode that "
-                "can dominate the backtest fit."
+                "The PMI fell sharply in April 2020 and then rebounded strongly through early 2021. The shock was fast, "
+                "so any lagged monthly signal reacted late."
             ),
-            "caption": "COVID: the rule was in cash into the collapse and re-entered on the rebound -- its best, but a single outlier episode.",
+            "caption": "COVID: the PMI fell in April 2020, then rebounded strongly.",
         },
         {
             "slug": "inflation_2022",
-            "title": "2022 Rate Shock",
+            "title": "2022 Rates Shock",
             "narrative": (
-                "The PMI ground lower through 2022 toward 50 as rate hikes bit. "
-                "The contrarian rule was net positive across the window "
-                "(Sharpe +0.62 vs -0.76; return +10.1% vs -18.2%), sidestepping "
-                "much of SPY's rate-hike bear."
+                "The PMI peaked in 2021 and slid through 2022 as the Federal Reserve raised rates, falling into "
+                "contraction in late 2022 and staying there in almost every month through 2024, while SPY recovered "
+                "from late 2022."
             ),
-            "caption": "2022: PMI fell through the rate-hike bear; the rule was net positive (+10.1%) while SPY lost -18.2%.",
+            "caption": "2022: the PMI slid from its 2021 peak into contraction in late 2022.",
         },
     ]
 
     NARRATIVE_SECTION_2 = """
 ### What History Shows
 
-The stress charts show how the contrarian rule navigated sustained downturns. The PMI fell below 50 into the Dot-Com, GFC and COVID recessions, and below its rolling norm through the 2022 rate-hike bear -- and in each the rule came through with a better outcome than buy-and-hold: it lost less in level in the Dot-Com bear, lost far less in the GFC (-14.4% vs -35.5%), was strongly net positive through COVID (+14.7% vs -3.2%, stepping to cash into the February 2020 collapse and re-entering on the rebound), and was positive through the 2022 bear (+10.1% vs -18.2%). Because it buys SPY *after* factory momentum has already weakened, it tends to be positioned defensively going into trouble and to lean back in near troughs -- which is where its drawdown advantage was earned. The honest reading is not "the PMI predicts drawdowns"; it is that a contrarian momentum filter, read at a four-month lead, happened to sit on the right side of several sampled downturns -- a pattern that is search-found and contradicts the procyclical prior, not a validated forecast. A one-month-change signal is also faster and can whipsaw, and COVID is a single episode that flatters the fit.
+The episodes show the PMI and equities moving with the same cycle, with equities often turning first. A lagged PMI rule can therefore stay out of the market after the equity recovery has started, as in 2009 and 2023. These episodes are context for reading the strategy result, not evidence that the rule adds value; the test-period comparison with buy-and-hold is on the Strategy page.
 """
 
     TRANSITION_TEXT = (
-        "The Evidence page tests whether this business-cycle story survives "
-        "correlation, lead-lag, regime, and strategy checks. The direction is "
-        "the awkward part -- the concurrent evidence is procyclical while the "
-        "winner is countercyclical -- and the forecast does not survive at all: "
-        "the formal lead-lag tests are null, so the value is a search-found, "
-        "risk-adjusted overlay, not a proven predictor."
+        "The Evidence page tests whether this business-cycle story survives correlation, lead-lag, regime, and "
+        "strategy checks."
     )
 
 
@@ -277,305 +241,270 @@ CORRELATION_BLOCK = dict(
     chart_status="ready",
     method_name="Correlation Analysis",
     method_theory=(
-        "Correlation measures whether the PMI signals and future SPY returns "
-        "move together in a roughly linear way."
+        "Correlation measures whether ISM PMI signals and future SPY returns move together in a roughly linear way."
     ),
-    question="Does a firmer PMI line up with better or worse future SPY returns?",
+    question="Do higher PMI readings line up with better or worse future SPY returns?",
     how_to_read=(
-        "Read the heatmap by horizon and signal transform. Positive values "
-        "mean a firmer PMI lines up with stronger future SPY returns; pale "
-        "cells mean no association."
+        "Read the heatmap by signal and horizon. Positive values mean a higher reading lines up with stronger future "
+        "SPY returns; negative values mean the opposite."
     ),
     chart_name="correlation_heatmap",
     chart_caption=(
-        "What this shows: the linear association is essentially zero at every "
-        "tradeable horizon and none of the cells is statistically significant. "
-        "The largest cell anywhere is the one-month PMI change vs the "
-        "6-month-forward SPY return (r = 0.07, p = 0.15), a weak POSITIVE "
-        "(procyclical) association -- the opposite sign to the countercyclical "
-        "winner, and insignificant in any case -- so this is not a usable "
-        "forecasting signal in either direction."
+        "What this shows: linear correlations between each PMI signal and forward SPY returns at several horizons."
     ),
     observation=(
-        "No transform shows a material linear association with forward SPY; "
-        "all |r| values are below ~0.07 and every p-value exceeds 0.14, so no "
-        "cell is significant. What little sign there is (positive for diff_1m) "
-        "runs opposite to the winner's countercyclical rule."
+        "The PMI is persistent and forward returns overlap, so p-values for these correlations use Newey-West errors "
+        "with at least one lag fewer than the horizon."
     ),
     interpretation=(
-        "Correlation alone does not support forecasting the pair, and the faint "
-        "positive tilt it does show disagrees with the winner's direction. The "
-        "winner's edge, such as it is, comes from the threshold/lead "
-        "combination in the backtest, not from a linear forward correlation."
+        "Correlation alone is not enough to trade the pair; the tournament asks whether a lagged rule improves "
+        "portfolio behavior."
     ),
-    key_message="The PMI is not a linear SPY predictor at any tradeable horizon, and the faint positive tilt runs opposite to the winner.",
+    key_message="Correlations describe the pair; they do not select the rule.",
 )
 
 GRANGER_BLOCK = dict(
     chart_status="ready",
     method_name="Granger Causality by Lag",
     method_theory=(
-        "Granger causality tests whether past values of one series improve "
-        "forecasts of another after accounting for its own history."
+        "Granger causality tests whether past values of one series improve forecasts of another after accounting "
+        "for its own history."
     ),
-    question="Does the PMI change lead SPY returns in a formal lag test?",
+    question=f"Does the past {_EVID_SIG} help forecast SPY returns in a formal lag test?",
     how_to_read=(
-        "Bars show p-values by monthly lag; the dashed line marks the 5% "
-        "significance level. Bars ABOVE the line are insignificant."
+        f"Bars show the p-value of the test at each of the {_EV['n_granger_lags']} monthly lags; diamonds show the "
+        "same p-values after a Holm adjustment for testing every lag. Only an adjusted value below the 0.05 line "
+        "counts as evidence once the best lag has been picked."
     ),
     chart_name="granger_f_by_lag",
     chart_caption=(
-        "What this shows: every lag is insignificant. The smallest p-value "
-        "across the tested lags is 0.31 (lag 2) -- the PMI change does not "
-        "Granger-cause SPY returns."
+        f"What this shows: the smallest single-lag p-value is {_EV['granger_min_p_single']:.3f} at lag "
+        f"{_EV['granger_best']['lag']}; after the Holm adjustment across the {_EV['n_granger_lags']} lags it is "
+        f"{_EV['granger_min_p_holm']:.3f}."
     ),
     observation=(
-        "Across all tested monthly lags the PMI->SPY p-value never falls below "
-        "0.31; the F-statistics are tiny. There is no formal evidence of "
-        "lead-lag causality."
+        f"Best lag {_EV['granger_best']['lag']}: p {_EV['granger_min_p_single']:.3f} on its own, "
+        f"{_EV['granger_min_p_holm']:.3f} after the Holm adjustment"
+        + (", below the 0.05 line." if _G_SIG else "; no lag is below the 0.05 line after the adjustment.")
     ),
     interpretation=(
-        "This rules out a forecasting claim, including at the winner's "
-        "four-month lead. The strategy must be framed as a search-found "
-        "contrarian overlay, not proof that the PMI causes future SPY returns."
+        "A Granger result is a statement about linear forecasting on today's values, not proof that manufacturing "
+        "conditions cause SPY returns."
     ),
-    key_message="Formal lead-lag evidence is absent (min p = 0.31); the PMI does not lead SPY.",
+    key_message="Formal lead-lag evidence is reported as tested; read it with the tournament, not instead of it.",
 )
 
 QUARTILE_BLOCK = dict(
     chart_status="ready",
     method_name="Regime Quartile Analysis",
     method_theory=(
-        "Quartile analysis sorts months by PMI level and compares concurrent "
-        "SPY returns across business-cycle regimes."
+        f"Quartile analysis sorts months by the {_EVID_SIG} and compares SPY returns across the quartile groups."
     ),
-    question="Do weak and strong PMI regimes produce different SPY outcomes?",
+    question="Do low and high PMI regimes produce different SPY outcomes?",
     how_to_read=(
-        "Q1 is the weakest-PMI regime; Q4 is the strongest. Compare Sharpe, "
-        "average return, and sample size across the four buckets."
+        "Q1 holds the lowest PMI readings; Q4 the highest. Compare Sharpe, average return and sample size."
     ),
     chart_name="regime_stats",
     chart_caption=(
-        "What this shows: broadly PROCYCLICAL -- the weak-PMI quartiles Q1 and "
-        "Q2 have the lower concurrent SPY Sharpe (0.44, 0.43) and the "
-        "strong-PMI quartiles Q3 and Q4 the higher (1.56, 0.95), though the "
-        "pattern is not perfectly monotonic (Q3 is the peak). This is a "
-        "concurrent LEVEL relationship -- and it runs OPPOSITE to the winner, "
-        "which is a countercyclical filter on the lagged one-month change."
+        f"What this shows: same-month SPY Sharpe by PMI quartile, {_Q['Q1']:.2f} in Q1 (lowest) and "
+        f"{_Q['Q4']:.2f} in Q4 (highest)."
     ),
     observation=(
-        "Concurrent SPY Sharpe is higher in the strong-PMI quartiles "
-        "(Q1 0.44, Q2 0.43, Q3 1.56, Q4 0.95) -- a firmer PMI level broadly "
-        "coincides with better equity conditions, though not monotonically."
+        f"SPY Sharpe in the same months: Q1 {_Q['Q1']:.2f}, Q2 {_Q['Q2']:.2f}, Q3 {_Q['Q3']:.2f}, Q4 {_Q['Q4']:.2f}."
     ),
     interpretation=(
-        "The concurrent level pattern is procyclical, matching the economic "
-        "prior -- but it therefore DISAGREES with the winner, which is a "
-        "countercyclical momentum rule at a lead. Treat the quartiles as "
-        "descriptive context, not confirmation of the traded rule."
+        "Quartiles are concurrent, not predictive: they show the backdrop, while the tournament tests lagged rules."
     ),
-    key_message="A firmer PMI level broadly coincides with better SPY conditions (procyclical) -- opposite to the countercyclical winner.",
+    key_message="PMI regimes describe the equity backdrop.",
 )
 
 CCF_BLOCK = dict(
     chart_status="ready",
     method_name="Pre-Whitened Cross-Correlation",
     method_theory=(
-        "Pre-whitened cross-correlation filters each series' own persistence "
-        "before testing whether one tends to move before or after the other."
+        "Cross-correlation on first differences filters persistence before testing whether one series tends to "
+        "move before or after the other."
     ),
-    question="At which offsets does the PMI change line up with SPY returns?",
-    how_to_read=(
-        "Bars outside the dashed confidence band mark unusual lead-lag "
-        "correlation after filtering autocorrelation. Positive offsets mean "
-        "the PMI leads; negative offsets mean SPY leads."
-    ),
+    question="At which offsets do monthly changes in the PMI line up with SPY returns?",
+    how_to_read="Bars outside the dashed band mark offsets with unusually large correlation; positive lags mean the PMI moves first.",
     chart_name="ccf_prewhitened",
     chart_caption=(
-        "What this shows: the significant bars sit at NEGATIVE lags (-6 to -1) "
-        "-- SPY tends to move BEFORE the PMI -- while the concurrent (lag 0) "
-        "and every lead-side (PMI-leads-SPY) bar, INCLUDING the winner's +4 "
-        "offset, is inside the band. That is the reverse of a forecasting "
-        "signal."
+        "What this shows: correlation of monthly changes in the PMI with SPY returns at offsets in months."
     ),
-    observation=(
-        "Correlations are significant only at lags -6 to -1 (SPY leading the "
-        "PMI, ccf up to ~0.17); the concurrent bar (lag 0, ~0.06) and every "
-        "positive lead-side offset -- including lag +4 (~0.01) -- are inside "
-        "the confidence band and insignificant."
-    ),
-    interpretation=(
-        "There is no window in which the PMI change foreshadows SPY, and the "
-        "winner's four-month lead has no significant correlation. If anything "
-        "the market anticipates the PMI, so the winner's lead is a selection "
-        "maximum rather than an identified forecasting horizon."
-    ),
-    key_message="Significant correlation is on the SPY-leads side; the PMI shows no significant lead over SPY, not even at the winner's 4-month offset.",
+    observation="The PMI level is persistent from month to month, so differencing matters before reading lead-lag "
+                "bars.",
+    interpretation="Isolated significant bars are expected by chance across many offsets.",
+    key_message="Read the bars at positive lags for the PMI moving first.",
 )
 
 LOCAL_PROJECTIONS_BLOCK = dict(
     chart_status="ready",
     method_name="Local Projections",
     method_theory=(
-        "Local projections estimate how future SPY returns respond across "
-        "multiple horizons after a change in the PMI signal."
+        "Local projections estimate how future SPY returns line up with the PMI over several horizons."
     ),
-    question="How does SPY respond after the PMI changes?",
+    question=f"How do forward SPY returns relate to the {_EVID_SIG} at different horizons?",
     how_to_read=(
-        "Each bar is an estimated future SPY response after a move in the PMI "
-        "signal. Coefficients near zero mean no detectable effect."
+        f"Each bar is the estimated forward SPY return per point of the {_EVID_SIG}; whiskers are 95% confidence "
+        "intervals from Newey-West errors with at least one lag fewer than the horizon."
     ),
     chart_name="local_projections",
     chart_caption=(
-        "What this shows: coefficients are essentially zero across all "
-        "horizons (1, 3, 6 months), none statistically significant "
-        "(p from 0.49 to 0.54), with negligible R^2."
+        f"What this shows: slopes from {_LP_COEF[1]:+.4f} at the 1-month horizon to "
+        f"{_LP_COEF[12]:+.4f} at the 12-month horizon (p {_LP_P[12]:.2f} at the 12-month horizon)."
     ),
-    observation=(
-        "Point estimates are near zero at every horizon and no coefficient is "
-        "significant; the explained variance is trivial throughout."
-    ),
+    observation="The raw macro relationship is shown here, not the final lagged tournament rule.",
     interpretation=(
-        "There is essentially no linear predictive content at any horizon. "
-        "Nothing here rescues a forward-looking reading of the indicator."
+        "Overlapping horizons share observations; the Newey-West errors widen the longer-horizon intervals for that "
+        "reason."
     ),
-    key_message="Local projections are null; the PMI carries no useful linear forecast for SPY.",
+    key_message="The horizon matters for PMI signals.",
 )
 
 QUANTILE_BLOCK = dict(
     chart_status="ready",
     method_name="Quantile Regression",
     method_theory=(
-        "Quantile regression checks whether the PMI signal matters differently "
-        "in weak, normal, and strong SPY return environments."
+        "Quantile regression checks whether the PMI matters differently in weak, normal and strong SPY return "
+        "environments."
     ),
     question="Does the PMI behave differently in market tails?",
     how_to_read=(
-        "Compare the signal coefficient across return quantiles. A larger "
-        "coefficient means a stronger association with that part of the SPY "
-        "return distribution."
+        f"Compare the coefficient across the quantiles of {_EV['n_months_qr_horizon']}-month forward SPY returns; "
+        f"whiskers and the equality test come from a moving-block bootstrap (blocks of {_EV['n_months_qr_block']} months) "
+        "because the forward returns overlap."
     ),
     chart_name="quantile_coef",
     chart_caption=(
-        "What this shows: the coefficient is close to zero and flat across "
-        "quantiles -- no material tail sensitivity for the PMI signal."
+        f"What this shows: slopes of {_EV['n_months_qr_horizon']}-month forward SPY returns on the {_EVID_SIG}, "
+        f"{_QR[0.1]:+.4f} at tau=0.10 and {_QR[0.5]:+.4f} at tau=0.50; a cross-quantile equality test does "
+        f"{'not ' if not _QT['reject_equality'] else ''}reject a uniform slope (Wald p={_QT['p_value']:.4f})."
     ),
     observation=(
-        "The estimated coefficient is small and essentially unchanged across "
-        "the tested quantiles, consistent with the near-null correlation and "
-        "local-projection results."
+        f"The block-bootstrap Wald test {'does not reject' if not _QT['reject_equality'] else 'rejects'} slope "
+        f"equality across quantiles (p={_QT['p_value']:.4f})"
+        + ("." if not _QR_ALL_CI_ZERO else "; every quantile's own 95% interval includes zero (smallest single-slope "
+                                           f"p-value {min(_QR_P.values()):.2f}), so the evidence is about the slopes "
+                                           "differing from one another, not about any one of them.")
     ),
     interpretation=(
-        "The PMI does not flag elevated crash risk or exceptional upside -- "
-        "there is no tail channel to trade."
+        "Tail asymmetry is only established if the equality test rejects; even then, read the individual slopes "
+        "with their intervals."
     ),
-    key_message="The PMI shows no material state-dependent effect across SPY return tails.",
+    key_message=f"Cross-quantile equality Wald p={_QT['p_value']:.4f}.",
 )
 
 
 EVIDENCE_METHOD_BLOCKS = {
-    "title": "The Evidence: The PMI Is Business-Cycle Context, Not a SPY Forecast",
+    "title": "The Evidence: The ISM Manufacturing PMI and SPY",
     "overview": (
-        "The evidence supports a search-found contrarian overlay -- and "
-        "nothing stronger. The strategy winner improves search-phase OOS "
-        "Sharpe, but its COUNTERCYCLICAL direction contradicts the procyclical "
-        "prior AND the procyclical concurrent quartiles, and formal lead-lag "
-        "evidence is absent (Granger min p = 0.31; local projections null; CCF "
-        "significant only on the SPY-leads side, with the winner's 4-month lead "
-        "inside the band). The lead is a selection maximum, not a forecast "
-        "horizon."
+        "The tests below describe a business-cycle overlay. The selected rule's test-period Sharpe is "
+        f"{W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, on today's ISM values (no archive of earlier "
+        "values)."
     ),
     "plain_english": (
-        "This page asks whether the PMI helps time SPY. The answer is: not in "
-        "the formal tests. Concurrent quartiles are broadly procyclical (weak "
-        "PMI level = worse same-month market), but the winning rule runs the "
-        "opposite way (it buys after weak momentum), the causal tests find no "
-        "lead, and the winner's 4-month lead has no significant correlation. "
-        "Treat it as a search-found contrarian overlay, not an early-warning "
-        "system."
+        "This page asks whether the ISM Manufacturing PMI helps with SPY timing, first with descriptive tests, then "
+        "with the tournament. All of it uses today's ISM values, because no archive of earlier values exists."
     ),
     "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
     "level1_labels": ["Correlation", "Granger", "Quartiles", "CCF"],
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK],
     "level2_labels": ["Local Projections", "Quantile Regression"],
     "tournament_intro": (
-        "The tournament tested 312 strategy combinations (all 312 valid) "
-        "across four PMI signals (level, one-month change, 12-month change, "
-        "60-month z-score), fixed and rolling thresholds, a long/cash strategy, "
-        "and leads from 1 to 13 months (the publication-lag floor removed the "
-        "look-ahead L0 lead). The selected winner is `diff_1m / T_roll_p50 / "
-        "P1_long_cash countercyclical / L4`, with OOS Sharpe 1.51. The MEDIAN "
-        "valid combo scores 0.68 -- below buy-and-hold's 0.95 -- and the "
-        "runner-up (`chg_12m / T_roll_p50 / L1`, 1.41) is a different signal "
-        "and lead, so the top of the search surface is NOT a single robust "
-        "structure. Read the winner as a selection maximum, not a validated "
-        "edge."
+        f"The tournament tested {W.n_candidates} declared strategy combinations ({W.n_valid} valid on the training "
+        f"period; {W.n_distinct} distinct position series) across {P.length(_MAN['signals'])} PMI signals, zero, "
+        f"z-score and rolling-percentile thresholds, the long/cash strategy, both orientations and the lead grid "
+        f"{_GRID_RANGE} months, on today's ISM values. The selected winner is `{_RID}`, chosen on the training "
+        f"period by {W.selection_objective}."
     ),
     "transition": (
-        "**Transition:** the evidence is business-cycle context, not causation "
-        "ahead of the market, and the winner's direction contradicts the "
-        "procyclical prior. The Strategy page shows the exact long/cash rule, "
-        "the drawdown advantage that is its real virtue, the moderate-turnover "
-        "cost profile, and the deployment caveats."
+        "**Transition:** the Strategy page shows the exact rule, its threshold and the deployment caveats."
     ),
 }
 
 
 class StrategyConfig:
-    PAGE_TITLE = "The Strategy: A Countercyclical, Lagged PMI-Momentum Long/Cash Overlay"
+    PAGE_TITLE = "The Strategy: A Lagged ISM Manufacturing PMI Overlay for SPY"
     PAGE_SUBTITLE = (
-        "A searched SPY allocation rule using the one-month change in the ISM "
-        "Manufacturing PMI, a rolling-median threshold, a countercyclical "
-        "(contrarian) orientation, and a four-month lead -- valued for "
-        "risk-adjusted and drawdown behaviour, and flagged as contradicting the "
-        "procyclical prior, showing no formal forecasting power, and trading at "
-        "moderate turnover."
+        f"A searched SPY allocation rule: {_SIG}, long/cash, lead {W.lead_text}, on today's ISM values (no archive "
+        "of earlier values)."
+    )
+
+    STATISTICAL_FRAMING_BANNER = (
+        f"Update (2026-10-18). The previous development version of this page reported the rule {W.previous_rule} "
+        f"(test-period Sharpe {W.previous_oos_sharpe}, run of {W.previous_tag}), the single highest training Sharpe "
+        "with fixed release lags; that version was not published on the main site, which still shows an older rule "
+        "from an earlier run with a different lead grid and selection method. The page now reports the rule selected "
+        "on the training period with point-in-time release dates and the stable-lead-range rule. There is still one "
+        "data track: no archive of earlier ISM values exists."
     )
 
     PLAIN_ENGLISH = (
-        "The rule holds SPY when the one-month change in the ISM Manufacturing "
-        "PMI, taken four months earlier, is at or below its rolling 60-month "
-        "median (factory momentum was weak or falling); otherwise it holds "
-        "cash. This is a COUNTERCYCLICAL (contrarian) momentum filter -- it "
-        "buys equity AFTER momentum has faded, the OPPOSITE of the naive "
-        "procyclical instinct -- read at a four-month lead. Judge it by its "
-        "shallower drawdown (-8.9% vs -23.9%), lower volatility, and sampled "
-        "Sharpe/return edge (1.51 vs 0.95; 16.4% vs 15.1%), but weigh that the "
-        "direction contradicts the prior, the win rate is below 50%, and the "
-        "rule is search-found, not validated."
+        f"The rule is to {_RULE}. It is a lagged business-cycle rule, not a forecast of the PMI or of a recession."
+    )
+
+    # Status and badge rule come from track_summary.json (components.two_track.badge_status); facts only here.
+    EXECUTIVE_CONFIDENCE_SUMMARY = dict(
+        status="",
+        status_detail=(
+            "Selected on the training period from today's ISM values (no archive of earlier values); it has not "
+            "faced a frozen-rule hold-out test."
+        ),
+        strengths=[
+            f"Point-in-time release dates and a long training period: {W.is_n} months ({W.is_start} to "
+            f"{W.is_end}).",
+            f"The chosen lead sits in a stable lead range ({W.plateau_range}).",
+        ],
+        risks=[
+            f"Test-period Sharpe difference versus buy-and-hold {W.sharpe_gap}, 95% interval {W.ci_low} to "
+            f"{W.ci_high}.",
+            "No archive of earlier ISM values exists, so the backtest uses today's values; any hindsight from "
+            "seasonal-factor revisions cannot be measured.",
+            f"The single highest training Sharpe in the grid ({W.raw_argmax_rule} at L{W.raw_argmax_lead}) lies "
+            f"{W.raw_argmax_position}; it was not chosen.",
+            f"The previous rule of this page ({W.previous_rule}) was the single highest training Sharpe with fixed "
+            "lags.",
+        ] + ([f"The stable lead range {W.plateau_range} reaches the top of the declared lead grid ({_GRID_RANGE} "
+              "months); longer leads were not tested."] if _AT_TOP else []),
+        conclusion=(
+            f"Rule {_RID}: test-period Sharpe "
+            f"{W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold ({W.oos_start} to {W.oos_end}), maximum "
+            f"drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}, on today's ISM values."
+        ),
     )
 
     DOWNLOADS = [
-        {"label": "Granger causality by lag", "path": "results/ism_mfg_spy/granger_by_lag.csv"},
-        {"label": "Regime quartile returns", "path": "results/ism_mfg_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/ism_mfg_spy/tournament_results_20261016.csv"},
-        {"label": "Stationarity tests", "path": "results/ism_mfg_spy/stationarity_tests_20261016.csv"},
+        {"label": "Granger causality by lag", "path": f"results/{PAIR}/granger_by_lag.csv"},
+        {"label": "Regime quartile returns", "path": f"results/{PAIR}/regime_quartile_returns.csv"},
+        {"label": "Tournament results (today's ISM values)", "path": f"results/{PAIR}/tournament_results_{_TAG}.csv"},
+        {"label": f"Previous rule's tournament (run of {W.previous_tag}, replayed exactly)",
+         "path": f"results/{PAIR}/tournament_results_{W.value('previous_tag')}.csv"},
+        {"label": "Stationarity tests", "path": f"results/{PAIR}/stationarity_tests_{_TAG}.csv"},
     ]
 
-    SIGNAL_RULE_MD = """
-**Rule in plain English:** hold SPY when the one-month change in the ISM Manufacturing PMI, taken **four months earlier**, is at or below its rolling 60-month median (i.e. when factory momentum was weak or falling); otherwise hold cash. This is a **countercyclical** rule -- it buys equity *after* momentum fades, the OPPOSITE of the procyclical prior. It uses a **four-month lead** -- the PMI change from four months ago sets the current allocation.
+    SIGNAL_RULE_MD = f"""
+**Rule in plain English:** {_RULE}.
 
 If-then form:
-- **IF** the one-month PMI change `ism_diff_1m` from four months ago is at or below its rolling 60-month median (latest median -0.25 index points) -> hold SPY.
-- **ELSE** -> hold cash.
+{_IF_THEN}
 
-Search-phase OOS results (2017-09-30 to 2025-10-31, 98 months): Sharpe 1.51 versus 0.95 buy-and-hold; annualized return 16.4% versus 15.1%; **maximum drawdown -8.9% versus -23.9%**; annualized volatility 10.5%; win rate 39.8%; 50 trades; annual turnover 6.1 (moderate). The drawdown and volatility reduction -- alongside a modest return edge -- is the defensible result; the win rate below 50% means the rule wins by avoiding losses, not by being right most months.
+Test-period results on today's ISM values ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} buy-and-hold; annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; {W.oos_n_trades} switches between SPY and cash within the test period (each moves the whole position; {_EV['oos_months_position_change_gt_5pct']} months with a position move larger than {_EV['position_change_threshold_pp']} percentage points); annual turnover {W.annual_turnover}; in SPY {W.oos_exposure} of the test-period months.{_MAIN_TAIL}
 """
 
-    HOW_SIGNAL_IS_GENERATED_MD = """
-First, the data process reads the ISM Manufacturing PMI (`NAPM`, diffusion index) at month-end. Second, it computes the one-month change in the PMI (`ism_diff_1m`), this month's level minus last month's. Third, a four-month lead (L4) is applied: the change observed four months ago sets the current allocation (the publication-lag floor removed the look-ahead concurrent lead). Finally, the lagged change is compared with its rolling 60-month median: when the change is at or BELOW the median, hold SPY; otherwise cash (the countercyclical orientation -- buy after weak momentum).
+    HOW_SIGNAL_IS_GENERATED_MD = f"""
+First, the process takes the ISM Manufacturing PMI as it stands today (no archive of earlier values exists) and computes the {_SIG} and its threshold on the PMI's own monthly dates. Second, for each month it uses only readings already published when the month's return window opens (ISM publishes on the first business day of the following month), taking the reading from {W.lead_word} months earlier. Finally, the reading is compared with {_THR}.
 
-OOS Sharpe means out-of-sample risk-adjusted return. OOS Return is the annualized out-of-sample return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year (moderate here -- the one-month change crosses its rolling median a few times a year). Win Rate is the share of out-of-sample months with positive strategy return.
+OOS Sharpe means test-period (out-of-sample) risk-adjusted return. OOS Return is the annualized test-period return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of test-period months with positive strategy return.
 """
 
-    MANUAL_USE_MD = """
+    MANUAL_USE_MD = f"""
 This describes the backtested rule so it can be audited; it is not a trading recommendation.
 
-1. Read the ISM Manufacturing PMI (NAPM) at month end.
-2. Compute the one-month change (this month's PMI minus last month's).
-3. Take the change from FOUR months ago and compare it with its rolling 60-month median.
-4. Hold SPY when that lagged change is at or below the median (momentum was weak); otherwise hold cash.
-5. Recheck monthly. Turnover is moderate (6.1/yr, 50 OOS trades): the one-month change crosses its rolling median a few times a year, so transaction costs are a modest consideration.
+1. At month end, read the ISM Manufacturing PMI as currently published.
+2. Compute {_THR} from the published series.
+3. Take the PMI reading from {W.lead_word} months earlier and compare it with that threshold.
+4. Set the position as the rule says (long/cash) and hold it for the following month.
+5. Recheck monthly.
 """
 
     EQUITY_CHART_NAME = "equity_curves"
@@ -583,120 +512,107 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     WALK_FORWARD_TITLE = "Subperiod Sharpe and Durability"
     WALK_FORWARD_CHART_NAME = "subperiod_sharpe"
     WALK_FORWARD_CAPTION = (
-        "What this shows: Sharpe is return per unit of volatility. The "
-        "subperiod chart compares the searched rule with buy-and-hold SPY "
-        "during major stress windows. The defense is consistent: the rule lost "
-        "less in level in the Dot-Com bear (return -22.4% vs -33.4%, Sharpe "
-        "-0.70 vs -0.70), had a far better GFC (-0.54 vs -1.03), was positive "
-        "through the 2022 rate shock (+0.62 vs -0.76), and was strongly "
-        "positive through COVID (+1.81 vs -0.08, a single striking episode). "
-        "The contrarian momentum rule tended to be positioned defensively into "
-        "sustained downturns."
+        "What this shows: Sharpe is return per unit of volatility. The subperiod chart compares the searched rule "
+        "with buy-and-hold SPY during major stress windows; each label says whether the window falls in the "
+        "training period or in the test period, and how many months it holds. Annualized Sharpe ratios over windows "
+        "of a few months are noisy; read the window length on each label."
     )
     CROSS_PERIOD_CAPTIONS = {
         "rolling_correlation": (
-            "How to read it: the indicator is the PMI change; the target is "
-            "SPY returns. The rolling correlation tests whether their linear "
-            "relationship is stable through time. Large swings mean the "
-            "relationship is unstable and the rule needs ongoing monitoring."
+            f"How to read it: the indicator is the {_EVID_SIG}; the target is SPY returns. The rolling correlation "
+            "tests whether their linear relationship is stable through time."
         ),
         "structural_break": (
-            "How to read it: the structural break proxy asks whether the "
-            "PMI/SPY relationship changes enough that one fixed model is "
-            "unlikely to describe the whole sample. A larger break statistic "
-            "means the relationship shifted more materially across periods "
-            "(here the max absolute rolling-correlation z-score reaches 2.7)."
+            "How to read it: the structural break proxy asks whether the PMI/SPY relationship changes enough that one "
+            "fixed model is unlikely to describe the whole sample."
         ),
     }
     SHOW_TOURNAMENT_SCATTER = True
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
     TOURNAMENT_SCATTER_CAPTION = (
-        "What this shows: OOS Sharpe distribution across valid searched "
-        "combinations by lead. The winner (1.51) is a right-tail maximum at a "
-        "four-month lead; the median valid combo (0.68) sits BELOW buy-and-hold "
-        "(0.95), so the typical rule built on this indicator subtracts value."
+        "What this shows: test-period Sharpe distribution across valid searched strategy combinations by lead. The "
+        "winner is chosen on the training period, not on this test-period score."
     )
 
-    CAVEATS_MD = """
+    CAVEATS_MD = f"""
 **Main caveats:**
 
-1. The winner's direction CONTRADICTS the economic prior. The PMI's naive prior is procyclical, but the winner is COUNTERCYCLICAL (it buys SPY after weak factory momentum) -- and it even disagrees with the procyclical concurrent level quartiles. Treat the direction as a caution, not a feature.
-2. It is NOT a forecast in the formal tests. Granger causality is insignificant at every lag (min p = 0.31), local projections are null, and the pre-whitened CCF is significant only on the SPY-leads side -- the winner's four-month lead sits inside the confidence band. The lead is a selection maximum, not an identified forecasting horizon.
-3. The result is marked `found_in_search`; the median valid combo (0.68) underperforms buy-and-hold (0.95), the runner-up is a different signal/lead (so the search surface is not a single robust structure), and the winner still needs a frozen-rule holdout confirmation. Confidence is LOW.
-4. The win rate is BELOW 50% (39.8%): the rule wins by avoiding large losses, not by being right most months.
-5. Turnover is MODERATE (6.1/yr, 50 OOS trades). A one-month-change filter is faster than a year-over-year signal, so transaction costs at the assumed 5 bps per trade are a more material (though still modest) drag, and a fast filter can whipsaw.
-6. COVID 2020 is an extreme in-window episode that drives the winner's best subperiod and can dominate the fit; the PMI is survey-based and lightly revised via seasonal-factor updates.
+- The result is marked `found_in_search`; it still needs a frozen-rule holdout confirmation.
+- {_NO_ARCHIVE}
+- The ISM series in the project's data ends in {W.oos_end}, so the test period ends there; later SPY months are not tested.
+- The previous rule of this page ({W.previous_rule}, run of {W.previous_tag}) was the single highest training Sharpe with fixed lags; the new framework replays it exactly and no longer selects it.
+- Equities often turn before the PMI does, so a lagged PMI rule can stay in cash during the early part of a recovery.
+{_R71_CAVEAT}
 """
 
     TRADE_LOG_EXAMPLE_MD = (
-        "**A concrete example from this pair:** the broker-style log records a "
-        "BUY when the lagged one-month PMI change fell to at or below its "
-        "rolling median (factory momentum weak), taking exposure from 0% to "
-        "100% SPY. A SELL moves back to cash when the lagged change rose above "
-        "the median. Because the one-month change crosses its median a few "
-        "times a year, the log has a moderate number of round-trips (50 OOS "
-        "trades)."
+        "**A concrete example from this pair:** the broker-style log records each switch between SPY and cash "
+        f"that the rule makes when the {_SIG} reading crosses {_THR}. It covers the full reconstructed history "
+        f"({_EV['n_trade_log_rows']} rows), not only the test period."
     )
 
     TRADE_LOG_COLUMN_EXAMPLES = {
-        "trade_date": "1995-06-30",
+        "trade_date": "month end",
         "side": "BUY",
         "instrument": "SPY",
-        "quantity_pct": "100.0",
+        "quantity_pct": "target weight after the trade",
         "commission_bps": "5",
-        "reason": "P1_long_cash: diff_1m countercyclical rule crossed T_roll_p50; position 0% to 100%",
+        "reason": f"{W.signal_code} {W.direction} rule crossed {W.threshold_code}",
     }
 
 
 STRATEGY_CONFIG = StrategyConfig()
 
 
-_DATA_SOURCES_MD = """
+_DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator | Data Master (Institute for Supply Management) | `NAPM`, ISM Manufacturing PMI (diffusion index, SA) | Monthly |
-| Target | Yahoo Finance or local SPY monthly fallback panel | SPY adjusted close / monthly returns | Monthly |
-"""
+| Indicator (today's values; no archive of earlier values exists) | Data Master workbook (ISM Report On Business), pinned snapshot in data/release_calendar/snapshots/ | `ISM_MFG`, ISM Manufacturing PMI, diffusion index, seasonally adjusted | Monthly |
+| Release dates | data/release_calendar/release_calendar.csv (ISM publication calendar: first business day of the following month) | first publication date per month | Monthly |
+| Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted month-end close | Monthly |
+""")
 
 _INDICATOR_CONSTRUCTION_MD = (
-    "The raw indicator is the ISM Manufacturing PMI, a diffusion index bounded "
-    "roughly between 30 and 65 and centered near 50 (the expansion/contraction "
-    "line). Unlike a nominal-dollar level, the PMI is LEVEL-STATIONARY: it "
-    "mean-reverts around ~50, ADF rejects a unit root (p ~ 3.8e-5) and KPSS "
-    "does not reject stationarity, so the level can be used directly. The "
-    "pipeline also constructs the one-month change, the 12-month change, and a "
-    "60-month rolling z-score -- all stationary. The winning signal is "
-    "`ism_diff_1m`, the one-month change in the PMI, used with a four-month "
-    "lead, a rolling 60-month median threshold (rule 'lte'; latest median "
-    "-0.25), and a COUNTERCYCLICAL orientation (long SPY when the lagged "
-    "one-month change is at or below the rolling median -- i.e. after factory "
-    "momentum has weakened). This direction contradicts the procyclical prior "
-    "and is flagged as a search-found caution."
+    "The raw indicator is the ISM Manufacturing PMI, a bounded diffusion index that swings around "
+    f"{PMI_TEXT['neutral']} (the dotted line on the charts); it does not trend, so the level itself is a tradable signal. The pipeline constructs the "
+    f"{SIGNAL_TEXT['level']}; the {SIGNAL_TEXT['diff_1m']}; the {SIGNAL_TEXT['chg_12m']}; and the "
+    f"{SIGNAL_TEXT['zscore_60m']}. Signals and rolling thresholds are computed on the PMI's own monthly dates from "
+    "today's values and then aligned to each month with the release calendar, so a reading is used only after it "
+    f"was published. The winning signal is `{W.signal_code}` ({_SIG}), used with a lead of {W.lead_text}; the "
+    f"reading is compared with {_THR}."
 )
 
-_METHODS_TABLE_MD = """
+_METHODS_TABLE_MD = P.definition_text("""
 | Method | Question It Answers | Why We Chose It |
 |---|---|---|
-| Correlation analysis | Does the PMI move linearly with future SPY returns? | Simple baseline before richer tests |
-| Regime quartiles | Do weak and strong PMI regimes behave differently? | Makes the business-cycle context interpretable |
-| Pre-whitened CCF | Is there any lead-lag echo after filtering persistence? | Reduces false lead-lag signals from autocorrelation |
-| Granger causality | Does past PMI information improve SPY forecasts? | Formal lead-lag check |
-| Local projections | How does SPY respond over future horizons? | Shows horizon-specific effects |
-| Quantile regression | Is the effect different in weak or strong market states? | Tests tail and regime sensitivity |
+| Correlation analysis (Newey-West p-values) | Do PMI signals move linearly with future SPY returns? | Simple baseline before richer tests |
+| Regime quartiles | Do low and high PMI regimes behave differently? | Makes the business-cycle story interpretable |
+| Pre-whitened CCF | Where is the lead-lag relationship strongest after filtering persistence? | Reduces false lead-lag signals from autocorrelation |
+| Granger causality (Holm-adjusted across lags) | Does the past PMI improve SPY forecasts? | Formal lead-lag check |
+| Local projections (Newey-West errors) | How do forward SPY returns relate to the PMI over horizons? | Shows horizon-specific effects |
+| Quantile regression (moving-block bootstrap) | Is the effect different in weak or strong market states? | Tests tail and regime sensitivity |
 | Structural break / rolling correlation | Is the relationship stable across time? | Durability and overfit guard |
-"""
+| Lead-plateau selection (D9) | Is the chosen lead part of a stable range rather than an isolated peak? | Guards against picking a lucky single lead |
+| Chance check (null tournament) | How does the winner compare with contests run on scrambled signals? | Measures how much selection alone can produce |
+| Paired block bootstrap | How uncertain is the Sharpe difference versus buy-and-hold? | Interval for the headline comparison |
+""")
 
-_TOURNAMENT_DESIGN_MD = """
-Grid: four PMI signals (level, one-month change, 12-month change, 60-month z-score) x fixed and rolling thresholds x a long/cash strategy x lead times (1-13 months; the publication-lag floor removed the look-ahead L0 concurrent lead). The final tournament has 312 combinations, all 312 valid. The winning rule is `ism_diff_1m / T_roll_p50 / P1_long_cash countercyclical / L4`, the maximum OOS Sharpe (1.51). The median valid combo (0.68) underperforms buy-and-hold (0.95), and the runner-up (`chg_12m / T_roll_p50 / L1`, 1.41) is a DIFFERENT signal and lead -- so the top of the surface is not a single robust structure. The winner's direction (countercyclical) contradicts both the procyclical prior and the procyclical concurrent quartile evidence, so there is no economic-coherence support for it; it is a selection maximum, not an out-of-sample validation.
+_TOURNAMENT_DESIGN_MD = f"""
+Grid: PMI signals x zero, z-score and rolling-percentile thresholds x the long/cash strategy x procyclical/countercyclical orientations x leads {_GRID_RANGE} months, where the lead is the whole gap between the reading month and the month whose return it trades ({W.n_candidates} declared combinations; {W.n_distinct} distinct position series). The winner is selected on the training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it. There is one data track (today's ISM values), so there is no second winner to compare.
+
+- Winner: `{_RID}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe} ({W.is_start} to {W.is_end}; buy-and-hold {W.bh_is_sharpe}), test-period Sharpe {W.oos_sharpe}. The raw single highest training Sharpe (argmax, {W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}; it is shown for reference and is not the selection rule.{_MAIN_TAIL}
+- Chance check: across {W.null_draws} contests run on circularly shifted PMI data, {_CHANCE_TEXT}.
+- Previous rule of this page: `{W.previous_rule}` ({W.previous_selection}, run of {W.previous_tag}, development version, not published on the main site), with a previous test-period Sharpe of {W.previous_oos_sharpe}. The new framework replays that run exactly (same rows, same winner, same returns).
 """
 
 _REFERENCES_MD = """
-1. Institute for Supply Management, Manufacturing ISM Report On Business (PMI diffusion index).
-2. Data Master, ISM Manufacturing PMI series (`NAPM`).
-3. The Conference Board, Leading Economic Index (the ISM new-orders component is related).
-4. Yahoo Finance, SPY adjusted price history.
-5. Granger, C. W. J. (1969). "Investigating Causal Relations by Econometric Models and Cross-spectral Methods."
-6. Jorda, O. (2005). "Estimation and Inference of Impulse Responses by Local Projections."
+1. Institute for Supply Management, Manufacturing ISM Report On Business (PMI).
+2. Yahoo Finance, SPY adjusted price history.
+3. Granger, C. W. J. (1969). "Investigating Causal Relations by Econometric Models and Cross-spectral Methods."
+4. Jorda, O. (2005). "Estimation and Inference of Impulse Responses by Local Projections."
+5. Newey, W. K., and West, K. D. (1987). "A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix."
+6. Holm, S. (1979). "A Simple Sequentially Rejective Multiple Test Procedure."
+7. Politis, D. N., and Romano, J. P. (1992). "A Circular Block-Resampling Procedure for Stationary Data."
 """
 
 METHODOLOGY_CONFIG = MethodologyConfig(
@@ -706,19 +622,12 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     tournament_design_md=_TOURNAMENT_DESIGN_MD,
     references_md=_REFERENCES_MD,
     sample_period_note=(
-        "Monthly sample from 1993-01-31 to 2025-10-31, with out-of-sample "
-        "window 2017-09-30 to 2025-10-31 (98 months). SPY history limits the "
-        "usable sample even though the PMI begins earlier."
+        f"Monthly sample; training period {W.is_start} to {W.is_end} and test period {W.oos_start} to "
+        f"{W.oos_end}, on today's ISM values (one track; no archive of earlier values). The sample ends with the last "
+        "ISM reading in the project's data."
     ),
     plain_english=(
-        "This page documents how the ISM Manufacturing PMI was turned into "
-        "stationary signals (the level itself is usable, being a bounded, "
-        "mean-reverting diffusion index), how the econometric checks were run, "
-        "and how the tournament selected the final SPY allocation rule -- along "
-        "with the honest caveat that the selection maximum is a COUNTERCYCLICAL "
-        "(contrarian) one-month-change rule read at a four-month lead, whose "
-        "direction contradicts the procyclical prior, whose forecasting power "
-        "is absent in the formal tests, and whose edge is drawdown reduction "
-        "and risk-adjusted behaviour, not yet validated."
+        "This page documents how the ISM Manufacturing PMI was turned into testable signals, how the econometric "
+        "checks were run, and how the tournament selected the final SPY allocation rule."
     ),
 )
