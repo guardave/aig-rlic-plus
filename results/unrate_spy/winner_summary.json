@@ -1,6 +1,6 @@
 {
   "pair_id": "unrate_spy",
-  "generated_at": "2026-10-17T18:09:37.046519+00:00",
+  "generated_at": "2026-10-18T02:41:08.700038+00:00",
   "schema_version": "1.3.0",
   "target_symbol": "SPY",
   "track_policy": "compute_twice",
@@ -175,8 +175,10 @@
         "strategy": "P1",
         "direction": "countercyclical",
         "lead": 4,
-        "is_sharpe": 0.9294091772148677,
-        "oos_sharpe": 0.8083111964353786,
+        "is_sharpe": 0.929409177214868,
+        "oos_sharpe": 0.808311196435379,
+        "replay_is_sharpe": 0.9294091772148677,
+        "replay_oos_sharpe": 0.8083111964353786,
         "tag": "20261016",
         "selection": "raw in-sample Sharpe argmax, revised values, fixed lag"
       }
@@ -345,80 +347,80 @@
         "n_draws": 100,
         "n_unique_offsets": 100,
         "n_draws_without_winner": 0,
-        "n_admissible_offsets": 269,
+        "n_admissible_offsets": 336,
         "span": 561,
-        "max_usable_offset": 381,
-        "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period values inside every vintage), pipeline rebuilt per draw, same selection rule; distinct offsets; R7.1",
+        "max_usable_offset": 448,
+        "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period values inside every vintage, wrapping within that vintage so no reading is lost and every draw trains on the real winner's window), pipeline rebuilt per draw, same selection rule; distinct offsets; R7.1",
         "seed_base": 20261016,
-        "is_max_percentile": 0.36,
-        "p_is": 0.64,
-        "selection_stat_percentile": 0.4,
-        "p_selection_stat": 0.6,
-        "winner_oos_percentile": 0.1,
-        "p_oos": 0.9,
+        "is_max_percentile": 0.89,
+        "p_is": 0.11,
+        "selection_stat_percentile": 0.95,
+        "p_selection_stat": 0.05,
+        "winner_oos_percentile": 0.02,
+        "p_oos": 0.98,
         "null_is_max_p5_p50_p95": [
-          0.8596,
-          1.2055,
-          1.7722
+          0.7918,
+          0.9101,
+          1.1075
         ],
-        "null_winner_oos_median": 0.7544,
-        "edge_share": 0.12,
+        "null_winner_oos_median": 0.8692,
+        "edge_share": 0.16,
         "edge_share_uniform": 0.1667,
         "edge_share_bound": 0.2785,
         "edge_flag": false,
-        "timing_sharpe_mean": -0.0327,
-        "timing_sharpe_sd": 0.2017,
-        "timing_sharpe_se_dependent": 0.0256,
+        "timing_sharpe_mean": 0.0344,
+        "timing_sharpe_sd": 0.1938,
+        "timing_sharpe_se_dependent": 0.0322,
         "timing_sharpe_se_bandwidth": 6,
-        "timing_sharpe_effective_draws": 61.9,
+        "timing_sharpe_effective_draws": 36.3,
         "r71_tolerance": 0.1,
-        "timing_sharpe_mean_all_valid_candidates": -0.0003,
+        "timing_sharpe_mean_all_valid_candidates": 0.0004,
         "r71_pass": true,
         "null_scores_hist": {
           "bins": [
-            0.5931,
-            0.6435,
-            0.694,
-            0.7445,
-            0.7949,
-            0.8454,
-            0.8958,
-            0.9463,
-            0.9967,
-            1.0472,
-            1.0976,
-            1.1481,
-            1.1986,
-            1.249,
-            1.2995,
-            1.3499,
-            1.4004,
-            1.4508,
-            1.5013,
-            1.5517,
-            1.6022
+            0.6542,
+            0.6744,
+            0.6946,
+            0.7148,
+            0.735,
+            0.7552,
+            0.7754,
+            0.7956,
+            0.8159,
+            0.8361,
+            0.8563,
+            0.8765,
+            0.8967,
+            0.9169,
+            0.9371,
+            0.9573,
+            0.9775,
+            0.9977,
+            1.0179,
+            1.0382,
+            1.0584
           ],
           "counts": [
+            3,
+            3,
+            5,
             6,
+            7,
+            10,
+            10,
+            15,
+            10,
+            11,
             1,
-            5,
-            8,
-            9,
-            4,
-            4,
-            3,
-            10,
-            3,
-            5,
-            5,
-            10,
+            0,
             6,
-            4,
             0,
             5,
-            1,
-            4,
-            7
+            3,
+            0,
+            0,
+            0,
+            5
           ]
         }
       }
@@ -587,7 +589,7 @@
         "n_admissible_offsets": 336,
         "span": 561,
         "max_usable_offset": null,
-        "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period values inside every vintage), pipeline rebuilt per draw, same selection rule; distinct offsets; R7.1",
+        "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period values inside every vintage, wrapping within that vintage so no reading is lost and every draw trains on the real winner's window), pipeline rebuilt per draw, same selection rule; distinct offsets; R7.1",
         "seed_base": 20261016,
         "is_max_percentile": 0.96,
         "p_is": 0.04,
@@ -887,12 +889,12 @@
       "text": "1.00"
     },
     "null_percentile": {
-      "value": 0.4,
-      "text": "40%"
+      "value": 0.95,
+      "text": "95%"
     },
     "null_p_is": {
-      "value": 0.64,
-      "text": "0.64"
+      "value": 0.11,
+      "text": "0.11"
     },
     "null_draws": {
       "value": 100,
@@ -1122,6 +1124,10 @@
       "value": "chg_6m|T_roll_p75|P1|countercyclical|4",
       "text": "chg_6m / T_roll_p75 / L4"
     },
+    "previous_selection": {
+      "value": "raw in-sample Sharpe argmax, revised values, fixed lag",
+      "text": "raw in-sample Sharpe argmax, revised values, fixed lag"
+    },
     "previous_lead": {
       "value": 4,
       "text": "4"
@@ -1131,11 +1137,11 @@
       "text": "4 months"
     },
     "previous_oos_sharpe": {
-      "value": 0.8083111964353786,
+      "value": 0.808311196435379,
       "text": "0.81"
     },
     "previous_is_sharpe": {
-      "value": 0.9294091772148677,
+      "value": 0.929409177214868,
       "text": "0.93"
     },
     "previous_tag": {
