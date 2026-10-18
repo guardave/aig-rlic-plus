@@ -207,7 +207,7 @@ Sentiment reacts to the same news that moves stock prices, often in the same mon
     NARRATIVE_SECTION_2 = """
 ### What History Shows
 
-The episodes show sentiment moving with, rather than ahead of, most equity drawdowns, and lagging the recoveries. They are context for reading the strategy result, not evidence that the rule adds value; the test-period comparison with buy-and-hold is on the Strategy page.
+In these episodes sentiment mostly moved with, rather than ahead of, the equity drawdowns, and after the 2020 and 2022 declines it recovered more slowly than SPY. They are context for reading the strategy result, not evidence that the rule adds value; the test-period comparison with buy-and-hold is on the Strategy page.
 """
 
     TRANSITION_TEXT = (
