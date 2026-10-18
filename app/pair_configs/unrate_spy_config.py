@@ -534,7 +534,7 @@ This describes the backtested rule so it can be audited; it is not a trading rec
 2. Granger causality is weak in the generated test results, so this is not a proven causal forecast.
 3. The result is marked `found_in_search`; it still needs a frozen-rule holdout confirmation.
 4. The headline uses unemployment data as known at the time. On today's revised data the selected rule {'is the same' if _SAME_RULE else 'is different'} (test-period Sharpe {W.comparison_oos_sharpe}, hindsight).
-5. The unemployment rate for October 2025 was never published (federal shutdown); the rule uses the latest published reading in that month.
+5. The unemployment rate for October 2025 was never published (federal shutdown). The Sahm-style signal needs that month (its 12-month trailing low carries the gap), so the signal is undefined for the last {W.tail_n_periods} test months ({W.tail_first_date} to {W.tail_last_date}). Under the pre-registered rule an undefined signal means cash, so the strategy held cash there while buy-and-hold returned {W.tail_bh_return}. Holding the last position instead (a sensitivity, not the rule) gives a test-period Sharpe of {W.tail_hold_last_sharpe}.
 {_R71_CAVEAT}
 """
 

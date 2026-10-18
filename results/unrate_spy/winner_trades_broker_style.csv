@@ -26,4 +26,4 @@ trade_date,side,instrument,quantity_pct,trade_size_pct,commission_bps,signal_val
 2024-06-30,BUY,SPY,100.0,100.0,5,0.2,0.208333,0.0,1.0,sahm countercyclical rule crossed T_roll_p75
 2024-07-31,SELL,SPY,0.0,100.0,5,0.266667,0.241667,1.0,0.0,sahm countercyclical rule crossed T_roll_p75
 2025-03-31,BUY,SPY,100.0,100.0,5,0.4,0.408333,0.0,1.0,sahm countercyclical rule crossed T_roll_p75
-2026-04-30,SELL,SPY,0.0,100.0,5,,0.3,1.0,0.0,sahm countercyclical rule crossed T_roll_p75
+2026-04-30,SELL,SPY,0.0,100.0,5,,0.3,1.0,0.0,signal undefined (no published reading for this month): cash under the undefined-means-cash rule
