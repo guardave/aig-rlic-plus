@@ -948,9 +948,10 @@
       "position_shift": 0,
       "lead_floor_effective": 3,
       "release_calendar_series": "NEWORDER",
-      "alignment": "fixed_lag",
+      "alignment": "pit_asof",
       "value_vintage": "revised_alfred",
-      "note": "OUTSTANDING (pkg12 Q8): the data is NEWORDER (core capital goods orders); the originally intended indicator AMTMNO (manufacturers' new orders, total manufacturing) is not yet tested."
+      "note": "Phase B harness (20261018): two tracks (real-time ALFRED NEWORDER vintages = MAIN; revised = comparison), D9 lead-plateau selection on the registry grid L3..L14 with position_shift 0, point-in-time release timing. The 20261016 rule (yoy_zscore_60m/T_roll_p50/procyclical/L7, raw IS-Sharpe argmax on a common IS start, fixed lag, commit 1d06839f) is replayed exactly and kept as the previous rule. The data is NEWORDER (core capital goods orders); the originally intended indicator AMTMNO (total manufacturing new orders) is not tested (pkg12 Q8).",
+      "track_policy": "compute_twice"
     },
     "retail_inv_sales_spy": {
       "signal_frequency": "monthly",
