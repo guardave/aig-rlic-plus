@@ -1,200 +1,242 @@
-"""RSXFS (Advance Retail Sales) x SPY pair configuration (Rule APP-PT1).
+"""Advance retail sales ex food services (FRED RSXFS) x SPY pair configuration (Rule APP-PT1).
 
-New pair, MONTHLY consumer-demand pair. RSXFS ("Advance Retail Sales: Retail
-Trade", FRED, SA, nominal $millions, 1993-2026) is a broadly COINCIDENT
-consumer-demand indicator, NOT a leading one. The nominal-dollar level is
-non-stationary, so every tested signal is a growth transform (MoM/3m/6m/YoY %,
-YoY z-score, acceleration).
-
-HONEST FRAMING (binding). Empirical verdict: retail-sales growth does NOT lead
-SPY. Every number below is sourced from results/rsxfs_spy/*:
-  - Granger RSXFS->SPY is INSIGNIFICANT at every tested lag (minimum
-    p = 0.47 at lag 4); retail-sales growth does not Granger-cause SPY returns
-    (granger_by_lag.csv / core_models_20261008/granger_causality.csv).
-  - Local projections show essentially no linear predictive content:
-    coefficients near zero, only the 12-month horizon is marginally
-    significant (p = 0.007) with a trivial R^2 = 0.019 (local_projections.csv).
-  - Concurrent YoY-growth quartiles vs SPY are roughly procyclical but
-    NON-MONOTONIC: Q1 Sharpe 0.28, Q2 0.70, Q3 1.42 (best), Q4 0.89
-    (regime_quartile_returns.csv).
-  - The tournament winner (`mom` MoM growth / T0_zero growth>0 / procyclical /
-    L9 months / P1_long_cash; OOS Sharpe 1.36 vs B&H 0.99) is the grid maximum
-    over 252 combinations (238 valid). The MEDIAN valid combo scores 0.712 --
-    it UNDERPERFORMS buy-and-hold (0.99). The runner-up is a completely
-    different construction (yoy_zscore_60m / T_z_1.0 / countercyclical / L12,
-    Sharpe 1.289) -> a crowded, flat-topped search surface. This is a
-    found-in-search CANDIDATE, not a validated edge: no frozen-rule holdout /
-    final exam has been run (evidence_status.json = found_in_search).
-  - The defensible virtue is DRAWDOWN REDUCTION (OOS max drawdown -9.6% vs
-    -23.9% for buy-and-hold) and stress-period defense, NOT the headline
-    Sharpe -- read the Sharpe as volatility avoidance. Annual turnover is high
-    (6.78/yr), the fingerprint of noise-driven flipping.
-  - The L9 lead is a PROVEN search artifact: adjacent-lead durability (ECON-LT2)
-    FAILS -- the same rule scores 0.69 at L8 and 0.46 at L10 versus 1.36 at L9,
-    an isolated spike on a multi-peak curve, and the spike survives COVID
-    exclusion (1.27 vs buy-and-hold 0.97) -- i.e. noise-driven, not a real lead.
-  - COVID 2020-21 is an extreme in-window outlier that can dominate the fit.
-
-MONTHLY conventions: leads in MONTHS (winner L9); Sharpe annualized by sqrt(12);
-OOS window 2017-01-31 -> 2026-07-31 (115 months). Numbers sourced from
-results/rsxfs_spy/ (winner_summary.json, kpis.json, evidence_status.json,
-interpretation_metadata.json, core_models_20261008/*, regime_quartile_returns.csv,
-subperiod_sharpe.csv, granger_by_lag.csv, stationarity_tests_20261008.csv,
-structural_break_rsxfs_spy.json, tournament_results_20261008.csv).
+The indicator is RSXFS, Advance Retail Sales: Retail Trade (retail sales excluding food services, U.S. Census
+Bureau); its first print is the advance estimate, revised in later reports. Phase B: every result number is rendered from the structured winner fields (results/rsxfs_spy/
+winner_summary.json `winner_fields`, via components.winner_fields), the track summary, or the evidence tables and
+derived facts declared in evidence_facts_<tag>.json; none is typed here (scripts/gate_structured_prose.py,
+scripts/gate_number_provenance.py). MAIN = as known at the time (real-time RSXFS vintages); COMPARISON = as
+revised today (hindsight). The previous rule (raw in-sample Sharpe argmax, fixed lags, development run 20261016) is
+replayed exactly by the harness; the correction banner names it from the previous_* fields and names the older
+rule still shown on the main site from the 20261016 selection record. The pre-Phase-B prose (a hand-typed
+headline Sharpe and a lead in words that did not match the rule) is replaced by provenance-loaded text.
 """
 
 from __future__ import annotations
 
+from pathlib import Path
+
+from components import provenance as P
 from components.page_templates import MethodologyConfig
+from components.winner_fields import load
+
+PAIR = "rsxfs_spy"
+W = load(PAIR)
+_RES = Path(__file__).resolve().parents[2] / "results" / PAIR
+_WS = P.json_file(_RES / "winner_summary.json")
+_TAG = _WS["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
+_CORE = _RES / f"core_models_{_TAG}"
+_Q = P.col_dict(P.csv_file(_RES / "regime_quartile_returns.csv"), "quartile", "sharpe")
+_QR_T = P.csv_file(_CORE / "quantile_regression.csv")
+_QR = P.col_dict(_QR_T, "quantile", "coef")
+_QR_P = P.col_dict(_QR_T, "quantile", "p_value")
+_QT = P.json_file(_CORE / "quantile_equality_test.json")
+_LP_T = P.csv_file(_CORE / "local_projections.csv")
+_LP_COEF = P.col_dict(_LP_T, "horizon", "coef")
+_LP_P = P.col_dict(_LP_T, "horizon", "p_value")
+_LP_LAGS = P.col_dict(_LP_T, "horizon", "nw_lags")
+_TS = P.json_file(_RES / "track_summary.json")
+_EV = P.json_file(_RES / f"evidence_facts_{_TAG}.json")["derived"]
+_G_P = _EV["granger_min_p"]
+_G_PADJ = _EV["granger_min_p_bonferroni"]
+_ALPHA = _EV["significance_p"]
+_G_SIG = bool(_G_PADJ < _ALPHA)
+_NT = _TS.get("null_tournament") or {}
+_MAN = P.json_file(_RES / f"candidates_manifest_{_TAG}.json")
+_GRID = P.lead_grid(PAIR)
+_GRID_RANGE = f"L{_GRID[0]}-L{_GRID[-1]}"
+_EDGE = bool(((_WS.get("tracks") or {}).get("main") or {}).get("plateau", {}).get("grid_edge"))
+_CCF_LEAD = _EV["ccf_sales_first"]["lag"]
+_REV = _EV["revision"]
+_CCF_LAG = _EV["ccf_spy_first"]["lag"]
+
+
+def _lags(v) -> str:
+    return ", ".join(str(x) for x in v) if len(v) else "none"
+
+
+def _r71_caveat() -> str:
+    """Chance-check calibration disclosure (R7.1), rendered from the null diagnosis in track_summary.json."""
+    fails = [(lbl, d) for lbl, ok, d in (("as known at the time", _NT.get("r71_pass"), _NT.get("r71_diagnosis")),
+                                         ("as revised today", _NT.get("revised_r71_pass"), _NT.get("revised_r71_diagnosis")))
+             if ok is False]
+    if not fails:
+        return ""
+    body = " ".join(f"On data {lbl}: {d['reading']}" if d else f"On data {lbl}: no diagnosis recorded."
+                    for lbl, d in fails)
+    return ("- **Chance-check calibration.** The scrambled contests should show no timing skill on average "
+            "(the R7.1 check); here they do not meet it. " + body + " Where the check is not met, that track's "
+            "chance-check percentile compares its winner against a null that carries the same effect.\n")
+
+
+_R71_CAVEAT = _r71_caveat()
+_CHANCE_TEXT = (f"the real winner's stable-range score is above the winners of all {W.null_draws} scrambled contests"
+                if W.value("null_percentile") == 1 else
+                f"the real winner's stable-range score ranks at the {W.null_percentile} point of the scrambled scores")
+_COMP_TAIL = (
+    f" On the revised track the last test month ({W.comparison_tail_first_date} to {W.comparison_tail_last_date}) "
+    "has no defined position because the revised series ends before the return data; the published "
+    f"figure counts it as cash, and holding the last defined position instead gives a test-period Sharpe of "
+    f"{W.comparison_tail_hold_last_sharpe}."
+    if W.has("comparison_tail_n_periods") else "")
+
+THRESHOLD_TEXT = P.definitions({
+    "T_roll_p25": "its rolling 60-month 25th percentile",
+    "T_roll_p50": "its rolling 60-month median",
+    "T0_zero": "zero",
+    "T_z_0": "zero (its average over the z-score window)",
+    "T_z_1.0": "1.0 (one standard deviation above its average over the z-score window)",
+})
+SIGNAL_TEXT = P.definitions({
+    "yoy": "year-over-year growth in retail sales",
+    "mom": "month-over-month growth in retail sales",
+    "chg_3m": "3-month growth in retail sales",
+    "chg_6m": "6-month growth in retail sales",
+    "yoy_zscore_60m": "z-score of year-over-year retail sales growth versus its 60-month history",
+    "accel": "change in year-over-year retail sales growth",
+})
+SIDE = {"countercyclical": "at or below", "procyclical": "at or above"}
+
+
+def _rule(prefix: str = "") -> str:
+    """Plain-English long/cash rule of a track's winner, from its structured fields."""
+    g = lambda n: W.text(prefix + n)  # noqa: E731
+    sig = f"the {SIGNAL_TEXT.get(W.value(prefix + 'signal_code'), g('signal_code'))} from {g('lead_word')} months earlier"
+    side = SIDE.get(W.value(prefix + "direction"), g("direction"))
+    thr = THRESHOLD_TEXT.get(W.value(prefix + "threshold_code"), g("threshold_code"))
+    return f"hold SPY when {sig} is {side} {thr}; otherwise hold cash"
+
+
+def _rid(prefix: str = "") -> str:
+    g = lambda n: W.text(prefix + n)  # noqa: E731
+    return " / ".join([g("signal_code"), g("threshold_code"), g("strategy_family"), f"L{g('lead')}"])
+
+
+_SIG = SIGNAL_TEXT.get(W.value("signal_code"), W.signal_code)
+_THR = THRESHOLD_TEXT.get(W.value("threshold_code"), W.threshold_code)
+_RULE = _rule()
+_RID = _rid()
+_RID_REVISED = _rid("comparison_")
+_RULE_REVISED = _rule("comparison_")
+_SAME_RULE = all(W.value(k) == W.value("comparison_" + k)
+                 for k in ("signal_code", "threshold_code", "lead", "strategy_family", "direction"))
+_IF_THEN = (
+    f"- **IF** `{W.signal_code}` from {W.lead_word} months earlier is {SIDE.get(W.value('direction'), W.direction)} "
+    f"{_THR} -> hold SPY.\n- **ELSE** -> hold cash."
+)
+
+
+_REV_TEXT = (
+    f"Across the {_REV['n_months']} months from {_REV['first_month']} to {_REV['last_month']}, the first-printed "
+    f"month-over-month growth differs from today's revised figure by {_REV['mom']['mean_abs_revision_pp']:.2f} "
+    f"percentage points on average and has the opposite sign in {_REV['mom']['sign_changed_share']:.0%} of months; "
+    f"for year-over-year growth the average gap is {_REV['yoy']['mean_abs_revision_pp']:.2f} points and the sign "
+    f"differs in {_REV['yoy']['sign_changed_share']:.0%} of months."
+)
 
 
 class StoryConfig:
-    PAGE_TITLE = "The Story: Retail-Sales Growth as a Defensive SPY Overlay"
+    PAGE_TITLE = "The Story: Retail Sales as a Signal for SPY"
     PAGE_SUBTITLE = (
-        "U.S. Advance Retail Sales (FRED RSXFS) x S&P 500 (SPY), monthly "
-        "consumer-demand growth signals tested against SPY returns."
+        "Advance retail sales excluding food services (FRED RSXFS) x S&P 500 (SPY): monthly consumer-spending "
+        "signals tested against SPY returns."
     )
 
     HEADLINE_H2 = (
-        "## Sharpe 1.36 OOS, but the honest headline is the drawdown: the "
-        "searched rule cut the worst loss from -23.9% to -9.6% while retail "
-        "sales did NOT lead the market"
+        f"## Test-period Sharpe {W.oos_sharpe} (buy-and-hold SPY: {W.bh_oos_sharpe}), "
+        "using retail sales data as known at the time"
     )
 
     PLAIN_ENGLISH = (
-        "RSXFS is U.S. Advance Retail Sales -- roughly how much Americans "
-        "spent at stores and restaurants each month, in nominal dollars. It is "
-        "one of the cleanest reads on consumer demand, the largest part of the "
-        "economy. Because spending tracks the cycle as it happens, retail "
-        "sales is a COINCIDENT indicator, not an early-warning one. This pair "
-        "tests whether retail-sales growth can improve SPY timing. The result "
-        "should be read as procyclical demand context and drawdown control, "
-        "not as a forecast: the formal lead-lag tests find no predictive edge."
+        "Every month the Census Bureau reports how many dollars U.S. retailers took in, here excluding restaurants "
+        "and bars. The first figure, the advance estimate, comes out in the middle of the following month and is "
+        "based on a smaller sample; it is revised in the following monthly reports and again in annual revisions. Because "
+        "the dollar level grows over time, this pair tests growth rates of retail sales, not the level, as SPY "
+        "timing signals. The headline uses the values as they were published at each date, not today's revised "
+        "values. " + _REV_TEXT
     )
 
     WHERE_THIS_FITS = (
-        "This is a procyclical consumer-demand overlay for broad U.S. "
-        "equities. It belongs in the portal as a defensive context signal: "
-        "useful for drawdown control in the searched sample, but not a "
-        "standalone forecast. Readers wanting genuine advance warning should "
-        "look at the leading pairs in the catalog; retail sales is a "
-        "coincident cousin of the harder demand data."
+        "This is a consumer-spending indicator, broadly coincident with the business cycle rather than leading it. "
+        "Read it alongside the portal's other consumer pairs, such as consumer sentiment."
     )
 
     ONE_SENTENCE_THESIS = (
-        "Retail-sales growth is procyclical with equities but does NOT lead "
-        "SPY -- Granger is insignificant at every lag (min p = 0.47) and "
-        "local projections are essentially null -- so the search's best rule "
-        "is a drawdown-reduction candidate (-9.6% vs -23.9% max drawdown), a "
-        "found-in-search maximum whose 9-month lead is likely an artifact of a "
-        "coincident indicator."
+        f"On data as known at the time, the rule selected on the training period is to {_RULE}; in the test period "
+        f"it scored Sharpe {W.oos_sharpe}, and buy-and-hold SPY scored {W.bh_oos_sharpe}."
     )
 
     KPI_CAPTION = (
-        "every performance number here is a SEARCH-PHASE, out-of-sample figure "
-        "on a 115-month window (2017-01-31 -> 2026-07-31). The winner was "
-        "found as the best of 238 valid combinations out of 252 scanned, and "
-        "the MEDIAN valid combo (0.712) UNDERPERFORMS buy-and-hold (0.99) -- "
-        "the typical rule subtracts value. The defensible number is the max "
-        "drawdown (-9.6% vs -23.9%) at a comparable return -- read the Sharpe "
-        "(1.36 vs 0.99) as volatility avoidance, not stock-picking skill. "
-        "Sharpe ratios use monthly sqrt(12) annualization."
+        f"Winner selected on training data ({W.is_start} to {W.is_end}) by {W.selection_objective}: "
+        f"{_SIG}, {W.threshold_code}, long/cash, lead {W.lead_text}. Test-period Sharpe {W.oos_sharpe}; "
+        f"buy-and-hold SPY {W.bh_oos_sharpe} ({W.oos_start} to {W.oos_end})."
     )
 
-    HERO_TITLE = "U.S. Advance Retail Sales vs the S&P 500 (SPY)"
+    HERO_TITLE = "Retail Sales Growth vs the S&P 500 (SPY)"
     HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
-        "How to read it: the retail-sales level (nominal $, left axis) is "
-        "shown with SPY on the same time axis, NBER recessions shaded. Both "
-        "trend up over decades; the traded signal is not the level (it is "
-        "non-stationary) but its month-over-month growth. Watch the shaded "
-        "recessions -- retail sales fell during them, but it fell alongside "
-        "the market, not before it."
+        "How to read it: year-over-year growth in retail sales excluding food services (left axis, today's revised "
+        "values) is shown with SPY (right axis, log scale) on the same time axis. Gray bands are NBER recessions; "
+        "pink bands mark months when retail sales were below their year-earlier level."
     )
 
-    REGIME_TITLE = "What History Shows: SPY Performance by Retail-Sales Growth Regime"
+    REGIME_TITLE = "What History Shows: SPY Performance by Retail Sales Growth Regime"
     REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
-        "What this shows: months are sorted from Q1 (weakest retail-sales "
-        "growth) to Q4 (strongest), with concurrent SPY Sharpe in each. The "
-        "pattern is roughly procyclical but NON-MONOTONIC: Q3 is best "
-        "(Sharpe 1.42), ahead of Q4 (0.89), with Q1 (0.28) and Q2 (0.70) "
-        "below -- there is no clean 'stronger consumer = better market' "
-        "gradient. Descriptive and concurrent, not a tradable lead."
+        f"What this shows: months sorted by year-over-year retail sales growth, from Q1 (weakest) to Q4 "
+        f"(strongest). Same-month SPY Sharpe is {_Q['Q1']:.2f} in Q1, {_Q['Q2']:.2f} in Q2, {_Q['Q3']:.2f} in Q3 "
+        f"and {_Q['Q4']:.2f} in Q4."
     )
 
-    NARRATIVE_SECTION_1 = """
+    NARRATIVE_SECTION_1 = f"""
 ### Headline Findings
 
-The winning rule is a **month-over-month retail-sales-growth filter**. It holds SPY when retail-sales growth from nine months earlier was positive (above zero), and holds cash otherwise. Out-of-sample (2017-01 to 2026-07), this rule earns a Sharpe of 1.36 versus 0.99 for buy-and-hold, with a maximum drawdown of **-9.6% versus -23.9%** at an annualized return of 16.9% versus 15.2%. Read that as the honest headline: the rule's edge is a much shallower worst-case loss, not a return advantage.
+This result uses data as known at the time, covering {W.is_start} to {W.oos_end}: every month the rule reads retail sales as they were published then, starting from the advance estimate, not today's revised values.
+
+The winning rule uses the **{_SIG}** (long/cash): {_RULE}. It was selected on the training period ({W.is_start} to {W.is_end}) by {W.selection_objective} (stable lead range {W.plateau_range}), out of {W.n_valid} valid combinations ({W.n_distinct} distinct position series). In the test period ({W.oos_start} to {W.oos_end}) it records Sharpe {W.oos_sharpe} (buy-and-hold SPY: {W.bh_oos_sharpe}), with maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}. The test-period Sharpe difference is {W.sharpe_gap} (95% interval {W.ci_low} to {W.ci_high}).
+
+On today's revised data (hindsight, for comparison only) the selected rule {'is the same' if _SAME_RULE else 'is to ' + _RULE_REVISED}; its test-period Sharpe is {W.comparison_oos_sharpe}.
 
 ### The Consumer-Demand Hypothesis
 
-Retail sales measures household consumption, the largest component of GDP. A strong consumer is a risk-on signal for equities; softening spending is an early sign that demand is cooling. That is the economic prior this pair tests: retail-sales growth should be **procyclical** with SPY.
+Household spending is the largest part of the economy, and retail sales are its most timely monthly measure. Firm sales growth supports company revenues and earnings, so the prior is procyclical: hold SPY when retail sales growth is firm, and step aside when it weakens.
 
-The prior is broadly borne out concurrently -- strong-growth quartiles carry higher SPY Sharpe than weak-growth ones -- but the relationship is non-monotonic (Q3 beats Q4), and, crucially, it is **coincident**, not leading. Retail sales moves with the cycle, not ahead of it.
+### Why Timing Is Difficult
 
-### Why This Is Not a Forecast
-
-The formal lead-lag tests are blunt. Retail-sales growth does **not** Granger-cause SPY returns at any tested lag (minimum p = 0.47), and local projections find essentially no linear predictive content (only the 12-month horizon is marginally significant, with a trivial R^2 of 0.019). So the 9-month lead the search selected is economically implausible for a coincident indicator -- and the adjacent-lead durability check confirms it is a search artifact: the same rule scores just 0.69 at L8 and 0.46 at L10 versus 1.36 at L9 (an isolated spike, not a ridge), and the high 6.78-per-year turnover is the fingerprint of a rule flipping on noise. This dashboard therefore treats the pair as a searched, procyclical demand overlay whose value, if any, is defensive.
+Retail sales move with the business cycle rather than ahead of it, and the stock market usually prices a consumer slowdown before the sales data show it. The first estimate is revised, sometimes enough to change the sign of a month's growth. Sales are also measured in current dollars, so inflation can keep reported growth positive while real spending slows.
 """
 
     HISTORY_ZOOM_EPISODES = [
-        {
-            "slug": "dotcom",
-            "title": "Dot-Com Recession",
-            "narrative": (
-                "Consumer spending softened as the tech bubble unwound, but "
-                "retail-sales growth moved alongside the equity downturn rather "
-                "than warning ahead of it -- the coincident character is "
-                "visible here."
-            ),
-            "caption": "Dot-Com: consumer demand softened with the market, not before it.",
-        },
-        {
-            "slug": "gfc",
-            "title": "Global Financial Crisis",
-            "narrative": (
-                "Retail sales fell sharply through the Global Financial Crisis "
-                "as the consumer retrenched. The drop confirmed the recession; "
-                "it did not precede the equity peak."
-            ),
-            "caption": "GFC: retail sales fell sharply, coincident with the bust.",
-        },
-        {
-            "slug": "covid",
-            "title": "COVID Shock",
-            "narrative": (
-                "Retail sales collapsed in spring 2020 and rebounded violently "
-                "on stimulus and reopening. This is an extreme, exogenous "
-                "in-window outlier that can dominate the backtest fit -- read "
-                "any rule that leans on it with caution."
-            ),
-            "caption": "COVID: extreme collapse and rebound, an outlier that can dominate the fit.",
-        },
-        {
-            "slug": "inflation_2022",
-            "title": "2022 Rate Shock",
-            "narrative": (
-                "Nominal retail sales stayed high through 2022 because prices "
-                "were rising, even as equities de-rated. This is the key "
-                "caveat of a nominal-dollar series: inflation can keep the "
-                "growth signal positive while the market falls."
-            ),
-            "caption": "2022: nominal sales stayed high on inflation while SPY sold off.",
-        },
+        {"slug": "dotcom", "title": "Dot-Com Bust",
+         "narrative": ("Retail sales growth peaked in 1999 and slowed through 2000 and 2001, but sales fell below "
+                       "their year-earlier level only in a few single months (March and September 2001, October "
+                       "2002). Consumers kept spending while SPY fell from its 2000 peak to its late-2002 low."),
+         "caption": "Dot-Com: retail sales growth slowed but stayed mostly positive while SPY fell until late 2002."},
+        {"slug": "gfc", "title": "Global Financial Crisis",
+         "narrative": ("Retail sales growth held up through 2007 while SPY peaked in October 2007, and slowed "
+                       "only during 2008. Sales fell below their year-earlier level from August 2008 to October "
+                       "2009, with the deepest fall in March 2009, a month after SPY's low."),
+         "caption": "GFC: SPY peaked in 2007, retail sales turned negative only in August 2008 and bottomed after SPY."},
+        {"slug": "covid", "title": "COVID Shock",
+         "narrative": ("Retail sales fell below their year-earlier level only from March to May 2020, with the "
+                       "deepest fall in April 2020. In 2021 they grew at the fastest rate of the window, partly "
+                       "against the depressed 2020 base, as SPY recovered."),
+         "caption": "COVID: retail sales collapsed in spring 2020 and rebounded strongly in 2021."},
+        {"slug": "inflation_2022", "title": "2022 Inflation Shock",
+         "narrative": ("Nominal retail sales grew year over year in every month of 2022, helped by inflation, while "
+                       "SPY fell to its September 2022 low. Growth then faded to around zero, with several months "
+                       "below the year-earlier level between March 2023 and June 2024, while SPY was recovering."),
+         "caption": "2022: nominal retail sales kept growing while equities fell."},
     ]
 
     NARRATIVE_SECTION_2 = """
 ### What History Shows
 
-The stress charts show why the signal is procyclical but imperfect. Retail sales fell during the Dot-Com, GFC and COVID recessions -- but coincidentally with the market, not ahead of it. And in 2022 the nominal series stayed high on inflation while SPY sold off, exactly when a demand signal would have been most useful. The strongest honest reading is not "retail sales predicts drawdowns"; it is that a lagged, positive-growth filter happened to step to cash during several stress windows, which is where its drawdown advantage was earned.
+Retail sales growth turned negative late in the 2008 downturn and briefly in 2020, and it bottomed at or after the equity lows; in 2001 and 2022 sales kept growing in nominal terms while equities fell. These episodes are context for reading the strategy result, not evidence that the rule adds value; the test-period comparison with buy-and-hold is on the Strategy page.
 """
 
     TRANSITION_TEXT = (
-        "The Evidence page tests whether this consumer-demand story survives "
-        "correlation, lead-lag, regime, and strategy checks. It largely does "
-        "not survive as a forecast -- the value is defensive, not predictive."
+        "The Evidence page tests whether this consumer-demand story survives correlation, lead-lag, regime and "
+        "strategy checks."
     )
 
 
@@ -204,323 +246,231 @@ STORY_CONFIG = StoryConfig()
 CORRELATION_BLOCK = dict(
     chart_status="ready",
     method_name="Correlation Analysis",
-    method_theory=(
-        "Correlation measures whether retail-sales growth and future SPY "
-        "returns move together in a roughly linear way."
-    ),
-    question="Does faster retail-sales growth line up with better or worse future SPY returns?",
+    method_theory="Correlation measures whether retail sales growth signals and future SPY returns move together in a roughly linear way.",
+    question="Does stronger retail sales growth line up with better or worse future SPY returns?",
     how_to_read=(
-        "Read the heatmap by horizon and signal transform. Positive values "
-        "mean stronger retail-sales growth lines up with stronger future SPY "
-        "returns; pale cells mean no association."
+        "Read the heatmap by signal and horizon. Positive values mean stronger retail sales growth lines up with "
+        f"stronger future SPY returns; negative values mean the opposite. A star marks a p-value below {_ALPHA} "
+        "from Newey-West standard errors, which allow for the overlap of multi-month returns."
     ),
     chart_name="correlation_heatmap",
-    chart_caption=(
-        "What this shows: the linear association is weak at every tradeable "
-        "horizon. The clearest cell is a mild NEGATIVE reading of YoY growth "
-        "vs 12-month-forward SPY (r = -0.14), which is not a procyclical "
-        "forecasting signal."
-    ),
+    chart_caption="What this shows: linear correlations between each retail sales growth transform and forward SPY returns at several horizons.",
     observation=(
-        "No transform shows a strong linear association with forward SPY at "
-        "short horizons; the only non-trivial cell is YoY growth vs the "
-        "12-month-forward return (r = -0.14, p = 0.007)."
+        "Year-over-year growth and its z-score are persistent, so overlapping forward-return correlations carry "
+        "less independent evidence than their sample size suggests; the p-values account for that overlap."
     ),
-    interpretation=(
-        "Correlation alone does not support trading the pair. The more "
-        "relevant question is whether a lagged growth filter improves "
-        "portfolio behavior in the searched sample."
-    ),
-    key_message="Retail-sales growth is not a simple linear SPY predictor at any tradeable horizon.",
+    interpretation="Correlation alone is not enough to trade the pair; the tournament asks whether a lagged rule improves portfolio behavior.",
+    key_message="Correlations describe the pair; they do not select the rule.",
 )
 
 GRANGER_BLOCK = dict(
     chart_status="ready",
     method_name="Granger Causality by Lag",
-    method_theory=(
-        "Granger causality tests whether past values of one series improve "
-        "forecasts of another after accounting for its own history."
-    ),
-    question="Does retail-sales growth lead SPY returns in a formal lag test?",
+    method_theory="Granger causality tests whether past values of one series improve forecasts of another after accounting for its own history.",
+    question="Does past year-over-year retail sales growth help forecast SPY returns in a formal lag test?",
     how_to_read=(
-        "Bars show p-values by monthly lag; the dashed line marks the 5% "
-        "significance level. Bars ABOVE the line are insignificant."
+        "Bars show the unadjusted p-value of the test at each monthly lag. Because several lags are tried, the "
+        "smallest p-value is also shown Bonferroni-adjusted (multiplied by the number of lags); the "
+        "dotted line is the matching threshold."
     ),
     chart_name="granger_f_by_lag",
     chart_caption=(
-        "What this shows: every lag is insignificant. The smallest p-value "
-        "across lags 1-12 is 0.47 -- retail-sales growth does not "
-        "Granger-cause SPY returns."
+        f"What this shows: the smallest retail-sales-to-SPY Granger p-value across the {_EV['n_granger_lags']} "
+        f"monthly lags tried is {_G_P:.3f} (lag {_EV['granger_best']['lag']}), {_G_PADJ:.3f} after the Bonferroni "
+        "adjustment."
     ),
     observation=(
-        "Across all twelve monthly lags the RSXFS->SPY p-value never falls "
-        "below 0.47; the F-statistics are tiny. There is no formal evidence "
-        "of lead-lag causality."
+        f"The smallest p-value is {_G_P:.3f}; adjusted for the {_EV['n_granger_lags']} lags tried it is {_G_PADJ:.3f}"
+        + (f", below {_ALPHA}." if _G_SIG else f", not below {_ALPHA}.")
     ),
-    interpretation=(
-        "This rules out a causal claim. The strategy must be framed as a "
-        "searched procyclical overlay, not proof that retail sales causes "
-        "future SPY returns."
-    ),
-    key_message="Formal lead-lag evidence is absent (min p = 0.47); retail sales does not lead SPY.",
+    interpretation="A Granger result is a statement about linear forecasting on revised data, not proof that retail sales cause SPY returns.",
+    key_message="Formal lead-lag evidence is reported as tested; read it with the tournament, not instead of it.",
 )
 
 QUARTILE_BLOCK = dict(
     chart_status="ready",
     method_name="Regime Quartile Analysis",
-    method_theory=(
-        "Quartile analysis sorts months by retail-sales YoY growth and "
-        "compares concurrent SPY returns across consumer-demand regimes."
-    ),
-    question="Do weak and strong consumer-demand regimes produce different SPY outcomes?",
-    how_to_read=(
-        "Q1 is the weakest-growth regime; Q4 is the strongest. Compare "
-        "Sharpe, average return, and sample size across the four buckets."
-    ),
+    method_theory="Quartile analysis sorts months by year-over-year retail sales growth and compares SPY returns across the quartile groups.",
+    question="Do months of weak and strong retail sales growth produce different SPY outcomes?",
+    how_to_read=("Q1 holds the months with the weakest year-over-year retail sales growth; Q4 the months with the "
+                 "strongest. Compare Sharpe, average return and sample size."),
     chart_name="regime_stats",
     chart_caption=(
-        "What this shows: broadly procyclical but NON-MONOTONIC -- Q3 has the "
-        "highest concurrent SPY Sharpe (1.42), ahead of Q4 (0.89), with Q1 "
-        "(0.28) and Q2 (0.70) below."
+        f"What this shows: same-month SPY Sharpe by quartile of year-over-year retail sales growth, {_Q['Q1']:.2f} "
+        f"in Q1 (weakest) and {_Q['Q4']:.2f} in Q4 (strongest)."
     ),
-    observation=(
-        "Concurrent SPY Sharpe rises from 0.28 in Q1 to a peak of 1.42 in Q3, "
-        "then eases to 0.89 in Q4 -- higher growth generally coincides with "
-        "better equity conditions, but not monotonically."
-    ),
-    interpretation=(
-        "The pattern fits a procyclical consumer-demand story, but the "
-        "non-monotonicity (Q3 > Q4) and its concurrent nature mean it is "
-        "descriptive context, not a tradable lead."
-    ),
-    key_message="Stronger consumer demand coincides with better SPY conditions, but non-monotonically and concurrently.",
+    observation=f"SPY Sharpe in the same months: Q1 {_Q['Q1']:.2f}, Q2 {_Q['Q2']:.2f}, Q3 {_Q['Q3']:.2f}, Q4 {_Q['Q4']:.2f}.",
+    interpretation="Quartiles are concurrent, not predictive: they show the backdrop, while the tournament tests lagged rules.",
+    key_message="Retail sales growth regimes describe the equity backdrop.",
 )
 
 CCF_BLOCK = dict(
     chart_status="ready",
     method_name="Pre-Whitened Cross-Correlation",
-    method_theory=(
-        "Pre-whitened cross-correlation filters each series' own persistence "
-        "before testing whether one tends to move before or after the other."
-    ),
-    question="At which offsets does retail-sales growth line up with SPY returns?",
-    how_to_read=(
-        "Bars outside the dashed confidence band mark unusual lead-lag "
-        "correlation after filtering autocorrelation. Positive offsets mean "
-        "retail sales leads; negative offsets mean SPY leads."
-    ),
+    method_theory="Cross-correlation on first differences filters persistence before testing whether one series tends to move before or after the other.",
+    question="At which offsets do changes in retail sales growth line up with SPY returns?",
+    how_to_read="Positive lags mean retail sales growth moves first; negative lags mean SPY moves first. Bars outside the dashed band mark offsets with unusually large correlation.",
     chart_name="ccf_prewhitened",
-    chart_caption=(
-        "What this shows: there is no coherent, clustered lead-side window in "
-        "which retail-sales growth foreshadows SPY returns -- consistent with "
-        "a coincident indicator."
-    ),
+    chart_caption="What this shows: correlation of the monthly change in year-over-year retail sales growth with SPY returns at offsets in months.",
     observation=(
-        "The cross-correlation does not resolve into a stable lead structure; "
-        "any bars near the band are scattered rather than clustered on the "
-        "lead side."
+        f"Offsets (months) outside the band where retail sales growth moves first: {_lags(_CCF_LEAD)}; where SPY "
+        f"moves first: {_lags(_CCF_LAG)}."
     ),
-    interpretation=(
-        "The chart supports treating the pair as a coincident/contemporaneous "
-        "relationship rather than a mechanical forecast with a fixed lead."
-    ),
-    key_message="There is no coherent lead window; the relationship is coincident.",
+    interpretation="Isolated significant bars are expected by chance across many offsets.",
+    key_message="Equities often price the consumer cycle before the retail sales data show it.",
 )
 
 LOCAL_PROJECTIONS_BLOCK = dict(
     chart_status="ready",
     method_name="Local Projections",
-    method_theory=(
-        "Local projections estimate how future SPY returns respond across "
-        "multiple horizons after a change in the retail-sales-growth signal."
-    ),
-    question="How does SPY respond after retail-sales growth changes?",
+    method_theory="Local projections estimate how future SPY returns line up with year-over-year retail sales growth over several horizons.",
+    question="How do forward SPY returns relate to year-over-year retail sales growth at different horizons?",
     how_to_read=(
-        "Each bar is an estimated future SPY response after a move in the "
-        "retail-sales-growth signal. Coefficients near zero mean no "
-        "detectable effect."
+        "Each bar is the estimated forward SPY return per percentage point of year-over-year retail sales growth; "
+        "whiskers are 95% intervals from Newey-West standard errors with at least horizon-minus-one lags."
     ),
     chart_name="local_projections",
     chart_caption=(
-        "What this shows: coefficients are essentially zero across horizons; "
-        "only the 12-month horizon is marginally significant (p = 0.007) with "
-        "a trivial R^2 of 0.019."
+        f"What this shows: slopes from {_LP_COEF[1]:+.4f} at the 1-month horizon (p {_LP_P[1]:.2f}) to "
+        f"{_LP_COEF[12]:+.4f} at the 12-month horizon (p {_LP_P[12]:.2f}, {_LP_LAGS[12]} Newey-West lags)."
     ),
-    observation=(
-        "Point estimates are near zero at 1, 3 and 6 months; the only "
-        "significant horizon is 12 months, and even there the explained "
-        "variance is negligible (R^2 = 0.019)."
-    ),
-    interpretation=(
-        "There is essentially no linear predictive content. The lone "
-        "12-month result is economically trivial and does not rescue a "
-        "forward-looking reading of the indicator."
-    ),
-    key_message="Local projections are near-null; retail-sales growth carries no useful linear forecast for SPY.",
+    observation="The raw macro relationship is shown here, not the final lagged tournament rule.",
+    interpretation="Overlapping horizons share observations; the Newey-West errors widen the intervals accordingly.",
+    key_message="The horizon matters for retail sales growth signals.",
 )
 
 QUANTILE_BLOCK = dict(
     chart_status="ready",
     method_name="Quantile Regression",
-    method_theory=(
-        "Quantile regression checks whether the retail-sales signal matters "
-        "differently in weak, normal, and strong SPY return environments."
-    ),
-    question="Does retail-sales growth behave differently in market tails?",
+    method_theory="Quantile regression checks whether retail sales growth matters differently in weak, normal and strong SPY return environments.",
+    question="Does retail sales growth behave differently in market tails?",
     how_to_read=(
-        "Compare the signal coefficient across return quantiles. A larger "
-        "coefficient means a stronger association with that part of the SPY "
-        "return distribution."
+        "Compare the retail sales growth coefficient across quantiles of the 3-month forward SPY return. Intervals "
+        "and p-values come from a moving-block bootstrap, which allows for overlapping 3-month returns."
     ),
     chart_name="quantile_coef",
     chart_caption=(
-        "What this shows: real quantile-regression slopes swing from mildly "
-        "positive in the lower (deep-selloff) tail (+0.003 at tau=0.10, not "
-        "significant) to negative through the middle and upper quantiles (only "
-        "tau=0.50 is significant, p=0.05). A cross-quantile equality test does "
-        "not reject at 5% but is suggestive (Wald p=0.09)."
+        f"What this shows: slopes of the 3-month forward SPY return on year-over-year retail sales growth, "
+        f"{_QR[0.1]:+.4f} at tau=0.10 (p {_QR_P[0.1]:.2f}) and {_QR[0.5]:+.4f} at tau=0.50 (p {_QR_P[0.5]:.2f}); "
+        f"a cross-quantile equality test does {'not ' if not _QT['reject_equality'] else ''}reject a uniform slope "
+        f"(Wald p={_QT['p_value']:.2f})."
     ),
     observation=(
-        "Point estimates vary across quantiles, but only the median slope is "
-        "individually significant and the bootstrap Wald test does not reject "
-        "slope equality at the 5% level (p=0.09). The evidence for tail "
-        "asymmetry is weak and inconclusive, not a clean uniform null."
+        f"The block-bootstrap Wald test {'does not reject' if not _QT['reject_equality'] else 'rejects'} slope "
+        f"equality across quantiles (p={_QT['p_value']:.2f})."
     ),
-    interpretation=(
-        "Retail-sales growth shows at most marginal state-dependence in its SPY "
-        "association -- suggestive but not statistically confirmed, and too small "
-        "to trade. The earlier 'flat / no tail sensitivity' claim overstated the "
-        "certainty; it rested on a bug (OLS repeated across quantiles)."
-    ),
-    key_message="Retail-sales growth shows only weak, inconclusive evidence of tail asymmetry (Wald p=0.09) -- not the confirmed uniform null the chart previously implied.",
-)
-
-
-LEAD_DURABILITY_BLOCK = dict(
-    chart_status="ready",
-    method_name="Adjacent-Lead Durability (ECON-LT2)",
-    method_theory=(
-        "A genuine lead shows up as a RIDGE — the rule scores similarly at "
-        "neighbouring leads, because overlapping monthly horizons are highly "
-        "correlated (Boudoukh-Richardson-Whitelaw). An isolated one-lead SPIKE "
-        "is the fingerprint of a search artifact, not a real channel."
-    ),
-    question="Is the winner's 9-month lead a robust ridge or an isolated spike?",
-    how_to_read=(
-        "Bars are the winner rule's OOS Sharpe at every lead 0-15; the dotted "
-        "line repeats the exercise with the 2020-21 COVID window removed; the "
-        "dashed line is buy-and-hold. A ridge would keep the bars around L9 "
-        "high together."
-    ),
-    chart_name="lead_durability",
-    chart_caption=(
-        "What this shows: L9 (1.36) towers over its immediate neighbours L8 "
-        "(0.69) and L10 (0.46) — an isolated spike, not a ridge — amid a "
-        "multi-peak 'picket-fence' curve with no coherent structure."
-    ),
-    observation=(
-        "The winner rule's Sharpe collapses on both sides of L9 (L8 0.69, "
-        "L10 0.46) and the lead curve has several unrelated peaks (L9 1.36, "
-        "L11 1.11, L14 1.05). Excluding COVID, L9 stays elevated (1.27 vs "
-        "buy-and-hold 0.97), so the spike is NOISE-driven, not a COVID-rebound "
-        "effect and not a real ~9-month lead."
-    ),
-    interpretation=(
-        "The L9 winner FAILS adjacent-lead durability: it is a sampling "
-        "accident of the sparse grid, which happened to land on L9. The rule "
-        "is defensible only as a drawdown-reduction candidate, never as "
-        "evidence of a 9-month retail-to-equity lead."
-    ),
-    key_message="The 9-month lead is a proven isolated spike (L8 0.69 / L10 0.46), not a durable ridge.",
+    interpretation="Tail asymmetry is only established if the equality test rejects; otherwise read the slopes as imprecise.",
+    key_message=f"Cross-quantile equality Wald p={_QT['p_value']:.2f}.",
 )
 
 
 EVIDENCE_METHOD_BLOCKS = {
-    "title": "The Evidence: Retail Sales Is Procyclical Context, Not a SPY Forecast",
+    "title": "The Evidence: Retail Sales and SPY",
     "overview": (
-        "The evidence supports a cautious, procyclical consumer-demand "
-        "overlay -- and nothing stronger. The strategy winner improves "
-        "search-phase OOS Sharpe, but formal lead-lag evidence is absent "
-        "(Granger min p = 0.47; local projections near-null) and the "
-        "indicator is economically coincident."
+        "The tests below describe a consumer-demand overlay. The selected rule's test-period Sharpe is "
+        f"{W.oos_sharpe} (buy-and-hold SPY: {W.bh_oos_sharpe}) on data as known at the time."
     ),
     "plain_english": (
-        "This page asks whether retail-sales growth helps time SPY. The "
-        "answer is: not as a forecast. Concurrent quartiles are broadly "
-        "procyclical, but the causal tests find no lead. The best rule uses a "
-        "delayed growth filter, so it should be treated as a defensive, "
-        "after-the-fact overlay, not an early-warning system."
+        "This page asks whether retail sales help with SPY timing, first with descriptive tests on today's revised "
+        "data, then with the tournament on data as known at the time."
     ),
     "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
     "level1_labels": ["Correlation", "Granger", "Quartiles", "CCF"],
-    "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK, LEAD_DURABILITY_BLOCK],
-    "level2_labels": ["Local Projections", "Quantile Regression", "Lead Durability"],
+    "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK],
+    "level2_labels": ["Local Projections", "Quantile Regression"],
     "tournament_intro": (
-        "The tournament tested 252 strategy combinations (238 valid) across "
-        "six retail-sales growth transforms, fixed and rolling thresholds, "
-        "procyclical/countercyclical orientations, and leads from 0 to 12 "
-        "months. The selected winner is `mom / T0_zero / P1_long_cash "
-        "procyclical / L9`, with OOS Sharpe 1.36. The MEDIAN valid combo "
-        "scores 0.712 -- below buy-and-hold's 0.99 -- and the runner-up is a "
-        "different construction entirely (`yoy_zscore_60m / T_z_1.0 / "
-        "countercyclical / L12`, 1.289), the signature of a crowded, "
-        "flat-topped search surface."
+        f"The tournament tested {W.n_candidates} declared strategy combinations ({W.n_valid} valid on the training "
+        f"period; {W.n_distinct} distinct position series) across {P.length(_MAN['signals'])} retail sales growth "
+        f"transforms, zero, fixed and rolling-percentile thresholds, the long/cash position rule, both orientations "
+        f"and the lead grid {_GRID_RANGE} months, on data as known at the time. The selected winner is `{_RID}`, "
+        f"chosen on the training period by {W.selection_objective}."
     ),
-    "transition": (
-        "**Transition:** the evidence is procyclical context, not causation. "
-        "The Strategy page shows the exact long/cash rule, the drawdown "
-        "advantage that is its real virtue, and the deployment caveats."
-    ),
+    "transition": "**Transition:** the Strategy page shows the exact rule, its threshold and the deployment caveats.",
 }
 
 
 class StrategyConfig:
-    PAGE_TITLE = "The Strategy: A Lagged Retail-Sales Long/Cash Overlay"
+    PAGE_TITLE = "The Strategy: A Lagged Retail Sales Overlay for SPY"
     PAGE_SUBTITLE = (
-        "A searched SPY allocation rule using month-over-month retail-sales "
-        "growth, a positive-growth threshold, and a 9-month lead -- valued "
-        "for drawdown reduction, not for its Sharpe."
+        f"A searched SPY allocation rule: {_SIG}, long/cash, lead {W.lead_text}, on retail sales data as known at "
+        "the time."
     )
 
-    PLAIN_ENGLISH = (
-        "The rule holds SPY when month-over-month retail-sales growth from "
-        "nine months earlier was positive; otherwise it holds cash. This is a "
-        "lagged, procyclical consumer-demand filter, not a real-time recession "
-        "forecast. Judge it by its shallower drawdown (-9.6% vs -23.9%), not "
-        "by the headline Sharpe."
+    STATISTICAL_FRAMING_BANNER = (
+        "Correction (2026-10-18). The main site still shows an older rule for this pair, chosen by its test-period "
+        f"score (legacy method). The previous development run ({W.previous_tag}, not on the main site) reported "
+        f"{W.previous_rule} ({W.previous_selection}: training Sharpe {W.previous_is_sharpe}, test-period Sharpe "
+        f"{W.previous_oos_sharpe}), on retail sales data as downloaded for that run. The page now reports the rule "
+        "selected on the training period from data as known at the time, with point-in-time release dates and the "
+        "stable-lead-range rule; today's revised data are shown for comparison only."
+    )
+
+    PLAIN_ENGLISH = f"The rule is to {_RULE}. It is a lagged consumer-spending rule, not a real-time recession forecast."
+
+    # Status and badge rule come from track_summary.json (components.two_track.badge_status); facts only here.
+    EXECUTIVE_CONFIDENCE_SUMMARY = dict(
+        status="",
+        status_detail=(
+            "Selected on the training period from retail sales as known at the time; it has not faced a frozen-rule "
+            "hold-out test."
+        ),
+        strengths=[
+            f"Point-in-time retail sales readings give a training period of {W.is_n} months ({W.is_start} to "
+            f"{W.is_end}).",
+            f"The chosen lead sits in a stable lead range ({W.plateau_range}).",
+        ],
+        risks=[
+            f"Test-period Sharpe difference versus buy-and-hold {W.sharpe_gap}, 95% interval {W.ci_low} to {W.ci_high}.",
+            f"The rule selected on revised data {'is the same' if _SAME_RULE else 'differs'} (hindsight test-period "
+            f"Sharpe {W.comparison_oos_sharpe}).",
+            "The advance estimate is revised, sometimes enough to change the sign of a month's growth; the rule trades "
+            "on the figures as first and later published.",
+            "Retail sales are nominal: inflation can keep reported growth positive while real spending slows.",
+        ] + ([f"The stable lead range {W.plateau_range} sits at the edge of the declared lead grid ({_GRID_RANGE} "
+              "months); leads beyond the grid were not tested."] if _EDGE else []),
+        conclusion=(
+            f"Rule {_RID}: test-period Sharpe {W.oos_sharpe} (buy-and-hold SPY: {W.bh_oos_sharpe}; {W.oos_start} "
+            f"to {W.oos_end}), maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}, on "
+            "retail sales data as known at the time."
+        ),
     )
 
     DOWNLOADS = [
-        {"label": "Granger causality by lag", "path": "results/rsxfs_spy/granger_by_lag.csv"},
-        {"label": "Regime quartile returns", "path": "results/rsxfs_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/rsxfs_spy/tournament_results_20261016.csv"},
-        {"label": "Stationarity tests", "path": "results/rsxfs_spy/stationarity_tests_20261016.csv"},
+        {"label": "Granger causality by lag", "path": f"results/{PAIR}/granger_by_lag.csv"},
+        {"label": "Regime quartile returns", "path": f"results/{PAIR}/regime_quartile_returns.csv"},
+        {"label": "Tournament results (as known at the time)", "path": f"results/{PAIR}/tournament_results_{_TAG}.csv"},
+        {"label": "Tournament results (as revised today, hindsight)",
+         "path": f"results/{PAIR}/hindsight_tournament_results_{_TAG}.csv"},
+        {"label": f"Previous development-run tournament ({W.previous_tag})",
+         "path": f"results/{PAIR}/tournament_results_{W.value('previous_tag')}.csv"},
+        {"label": "Advance estimate vs today's revised growth, by month",
+         "path": f"results/{PAIR}/revision_first_vs_latest_{_TAG}.csv"},
+        {"label": "Stationarity tests", "path": f"results/{PAIR}/stationarity_tests_{_TAG}.csv"},
     ]
 
-    SIGNAL_RULE_MD = """
-**Rule in plain English:** hold SPY when the 9-month-lagged month-over-month change in retail sales was positive (growth at or above zero); otherwise hold cash.
+    SIGNAL_RULE_MD = f"""
+**Rule in plain English:** {_RULE}.
 
 If-then form:
-- **IF** `rsxfs_mom` from 9 months earlier is at or above zero -> hold SPY.
-- **ELSE** -> hold cash.
+{_IF_THEN}
 
-Search-phase OOS results (2017-01-31 to 2026-07-31, 115 months): Sharpe 1.36 versus 0.99 buy-and-hold; annualized return 16.9% versus 15.2%; **maximum drawdown -9.6% versus -23.9%**; win rate 49.6%; annual turnover 6.78 (high). The drawdown reduction, not the Sharpe, is the defensible result.
+Test-period results on data as known at the time ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} (buy-and-hold SPY: {W.bh_oos_sharpe}); annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; {W.oos_n_trades} switches between SPY and cash within the test period (the trade log has {_EV['n_oos_trade_log_rows']} rows dated in the test period{', the first being the move into the first test month' if _EV['oos_entry_move_into_first_test_month'] else ''}); annual turnover {W.annual_turnover}.
 """
 
-    HOW_SIGNAL_IS_GENERATED_MD = """
-First, the data process reads U.S. Advance Retail Sales (`RSXFS`) at month-end. Second, it computes the month-over-month percent change in retail sales (`rsxfs_mom`). Third, it applies a 9-month lag before the SPY allocation is set. Finally, the lagged signal is compared with a fixed zero threshold: positive growth -> SPY, otherwise cash.
+    HOW_SIGNAL_IS_GENERATED_MD = f"""
+First, at each month end the process takes retail sales excluding food services (`RSXFS`) as they were published on that date (the values visible when the month's return window opens, starting from the advance estimate). Second, inside that vintage it computes the {_SIG} and its threshold. Third, it uses the reading for the month {W.lead_word} months before the return month; that lag already includes the time to publication. Finally, the reading is compared with {_THR}.
 
-OOS Sharpe means out-of-sample risk-adjusted return. OOS Return is the annualized out-of-sample return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of out-of-sample months with positive strategy return.
+OOS Sharpe means test-period (out-of-sample) risk-adjusted return. OOS Return is the annualized test-period return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of test-period months with positive strategy return.
 """
 
-    MANUAL_USE_MD = """
+    MANUAL_USE_MD = f"""
 This describes the backtested rule so it can be audited; it is not a trading recommendation.
 
-1. Read Advance Retail Sales (RSXFS) at month end.
-2. Compute the month-over-month percent change.
-3. Take the value from 9 months earlier and check whether it was positive (at or above zero).
-4. Hold SPY when that lagged growth was positive; otherwise hold cash.
-5. Recheck monthly. Note the high turnover (6.78/yr): the rule flips often.
+1. At month end, read RSXFS as currently published.
+2. Compute the {_SIG} from that published series.
+3. Take its value for the month {W.lead_word} months before the coming month and compare it with {_THR}.
+4. Hold SPY or cash as the rule says for the coming month.
+5. Recheck monthly.
 """
 
     EQUITY_CHART_NAME = "equity_curves"
@@ -528,108 +478,113 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     WALK_FORWARD_TITLE = "Subperiod Sharpe and Durability"
     WALK_FORWARD_CHART_NAME = "subperiod_sharpe"
     WALK_FORWARD_CAPTION = (
-        "What this shows: Sharpe is return per unit of volatility. The "
-        "subperiod chart compares the searched rule with buy-and-hold SPY "
-        "during major stress windows. The rule loses less in the Dot-Com "
-        "(-0.55 vs -0.70) and GFC (-0.77 vs -1.03) bears and turns POSITIVE "
-        "in COVID (+0.53 vs -0.66) and the 2022 rate shock (+0.18 vs -0.76) -- "
-        "the stress-defense that underlies the drawdown story."
+        "What this shows: Sharpe is return per unit of volatility. The subperiod chart compares the searched rule "
+        "with buy-and-hold SPY during major stress windows; n is the number of monthly returns in each window."
     )
     CROSS_PERIOD_CAPTIONS = {
         "rolling_correlation": (
-            "How to read it: the indicator is retail-sales growth; the target "
-            "is SPY returns. The rolling correlation tests whether their "
-            "linear relationship is stable through time. Large swings mean the "
-            "relationship is unstable and the rule needs ongoing monitoring."
+            "How to read it: the indicator is year-over-year growth in retail sales excluding food services; the "
+            "target is the SPY monthly return. The rolling correlation tests whether their linear relationship is "
+            "stable through time."
         ),
         "structural_break": (
-            "How to read it: the structural break proxy asks whether the "
-            "retail-sales/SPY relationship changes enough that one fixed model "
-            "is unlikely to describe the whole sample. A larger break "
-            "statistic means the relationship shifted more materially across "
-            "periods."
+            "How to read it: this stability proxy is the largest swing of the rolling correlation, in standard "
+            "deviations; it is not a formal break test."
         ),
     }
     SHOW_TOURNAMENT_SCATTER = True
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
     TOURNAMENT_SCATTER_CAPTION = (
-        "What this shows: OOS Sharpe distribution across valid searched "
-        "combinations. The winner (1.36) is the right-tail maximum; the median "
-        "valid combo (0.712) sits BELOW buy-and-hold (0.99), so the typical "
-        "rule built on this indicator subtracts value."
+        "What this shows: test-period Sharpe distribution across valid searched strategy combinations by lead "
+        "(data as known at the time). The winner is chosen on the training period, not on this test-period score."
     )
 
-    CAVEATS_MD = """
+    CAVEATS_MD = f"""
 **Main caveats:**
 
-1. Retail sales is broadly COINCIDENT; the 9-month lead is economically implausible and is most likely a search artifact.
-2. Granger causality is insignificant at every lag (min p = 0.47) and local projections are near-null, so this is not a proven causal forecast.
-3. The result is marked `found_in_search`; the median valid combo underperforms buy-and-hold, and the winner still needs a frozen-rule holdout confirmation.
-4. Annual turnover is high (6.78/yr) -- the signature of noise-driven flipping and a real transaction-cost drag beyond the 5 bps assumed.
-5. RSXFS is nominal: in 2022 inflation kept the growth signal positive while equities fell, and advance figures are revised in later releases.
-6. COVID 2020-21 is an extreme in-window outlier that can dominate the fit.
+- The result is marked `found_in_search`; it still needs a frozen-rule holdout confirmation.
+- The headline uses retail sales data as known at the time. On today's revised data the selected rule {'is the same' if _SAME_RULE else 'is different'} (test-period Sharpe {W.comparison_oos_sharpe}, hindsight).
+- The advance estimate is revised: {_REV_TEXT}
+- The previous development-run rule ({W.previous_rule}, {W.previous_selection}) is replayed exactly on the new framework.
+- The test window was seen by the earlier runs, so it is not a frozen hold-out.
+- Retail sales are nominal and broadly coincident with the business cycle, and the 2020-21 collapse and rebound sits inside the test window.
+{_R71_CAVEAT}
 """
 
     TRADE_LOG_EXAMPLE_MD = (
-        "**A concrete example from this pair:** the broker-style log records a "
-        "BUY when the 9-month-lagged month-over-month retail-sales growth was "
-        "positive, taking exposure from 0% to 100% SPY. A SELL moves back to "
-        "cash when the lagged growth was not positive."
+        "**A concrete example from this pair:** the broker-style log records each switch between SPY and cash the "
+        f"rule makes when the {_SIG} reading crosses {_THR}."
     )
 
     TRADE_LOG_COLUMN_EXAMPLES = {
-        "trade_date": "2020-12-31",
+        "trade_date": "month end",
         "side": "BUY",
         "instrument": "SPY",
-        "quantity_pct": "100.0",
+        "quantity_pct": "position after the trade",
         "commission_bps": "5",
-        "reason": "P1_long_cash: lagged rsxfs_mom positive; position 0% to 100%",
+        "reason": f"{W.signal_code} {W.direction} rule crossed {W.threshold_code}",
     }
 
 
 STRATEGY_CONFIG = StrategyConfig()
 
 
-_DATA_SOURCES_MD = """
+_DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator | FRED | `RSXFS`, Advance Retail Sales: Retail Trade (nominal $, SA) | Monthly |
-| Target | Yahoo Finance or local SPY monthly fallback panel | SPY adjusted close / monthly returns | Monthly |
-"""
+| Indicator (as known at the time) | ALFRED (FRED vintages, pinned in data/release_calendar/vintages/RSXFS.csv.gz) | `RSXFS`, Advance Retail Sales: Retail Trade, excluding food services (U.S. Census Bureau), every published vintage | Monthly |
+| Indicator (as revised today) | FRED (latest vintage of the same file) | `RSXFS` | Monthly |
+| Release dates | data/release_calendar/release_calendar.csv | first publication date per month | Monthly |
+| Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted month-end close | Monthly |
+""")
 
-_INDICATOR_CONSTRUCTION_MD = (
-    "The raw indicator is U.S. Advance Retail Sales, in nominal $ millions "
-    "(seasonally adjusted). The level is non-stationary (ADF fails to reject a "
-    "unit root; KPSS rejects stationarity), so the pipeline constructs growth "
-    "transforms -- month-over-month, three-month, six-month, and twelve-month "
-    "percent changes; a 60-month rolling YoY z-score; and YoY acceleration -- "
-    "all of which are stationary. The winning signal is `rsxfs_mom`, the "
-    "month-over-month growth, used with a 9-month lead and a fixed "
-    "positive-growth (zero) threshold."
+_INDICATOR_CONSTRUCTION_MD = P.definition_text(
+    "The raw indicator is the dollar value of retail sales excluding food services (seasonally adjusted, nominal). "
+    "Because the level trends upward, the pipeline uses growth rates only: month-over-month, quarterly, semiannual "
+    "and year-over-year percentage growth, the z-score of year-over-year growth against its trailing 60 months, and "
+    f"the monthly change in year-over-year growth. Thresholds are zero, {THRESHOLD_TEXT['T_z_1.0']} for the z-score, "
+    "or rolling 60-month percentiles of the signal; rolling statistics start after a minimum number of readings. On "
+    "the as-known-at-the-time track every signal and rolling threshold is recomputed inside the vintage published "
+    f"when each month's return window opens. The winning signal is `{W.signal_code}` ({_SIG}), used with a lead of "
+    f"{W.lead_text}; the reading is compared with {_THR}."
 )
 
-_METHODS_TABLE_MD = """
+_METHODS_TABLE_MD = P.definition_text("""
 | Method | Question It Answers | Why We Chose It |
 |---|---|---|
-| Correlation analysis | Does retail-sales growth move linearly with future SPY returns? | Simple baseline before richer tests |
-| Regime quartiles | Do weak and strong consumer-demand regimes behave differently? | Makes the procyclical story interpretable |
-| Pre-whitened CCF | Is there any lead-lag echo after filtering persistence? | Reduces false lead-lag signals from autocorrelation |
-| Granger causality | Does past retail-sales information improve SPY forecasts? | Formal lead-lag check |
-| Local projections | How does SPY respond over future horizons? | Shows horizon-specific effects |
-| Quantile regression | Is the effect different in weak or strong market states? | Tests tail and regime sensitivity |
-| Structural break / rolling correlation | Is the relationship stable across time? | Durability and overfit guard |
-"""
+| Correlation analysis (Newey-West p-values) | Do retail sales growth signals move linearly with future SPY returns? | Simple baseline before richer tests |
+| Regime quartiles | Do months of weak and strong retail sales growth behave differently? | Makes the consumer story interpretable |
+| Pre-whitened CCF | Where is the lead-lag relationship strongest after filtering persistence? | Reduces false lead-lag signals from autocorrelation |
+| Granger causality (Bonferroni-adjusted minimum) | Does past retail sales growth improve SPY forecasts? | Formal lead-lag check |
+| Local projections (Newey-West) | How do forward SPY returns relate to retail sales growth over horizons? | Shows horizon-specific effects |
+| Quantile regression (block bootstrap) | Is the effect different in weak or strong market states? | Tests tail and regime sensitivity |
+| Rolling correlation / stability proxy | Is the relationship stable across time? | Durability and overfit guard |
+| Advance estimate vs revised growth | How much does the first print differ from today's figure? | The real-time and revised tracks differ through revisions |
+| Lead-plateau selection (D9) | Is the chosen lead part of a stable range rather than an isolated peak? | Guards against picking a lucky single lead |
+| Chance check (null tournament) | How does the winner compare with contests run on scrambled signals? | Measures how much selection alone can produce |
+| Paired block bootstrap | How uncertain is the Sharpe difference versus buy-and-hold? | Interval for the headline comparison |
+""")
 
-_TOURNAMENT_DESIGN_MD = """
-Grid: retail-sales growth transforms x fixed and rolling thresholds x long/cash strategy x procyclical/countercyclical orientations x lead times (0-12 months). The final tournament has 252 combinations, 238 valid. The winning rule is `rsxfs_mom / T0_zero / P1_long_cash procyclical / L9`, the maximum OOS Sharpe (1.36). The median valid combo (0.712) underperforms buy-and-hold (0.99), and the runner-up (`yoy_zscore_60m / T_z_1.0 / countercyclical / L12`, 1.289) is a different construction -- read the winner as a selection maximum, not a validated edge.
+_TOURNAMENT_DESIGN_MD = f"""
+Grid: retail sales growth transforms x zero, fixed z-score and rolling-percentile thresholds x the long/cash position rule x procyclical/countercyclical orientations x leads {_GRID_RANGE} months, where the lead is the whole gap between the reading month and the return month ({W.n_candidates} declared combinations; {W.n_distinct} distinct position series). Each data track selects its own winner on the training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it.
+
+- As known at the time (headline): `{_RID}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe}, test-period Sharpe {W.oos_sharpe}. For reference only and not the selection rule, the single raw highest training Sharpe on this track ({W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}.
+- As revised today (hindsight): `{_RID_REVISED}`, training Sharpe {W.comparison_is_sharpe}, test-period Sharpe {W.comparison_oos_sharpe}.{_COMP_TAIL}
+- Cross-evaluation: the headline rule scored on revised data has test-period Sharpe {W.ce_main_on_revised_oos_sharpe}; the hindsight rule scored on data as known at the time has {W.ce_revised_on_main_oos_sharpe}.
+- Revisions: {_REV_TEXT}
+- Chance check: across {W.null_draws} contests run on circularly shifted retail sales data, {_CHANCE_TEXT}.
+- Previous development-run rule: `{W.previous_rule}` ({W.previous_selection}), test-period Sharpe {W.previous_oos_sharpe}; replayed exactly on the new framework from that run's own data.
+- Rule shown on the main site: an older rule chosen by its test-period Sharpe (legacy method), kept as the `legacy_oos_selected` row of the previous run's selection record; it is not replayed as a selection rule because it consulted the test period.
 """
 
 _REFERENCES_MD = """
-1. Federal Reserve Economic Data (FRED), `RSXFS`, Advance Retail Sales: Retail Trade.
-2. U.S. Census Bureau, Advance Monthly Retail Trade Report (source of RSXFS).
+1. Federal Reserve Bank of St. Louis, ALFRED / FRED `RSXFS`, Advance Retail Sales: Retail Trade (all vintages).
+2. U.S. Census Bureau, Advance Monthly Retail Trade Survey and Monthly Retail Trade Survey.
 3. Yahoo Finance, SPY adjusted price history.
 4. Granger, C. W. J. (1969). "Investigating Causal Relations by Econometric Models and Cross-spectral Methods."
 5. Jorda, O. (2005). "Estimation and Inference of Impulse Responses by Local Projections."
+6. Newey, W. K., and West, K. D. (1987). "A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix."
+7. Politis, D. N., and Romano, J. P. (1992). "A Circular Block-Resampling Procedure for Stationary Data."
 """
 
 METHODOLOGY_CONFIG = MethodologyConfig(
@@ -639,14 +594,13 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     tournament_design_md=_TOURNAMENT_DESIGN_MD,
     references_md=_REFERENCES_MD,
     sample_period_note=(
-        "Monthly sample from 1993-01-31 to 2026-07-31, with out-of-sample "
-        "window 2017-01-31 to 2026-07-31 (115 months). SPY history limits the "
-        "usable sample even though RSXFS begins in 1992."
+        f"Monthly sample; training period {W.is_start} to {W.is_end} and test period {W.oos_start} to {W.oos_end} on "
+        "data as known at the time. The as-known-at-the-time sample cannot start before the first archived vintage "
+        "(mid-2001), whose history already covers the rolling windows. The revised comparison trains from "
+        f"{W.comparison_is_start}, once its rolling statistics and leads have enough readings."
     ),
     plain_english=(
-        "This page documents how RSXFS was turned into stationary growth "
-        "signals, how the econometric checks were run, and how the tournament "
-        "selected the final SPY allocation rule -- along with the honest "
-        "caveat that the selection maximum is not yet a validated edge."
+        "This page documents how retail sales were turned into testable signals, how the econometric checks were "
+        "run, and how the tournament selected the final SPY allocation rule on each data track."
     ),
 )
