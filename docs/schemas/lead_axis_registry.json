@@ -697,8 +697,10 @@
       "position_shift": 0,
       "lead_floor_effective": 2,
       "release_calendar_series": "RSXFS",
-      "alignment": "fixed_lag",
-      "value_vintage": "revised_alfred"
+      "alignment": "pit_asof",
+      "value_vintage": "revised_alfred",
+      "note": "Phase B harness (20261018): two tracks (real-time ALFRED RSXFS vintages = MAIN, advance estimates as first printed and later revised; revised = comparison), D9 lead-plateau selection on the registry grid L2..L13 with position_shift 0, point-in-time release timing. The 20261016 rule (yoy/T_roll_p25/procyclical/L3, raw IS-Sharpe argmax on a common IS start, fixed lag, commit 1d06839f) is replayed exactly and kept as the previous rule.",
+      "track_policy": "compute_twice"
     },
     "unrate_spy": {
       "signal_frequency": "monthly",
