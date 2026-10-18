@@ -1,5 +1,5 @@
 {
   "pair_id": "ism_mfg_spy",
   "method": "rolling-correlation z-score proxy",
-  "max_abs_z": 2.746501670078502
+  "max_abs_z": 3.1401186308815907
 }

@@ -26,21 +26,22 @@
     ]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-10-16T18:25:25.420829+00:00",
+  "last_updated_at": "2026-10-18T11:07:51.013417+00:00",
   "indicator": "ism",
   "target": "spy",
   "expected_direction": "procyclical",
-  "observed_direction": "countercyclical",
-  "direction_consistent": false,
-  "mechanism": "The ISM Manufacturing PMI is a diffusion index (>50 = expansion). High or rising PMI marks manufacturing expansion and risk-on conditions; low/falling PMI marks contraction. The strategy holds SPY when the PMI signals expansion. PMI is a classic leading indicator of the business cycle.",
+  "observed_direction": "procyclical",
+  "direction_consistent": true,
+  "mechanism": "The ISM Manufacturing PMI is a diffusion index (above 50 = expansion) built from purchasing managers' answers on orders, output, employment, deliveries and inventories. A high or rising PMI marks manufacturing expansion and risk-on conditions; a low or falling PMI marks contraction. The procyclical prior holds SPY when the PMI signals expansion.",
   "confidence": "low",
-  "key_finding": "Best search-phase rule uses diff_1m at L13 with OOS Sharpe 0.79 versus buy-and-hold 0.95.",
+  "key_finding": "On today's ISM values (no archive of past values exists), the rule selected on in-sample data uses level at L10 (IS Sharpe 0.86) with test-period Sharpe 0.42 versus buy-and-hold 0.95.",
   "caveats": [
-    "Winner is search-selected on a single monthly sample and needs holdout validation.",
-    "Level thresholds are rolling-percentile based; regime pivots can drift across decades.",
-    "Lead estimates rest on a limited number of cycles in the sample."
+    "No public archive of past ISM values exists, so the backtest uses today's values; seasonal-factor revisions may add hindsight that cannot be measured.",
+    "The strategy is search-selected and needs fresh holdout validation.",
+    "The Data Master ISM series ends 2025-10, so the test period ends there.",
+    "The previous rule (20261016) was the single highest in-sample Sharpe with fixed lags; it is replaced here."
   ],
-  "narrative_summary": "ISM Manufacturing PMI is tested as a procyclical growth overlay for SPY \u2014 hold equity when the PMI signals expansion.",
+  "narrative_summary": "ISM Manufacturing PMI is tested as a procyclical growth overlay for SPY: hold equity when the PMI signals expansion.",
   "known_stress_episodes": [
     {
       "label": "Dot-Com recession",
@@ -68,8 +69,8 @@
     }
   ],
   "data_provenance": {
-    "source": "Data Master.xlsx (ISM)",
-    "series_id": "NAPM",
-    "accessed_at": "2026-10-16T18:25:25.420829+00:00"
+    "source": "Data Master.xlsx (ISM), pinned snapshot 20261016T232733Z",
+    "series_id": "ISM_MFG",
+    "accessed_at": "2026-10-18T11:07:51.013417+00:00"
   }
 }

@@ -35,6 +35,7 @@ SERIES = "ISM_MFG"
 SNAPSHOT = REPO / "data" / "release_calendar" / "snapshots" / "20261016T232733Z" / "ISM_MFG.csv"
 ROLL_WINDOW = 60          # months: rolling z-score window and rolling-quantile thresholds (legacy constant)
 ROLL_MIN_PERIODS = 24     # readings required before a rolling statistic is defined (legacy constant)
+PMI_NEUTRAL = 50          # ISM diffusion-index convention: above = expansion, below = contraction (charts, page text)
 
 SIGNALS = {
     "level": "ism_level",

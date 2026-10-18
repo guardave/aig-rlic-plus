@@ -1,0 +1,102 @@
+{
+  "pair_id": "ism_mfg_spy",
+  "signals": {
+    "level": "ism_level",
+    "diff_1m": "ism_diff_1m",
+    "chg_12m": "ism_chg_12m",
+    "zscore_60m": "ism_zscore_60m"
+  },
+  "rules": {
+    "level": {
+      "T_roll_p25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T_roll_p75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "diff_1m": {
+      "T0_zero": {
+        "variable": "raw",
+        "threshold": 0.0
+      },
+      "T_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T_roll_p75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "chg_12m": {
+      "T0_zero": {
+        "variable": "raw",
+        "threshold": 0.0
+      },
+      "T_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T_roll_p75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "zscore_60m": {
+      "T_z_0": {
+        "variable": "raw",
+        "threshold": 0.0
+      },
+      "T_z_1.0": {
+        "variable": "raw",
+        "threshold": 1.0
+      },
+      "T_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    }
+  },
+  "strategies": [
+    "P1"
+  ],
+  "directions": [
+    "countercyclical",
+    "procyclical"
+  ],
+  "leads": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "lead_unit": "months",
+  "binary_signals": [],
+  "min_is_n": 60,
+  "ppy": 12,
+  "oos_start": "2017-09-30",
+  "exposure_bounds": [
+    0.05,
+    0.95
+  ],
+  "max_is_turnover": null,
+  "min_is_trades": null,
+  "position_shift": 0,
+  "n_candidates": 288,
+  "candidates_sha256": "16f2bee872da1adcaec2e992568acf1c3f1e8742d2884d3185e39c52f5418dc9"
+}
