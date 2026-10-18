@@ -1,10 +1,10 @@
 {
   "chart_name": "chance_check",
   "pair_id": "permit_spy",
-  "generated_at": "2026-10-18T01:58:12.914171+00:00",
+  "generated_at": "2026-10-18T05:27:40.241085+00:00",
   "generated_by": "scripts/harness/charts.py",
-  "caption": "The real winner's plateau score ranks at the 45th percentile of 100 scrambled-signal contests.",
-  "narrative_alignment_note": "The real winner's plateau score ranks at the 45th percentile of 100 scrambled-signal contests.",
+  "caption": "The real winner's plateau score is above all 100 scrambled-signal contests.",
+  "narrative_alignment_note": "The real winner's plateau score is above all 100 scrambled-signal contests.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/permit_spy/null_tournament_20261017.csv",
