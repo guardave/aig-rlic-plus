@@ -3,48 +3,48 @@
   "chart_sha256": "2b60504b4d6f20eb4ccca584ac0c1a6d71f57f94d23bf2627e4106eab02a64d9",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:25:39+00:00",
+  "recorded_at": "2026-10-18T06:13:53+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
    "results/permit_spy/core_models_20261017/ccf_prewhitened.csv": "1eff7dba81be7104547d0d177e0efbecac440ef50e3fc0c5d07bf6e177242be1",
    "results/permit_spy/core_models_20261017/correlations.csv": "df2cf7a8b67214ce62533e6be37d24a77933ef6fc3920b5751307d909e5ce6ca",
    "results/permit_spy/regime_quartile_returns.csv": "343120a7b1e6d251a43e38a14e92462f5c64019d988faad81762d8eb1b3e6e84",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "chance_check": {
   "chart_sha256": "01d8409985754013a4f6e915378c892303cf826722a032a7816b7a4448ee6fe4",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T05:27:40+00:00",
+  "recorded_at": "2026-10-18T06:14:52+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/permit_spy/hindsight_lead_curve_20261017.csv": "b9f47904d9106af5e17ce2f0a07ee3011d2fff62fb57b44eeb218c581cfeb276",
    "results/permit_spy/lead_curve_20261017.csv": "676720ee0503f8d74962633f4fbb013ce11b0ab6be868ffb672ba9fd831a7cb2",
    "results/permit_spy/null_tournament_20261017.csv": "0cdf686533ce5410da7d70b05574dad3d1d2796673bf14d05455abd5edaf7731",
-   "results/permit_spy/track_summary.json": "5b29dbb3d0c1aeb0caf2dc034a2d3187aedd2b583bda09d3e3289bce4e7399dd",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/track_summary.json": "2b34562d8caed12cbcaa71a76594422f56cbe10ecae202c606d8496fa1d84c65",
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "correlation_heatmap": {
   "chart_sha256": "1fbf431b2aeeaf4c6a91f2808110cb0466da29a6374ea9f58c5713f8a2836cc5",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:25:33+00:00",
+  "recorded_at": "2026-10-18T06:13:50+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
    "results/permit_spy/core_models_20261017/correlations.csv": "df2cf7a8b67214ce62533e6be37d24a77933ef6fc3920b5751307d909e5ce6ca",
    "results/permit_spy/regime_quartile_returns.csv": "343120a7b1e6d251a43e38a14e92462f5c64019d988faad81762d8eb1b3e6e84",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "drawdown": {
   "chart_sha256": "6f1b0e10ebba78a13abea3039a39237b47d47e79e4762172c3ae3c78abd4fa01",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:26:02+00:00",
+  "recorded_at": "2026-10-18T06:14:08+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
@@ -56,14 +56,14 @@
    "results/permit_spy/core_models_20261017/quantile_regression.csv": "a8b2d99fb6690c2e62bb3e0afbcb2acca4f84129f3aaa33a276738c572a8afdf",
    "results/permit_spy/regime_quartile_returns.csv": "343120a7b1e6d251a43e38a14e92462f5c64019d988faad81762d8eb1b3e6e84",
    "results/permit_spy/strategy_returns_20261017.csv": "61b48b63df1d49c1f8873cacfdbd15b6e7b214d50ab8c004a922ee675014e0dc",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "equity_curves": {
   "chart_sha256": "6352c3d656865825d45b5ab7eec742dd8b691d92d834502626e92ea6fdef05de",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:25:57+00:00",
+  "recorded_at": "2026-10-18T06:14:06+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
@@ -75,14 +75,14 @@
    "results/permit_spy/core_models_20261017/quantile_regression.csv": "a8b2d99fb6690c2e62bb3e0afbcb2acca4f84129f3aaa33a276738c572a8afdf",
    "results/permit_spy/regime_quartile_returns.csv": "343120a7b1e6d251a43e38a14e92462f5c64019d988faad81762d8eb1b3e6e84",
    "results/permit_spy/strategy_returns_20261017.csv": "61b48b63df1d49c1f8873cacfdbd15b6e7b214d50ab8c004a922ee675014e0dc",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "granger_f_by_lag": {
   "chart_sha256": "2ced305f44c930ad4ad56d863337b6a08155f29238f5d57c60eec8d7a937ad5b",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:25:43+00:00",
+  "recorded_at": "2026-10-18T06:13:56+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
@@ -90,14 +90,14 @@
    "results/permit_spy/core_models_20261017/correlations.csv": "df2cf7a8b67214ce62533e6be37d24a77933ef6fc3920b5751307d909e5ce6ca",
    "results/permit_spy/core_models_20261017/granger_causality.csv": "31eedcecd2d62b72df45626fabe4a636be38e92a2555a3e0d11c5d09221aef0a",
    "results/permit_spy/regime_quartile_returns.csv": "343120a7b1e6d251a43e38a14e92462f5c64019d988faad81762d8eb1b3e6e84",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "hero": {
   "chart_sha256": "444d6c8e921c3510b35b76f9041f062bf3ec34dcf77ddf9e37e5f07f1113e4b2",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:25:24+00:00",
+  "recorded_at": "2026-10-18T06:13:45+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0"
@@ -107,7 +107,7 @@
   "chart_sha256": "2920f7a9fef830c65298d1c21dcbed12707c210f4e70af8d72206d9d764cbf17",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:26:41+00:00",
+  "recorded_at": "2026-10-18T06:14:40+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
@@ -123,14 +123,14 @@
    "results/permit_spy/structural_break_permit_spy.json": "735ca16fd771c2633e58cf5719593b1ff4c08a7b712a559a9c2de22d3a3b6a10",
    "results/permit_spy/subperiod_sharpe.csv": "1899df4eb3f3a29dd070220191043482ee86be1652824d2f1f9621ffbf5579b4",
    "results/permit_spy/tournament_results_20261017.csv": "550010fda5e3bc5240280cb587a44076c80a3384ff67c06df030b758f2c601a3",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "history_zoom_dotcom": {
   "chart_sha256": "66b2d55b6a46fea182c5b4cd57b348c138d9b34aff74d47bd0ec0b482372646e",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:26:32+00:00",
+  "recorded_at": "2026-10-18T06:14:33+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
@@ -146,14 +146,14 @@
    "results/permit_spy/structural_break_permit_spy.json": "735ca16fd771c2633e58cf5719593b1ff4c08a7b712a559a9c2de22d3a3b6a10",
    "results/permit_spy/subperiod_sharpe.csv": "1899df4eb3f3a29dd070220191043482ee86be1652824d2f1f9621ffbf5579b4",
    "results/permit_spy/tournament_results_20261017.csv": "550010fda5e3bc5240280cb587a44076c80a3384ff67c06df030b758f2c601a3",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "history_zoom_gfc": {
   "chart_sha256": "3d1f74f0c8d152d31964fc0bb1906b86185cc4bf0d004fd622117ed364697481",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:26:36+00:00",
+  "recorded_at": "2026-10-18T06:14:36+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
@@ -169,14 +169,14 @@
    "results/permit_spy/structural_break_permit_spy.json": "735ca16fd771c2633e58cf5719593b1ff4c08a7b712a559a9c2de22d3a3b6a10",
    "results/permit_spy/subperiod_sharpe.csv": "1899df4eb3f3a29dd070220191043482ee86be1652824d2f1f9621ffbf5579b4",
    "results/permit_spy/tournament_results_20261017.csv": "550010fda5e3bc5240280cb587a44076c80a3384ff67c06df030b758f2c601a3",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "history_zoom_inflation_2022": {
   "chart_sha256": "2f9c168b6216c749999d66c8e6ea3c4037b1ff3e26ba3a419e62f5a055a23ee5",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:26:45+00:00",
+  "recorded_at": "2026-10-18T06:14:43+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
@@ -192,14 +192,14 @@
    "results/permit_spy/structural_break_permit_spy.json": "735ca16fd771c2633e58cf5719593b1ff4c08a7b712a559a9c2de22d3a3b6a10",
    "results/permit_spy/subperiod_sharpe.csv": "1899df4eb3f3a29dd070220191043482ee86be1652824d2f1f9621ffbf5579b4",
    "results/permit_spy/tournament_results_20261017.csv": "550010fda5e3bc5240280cb587a44076c80a3384ff67c06df030b758f2c601a3",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "lead_plateau": {
   "chart_sha256": "bb05596ad022a0fdf00b313bffdfba493f28999e65679b30e418761eaa567605",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T05:27:36+00:00",
+  "recorded_at": "2026-10-18T06:14:48+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/permit_spy/hindsight_lead_curve_20261017.csv": "b9f47904d9106af5e17ce2f0a07ee3011d2fff62fb57b44eeb218c581cfeb276",
@@ -210,7 +210,7 @@
   "chart_sha256": "d3c031417a62e436d2f47c712520d0d29c54d620d1e59f5a27fe8d127a762b48",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:25:48+00:00",
+  "recorded_at": "2026-10-18T06:14:00+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
@@ -219,14 +219,14 @@
    "results/permit_spy/core_models_20261017/granger_causality.csv": "31eedcecd2d62b72df45626fabe4a636be38e92a2555a3e0d11c5d09221aef0a",
    "results/permit_spy/core_models_20261017/local_projections.csv": "cd95a16085f04110cd41f9c6826cb252a52f9217cf2601296e9a8b385b832c3c",
    "results/permit_spy/regime_quartile_returns.csv": "343120a7b1e6d251a43e38a14e92462f5c64019d988faad81762d8eb1b3e6e84",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "quantile_coef": {
   "chart_sha256": "4d8b8f8be5cbf2ee094b9873c272dfdb288c8b1634adb0ee76e4fcf14627058c",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:25:53+00:00",
+  "recorded_at": "2026-10-18T06:14:03+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
@@ -237,26 +237,26 @@
    "results/permit_spy/core_models_20261017/quantile_equality_test.json": "fa8efa2eb9e968d93830c6e10a0e5d1f8e22c1930dc71495cd3f360a3b2f8c50",
    "results/permit_spy/core_models_20261017/quantile_regression.csv": "a8b2d99fb6690c2e62bb3e0afbcb2acca4f84129f3aaa33a276738c572a8afdf",
    "results/permit_spy/regime_quartile_returns.csv": "343120a7b1e6d251a43e38a14e92462f5c64019d988faad81762d8eb1b3e6e84",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "regime_stats": {
   "chart_sha256": "0964c1cb950a03ac9aa18f58971c8f297200f6ace236759c39a76b51fb0f3438",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:25:29+00:00",
+  "recorded_at": "2026-10-18T06:13:48+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
    "results/permit_spy/regime_quartile_returns.csv": "343120a7b1e6d251a43e38a14e92462f5c64019d988faad81762d8eb1b3e6e84",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "rolling_correlation": {
   "chart_sha256": "f45681c137b2bf8412f32daaab21cce14223f85c4a2b04c36fc5d6ab8344600d",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:26:15+00:00",
+  "recorded_at": "2026-10-18T06:14:19+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
@@ -270,14 +270,14 @@
    "results/permit_spy/rolling_correlation_permit_spy.csv": "77d8286c8b6136deecf97246e13fe724919a0a0c2d48b87e6e93a19447710993",
    "results/permit_spy/strategy_returns_20261017.csv": "61b48b63df1d49c1f8873cacfdbd15b6e7b214d50ab8c004a922ee675014e0dc",
    "results/permit_spy/tournament_results_20261017.csv": "550010fda5e3bc5240280cb587a44076c80a3384ff67c06df030b758f2c601a3",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "structural_break": {
   "chart_sha256": "7454bbb0bd4e78ff31c584f1b072175edb79034568dcbd83af57f0726bf89c01",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:26:19+00:00",
+  "recorded_at": "2026-10-18T06:14:22+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
@@ -292,14 +292,14 @@
    "results/permit_spy/strategy_returns_20261017.csv": "61b48b63df1d49c1f8873cacfdbd15b6e7b214d50ab8c004a922ee675014e0dc",
    "results/permit_spy/structural_break_permit_spy.json": "735ca16fd771c2633e58cf5719593b1ff4c08a7b712a559a9c2de22d3a3b6a10",
    "results/permit_spy/tournament_results_20261017.csv": "550010fda5e3bc5240280cb587a44076c80a3384ff67c06df030b758f2c601a3",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "subperiod_sharpe": {
   "chart_sha256": "f240d08402e0226f02d396dc51f50a3d996c9295a5d041d461edea579c3b6743",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:26:23+00:00",
+  "recorded_at": "2026-10-18T06:14:25+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
@@ -315,14 +315,14 @@
    "results/permit_spy/structural_break_permit_spy.json": "735ca16fd771c2633e58cf5719593b1ff4c08a7b712a559a9c2de22d3a3b6a10",
    "results/permit_spy/subperiod_sharpe.csv": "1899df4eb3f3a29dd070220191043482ee86be1652824d2f1f9621ffbf5579b4",
    "results/permit_spy/tournament_results_20261017.csv": "550010fda5e3bc5240280cb587a44076c80a3384ff67c06df030b758f2c601a3",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "tournament_scatter": {
   "chart_sha256": "36b8a83887ed86e580275a1e3d63e0678caad6e27442c941a56f962dc5fb7a03",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:26:10+00:00",
+  "recorded_at": "2026-10-18T06:14:15+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
@@ -335,14 +335,14 @@
    "results/permit_spy/regime_quartile_returns.csv": "343120a7b1e6d251a43e38a14e92462f5c64019d988faad81762d8eb1b3e6e84",
    "results/permit_spy/strategy_returns_20261017.csv": "61b48b63df1d49c1f8873cacfdbd15b6e7b214d50ab8c004a922ee675014e0dc",
    "results/permit_spy/tournament_results_20261017.csv": "550010fda5e3bc5240280cb587a44076c80a3384ff67c06df030b758f2c601a3",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "tournament_sharpe_dist": {
   "chart_sha256": "36b8a83887ed86e580275a1e3d63e0678caad6e27442c941a56f962dc5fb7a03",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:26:06+00:00",
+  "recorded_at": "2026-10-18T06:14:12+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
@@ -355,14 +355,14 @@
    "results/permit_spy/regime_quartile_returns.csv": "343120a7b1e6d251a43e38a14e92462f5c64019d988faad81762d8eb1b3e6e84",
    "results/permit_spy/strategy_returns_20261017.csv": "61b48b63df1d49c1f8873cacfdbd15b6e7b214d50ab8c004a922ee675014e0dc",
    "results/permit_spy/tournament_results_20261017.csv": "550010fda5e3bc5240280cb587a44076c80a3384ff67c06df030b758f2c601a3",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  },
  "walk_forward": {
   "chart_sha256": "f240d08402e0226f02d396dc51f50a3d996c9295a5d041d461edea579c3b6743",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_permit_spy.py",
-  "recorded_at": "2026-10-18T05:26:28+00:00",
+  "recorded_at": "2026-10-18T06:14:29+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_spy_monthly_latest.parquet": "520a5ef9f09a4ebd851880d50ef50152efb3bd6c7f4993415e649a03eb5bd4d0",
@@ -378,7 +378,7 @@
    "results/permit_spy/structural_break_permit_spy.json": "735ca16fd771c2633e58cf5719593b1ff4c08a7b712a559a9c2de22d3a3b6a10",
    "results/permit_spy/subperiod_sharpe.csv": "1899df4eb3f3a29dd070220191043482ee86be1652824d2f1f9621ffbf5579b4",
    "results/permit_spy/tournament_results_20261017.csv": "550010fda5e3bc5240280cb587a44076c80a3384ff67c06df030b758f2c601a3",
-   "results/permit_spy/winner_summary.json": "8c5f1f24231ea1e102b861b29778085e5aa3d5953daa57dfa7f631ff3d4a504a"
+   "results/permit_spy/winner_summary.json": "279af6ce077ef83ed6086d9b447ea4b30ecd9483def6ce8515b667393ae3c68b"
   }
  }
 }

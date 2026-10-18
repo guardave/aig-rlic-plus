@@ -1,7 +1,7 @@
 {
   "pair_id": "permit_spy",
   "schema_version": "1.0.0",
-  "generated_at": "2026-10-18T05:22:54.039947+00:00",
+  "generated_at": "2026-10-18T06:13:00.586536+00:00",
   "track_state": "both",
   "track_policy": "compute_twice",
   "main": {

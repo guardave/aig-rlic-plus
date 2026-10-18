@@ -1,7 +1,7 @@
 {
   "chart_name": "correlation_heatmap",
   "pair_id": "permit_spy",
-  "generated_at": "2026-10-18T05:25:39.082492+00:00",
+  "generated_at": "2026-10-18T06:13:53.654834+00:00",
   "generated_by": "scripts/generate_charts_permit_spy.py",
   "caption": "Pearson correlations between building-permit transforms and forward SPY returns.",
   "narrative_alignment_note": "Pearson correlations between building-permit transforms and forward SPY returns.",

@@ -1,7 +1,7 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "permit_spy",
-  "generated_at": "2026-10-18T05:26:19.525438+00:00",
+  "generated_at": "2026-10-18T06:14:22.469850+00:00",
   "generated_by": "scripts/generate_charts_permit_spy.py",
   "caption": "Rolling 60-month correlation between year-over-year permit growth and SPY returns.",
   "narrative_alignment_note": "Rolling 60-month correlation between year-over-year permit growth and SPY returns.",
