@@ -17,6 +17,9 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from harness.charts import zoom_dual_panel  # noqa: E402
 from plotly.subplots import make_subplots
 
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -750,6 +753,7 @@ def chart_history_zoom(slug, title, start, end):
     fig.update_layout(title=title, template="plotly_white", height=430, hovermode="x unified")
     fig.update_yaxes(title_text="UMCSENT index", secondary_y=False)
     fig.update_yaxes(title_text="XLV price ($)", secondary_y=True)
+    fig = zoom_dual_panel(fig)        # VIZ-V1 / GATE-DP1 v2: stacked panels, no overlaid y-axes
     save_chart(fig, f"history_zoom_{slug}", caption=f"{title}" + ("; gray bands are NBER recessions." if drawn else "."),
                sources=["data/umcsent_xlv_monthly_latest.parquet"])
 

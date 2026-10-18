@@ -16,6 +16,6 @@
     "results/umcsent_xlv/rolling_sharpe_umcsent_xlv.csv",
     "results/umcsent_xlv/winner_summary.json"
   ],
-  "generated_at": "2026-10-18T00:28:46.954642+00:00",
+  "generated_at": "2026-10-18T00:34:11.877185+00:00",
   "generated_by": "Viz Vera - scripts/generate_charts_umcsent_xlv.py"
 }
