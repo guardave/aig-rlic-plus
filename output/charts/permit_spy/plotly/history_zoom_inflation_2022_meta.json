@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_inflation_2022",
   "pair_id": "permit_spy",
-  "generated_at": "2026-10-17T22:40:17.422758+00:00",
+  "generated_at": "2026-10-18T00:36:57.325307+00:00",
   "generated_by": "scripts/generate_charts_permit_spy.py",
   "caption": "2022 Rate-Hike Cycle: Permits Fell as Mortgage Rates Rose; gray bands are NBER recessions and pink bands mark permits below their year-earlier level.",
   "narrative_alignment_note": "2022 Rate-Hike Cycle: Permits Fell as Mortgage Rates Rose; gray bands are NBER recessions and pink bands mark permits below their year-earlier level.",

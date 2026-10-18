@@ -1,7 +1,7 @@
 {
   "chart_name": "walk_forward",
   "pair_id": "permit_spy",
-  "generated_at": "2026-10-17T22:39:54.664693+00:00",
+  "generated_at": "2026-10-18T00:36:43.725380+00:00",
   "generated_by": "scripts/generate_charts_permit_spy.py",
   "caption": "Alias for the dashboard's standard walk-forward chart slot.",
   "narrative_alignment_note": "Alias for the dashboard's standard walk-forward chart slot.",

@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_covid",
   "pair_id": "permit_spy",
-  "generated_at": "2026-10-17T22:40:11.920234+00:00",
+  "generated_at": "2026-10-18T00:36:53.854040+00:00",
   "generated_by": "scripts/generate_charts_permit_spy.py",
   "caption": "COVID Shock: Brief Permit Collapse and Fast Rebound; gray bands are NBER recessions and pink bands mark permits below their year-earlier level.",
   "narrative_alignment_note": "COVID Shock: Brief Permit Collapse and Fast Rebound; gray bands are NBER recessions and pink bands mark permits below their year-earlier level.",
