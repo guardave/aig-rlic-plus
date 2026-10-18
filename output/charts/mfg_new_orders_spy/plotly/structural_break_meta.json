@@ -1,12 +1,12 @@
 {
   "chart_name": "structural_break",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-16T18:30:46.090927+00:00",
+  "generated_at": "2026-10-18T08:53:07.670049+00:00",
   "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
-  "caption": "Proxy check for large changes in the core-capex-orders/SPY relationship.",
-  "narrative_alignment_note": "Proxy check for large changes in the core-capex-orders/SPY relationship.",
+  "caption": "Proxy check for large swings in the orders growth-SPY correlation.",
+  "narrative_alignment_note": "Proxy check for large swings in the orders growth-SPY correlation.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/mfg_new_orders_spy/structural_break_mfg_new_orders_spy.json"
+    "results/mfg_new_orders_spy/structural_break_mfg_new_orders_spy.json"
   ]
 }

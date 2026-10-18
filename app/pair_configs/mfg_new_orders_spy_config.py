@@ -1,239 +1,230 @@
-"""Core Capital Goods Orders x SPY pair configuration (Rule APP-PT1).
+"""Core capital goods orders (FRED NEWORDER) x SPY pair configuration (Rule APP-PT1).
 
-New pair, MONTHLY capex-demand pair. The indicator is FRED NEWORDER --
-Manufacturers' New Orders: Nondefense Capital Goods Excluding Aircraft ("core
-capital goods orders", nominal $ millions, SA, monthly; Data Master column
-"Ind, Mat - Manufturs' New Orders"). It is NOT Census M3 total manufacturing
-new orders (FRED AMTMNO). NEWORDER is first printed in the Census advance
-durable-goods report (~26 days after month-end) and revised in the full M3
-report. It measures business equipment-investment demand and is a Conference
-Board LEI component, whose economic PRIOR is PROCYCLICAL (rising orders growth
--> risk-on). The
-nominal-dollar LEVEL is non-stationary (ADF fails to reject a unit root; KPSS
-rejects stationarity), so every tested signal is a growth transform
-(MoM/3m/6m/YoY %, YoY z-score, acceleration).
-
-HONEST FRAMING (binding). This is a found-in-search CANDIDATE, not a validated
-edge. Every number below is sourced from results/mfg_new_orders_spy/*:
-  - The tournament winner (`yoy` YoY growth / T_roll_p50 rolling-median /
-    COUNTERCYCLICAL / L12 months / P1_long_cash; OOS Sharpe 1.56 vs 0.96 B&H)
-    is the grid maximum over 252 combinations (all 252 valid). The MEDIAN
-    valid combo scores 0.684 -- it UNDERPERFORMS buy-and-hold (0.96)
-    (winner_summary.json).
-  - DIRECTION CONTRADICTS THE PRIOR. Core capex orders growth is procyclical and a
-    LEADING indicator, yet the search selected a COUNTERCYCLICAL rule (hold SPY
-    when 12-month-lagged growth is AT OR BELOW its 5-year rolling median) at a
-    12-MONTH lead. This is flagged as a likely search artifact -- part of the
-    fleet-wide long-lead pattern (issue #28) -- NOT as a real inverse-12-month
-    signal. `interpretation_metadata.json` records expected_direction
-    procyclical vs observed_direction countercyclical, direction_consistent
-    = false, confidence = low.
-  - The concurrent evidence points the ORDINARY procyclical way: sorting
-    months by YoY core capex orders growth, the weakest-growth quartile Q1 has the
-    worst concurrent SPY Sharpe (0.14), and higher-growth quartiles are better
-    (Q2 1.30, Q3 0.90, Q4 0.95) (regime_quartile_returns.csv). That tension --
-    procyclical concurrently, but a countercyclical winner at a 12-month lead
-    -- is the central caveat of this pair.
-  - No lead-lag forecast. Core capex orders growth does NOT Granger-cause SPY at any
-    tested lag (minimum p = 0.44 at lag 6) (granger_by_lag.csv). Linear
-    correlation with forward SPY is near zero at every horizon; the only
-    nominally significant cell is MoM growth vs 1-month-forward SPY (r = 0.12,
-    p = 0.02), a weak positive (core_models_20261008/correlations.csv). Local
-    projections are near-null at every horizon (no coefficient significant;
-    trivial R^2) (local_projections.csv). Pre-whitened cross-correlation is
-    significant ONLY at NEGATIVE lags (SPY tends to move BEFORE core capex orders) --
-    the reverse of a forecasting signal -- with no significant lead-side bars
-    (ccf_prewhitened.csv).
-  - The defensible virtue is DRAWDOWN / VOLATILITY REDUCTION: OOS max drawdown
-    -6.1% vs -23.9% for buy-and-hold, at a slightly LOWER annual return
-    (13.9% vs 14.8%) and much lower volatility (8.6%) -- read the Sharpe as
-    volatility avoidance, not a return advantage. Turnover is LOW (0.81/yr,
-    7 OOS trades): the rule sits in or out for long stretches. A stationary
-    block bootstrap puts the winner's Sharpe at p = 0.004
-    (tournament_validation_20261008/bootstrap.csv), but that is an in-sample
-    significance check, not out-of-sample validation.
-  - Status is `found_in_search` (evidence_status.json): the winner still needs
-    a frozen-rule holdout / final exam.
-  - Nominal (not inflation-adjusted); first printed in the advance durable-goods
-    report and revised in the full M3 report and later benchmark revisions;
-    COVID 2020-21 collapse/rebound is an extreme in-window outlier that can
-    dominate the fit.
-
-MONTHLY conventions: leads in MONTHS (winner L12); Sharpe annualized by
-sqrt(12); OOS window 2017-01-31 -> 2025-08-31 (104 months). Numbers sourced
-from results/mfg_new_orders_spy/ (winner_summary.json, kpis.json,
-evidence_status.json, interpretation_metadata.json, core_models_20261008/*,
-regime_quartile_returns.csv, subperiod_sharpe.csv, granger_by_lag.csv,
-stationarity_tests_20261008.csv, structural_break_mfg_new_orders_spy.json,
-tournament_results_20261008.csv, tournament_validation_20261008/bootstrap.csv).
+The indicator is NEWORDER, manufacturers' new orders for nondefense capital goods excluding aircraft ("core capital
+goods orders"); it is NOT total manufacturing new orders (AMTMNO), and the `mfg_new_orders*` names are legacy
+labels. Phase B: every result number is rendered from the structured winner fields (results/mfg_new_orders_spy/
+winner_summary.json `winner_fields`, via components.winner_fields), the track summary, or the evidence tables and
+derived facts declared in evidence_facts_<tag>.json; none is typed here (scripts/gate_structured_prose.py,
+scripts/gate_number_provenance.py). MAIN = as known at the time (real-time NEWORDER vintages); COMPARISON = as
+revised today (hindsight). The previous rule (raw in-sample Sharpe argmax, fixed lags, development run 20261016) is
+replayed exactly by the harness; the correction banner names it from the previous_* fields and names the older
+rule still shown on the main site from the 20261016 selection record.
 """
 
 from __future__ import annotations
 
+from pathlib import Path
+
+from components import provenance as P
 from components.page_templates import MethodologyConfig
+from components.winner_fields import load
+
+PAIR = "mfg_new_orders_spy"
+W = load(PAIR)
+_RES = Path(__file__).resolve().parents[2] / "results" / PAIR
+_WS = P.json_file(_RES / "winner_summary.json")
+_TAG = _WS["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
+_CORE = _RES / f"core_models_{_TAG}"
+_Q = P.col_dict(P.csv_file(_RES / "regime_quartile_returns.csv"), "quartile", "sharpe")
+_QR_T = P.csv_file(_CORE / "quantile_regression.csv")
+_QR = P.col_dict(_QR_T, "quantile", "coef")
+_QR_P = P.col_dict(_QR_T, "quantile", "p_value")
+_QT = P.json_file(_CORE / "quantile_equality_test.json")
+_LP_T = P.csv_file(_CORE / "local_projections.csv")
+_LP_COEF = P.col_dict(_LP_T, "horizon", "coef")
+_LP_P = P.col_dict(_LP_T, "horizon", "p_value")
+_LP_LAGS = P.col_dict(_LP_T, "horizon", "nw_lags")
+_TS = P.json_file(_RES / "track_summary.json")
+_EV = P.json_file(_RES / f"evidence_facts_{_TAG}.json")["derived"]
+_G_P = _EV["granger_min_p"]
+_G_PADJ = _EV["granger_min_p_bonferroni"]
+_ALPHA = _EV["significance_p"]
+_G_SIG = bool(_G_PADJ < _ALPHA)
+_NT = _TS.get("null_tournament") or {}
+_MAN = P.json_file(_RES / f"candidates_manifest_{_TAG}.json")
+_GRID = P.lead_grid(PAIR)
+_GRID_RANGE = f"L{_GRID[0]}-L{_GRID[-1]}"
+_EDGE = bool(((_WS.get("tracks") or {}).get("main") or {}).get("plateau", {}).get("grid_edge"))
+_CCF_LEAD = _EV["ccf_orders_first"]["lag"]
+_CCF_LAG = _EV["ccf_spy_first"]["lag"]
+
+
+def _lags(v) -> str:
+    return ", ".join(str(x) for x in v) if len(v) else "none"
+
+
+def _r71_caveat() -> str:
+    """Chance-check calibration disclosure (R7.1), rendered from the null diagnosis in track_summary.json."""
+    fails = [(lbl, d) for lbl, ok, d in (("as known at the time", _NT.get("r71_pass"), _NT.get("r71_diagnosis")),
+                                         ("as revised today", _NT.get("revised_r71_pass"), _NT.get("revised_r71_diagnosis")))
+             if ok is False]
+    if not fails:
+        return ""
+    body = " ".join(f"On data {lbl}: {d['reading']}" if d else f"On data {lbl}: no diagnosis recorded."
+                    for lbl, d in fails)
+    return ("- **Chance-check calibration.** The scrambled contests should show no timing skill on average "
+            "(the R7.1 check); here they do not meet it. " + body + " Where the check is not met, that track's "
+            "chance-check percentile compares its winner against a null that carries the same effect.\n")
+
+
+_R71_CAVEAT = _r71_caveat()
+_CHANCE_TEXT = (f"the real winner's stable-range score is above the winners of all {W.null_draws} scrambled contests"
+                if W.value("null_percentile") == 1 else
+                f"the real winner's stable-range score ranks at the {W.null_percentile} point of the scrambled scores")
+_COMP_TAIL = (
+    f" On the revised track the last test month ({W.comparison_tail_first_date} to {W.comparison_tail_last_date}) "
+    "has no defined position because the revised series ends before the return data; the published "
+    f"figure counts it as cash, and holding the last defined position instead gives a test-period Sharpe of "
+    f"{W.comparison_tail_hold_last_sharpe}."
+    if W.has("comparison_tail_n_periods") else "")
+
+THRESHOLD_TEXT = P.definitions({
+    "T_roll_p25": "its rolling 60-month 25th percentile",
+    "T_roll_p50": "its rolling 60-month median",
+    "T0_zero": "zero",
+    "T_z_0": "zero (its 60-month average)",
+    "T_z_1.0": "1.0 (one standard deviation above its 60-month average)",
+})
+SIGNAL_TEXT = P.definitions({
+    "yoy": "year-over-year growth in core capital goods orders",
+    "mom": "month-over-month growth in core capital goods orders",
+    "chg_3m": "3-month growth in core capital goods orders",
+    "chg_6m": "6-month growth in core capital goods orders",
+    "yoy_zscore_60m": "z-score of year-over-year orders growth versus its 60-month history",
+    "accel": "change in year-over-year orders growth",
+})
+SIDE = {"countercyclical": "at or below", "procyclical": "at or above"}
+
+
+def _rule(prefix: str = "") -> str:
+    """Plain-English long/cash rule of a track's winner, from its structured fields."""
+    g = lambda n: W.text(prefix + n)  # noqa: E731
+    sig = f"the {SIGNAL_TEXT.get(W.value(prefix + 'signal_code'), g('signal_code'))} from {g('lead_word')} months earlier"
+    side = SIDE.get(W.value(prefix + "direction"), g("direction"))
+    thr = THRESHOLD_TEXT.get(W.value(prefix + "threshold_code"), g("threshold_code"))
+    return f"hold SPY when {sig} is {side} {thr}; otherwise hold cash"
+
+
+def _rid(prefix: str = "") -> str:
+    g = lambda n: W.text(prefix + n)  # noqa: E731
+    return " / ".join([g("signal_code"), g("threshold_code"), g("strategy_family"), f"L{g('lead')}"])
+
+
+_SIG = SIGNAL_TEXT.get(W.value("signal_code"), W.signal_code)
+_THR = THRESHOLD_TEXT.get(W.value("threshold_code"), W.threshold_code)
+_RULE = _rule()
+_RID = _rid()
+_RID_REVISED = _rid("comparison_")
+_RULE_REVISED = _rule("comparison_")
+_SAME_RULE = all(W.value(k) == W.value("comparison_" + k)
+                 for k in ("signal_code", "threshold_code", "lead", "strategy_family", "direction"))
+_IF_THEN = (
+    f"- **IF** `{W.signal_code}` from {W.lead_word} months earlier is {SIDE.get(W.value('direction'), W.direction)} "
+    f"{_THR} -> hold SPY.\n- **ELSE** -> hold cash."
+)
 
 
 class StoryConfig:
-    PAGE_TITLE = "The Story: Core Capital Goods Orders as a Defensive SPY Overlay"
+    PAGE_TITLE = "The Story: Core Capital Goods Orders as a Signal for SPY"
     PAGE_SUBTITLE = (
-        "Core capital goods orders (manufacturers' new orders: nondefense "
-        "capital goods excluding aircraft, FRED NEWORDER) x S&P 500 (SPY), "
-        "monthly capex-demand growth signals tested against SPY returns."
+        "Core capital goods orders (manufacturers' new orders, nondefense capital goods excluding aircraft; FRED "
+        "NEWORDER) x S&P 500 (SPY): monthly business-investment signals tested against SPY returns."
     )
 
     HEADLINE_H2 = (
-        "## Sharpe 1.56 OOS, but the honest headline is the drawdown "
-        "(-6.1% vs -23.9%) -- and the winning rule is COUNTERCYCLICAL at a "
-        "12-month lead, the opposite of what a leading capex-demand "
-        "indicator should be"
+        f"## Test-period Sharpe {W.oos_sharpe} (buy-and-hold SPY: {W.bh_oos_sharpe}), "
+        "using orders data as known at the time"
     )
 
     PLAIN_ENGLISH = (
-        "Core capital goods orders (FRED NEWORDER) is the dollar value of new "
-        "orders U.S. manufacturers booked each month for nondefense capital "
-        "goods excluding aircraft -- business equipment such as machinery, "
-        "electrical equipment and computers. It is a widely watched gauge of "
-        "business equipment-investment demand and one of the components of "
-        "the Conference Board's Leading Economic Index, so the economic prior "
-        "is procyclical: rising orders growth signals firmer capex plans and "
-        "risk-on equities. This pair tests whether core capex orders growth "
-        "can improve SPY timing. Read the result as capex-demand context and "
-        "drawdown control, not as a forecast: the "
-        "formal lead-lag tests find no predictive edge, and the rule the "
-        "search selected runs the WRONG way (buy when growth is weak) at a "
-        "12-month lag -- most likely a search artifact, not a real signal."
+        "Every month the Census Bureau reports how many dollars of new orders U.S. manufacturers received for "
+        "business equipment, excluding defense goods and aircraft. These core capital goods orders track how much "
+        "companies plan to invest. The first estimate comes in the advance durable-goods report, a few weeks after "
+        "the month ends, and it is revised in the following full report and again in annual revisions. Because the "
+        "dollar level grows over time, this pair tests growth rates of orders, not the level, as SPY timing "
+        "signals. The headline uses the values as they were published at each date, not today's revised values."
     )
 
     WHERE_THIS_FITS = (
-        "This is a capex-demand overlay for broad U.S. equities. It belongs "
-        "in the portal as a defensive context signal: useful for drawdown "
-        "control in the searched sample, but not a standalone forecast, and "
-        "not evidence that core capex orders lead the market. Readers wanting genuine "
-        "advance warning should treat the concurrent, procyclical reading "
-        "(stronger orders = better equity conditions) as the economically "
-        "sensible one and the countercyclical 12-month winner with skepticism."
+        "This is a business-investment indicator. The data is core capital goods orders (NEWORDER), not total "
+        "manufacturing new orders (AMTMNO), which this pair does not test. Read it alongside the portal's other "
+        "manufacturing pairs, such as the ISM manufacturing index."
     )
 
     ONE_SENTENCE_THESIS = (
-        "Core capex orders growth is procyclical with equities CONCURRENTLY (weakest "
-        "growth quartile has the worst SPY Sharpe, 0.14) but does NOT lead SPY "
-        "-- Granger is insignificant at every lag (min p = 0.44) and local "
-        "projections are null -- so the search's best rule, a COUNTERCYCLICAL "
-        "filter at a 12-month lead, is a drawdown-reduction candidate "
-        "(-6.1% vs -23.9% max drawdown) whose direction and lead contradict "
-        "the economic prior and are most likely a search artifact (issue #28)."
+        f"On data as known at the time, the rule selected on the training period is to {_RULE}; in the test period "
+        f"it scored Sharpe {W.oos_sharpe}, and buy-and-hold SPY scored {W.bh_oos_sharpe}."
     )
 
     KPI_CAPTION = (
-        "every performance number here is a SEARCH-PHASE, out-of-sample figure "
-        "on a 104-month window (2017-01-31 -> 2025-08-31). The winner was "
-        "found as the best of 252 valid combinations, and the MEDIAN valid "
-        "combo (0.684) UNDERPERFORMS buy-and-hold (0.96) -- the typical rule "
-        "subtracts value. The defensible number is the max drawdown "
-        "(-6.1% vs -23.9%) at a slightly LOWER return (13.9% vs 14.8%) and "
-        "much lower volatility (8.6%) -- read the Sharpe (1.56 vs 0.96) as "
-        "volatility avoidance, not stock-picking skill. Sharpe ratios use "
-        "monthly sqrt(12) annualization."
+        f"Winner selected on training data ({W.is_start} to {W.is_end}) by {W.selection_objective}: "
+        f"{_SIG}, {W.threshold_code}, long/cash, lead {W.lead_text}. Test-period Sharpe {W.oos_sharpe}; "
+        f"buy-and-hold SPY {W.bh_oos_sharpe} ({W.oos_start} to {W.oos_end})."
     )
 
-    HERO_TITLE = "Core Capital Goods Orders (NEWORDER) vs the S&P 500 (SPY)"
+    HERO_TITLE = "Core Capital Goods Orders Growth vs the S&P 500 (SPY)"
     HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
-        "How to read it: the core-capex-orders level (nominal $, left axis) is shown "
-        "with SPY on the same time axis, NBER recessions shaded. Both trend up "
-        "over decades; the traded signal is not the level (it is "
-        "non-stationary) but its year-over-year growth. Watch the shaded "
-        "recessions -- core capex orders fell during them, but as a leading "
-        "indicator it typically rolled over into, not long before, the equity "
-        "downturns in this window."
+        "How to read it: year-over-year growth in core capital goods orders (left axis, today's revised values) is "
+        "shown with SPY (right axis, log scale) on the same time axis. Gray bands are NBER recessions; pink bands "
+        "mark months when orders were below their year-earlier level."
     )
 
-    REGIME_TITLE = "What History Shows: SPY Performance by Core Capex Orders Growth Regime"
+    REGIME_TITLE = "What History Shows: SPY Performance by Orders-Growth Regime"
     REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
-        "What this shows: months are sorted from Q1 (weakest core-capex-orders "
-        "growth) to Q4 (strongest), with concurrent SPY Sharpe in each. The "
-        "weakest-growth quartile Q1 is clearly the worst (Sharpe 0.14), and "
-        "the stronger-growth quartiles are better (Q2 1.30, Q3 0.90, Q4 0.95) "
-        "-- broadly PROCYCLICAL concurrently. This is the economically "
-        "sensible reading, and it runs OPPOSITE to the countercyclical rule "
-        "the tournament selected. Descriptive and concurrent, not a "
-        "tradable lead."
+        f"What this shows: months sorted by year-over-year growth in core capital goods orders, from Q1 (weakest) to "
+        f"Q4 (strongest). Same-month SPY Sharpe is {_Q['Q1']:.2f} in Q1, {_Q['Q2']:.2f} in Q2, {_Q['Q3']:.2f} in Q3 "
+        f"and {_Q['Q4']:.2f} in Q4."
     )
 
-    NARRATIVE_SECTION_1 = """
+    NARRATIVE_SECTION_1 = f"""
 ### Headline Findings
 
-The winning rule is a **countercyclical, 12-month-lagged core-capex-orders-growth filter**. It holds SPY when year-over-year core capex orders growth from twelve months earlier was at or below its five-year rolling median, and holds cash otherwise. Out-of-sample (2017-01 to 2025-08), this rule earns a Sharpe of 1.56 versus 0.96 for buy-and-hold, with a maximum drawdown of **-6.1% versus -23.9%** at an annualized return of 13.9% versus 14.8%. Read that as the honest headline: the rule's edge is a much shallower worst-case loss and lower volatility, **not** a return advantage.
+This result uses data as known at the time, covering {W.is_start} to {W.oos_end}: every month the rule reads core capital goods orders as they were published then, not today's revised values.
 
-### The Capex-Demand Hypothesis
+The winning rule uses the **{_SIG}** (long/cash): {_RULE}. It was selected on the training period ({W.is_start} to {W.is_end}) by {W.selection_objective} (stable lead range {W.plateau_range}), out of {W.n_valid} valid combinations ({W.n_distinct} distinct position series). In the test period ({W.oos_start} to {W.oos_end}) it records Sharpe {W.oos_sharpe} (buy-and-hold SPY: {W.bh_oos_sharpe}), with maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}. The test-period Sharpe difference is {W.sharpe_gap} (95% interval {W.ci_low} to {W.ci_high}).
 
-Core capital goods orders (manufacturers' new orders for nondefense capital goods excluding aircraft, FRED `NEWORDER`) measures business demand for new equipment -- orders booked now for delivery later. Because firms commit to equipment spending ahead of installing it, it is a **leading** indicator of business investment and a component of the Conference Board's Leading Economic Index. It is a capex slice of factory orders (roughly an eighth of total manufacturing new orders), not the total. The economic prior is that core capex orders growth is **procyclical**: firm, rising orders are risk-on for equities; slowing orders are an early sign demand is cooling.
+On today's revised data (hindsight, for comparison only) the selected rule {'is the same' if _SAME_RULE else 'is to ' + _RULE_REVISED}; its test-period Sharpe is {W.comparison_oos_sharpe}.
 
-The concurrent evidence supports that prior: sort months by core capex orders growth and the weakest-growth quartile has the worst concurrent SPY Sharpe (0.14), with stronger-growth quartiles better. But the tournament's winning rule runs the **opposite** way -- it buys SPY when 12-month-lagged growth is *weak* -- and at a 12-month lead. That direction-and-lead combination contradicts the economic prior.
+### The Capital-Spending Hypothesis
 
-### Why This Is Not a Forecast
+Companies order equipment when they expect demand and profits to grow, so rising orders growth should line up with stronger earnings ahead and risk-on equity conditions, and slowing orders with softening demand. That makes the prior procyclical: hold SPY when orders growth is firm.
 
-The formal lead-lag tests are blunt. Core capex orders growth does **not** Granger-cause SPY returns at any tested lag (minimum p = 0.44), forward-return correlations are near zero at every horizon, and local projections are essentially null. The pre-whitened cross-correlation is significant only at *negative* lags -- SPY tends to move *before* core capex orders -- the reverse of a forecasting signal. So the countercyclical 12-month lead the search selected is economically implausible for a leading, procyclical indicator; it most plausibly reflects the fleet-wide long-lead search pattern (issue #28), not a real inverse channel. This dashboard therefore treats the pair as a searched capex-demand overlay whose value, if any, is defensive.
+### Why Timing Is Difficult
+
+Orders are published a few weeks after the month and revised afterwards, and the stock market often prices the investment cycle before the orders data show it. Orders are also measured in current dollars, so inflation can keep reported growth positive while real investment slows.
 """
 
     HISTORY_ZOOM_EPISODES = [
-        {
-            "slug": "dotcom",
-            "title": "Dot-Com Recession",
-            "narrative": (
-                "Core capex orders fell with the tech-capex bust. As a leading "
-                "indicator it softened around the downturn, but the searched "
-                "rule did NOT protect here -- its subperiod Sharpe was worse "
-                "than buy-and-hold in this window."
-            ),
-            "caption": "Dot-Com: core capex orders fell with the capex bust; the rule did not defend here.",
-        },
-        {
-            "slug": "gfc",
-            "title": "Global Financial Crisis",
-            "narrative": (
-                "Core capex orders collapsed through 2008-09 as business "
-                "equipment spending seized up. The rule lost less than buy-and-hold in this "
-                "window, part of its drawdown story, but still fell."
-            ),
-            "caption": "GFC: core capex orders collapsed 2008-09; the rule lost less than SPY.",
-        },
-        {
-            "slug": "covid",
-            "title": "COVID Shock",
-            "narrative": (
-                "Core capex orders plunged in spring 2020 and rebounded sharply. "
-                "This is an extreme, exogenous in-window outlier that can "
-                "dominate the backtest fit -- read any rule that leans on it "
-                "with caution."
-            ),
-            "caption": "COVID: sharp plunge and rebound, an outlier that can dominate the fit.",
-        },
-        {
-            "slug": "inflation_2022",
-            "title": "2022 Rate Shock",
-            "narrative": (
-                "Nominal core capex orders stayed elevated through 2022, "
-                "helped by rising equipment prices, even as equities de-rated. This is the "
-                "key caveat of a nominal-dollar series: inflation can keep the "
-                "growth signal firm while the market falls."
-            ),
-            "caption": "2022: nominal core capex orders stayed high, helped by inflation, while SPY sold off.",
-        },
+        {"slug": "dotcom", "title": "Dot-Com Bust",
+         "narrative": ("Orders growth peaked in 2000 and fell below its year-earlier level before the 2001 "
+                       "recession; the deepest fall came in 2001, while SPY kept falling until late 2002."),
+         "caption": "Dot-Com: orders growth turned negative before the recession; SPY fell until late 2002."},
+        {"slug": "gfc", "title": "Global Financial Crisis",
+         "narrative": ("Orders fell below their year-earlier level in late 2007, close to the equity peak. The "
+                       "deepest fall in orders came in spring 2009, shortly after SPY's low in early 2009."),
+         "caption": "GFC: orders growth turned negative near the equity peak and bottomed just after SPY."},
+        {"slug": "covid", "title": "COVID Shock",
+         "narrative": ("Orders were already slightly below their year-earlier level from mid-2019. They dropped "
+                       "sharply in spring 2020 and then grew at the fastest rate of the window in 2021, as SPY "
+                       "recovered."),
+         "caption": "COVID: orders collapsed in spring 2020 and rebounded strongly in 2021."},
+        {"slug": "inflation_2022", "title": "2022 Inflation Shock",
+         "narrative": ("Nominal orders kept growing through the 2022 equity decline, helped by inflation, and fell "
+                       "below their year-earlier level only in 2023 and 2024, while SPY was recovering."),
+         "caption": "2022: nominal orders kept growing while equities fell."},
     ]
 
     NARRATIVE_SECTION_2 = """
 ### What History Shows
 
-The stress charts show why the signal is procyclical but imperfect as a forecast. Core capex orders fell during the Dot-Com, GFC and COVID recessions -- but the searched rule's protection was uneven: it did worse than buy-and-hold in the Dot-Com bear, lost less in the GFC, and sat in cash (flat) through COVID and the 2022 rate shock while SPY fell. In 2022 the nominal series stayed high, helped by inflation, exactly when a demand signal would have been most useful. The strongest honest reading is not "core capex orders predict drawdowns"; it is that a lagged, countercyclical filter happened to step to cash during several stress windows, which is where its drawdown advantage was earned.
+Orders growth turned negative around the start of the 2001 and 2008 downturns but bottomed close to, or after, the equity lows, and in 2022 nominal orders kept growing while equities fell. These episodes are context for reading the strategy result, not evidence that the rule adds value; the test-period comparison with buy-and-hold is on the Strategy page.
 """
 
     TRANSITION_TEXT = (
-        "The Evidence page tests whether this capex-demand story survives "
-        "correlation, lead-lag, regime, and strategy checks. It largely does "
-        "not survive as a forecast -- the value is defensive, not predictive, "
-        "and the winner's direction contradicts the procyclical prior."
+        "The Evidence page tests whether this capital-spending story survives correlation, lead-lag, regime and "
+        "strategy checks."
     )
 
 
@@ -243,295 +234,224 @@ STORY_CONFIG = StoryConfig()
 CORRELATION_BLOCK = dict(
     chart_status="ready",
     method_name="Correlation Analysis",
-    method_theory=(
-        "Correlation measures whether core capex orders growth and future SPY "
-        "returns move together in a roughly linear way."
-    ),
-    question="Does faster core capex orders growth line up with better or worse future SPY returns?",
+    method_theory="Correlation measures whether orders-growth signals and future SPY returns move together in a roughly linear way.",
+    question="Does stronger orders growth line up with better or worse future SPY returns?",
     how_to_read=(
-        "Read the heatmap by horizon and signal transform. Positive values "
-        "mean stronger core capex orders growth lines up with stronger future SPY "
-        "returns; pale cells mean no association."
+        "Read the heatmap by signal and horizon. Positive values mean stronger orders growth lines up with "
+        f"stronger future SPY returns; negative values mean the opposite. A star marks a p-value below {_ALPHA} "
+        "from Newey-West standard errors, which allow for the overlap of multi-month returns."
     ),
     chart_name="correlation_heatmap",
-    chart_caption=(
-        "What this shows: the linear association is essentially zero at every "
-        "tradeable horizon. The only nominally significant cell is MoM growth "
-        "vs the 1-month-forward SPY return (r = 0.12, p = 0.02), a weak "
-        "positive -- not a usable forecasting signal."
-    ),
+    chart_caption="What this shows: linear correlations between each orders-growth transform and forward SPY returns at several horizons.",
     observation=(
-        "No transform shows a material linear association with forward SPY; "
-        "the YoY-vs-forward cells are near zero (|r| < 0.03), and the largest "
-        "cell anywhere is MoM growth vs 1-month-forward SPY at r = 0.12."
+        "Year-over-year growth and its z-score are persistent, so overlapping forward-return correlations carry "
+        "less independent evidence than their sample size suggests; the p-values account for that overlap."
     ),
-    interpretation=(
-        "Correlation alone does not support trading the pair. The more "
-        "relevant question is whether a lagged growth filter improves "
-        "portfolio behavior in the searched sample."
-    ),
-    key_message="Core capex orders growth is not a linear SPY predictor at any tradeable horizon.",
+    interpretation="Correlation alone is not enough to trade the pair; the tournament asks whether a lagged rule improves portfolio behavior.",
+    key_message="Correlations describe the pair; they do not select the rule.",
 )
 
 GRANGER_BLOCK = dict(
     chart_status="ready",
     method_name="Granger Causality by Lag",
-    method_theory=(
-        "Granger causality tests whether past values of one series improve "
-        "forecasts of another after accounting for its own history."
-    ),
-    question="Does core capex orders growth lead SPY returns in a formal lag test?",
+    method_theory="Granger causality tests whether past values of one series improve forecasts of another after accounting for its own history.",
+    question="Does past year-over-year orders growth help forecast SPY returns in a formal lag test?",
     how_to_read=(
-        "Bars show p-values by monthly lag; the dashed line marks the 5% "
-        "significance level. Bars ABOVE the line are insignificant."
+        "Bars show the unadjusted p-value of the test at each monthly lag. Because several lags are tried, the "
+        "smallest p-value is also shown Bonferroni-adjusted (multiplied by the number of lags); the "
+        "dotted line is the matching threshold."
     ),
     chart_name="granger_f_by_lag",
     chart_caption=(
-        "What this shows: every lag is insignificant. The smallest p-value "
-        "across lags 1-12 is 0.44 -- core capex orders growth does not Granger-cause "
-        "SPY returns."
+        f"What this shows: the smallest orders-to-SPY Granger p-value across the {_EV['n_granger_lags']} monthly "
+        f"lags tried is {_G_P:.3f} (lag {_EV['granger_best']['lag']}), {_G_PADJ:.3f} after the Bonferroni adjustment."
     ),
     observation=(
-        "Across all twelve monthly lags the NEWORDER->SPY p-value never falls "
-        "below 0.44; the F-statistics are tiny. There is no formal evidence "
-        "of lead-lag causality."
+        f"The smallest p-value is {_G_P:.3f}; adjusted for the {_EV['n_granger_lags']} lags tried it is {_G_PADJ:.3f}"
+        + (f", below {_ALPHA}." if _G_SIG else f", not below {_ALPHA}.")
     ),
-    interpretation=(
-        "This rules out a causal claim. The strategy must be framed as a "
-        "searched capex-demand overlay, not proof that core capex orders cause "
-        "future SPY returns."
-    ),
-    key_message="Formal lead-lag evidence is absent (min p = 0.44); core capex orders do not lead SPY.",
+    interpretation="A Granger result is a statement about linear forecasting on revised data, not proof that orders cause SPY returns.",
+    key_message="Formal lead-lag evidence is reported as tested; read it with the tournament, not instead of it.",
 )
 
 QUARTILE_BLOCK = dict(
     chart_status="ready",
     method_name="Regime Quartile Analysis",
-    method_theory=(
-        "Quartile analysis sorts months by core-capex-orders YoY growth and "
-        "compares concurrent SPY returns across capex-demand regimes."
-    ),
-    question="Do weak and strong capex-demand regimes produce different SPY outcomes?",
-    how_to_read=(
-        "Q1 is the weakest-growth regime; Q4 is the strongest. Compare "
-        "Sharpe, average return, and sample size across the four buckets."
-    ),
+    method_theory="Quartile analysis sorts months by year-over-year orders growth and compares SPY returns across the quartile groups.",
+    question="Do months of weak and strong orders growth produce different SPY outcomes?",
+    how_to_read=("Q1 holds the months with the weakest year-over-year orders growth; Q4 the months with the "
+                 "strongest. Compare Sharpe, average return and sample size."),
     chart_name="regime_stats",
     chart_caption=(
-        "What this shows: broadly PROCYCLICAL -- the weakest-growth quartile "
-        "Q1 has the worst concurrent SPY Sharpe (0.14), and higher-growth "
-        "quartiles are better (Q2 1.30, Q3 0.90, Q4 0.95). This runs opposite "
-        "to the countercyclical winner."
+        f"What this shows: same-month SPY Sharpe by quartile of year-over-year orders growth, {_Q['Q1']:.2f} in Q1 "
+        f"(weakest) and {_Q['Q4']:.2f} in Q4 (strongest)."
     ),
-    observation=(
-        "Concurrent SPY Sharpe is far lower in the weakest-growth quartile "
-        "(Q1 0.14) than in the stronger-growth quartiles (Q2 1.30, Q3 0.90, "
-        "Q4 0.95) -- higher capex-demand growth generally coincides with "
-        "better equity conditions."
-    ),
-    interpretation=(
-        "The concurrent pattern fits a procyclical capex-demand story. That "
-        "makes the tournament's COUNTERCYCLICAL winner economically "
-        "counter-intuitive and reinforces reading it as a search artifact, "
-        "not a real inverse relationship."
-    ),
-    key_message="Stronger capex demand coincides with better SPY conditions -- procyclical, opposite the winner's direction.",
+    observation=f"SPY Sharpe in the same months: Q1 {_Q['Q1']:.2f}, Q2 {_Q['Q2']:.2f}, Q3 {_Q['Q3']:.2f}, Q4 {_Q['Q4']:.2f}.",
+    interpretation="Quartiles are concurrent, not predictive: they show the backdrop, while the tournament tests lagged rules.",
+    key_message="Orders-growth regimes describe the equity backdrop.",
 )
 
 CCF_BLOCK = dict(
     chart_status="ready",
     method_name="Pre-Whitened Cross-Correlation",
-    method_theory=(
-        "Pre-whitened cross-correlation filters each series' own persistence "
-        "before testing whether one tends to move before or after the other."
-    ),
-    question="At which offsets does core capex orders growth line up with SPY returns?",
-    how_to_read=(
-        "Bars outside the dashed confidence band mark unusual lead-lag "
-        "correlation after filtering autocorrelation. Positive offsets mean "
-        "core capex orders lead; negative offsets mean SPY leads."
-    ),
+    method_theory="Cross-correlation on first differences filters persistence before testing whether one series tends to move before or after the other.",
+    question="At which offsets do changes in orders growth line up with SPY returns?",
+    how_to_read="Positive lags mean orders growth moves first; negative lags mean SPY moves first. Bars outside the dashed band mark offsets with unusually large correlation.",
     chart_name="ccf_prewhitened",
-    chart_caption=(
-        "What this shows: the significant bars sit ENTIRELY at negative lags "
-        "-- SPY tends to move BEFORE core capex orders -- with no significant "
-        "lead-side (core-capex-orders-leads-SPY) bars. That is the reverse of a "
-        "forecasting signal."
-    ),
+    chart_caption="What this shows: correlation of the monthly change in year-over-year orders growth with SPY returns at offsets in months.",
     observation=(
-        "Correlations are significant only at negative lags (SPY leading new "
-        "orders, ccf up to ~0.24); every positive lead-side offset is inside "
-        "the confidence band and insignificant."
+        f"Offsets (months) outside the band where orders growth moves first: {_lags(_CCF_LEAD)}; where SPY moves "
+        f"first: {_lags(_CCF_LAG)}."
     ),
-    interpretation=(
-        "There is no coherent window in which core capex orders growth foreshadows "
-        "SPY. If anything the causality runs the other way (markets "
-        "anticipating capex demand), which argues against a core-capex-orders "
-        "forecast of SPY."
-    ),
-    key_message="Significant correlation is on the SPY-leads side; core capex orders show no forecasting lead over SPY.",
+    interpretation="Isolated significant bars are expected by chance across many offsets.",
+    key_message="Equities often price the investment cycle before the orders data show it.",
 )
 
 LOCAL_PROJECTIONS_BLOCK = dict(
     chart_status="ready",
     method_name="Local Projections",
-    method_theory=(
-        "Local projections estimate how future SPY returns respond across "
-        "multiple horizons after a change in the core-capex-orders-growth signal."
-    ),
-    question="How does SPY respond after core capex orders growth changes?",
+    method_theory="Local projections estimate how future SPY returns line up with year-over-year orders growth over several horizons.",
+    question="How do forward SPY returns relate to year-over-year orders growth at different horizons?",
     how_to_read=(
-        "Each bar is an estimated future SPY response after a move in the "
-        "core-capex-orders-growth signal. Coefficients near zero mean no detectable "
-        "effect."
+        "Each bar is the estimated forward SPY return per percentage point of year-over-year orders growth; "
+        "whiskers are 95% intervals from Newey-West standard errors with at least horizon-minus-one lags."
     ),
     chart_name="local_projections",
     chart_caption=(
-        "What this shows: coefficients are essentially zero across all "
-        "horizons (1, 3, 6, 12 months), none statistically significant "
-        "(p from 0.57 to 0.93), with negligible R^2."
+        f"What this shows: slopes from {_LP_COEF[1]:+.4f} at the 1-month horizon (p {_LP_P[1]:.2f}) to "
+        f"{_LP_COEF[12]:+.4f} at the 12-month horizon (p {_LP_P[12]:.2f}, {_LP_LAGS[12]} Newey-West lags)."
     ),
-    observation=(
-        "Point estimates are near zero at every horizon and no coefficient is "
-        "significant; the explained variance is trivial throughout."
-    ),
-    interpretation=(
-        "There is essentially no linear predictive content at any horizon. "
-        "Nothing here rescues a forward-looking reading of the indicator."
-    ),
-    key_message="Local projections are null; core capex orders growth carries no useful linear forecast for SPY.",
+    observation="The raw macro relationship is shown here, not the final lagged tournament rule.",
+    interpretation="Overlapping horizons share observations; the Newey-West errors widen the intervals accordingly.",
+    key_message="The horizon matters for orders-growth signals.",
 )
 
 QUANTILE_BLOCK = dict(
     chart_status="ready",
     method_name="Quantile Regression",
-    method_theory=(
-        "Quantile regression checks whether the core-capex-orders signal matters "
-        "differently in weak, normal, and strong SPY return environments."
-    ),
-    question="Does core capex orders growth behave differently in market tails?",
+    method_theory="Quantile regression checks whether orders growth matters differently in weak, normal and strong SPY return environments.",
+    question="Does orders growth behave differently in market tails?",
     how_to_read=(
-        "Compare the signal coefficient across return quantiles. A larger "
-        "coefficient means a stronger association with that part of the SPY "
-        "return distribution."
+        "Compare the orders-growth coefficient across quantiles of the 3-month forward SPY return. Intervals and "
+        "p-values come from a moving-block bootstrap, which allows for overlapping 3-month returns."
     ),
     chart_name="quantile_coef",
     chart_caption=(
-        "What this shows: real quantile-regression slopes are strongly tail-"
-        "dependent. In the lower (deep-selloff) tail the slope is positive and "
-        "significant (+0.0028 at tau=0.10, p=0.001); it fades to near zero in the "
-        "middle and upper quantiles. A cross-quantile equality test REJECTS a "
-        "uniform slope (Wald p<0.001)."
+        f"What this shows: slopes of the 3-month forward SPY return on year-over-year orders growth, "
+        f"{_QR[0.1]:+.4f} at tau=0.10 (p {_QR_P[0.1]:.2f}) and {_QR[0.5]:+.4f} at tau=0.50 (p {_QR_P[0.5]:.2f}); "
+        f"a cross-quantile equality test does {'not ' if not _QT['reject_equality'] else ''}reject a uniform slope "
+        f"(Wald p={_QT['p_value']:.2f})."
     ),
     observation=(
-        "The effect is concentrated in the lower tail: tau=0.10 is positive and "
-        "significant (+0.0028, p=0.001) while tau=0.25-0.90 are small and "
-        "insignificant. A bootstrap Wald test strongly rejects slope equality "
-        "across quantiles (p<0.001)."
+        f"The block-bootstrap Wald test {'does not reject' if not _QT['reject_equality'] else 'rejects'} slope "
+        f"equality across quantiles (p={_QT['p_value']:.2f})."
     ),
-    interpretation=(
-        "Core capex orders growth matters most in deep-selloff states, where stronger "
-        "core capex orders coincide with less-negative forward SPY returns -- a "
-        "tail-concentrated, not uniform, relationship. The prior 'flat / no tail "
-        "sensitivity' description was an artifact of the OLS-repeated bug; the "
-        "real analysis shows clear tail asymmetry."
-    ),
-    key_message="Core capex orders growth has a tail-concentrated SPY association -- significant in the lower tail and near zero elsewhere (Wald p<0.001), not the uniform null previously shown.",
+    interpretation="Tail asymmetry is only established if the equality test rejects; otherwise read the slopes as imprecise.",
+    key_message=f"Cross-quantile equality Wald p={_QT['p_value']:.2f}.",
 )
 
 
 EVIDENCE_METHOD_BLOCKS = {
-    "title": "The Evidence: Core Capex Orders Are Procyclical Context, Not a SPY Forecast",
+    "title": "The Evidence: Core Capital Goods Orders and SPY",
     "overview": (
-        "The evidence supports a cautious capex-demand overlay -- and "
-        "nothing stronger. The strategy winner improves search-phase OOS "
-        "Sharpe, but formal lead-lag evidence is absent (Granger min p = 0.44; "
-        "local projections null; CCF significant only on the SPY-leads side), "
-        "and the winner's COUNTERCYCLICAL direction at a 12-month lead "
-        "contradicts the procyclical, leading-indicator prior."
+        "The tests below describe a business-investment overlay. The selected rule's test-period Sharpe is "
+        f"{W.oos_sharpe} (buy-and-hold SPY: {W.bh_oos_sharpe}) on data as known at the time."
     ),
     "plain_english": (
-        "This page asks whether core capex orders growth helps time SPY. The answer "
-        "is: not as a forecast. Concurrent quartiles are procyclical (weak "
-        "growth = worse market), but the causal tests find no lead, and the "
-        "best rule runs the opposite way at a 12-month lag. Treat it as a "
-        "defensive, after-the-fact overlay, not an early-warning system."
+        "This page asks whether core capital goods orders help with SPY timing, first with descriptive tests on "
+        "today's revised data, then with the tournament on data as known at the time."
     ),
     "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
     "level1_labels": ["Correlation", "Granger", "Quartiles", "CCF"],
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK],
     "level2_labels": ["Local Projections", "Quantile Regression"],
     "tournament_intro": (
-        "The tournament tested 252 strategy combinations (all 252 valid) "
-        "across six core capex orders growth transforms, fixed and rolling "
-        "thresholds, procyclical/countercyclical orientations, and leads from "
-        "0 to 12 months. The selected winner is `yoy / T_roll_p50 / "
-        "P1_long_cash countercyclical / L12`, with OOS Sharpe 1.56. The MEDIAN "
-        "valid combo scores 0.684 -- below buy-and-hold's 0.96 -- and the "
-        "runner-up (`chg_3m / T_roll_p50 / countercyclical / L12`, 1.482) "
-        "shares the same rolling-median threshold and 12-month lead, so the "
-        "search surface concentrates on long-lead countercyclical rules "
-        "(the fleet-wide issue #28 pattern), not a robust economic edge."
+        f"The tournament tested {W.n_candidates} declared strategy combinations ({W.n_valid} valid on the training "
+        f"period; {W.n_distinct} distinct position series) across {P.length(_MAN['signals'])} orders-growth "
+        f"transforms, zero, fixed and rolling-percentile thresholds, the long/cash position rule, both orientations "
+        f"and the lead grid {_GRID_RANGE} months, on data as known at the time. The selected winner is `{_RID}`, "
+        f"chosen on the training period by {W.selection_objective}."
     ),
-    "transition": (
-        "**Transition:** the evidence is procyclical context, not causation, "
-        "and the winner runs against the prior. The Strategy page shows the "
-        "exact long/cash rule, the drawdown advantage that is its real "
-        "virtue, and the deployment caveats."
-    ),
+    "transition": "**Transition:** the Strategy page shows the exact rule, its threshold and the deployment caveats.",
 }
 
 
 class StrategyConfig:
-    PAGE_TITLE = "The Strategy: A Countercyclical, Lagged Core-Capex-Orders Long/Cash Overlay"
+    PAGE_TITLE = "The Strategy: A Lagged Core Capital Goods Orders Overlay for SPY"
     PAGE_SUBTITLE = (
-        "A searched SPY allocation rule using year-over-year core-capex-orders "
-        "growth, a rolling-median threshold, a countercyclical orientation, "
-        "and a 12-month lead -- valued for drawdown reduction, not for its "
-        "Sharpe, and flagged as running against the economic prior."
+        f"A searched SPY allocation rule: {_SIG}, long/cash, lead {W.lead_text}, on orders data as known at the time."
     )
 
-    PLAIN_ENGLISH = (
-        "The rule holds SPY when year-over-year core capex orders growth from twelve "
-        "months earlier was at or below its five-year rolling median; "
-        "otherwise it holds cash. This is a lagged, COUNTERCYCLICAL "
-        "capex-demand filter -- the opposite of the procyclical prior for a "
-        "leading indicator -- not a real-time recession forecast. Judge it by "
-        "its shallower drawdown (-6.1% vs -23.9%) and lower volatility, not by "
-        "the headline Sharpe."
+    STATISTICAL_FRAMING_BANNER = (
+        "Correction (2026-10-18). The main site still shows an older rule for this pair, chosen by its test-period "
+        f"score (legacy method). The previous development run ({W.previous_tag}, not on the main site) reported "
+        f"{W.previous_rule} ({W.previous_selection}: training Sharpe {W.previous_is_sharpe}, test-period Sharpe "
+        f"{W.previous_oos_sharpe}), on orders data as downloaded for that run. The page now reports the rule "
+        "selected on the training period from data as known at the time, with point-in-time release dates and the "
+        "stable-lead-range rule; today's revised data are shown for comparison only."
+    )
+
+    PLAIN_ENGLISH = f"The rule is to {_RULE}. It is a lagged capital-spending rule, not a real-time recession forecast."
+
+    # Status and badge rule come from track_summary.json (components.two_track.badge_status); facts only here.
+    EXECUTIVE_CONFIDENCE_SUMMARY = dict(
+        status="",
+        status_detail=(
+            "Selected on the training period from core capital goods orders as known at the time; it has not faced "
+            "a frozen-rule hold-out test."
+        ),
+        strengths=[
+            f"Point-in-time orders readings give a training period of {W.is_n} months ({W.is_start} to {W.is_end}).",
+            f"The chosen lead sits in a stable lead range ({W.plateau_range}).",
+        ],
+        risks=[
+            f"Test-period Sharpe difference versus buy-and-hold {W.sharpe_gap}, 95% interval {W.ci_low} to {W.ci_high}.",
+            f"The rule selected on revised data {'is the same' if _SAME_RULE else 'differs'} (hindsight test-period "
+            f"Sharpe {W.comparison_oos_sharpe}).",
+            "Orders are nominal: inflation can keep reported growth positive while real investment slows.",
+        ] + ([f"The stable lead range {W.plateau_range} sits at the edge of the declared lead grid ({_GRID_RANGE} "
+              "months); leads beyond the grid were not tested."] if _EDGE else []),
+        conclusion=(
+            f"Rule {_RID}: test-period Sharpe {W.oos_sharpe} (buy-and-hold SPY: {W.bh_oos_sharpe}; {W.oos_start} "
+            f"to {W.oos_end}), maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}, on "
+            "orders data as known at the time."
+        ),
     )
 
     DOWNLOADS = [
-        {"label": "Granger causality by lag", "path": "results/mfg_new_orders_spy/granger_by_lag.csv"},
-        {"label": "Regime quartile returns", "path": "results/mfg_new_orders_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/mfg_new_orders_spy/tournament_results_20261016.csv"},
-        {"label": "Stationarity tests", "path": "results/mfg_new_orders_spy/stationarity_tests_20261016.csv"},
+        {"label": "Granger causality by lag", "path": f"results/{PAIR}/granger_by_lag.csv"},
+        {"label": "Regime quartile returns", "path": f"results/{PAIR}/regime_quartile_returns.csv"},
+        {"label": "Tournament results (as known at the time)", "path": f"results/{PAIR}/tournament_results_{_TAG}.csv"},
+        {"label": "Tournament results (as revised today, hindsight)",
+         "path": f"results/{PAIR}/hindsight_tournament_results_{_TAG}.csv"},
+        {"label": f"Previous development-run tournament ({W.previous_tag})",
+         "path": f"results/{PAIR}/tournament_results_{W.value('previous_tag')}.csv"},
+        {"label": "Stationarity tests", "path": f"results/{PAIR}/stationarity_tests_{_TAG}.csv"},
     ]
 
-    SIGNAL_RULE_MD = """
-**Rule in plain English:** hold SPY when the 12-month-lagged year-over-year change in core capital goods orders was at or below its five-year rolling median (i.e. when capex-demand growth was *weak* a year earlier); otherwise hold cash. This is a countercyclical rule and runs against the procyclical prior.
+    SIGNAL_RULE_MD = f"""
+**Rule in plain English:** {_RULE}.
 
 If-then form:
-- **IF** `mfg_new_orders_yoy` from 12 months earlier is at or below its 60-month rolling median -> hold SPY.
-- **ELSE** -> hold cash.
+{_IF_THEN}
 
-Search-phase OOS results (2017-01-31 to 2025-08-31, 104 months): Sharpe 1.56 versus 0.96 buy-and-hold; annualized return 13.9% versus 14.8%; **maximum drawdown -6.1% versus -23.9%**; annualized volatility 8.6%; win rate 37.5%; 7 trades; annual turnover 0.81 (low). The drawdown and volatility reduction, not the Sharpe or return, is the defensible result.
+Test-period results on data as known at the time ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} (buy-and-hold SPY: {W.bh_oos_sharpe}); annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; {W.oos_n_trades} switches between SPY and cash within the test period (the trade log has {_EV['n_oos_trade_log_rows']} rows dated in the test period{', the first being the move into the first test month' if _EV['oos_entry_move_into_first_test_month'] else ''}); annual turnover {W.annual_turnover}.
 """
 
-    HOW_SIGNAL_IS_GENERATED_MD = """
-First, the data process reads core capital goods orders (`NEWORDER`, manufacturers' new orders: nondefense capital goods excluding aircraft, nominal $ millions, SA) at month-end. Second, it computes the year-over-year percent change in core capex orders (`mfg_new_orders_yoy`; the column name is a legacy label). Third, it applies a 12-month lag before the SPY allocation is set. Finally, the lagged signal is compared with its 60-month rolling median: when the lagged growth is at or below that median, hold SPY; otherwise cash (the countercyclical orientation).
+    HOW_SIGNAL_IS_GENERATED_MD = f"""
+First, at each month end the process takes core capital goods orders (`NEWORDER`) as they were published on that date (the values visible when the month's return window opens). Second, inside that vintage it computes the {_SIG} and its threshold. Third, it uses the reading for the month {W.lead_word} months before the return month; that lag already includes the time to publication. Finally, the reading is compared with {_THR}.
 
-OOS Sharpe means out-of-sample risk-adjusted return. OOS Return is the annualized out-of-sample return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of out-of-sample months with positive strategy return (low here partly because the rule sits in cash for long stretches).
+OOS Sharpe means test-period (out-of-sample) risk-adjusted return. OOS Return is the annualized test-period return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of test-period months with positive strategy return.
 """
 
-    MANUAL_USE_MD = """
+    MANUAL_USE_MD = f"""
 This describes the backtested rule so it can be audited; it is not a trading recommendation.
 
-1. Read core capital goods orders (FRED NEWORDER: nondefense capital goods excluding aircraft) at month end. It is first published in the Census advance durable-goods report about 26 days after the month ends.
-2. Compute the year-over-year percent change.
-3. Take the value from 12 months earlier and compare it with its trailing 60-month rolling median.
-4. Hold SPY when that lagged growth was at or below the rolling median; otherwise hold cash.
-5. Recheck monthly. Turnover is low (0.81/yr): the rule holds a position for long stretches.
+1. At month end, read NEWORDER as currently published.
+2. Compute the {_SIG} from that published series.
+3. Take its value for the month {W.lead_word} months before the coming month and compare it with {_THR}.
+4. Hold SPY or cash as the rule says for the coming month.
+5. Recheck monthly.
 """
 
     EQUITY_CHART_NAME = "equity_curves"
@@ -539,116 +459,110 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     WALK_FORWARD_TITLE = "Subperiod Sharpe and Durability"
     WALK_FORWARD_CHART_NAME = "subperiod_sharpe"
     WALK_FORWARD_CAPTION = (
-        "What this shows: Sharpe is return per unit of volatility. The "
-        "subperiod chart compares the searched rule with buy-and-hold SPY "
-        "during major stress windows. The rule loses LESS in the GFC "
-        "(-0.80 vs -1.03) and sits in cash (flat, Sharpe 0.0) through COVID "
-        "and the 2022 rate shock while SPY fell -- but it does WORSE than "
-        "buy-and-hold in the Dot-Com bear (-0.92 vs -0.70). The stress "
-        "defense is real but uneven."
+        "What this shows: Sharpe is return per unit of volatility. The subperiod chart compares the searched rule "
+        "with buy-and-hold SPY during major stress windows; n is the number of monthly returns in each window."
     )
     CROSS_PERIOD_CAPTIONS = {
         "rolling_correlation": (
-            "How to read it: the indicator is core capex orders growth; the target "
-            "is SPY returns. The rolling correlation tests whether their "
-            "linear relationship is stable through time. Large swings mean the "
-            "relationship is unstable and the rule needs ongoing monitoring."
+            "How to read it: the indicator is year-over-year growth in core capital goods orders; the target is the "
+            "SPY monthly return. The rolling correlation tests whether their linear relationship is stable through "
+            "time."
         ),
         "structural_break": (
-            "How to read it: the structural break proxy asks whether the "
-            "core-capex-orders/SPY relationship changes enough that one fixed model "
-            "is unlikely to describe the whole sample. A larger break "
-            "statistic means the relationship shifted more materially across "
-            "periods (here the max absolute rolling-correlation z-score "
-            "reaches 3.7)."
+            "How to read it: this stability proxy is the largest swing of the rolling correlation, in standard "
+            "deviations; it is not a formal break test."
         ),
     }
     SHOW_TOURNAMENT_SCATTER = True
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
     TOURNAMENT_SCATTER_CAPTION = (
-        "What this shows: OOS Sharpe distribution across valid searched "
-        "combinations by lead. The winner (1.56) is a right-tail maximum; the "
-        "median valid combo (0.684) sits BELOW buy-and-hold (0.96), so the "
-        "typical rule built on this indicator subtracts value."
+        "What this shows: test-period Sharpe distribution across valid searched strategy combinations by lead "
+        "(data as known at the time). The winner is chosen on the training period, not on this test-period score."
     )
 
-    CAVEATS_MD = """
+    CAVEATS_MD = f"""
 **Main caveats:**
 
-1. The winner is COUNTERCYCLICAL at a 12-month lead -- the opposite of the procyclical, leading-indicator prior. Concurrent quartiles are procyclical (weak growth = worse market), so the inverse 12-month rule is most likely a search artifact (the fleet-wide long-lead pattern, issue #28), not a real inverse signal.
-2. Granger causality is insignificant at every lag (min p = 0.44), local projections are null, and the pre-whitened CCF is significant only on the SPY-leads side -- so this is not a proven causal forecast.
-3. The result is marked `found_in_search`; the median valid combo underperforms buy-and-hold, and the winner still needs a frozen-rule holdout confirmation. The bootstrap p = 0.004 is an in-sample significance check, not out-of-sample validation.
-4. The defensible virtue is drawdown and volatility reduction, not return: annualized return (13.9%) is slightly BELOW buy-and-hold (14.8%).
-5. Core capex orders are nominal: in 2022 inflation helped keep the growth signal firm while equities fell. The first print comes in the Census advance durable-goods report (~26 days after month-end) and is revised in the full M3 report and later benchmark revisions.
-6. COVID 2020-21 is an extreme in-window outlier that can dominate the fit.
+- The result is marked `found_in_search`; it still needs a frozen-rule holdout confirmation.
+- The headline uses orders data as known at the time. On today's revised data the selected rule {'is the same' if _SAME_RULE else 'is different'} (test-period Sharpe {W.comparison_oos_sharpe}, hindsight).
+- The previous development-run rule ({W.previous_rule}, {W.previous_selection}) is replayed exactly on the new framework.
+- The test window was seen by the earlier runs, so it is not a frozen hold-out.
+- The data is core capital goods orders (NEWORDER), not total manufacturing new orders (AMTMNO); orders are nominal, and the 2020-21 collapse and rebound sits inside the test window.
+{_R71_CAVEAT}
 """
 
     TRADE_LOG_EXAMPLE_MD = (
-        "**A concrete example from this pair:** the broker-style log records a "
-        "BUY when the 12-month-lagged year-over-year core capex orders growth crossed "
-        "at or below its rolling median, taking exposure from 0% to 100% SPY. "
-        "A SELL moves back to cash when the lagged growth rose above the "
-        "rolling median."
+        "**A concrete example from this pair:** the broker-style log records each switch between SPY and cash the "
+        f"rule makes when the {_SIG} reading crosses {_THR}."
     )
 
     TRADE_LOG_COLUMN_EXAMPLES = {
-        "trade_date": "1997-12-31",
+        "trade_date": "month end",
         "side": "BUY",
         "instrument": "SPY",
-        "quantity_pct": "100.0",
+        "quantity_pct": "position after the trade",
         "commission_bps": "5",
-        "reason": "P1_long_cash: yoy countercyclical rule crossed T_roll_p50; position 0% to 100%",
+        "reason": f"{W.signal_code} {W.direction} rule crossed {W.threshold_code}",
     }
 
 
 STRATEGY_CONFIG = StrategyConfig()
 
 
-_DATA_SOURCES_MD = """
+_DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator | Data Master (Census advance durable goods / M3, via FRED) | `NEWORDER`, Manufacturers' New Orders: Nondefense Capital Goods Excluding Aircraft ("core capital goods orders"; nominal $ millions, SA) | Monthly |
-| Target | Yahoo Finance or local SPY monthly fallback panel | SPY adjusted close / monthly returns | Monthly |
-"""
+| Indicator (as known at the time) | ALFRED (FRED vintages, pinned in data/release_calendar/vintages/NEWORDER.csv.gz) | `NEWORDER`, manufacturers' new orders: nondefense capital goods excluding aircraft (U.S. Census Bureau), every published vintage | Monthly |
+| Indicator (as revised today) | FRED (latest vintage of the same file) | `NEWORDER` | Monthly |
+| Release dates | data/release_calendar/release_calendar.csv | first publication date per month | Monthly |
+| Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted month-end close | Monthly |
+""")
 
-_INDICATOR_CONSTRUCTION_MD = (
-    "The raw indicator is core capital goods orders -- FRED NEWORDER, "
-    "manufacturers' new orders for nondefense capital goods excluding "
-    "aircraft -- in nominal $ millions (seasonally adjusted). It is first "
-    "published in the Census advance durable-goods report about 26 days "
-    "after month-end and revised in the full M3 report. The level is non-stationary (ADF fails "
-    "to reject a unit root, p = 0.15; KPSS rejects stationarity), so the "
-    "pipeline constructs growth transforms -- month-over-month, three-month, "
-    "six-month, and twelve-month percent changes; a 60-month rolling YoY "
-    "z-score; and YoY acceleration -- all of which are stationary. The winning "
-    "signal is `mfg_new_orders_yoy`, the year-over-year growth, used with a "
-    "12-month lead, a 60-month rolling-median threshold, and a countercyclical "
-    "orientation (long SPY when lagged growth is at or below the median)."
+_INDICATOR_CONSTRUCTION_MD = P.definition_text(
+    "The raw indicator is the dollar value of core capital goods orders (seasonally adjusted, nominal). Because the "
+    "level trends upward, the pipeline uses growth rates only: month-over-month, quarterly, semiannual and "
+    "year-over-year percentage growth, the z-score of year-over-year growth against its trailing 60 months, and the "
+    f"monthly change in year-over-year growth. Thresholds are zero, {THRESHOLD_TEXT['T_z_1.0']} for the z-score, or "
+    "rolling 60-month percentiles of the signal; rolling statistics start after a minimum number of readings. On "
+    "the as-known-at-the-time track every signal and rolling threshold is recomputed inside the vintage published "
+    f"when each month's return window opens. The winning signal is `{W.signal_code}` ({_SIG}), used with a lead of "
+    f"{W.lead_text}; the reading is compared with {_THR}."
 )
 
-_METHODS_TABLE_MD = """
+_METHODS_TABLE_MD = P.definition_text("""
 | Method | Question It Answers | Why We Chose It |
 |---|---|---|
-| Correlation analysis | Does core capex orders growth move linearly with future SPY returns? | Simple baseline before richer tests |
-| Regime quartiles | Do weak and strong capex-demand regimes behave differently? | Makes the procyclical story interpretable |
-| Pre-whitened CCF | Is there any lead-lag echo after filtering persistence? | Reduces false lead-lag signals from autocorrelation |
-| Granger causality | Does past core-capex-orders information improve SPY forecasts? | Formal lead-lag check |
-| Local projections | How does SPY respond over future horizons? | Shows horizon-specific effects |
-| Quantile regression | Is the effect different in weak or strong market states? | Tests tail and regime sensitivity |
-| Structural break / rolling correlation | Is the relationship stable across time? | Durability and overfit guard |
-"""
+| Correlation analysis (Newey-West p-values) | Do orders-growth signals move linearly with future SPY returns? | Simple baseline before richer tests |
+| Regime quartiles | Do months of weak and strong orders growth behave differently? | Makes the investment story interpretable |
+| Pre-whitened CCF | Where is the lead-lag relationship strongest after filtering persistence? | Reduces false lead-lag signals from autocorrelation |
+| Granger causality (Bonferroni-adjusted minimum) | Does past orders growth improve SPY forecasts? | Formal lead-lag check |
+| Local projections (Newey-West) | How do forward SPY returns relate to orders growth over horizons? | Shows horizon-specific effects |
+| Quantile regression (block bootstrap) | Is the effect different in weak or strong market states? | Tests tail and regime sensitivity |
+| Rolling correlation / stability proxy | Is the relationship stable across time? | Durability and overfit guard |
+| Lead-plateau selection (D9) | Is the chosen lead part of a stable range rather than an isolated peak? | Guards against picking a lucky single lead |
+| Chance check (null tournament) | How does the winner compare with contests run on scrambled signals? | Measures how much selection alone can produce |
+| Paired block bootstrap | How uncertain is the Sharpe difference versus buy-and-hold? | Interval for the headline comparison |
+""")
 
-_TOURNAMENT_DESIGN_MD = """
-Grid: core capex orders growth transforms x fixed and rolling thresholds x long/cash strategy x procyclical/countercyclical orientations x lead times (0-12 months). The final tournament has 252 combinations, all 252 valid. The winning rule is `mfg_new_orders_yoy / T_roll_p50 / P1_long_cash countercyclical / L12`, the maximum OOS Sharpe (1.56). The median valid combo (0.684) underperforms buy-and-hold (0.96), and the runner-up (`chg_3m / T_roll_p50 / countercyclical / L12`, 1.482) shares the winner's rolling-median threshold and 12-month lead -- read the winner as a selection maximum in a long-lead countercyclical cluster, not a validated edge. That cluster contradicts the procyclical, leading-indicator prior and is treated as the fleet-wide long-lead artifact (issue #28).
+_TOURNAMENT_DESIGN_MD = f"""
+Grid: orders-growth transforms x zero, fixed z-score and rolling-percentile thresholds x the long/cash position rule x procyclical/countercyclical orientations x leads {_GRID_RANGE} months, where the lead is the whole gap between the reading month and the return month ({W.n_candidates} declared combinations; {W.n_distinct} distinct position series). Each data track selects its own winner on the training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it.
+
+- As known at the time (headline): `{_RID}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe}, test-period Sharpe {W.oos_sharpe}. For reference only and not the selection rule, the single raw highest training Sharpe on this track ({W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}.
+- As revised today (hindsight): `{_RID_REVISED}`, training Sharpe {W.comparison_is_sharpe}, test-period Sharpe {W.comparison_oos_sharpe}.{_COMP_TAIL}
+- Cross-evaluation: the headline rule scored on revised data has test-period Sharpe {W.ce_main_on_revised_oos_sharpe}; the hindsight rule scored on data as known at the time has {W.ce_revised_on_main_oos_sharpe}.
+- Chance check: across {W.null_draws} contests run on circularly shifted orders data, {_CHANCE_TEXT}.
+- Previous development-run rule: `{W.previous_rule}` ({W.previous_selection}), test-period Sharpe {W.previous_oos_sharpe}; replayed exactly on the new framework from that run's own data.
+- Rule shown on the main site: an older rule chosen by its test-period Sharpe (legacy method), kept as the `legacy_oos_selected` row of the previous run's selection record; it is not replayed as a selection rule because it consulted the test period.
 """
 
 _REFERENCES_MD = """
-1. U.S. Census Bureau, Advance Report on Durable Goods and Manufacturers' Shipments, Inventories and Orders (M3): nondefense capital goods excluding aircraft, new orders.
-2. Federal Reserve Economic Data (FRED), `NEWORDER`, Manufacturers' New Orders: Nondefense Capital Goods Excluding Aircraft.
-3. The Conference Board, Leading Economic Index (core capital goods orders is a component).
-4. Yahoo Finance, SPY adjusted price history.
-5. Granger, C. W. J. (1969). "Investigating Causal Relations by Econometric Models and Cross-spectral Methods."
-6. Jorda, O. (2005). "Estimation and Inference of Impulse Responses by Local Projections."
+1. Federal Reserve Bank of St. Louis, ALFRED / FRED `NEWORDER`, Manufacturers' New Orders: Nondefense Capital Goods Excluding Aircraft (all vintages).
+2. U.S. Census Bureau, Advance Report on Durable Goods and Manufacturers' Shipments, Inventories, and Orders (M3).
+3. Yahoo Finance, SPY adjusted price history.
+4. Granger, C. W. J. (1969). "Investigating Causal Relations by Econometric Models and Cross-spectral Methods."
+5. Jorda, O. (2005). "Estimation and Inference of Impulse Responses by Local Projections."
+6. Newey, W. K., and West, K. D. (1987). "A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix."
+7. Politis, D. N., and Romano, J. P. (1992). "A Circular Block-Resampling Procedure for Stationary Data."
 """
 
 METHODOLOGY_CONFIG = MethodologyConfig(
@@ -658,16 +572,12 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     tournament_design_md=_TOURNAMENT_DESIGN_MD,
     references_md=_REFERENCES_MD,
     sample_period_note=(
-        "Monthly sample from 1993-01-31 to 2025-08-31, with out-of-sample "
-        "window 2017-01-31 to 2025-08-31 (104 months). SPY history limits the "
-        "usable sample even though core capex orders begin earlier."
+        f"Monthly sample; training period {W.is_start} to {W.is_end} and test period {W.oos_start} to {W.oos_end} on "
+        "data as known at the time. The orders vintage archive limits the as-known-at-the-time sample; the revised "
+        "comparison uses the full revised history."
     ),
     plain_english=(
-        "This page documents how core capital goods orders (NEWORDER) were turned into "
-        "stationary growth signals, how the econometric checks were run, and "
-        "how the tournament selected the final SPY allocation rule -- along "
-        "with the honest caveat that the selection maximum is a countercyclical "
-        "long-lead rule that contradicts the procyclical prior and is not yet a "
-        "validated edge."
+        "This page documents how core capital goods orders were turned into testable signals, how the econometric "
+        "checks were run, and how the tournament selected the final SPY allocation rule on each data track."
     ),
 )

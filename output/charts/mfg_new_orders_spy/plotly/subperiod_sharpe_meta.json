@@ -1,10 +1,10 @@
 {
   "chart_name": "subperiod_sharpe",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-16T18:30:46.119372+00:00",
+  "generated_at": "2026-10-18T08:53:12.948352+00:00",
   "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
-  "caption": "Strategy and buy-and-hold SPY Sharpe during major stress episodes.",
-  "narrative_alignment_note": "Strategy and buy-and-hold SPY Sharpe during major stress episodes.",
+  "caption": "Strategy and buy-and-hold SPY Sharpe during major stress episodes; each label says whether the window falls in the training or test period, and n is the number of monthly returns.",
+  "narrative_alignment_note": "Strategy and buy-and-hold SPY Sharpe during major stress episodes; each label says whether the window falls in the training or test period, and n is the number of monthly returns.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/mfg_new_orders_spy/subperiod_sharpe.csv"

@@ -1,10 +1,10 @@
 {
   "chart_name": "history_zoom_inflation_2022",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-16T18:30:46.421826+00:00",
+  "generated_at": "2026-10-18T08:53:36.361148+00:00",
   "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
-  "caption": "2022 Rate Shock: Nominal Core Capex Orders Stayed High Amid Inflation; gray bands are NBER recessions.",
-  "narrative_alignment_note": "2022 Rate Shock: Nominal Core Capex Orders Stayed High Amid Inflation; gray bands are NBER recessions.",
+  "caption": "2022 Inflation and Rate Shock, 2021-2025: YoY growth in core capital goods orders and SPY; gray bands are NBER recessions and pink bands mark months when orders were below their year-earlier level.",
+  "narrative_alignment_note": "2022 Inflation and Rate Shock, 2021-2025: YoY growth in core capital goods orders and SPY; gray bands are NBER recessions and pink bands mark months when orders were below their year-earlier level.",
   "disposition": "consumed",
   "source_artifacts": [
     "data/mfg_new_orders_spy_monthly_latest.parquet"

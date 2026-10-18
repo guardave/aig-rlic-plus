@@ -1,12 +1,13 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-16T18:30:45.938865+00:00",
+  "generated_at": "2026-10-18T08:52:31.120070+00:00",
   "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
-  "caption": "Core-capex-orders-growth coefficient across SPY forward-return quantiles.",
-  "narrative_alignment_note": "Core-capex-orders-growth coefficient across SPY forward-return quantiles.",
+  "caption": "Coefficient of YoY growth in core capital goods orders across quantiles of the 3-month forward SPY return; whiskers are moving-block bootstrap 95% intervals.",
+  "narrative_alignment_note": "Coefficient of YoY growth in core capital goods orders across quantiles of the 3-month forward SPY return; whiskers are moving-block bootstrap 95% intervals.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/mfg_new_orders_spy/core_models_20261016/quantile_regression.csv"
+    "results/mfg_new_orders_spy/core_models_20261018/quantile_regression.csv",
+    "results/mfg_new_orders_spy/core_models_20261018/quantile_equality_test.json"
   ]
 }

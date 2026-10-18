@@ -1,0 +1,14 @@
+{
+  "pair_id": "mfg_new_orders_spy",
+  "track": "revised",
+  "role": "comparison",
+  "winner_key": "yoy_zscore_60m|T_roll_p50|P1|procyclical|7",
+  "generated_at": "2026-10-18T08:44:29.790812+00:00",
+  "vintage_policy": {
+    "alignment": "pit_asof",
+    "release_series": "NEWORDER",
+    "harsh": false
+  },
+  "calendar_sha256": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
+  "vintage_file_sha256": "56b9f1ee2860c9e038a46800661efb06b37da3dbeae6126ff353919dd354cfe2"
+}

@@ -1,10 +1,10 @@
 {
   "chart_name": "history_zoom_covid",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-16T18:30:46.292442+00:00",
+  "generated_at": "2026-10-18T08:53:32.252199+00:00",
   "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
-  "caption": "COVID Shock: Core Capex Orders Plunge and Sharp Rebound; gray bands are NBER recessions.",
-  "narrative_alignment_note": "COVID Shock: Core Capex Orders Plunge and Sharp Rebound; gray bands are NBER recessions.",
+  "caption": "COVID Shock, 2018-2021: YoY growth in core capital goods orders and SPY; gray bands are NBER recessions and pink bands mark months when orders were below their year-earlier level.",
+  "narrative_alignment_note": "COVID Shock, 2018-2021: YoY growth in core capital goods orders and SPY; gray bands are NBER recessions and pink bands mark months when orders were below their year-earlier level.",
   "disposition": "consumed",
   "source_artifacts": [
     "data/mfg_new_orders_spy_monthly_latest.parquet"

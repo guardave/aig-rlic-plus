@@ -1,12 +1,12 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-16T18:30:46.070105+00:00",
+  "generated_at": "2026-10-18T08:53:02.234408+00:00",
   "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
-  "caption": "Rolling correlation between core capex orders growth and SPY returns.",
-  "narrative_alignment_note": "Rolling correlation between core capex orders growth and SPY returns.",
+  "caption": "Rolling 60-month correlation between YoY growth in core capital goods orders and SPY monthly returns.",
+  "narrative_alignment_note": "Rolling 60-month correlation between YoY growth in core capital goods orders and SPY monthly returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/mfg_new_orders_spy/rolling_correlation_mfg_new_orders_spy.csv"
+    "results/mfg_new_orders_spy/rolling_correlation_mfg_new_orders_spy.csv"
   ]
 }

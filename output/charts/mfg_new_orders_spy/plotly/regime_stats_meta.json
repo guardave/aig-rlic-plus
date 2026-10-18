@@ -1,10 +1,10 @@
 {
   "chart_name": "regime_stats",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-16T18:30:44.954494+00:00",
+  "generated_at": "2026-10-18T08:51:47.333463+00:00",
   "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
-  "caption": "SPY performance across core capex orders YoY growth quartiles.",
-  "narrative_alignment_note": "SPY performance across core capex orders YoY growth quartiles.",
+  "caption": "Same-month SPY performance across quartiles of YoY growth in core capital goods orders.",
+  "narrative_alignment_note": "Same-month SPY performance across quartiles of YoY growth in core capital goods orders.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/mfg_new_orders_spy/regime_quartile_returns.csv"

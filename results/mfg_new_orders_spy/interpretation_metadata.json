@@ -3,7 +3,7 @@
   "schema_version": "1.1.0",
   "indicator_nature": "leading",
   "indicator_type": "production",
-  "strategy_objective": "procyclical_capture",
+  "strategy_objective": "max_sharpe",
   "owner_writes": {
     "dana": [
       "indicator_nature",
@@ -25,52 +25,52 @@
       "caveats"
     ]
   },
-  "last_updated_by": "ray",
-  "last_updated_at": "2026-10-16T18:27:05.820219+00:00",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-10-18T08:42:13.750939+00:00",
   "indicator": "mfg_new_orders",
   "target": "spy",
   "expected_direction": "procyclical",
   "observed_direction": "procyclical",
   "direction_consistent": true,
-  "mechanism": "Core capital goods orders growth reflects business demand for equipment and forward capex plans; strong rising orders are risk-on for equities and slowing orders are an early demand-softening signal. Exposure is scaled toward SPY when core capex orders growth is firm.",
+  "mechanism": "Core capital goods orders (nondefense capital goods excluding aircraft) measure business demand for equipment and forward capital-spending plans. Rising orders growth signals firmer investment and earnings ahead (risk-on); slowing orders are an early sign of softening demand.",
   "confidence": "low",
-  "key_finding": "Best search-phase rule uses yoy_zscore_60m at L7 with OOS Sharpe 0.37 versus buy-and-hold 0.96.",
+  "key_finding": "As known at the time (real-time NEWORDER vintages), the rule selected on in-sample data uses yoy / T_roll_p25 at L11 (IS Sharpe 0.76); held-out OOS Sharpe 0.89 versus buy-and-hold SPY 1.00.",
   "caveats": [
-    "Even a leading indicator selected at a long lead can be a search artifact \u2014 check adjacent-lead durability.",
-    "The strategy is search-selected and needs fresh holdout validation.",
-    "The 2020-21 COVID collapse/rebound is an extreme in-window outlier that can dominate the fit.",
-    "Core capex orders are nominal; first printed in the Census advance durable-goods report (~26 days after month-end) and revised in the full M3 report."
+    "The strategy is search-selected and needs a frozen-rule holdout confirmation.",
+    "Core capital goods orders are nominal and revised after the advance report, so the as-known-at-the-time and revised tracks differ through revisions as well as release timing.",
+    "The 2020-21 collapse and rebound in orders is an extreme outlier inside the test window.",
+    "The test window was seen by the previously published runs, so it is not a frozen hold-out."
   ],
-  "narrative_summary": "Core capital goods orders (NEWORDER) growth is tested as a procyclical / leading capex-demand overlay for SPY, not as a clean leading indicator.",
+  "narrative_summary": "Core capital goods orders (NEWORDER) growth is tested as a procyclical capital-spending overlay for SPY. The data is NEWORDER, not total manufacturing new orders (AMTMNO).",
   "known_stress_episodes": [
     {
       "label": "Dot-Com recession",
       "start": "2001-03-01",
       "end": "2001-11-30",
-      "note": "Core capex orders fell with the tech capex bust."
+      "note": "NBER recession."
     },
     {
       "label": "Global Financial Crisis",
       "start": "2007-12-01",
       "end": "2009-06-30",
-      "note": "Core capex orders collapsed 2008-09."
+      "note": "NBER recession."
     },
     {
       "label": "COVID shock",
       "start": "2020-02-01",
       "end": "2020-04-30",
-      "note": "Core capex orders plunged then rebounded."
+      "note": "NBER recession."
     },
     {
-      "label": "2022 rate shock",
+      "label": "2022 drawdown",
       "start": "2022-01-01",
       "end": "2022-12-31",
-      "note": "Nominal core capex orders stayed high, helped by inflation."
+      "note": "Rate-hike bear market."
     }
   ],
   "data_provenance": {
-    "source": "Data Master.xlsx (Census advance durable goods / M3, FRED NEWORDER: nondefense capital goods excluding aircraft)",
+    "source": "FRED / ALFRED (U.S. Census Bureau, advance durable goods / M3)",
     "series_id": "NEWORDER",
-    "accessed_at": "2026-10-16T18:27:05.820219+00:00"
+    "accessed_at": "2026-10-18T08:42:13.750939+00:00"
   }
 }
