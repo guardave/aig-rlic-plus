@@ -8,9 +8,9 @@
     "VIZ-TX1",
     "VIZ-O1"
   ],
-  "narrative_alignment_note": "Published winner's own OOS-Sharpe-by-lead curve (foreground, HY-IG Credit Spread) on the DAILY axis; deployed lead 21d = 0.57. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold SPY = 0.81. The orange line is the winner's OWN OOS Sharpe by daily lead, peaking at 252d; grey bars are the best any signal reaches at each lead (envelope &#8805; winner curve by construction).",
-  "caption": "Published winner's own OOS-Sharpe-by-lead curve (foreground, HY-IG Credit Spread) on the DAILY axis; deployed lead 21d = 0.57. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold SPY = 0.81. The orange line is the winner's OWN OOS Sharpe by daily lead, peaking at 252d; grey bars are the best any signal reaches at each lead (envelope &#8805; winner curve by construction).",
-  "created_at": "2026-10-17T15:32:25Z",
+  "narrative_alignment_note": "Published winner's own OOS-Sharpe-by-lead curve (foreground, HY-IG Credit Spread) on the DAILY axis; deployed lead 21d = 0.57. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold SPY = 0.81. The winner was selected on IN-SAMPLE Sharpe; the orange line shows the same rule's OUT-OF-SAMPLE Sharpe at each daily lead (highest at 252d). Grey bars: the highest OOS Sharpe any combo reached at each lead (an OOS-argmax, shown for context).",
+  "caption": "Published winner's own OOS-Sharpe-by-lead curve (foreground, HY-IG Credit Spread) on the DAILY axis; deployed lead 21d = 0.57. Grey bars: best-of-any-signal envelope on the same daily grid. Buy-and-hold SPY = 0.81. The winner was selected on IN-SAMPLE Sharpe; the orange line shows the same rule's OUT-OF-SAMPLE Sharpe at each daily lead (highest at 252d). Grey bars: the highest OOS Sharpe any combo reached at each lead (an OOS-argmax, shown for context).",
+  "created_at": "2026-10-17T23:52:52Z",
   "method_name": "lead_sharpe_distribution",
   "expected_chart_type": "bar",
   "disposition": "consumed",

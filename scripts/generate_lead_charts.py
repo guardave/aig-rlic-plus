@@ -440,7 +440,8 @@ def build_coherent_sharpe_chart_daily(pair, ind, tgt, bh, w, wc_path, env_path):
     env_peak = leads[max(range(len(envv)), key=lambda i: envv[i])]
 
     coincident = win_lead == 0
-    is_selected = (w.get("selection") or {}).get("objective") == "max_is_sharpe"
+    # IS-selected winners (max_is_sharpe and the D9 plateau objective max_is_sharpe_lead_plateau_w3)
+    is_selected = str((w.get("selection") or {}).get("objective", "")).startswith("max_is_sharpe")
     if is_selected:
         frame = (f"The winner was selected on IN-SAMPLE Sharpe; the orange line shows the same rule's "
                  f"OUT-OF-SAMPLE Sharpe at each daily lead (highest at {_lab(curve_peak)}). Grey bars: the "

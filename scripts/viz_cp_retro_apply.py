@@ -157,20 +157,21 @@ def build_subperiod_sharpe(df: pd.DataFrame, pair_id: str) -> go.Figure:
     # is a per-chart override so the fleet-wide grey-below convention (shared
     # helper) is untouched — only subperiod_sharpe changes.
     caption_text = (
-        "Sharpe ratios computed from the winner strategy's actual return series. "
+        "Sharpe ratios computed from the winner strategy's actual return series.<br>"
         "<b>'no data'</b> = episode outside the pair's data coverage. "
-        "<b>'in cash'</b> = strategy was 100% cash through the episode "
+        "<b>'in cash'</b> = strategy was 100% cash through the episode<br>"
         "(common for long-cash strategies through deep contractions). "
         "IS = In-Sample period; OOS = Out-of-Sample."
     )
     fig.update_layout(
-        title=dict(text="Strategy Performance Across Market Episodes", font=dict(size=15)),
+        title=dict(text="Strategy Performance Across Market Episodes", font=dict(size=15),
+                   y=0.93, yanchor="top"),
         xaxis_title="Sharpe Ratio",
         yaxis_title="",
         width=700,
         height=470,
         # widen top margin to seat the black above-plot source-note under the title
-        margin=dict(l=200, r=80, t=120, b=80),
+        margin=dict(l=200, r=80, t=140, b=80),
         plot_bgcolor="white",
         paper_bgcolor="white",
     )
