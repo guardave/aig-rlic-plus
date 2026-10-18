@@ -396,7 +396,7 @@ def chart_rolling_granger():
         go.Scatter(
             x=rg["date"],
             y=rg["p_value_24m"],
-            name="Rolling p-value",
+            name="Rolling p-value (Bonferroni, 3 lags)",
             mode="lines",
             line=dict(color=C_INDICATOR, width=2),
             hovertemplate="%{x|%Y-%m-%d}<br>p-value: %{y:.3f}<extra></extra>",
@@ -407,7 +407,7 @@ def chart_rolling_granger():
         go.Scatter(
             x=rg["date"],
             y=rg["granger_f_24m"],
-            name="Rolling F-statistic",
+            name="Rolling F-statistic (lag with the smallest p)",
             mode="lines",
             line=dict(color=C_EQUITY, width=1.5, dash="dash"),
             hovertemplate="%{x|%Y-%m-%d}<br>F-statistic: %{y:.2f}<extra></extra>",
@@ -437,7 +437,7 @@ def chart_rolling_granger():
     )
     add_nber_bands(fig)
     fig.update_layout(
-        title="Rolling Granger Test: p-value and F-statistic",
+        title="Rolling Granger Test (24-month windows): Bonferroni-adjusted p-value over lags 1-3",
         template="plotly_white",
         height=420,
         legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),

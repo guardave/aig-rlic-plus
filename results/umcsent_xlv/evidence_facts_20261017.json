@@ -23,7 +23,8 @@
     "xlv_splice_overlap_return_max_abs_diff": 1.1349560729012609e-06,
     "xlv_splice_join_month_return_abs_diff": 0.0,
     "position_change_threshold_pp": 5,
-    "oos_months_position_change_gt_5pct": 54,
-    "oos_sum_abs_position_change": 8.2845
+    "oos_months_position_change_gt_5pct": 55,
+    "oos_sum_abs_position_change": 8.5904,
+    "n_oos_trade_log_rows": 89
   }
 }

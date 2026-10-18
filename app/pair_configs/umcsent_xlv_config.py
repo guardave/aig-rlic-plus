@@ -373,6 +373,8 @@ SIGNAL_DIST_BLOCK = dict(
 
 _LP = P.col_dict(P.csv_file(_CORE / "local_projections.csv"), "horizon_months", "coef_umcsent_yoy")
 _LPP = P.col_dict(P.csv_file(_CORE / "local_projections.csv"), "horizon_months", "p_value")
+_LPDF = P.csv_file(_CORE / "local_projections.csv")
+_LP_END = _LPDF["sample_end"].iloc[0]
 _QRC = P.col_dict(P.csv_file(_CORE / "quantile_regression.csv"), "quantile", "coef_umcsent_yoy")
 _QRP = P.col_dict(P.csv_file(_CORE / "quantile_regression.csv"), "quantile", "p_value")
 
@@ -387,7 +389,8 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     question="How do XLV returns over the following months line up with the year-over-year change in sentiment?",
     how_to_read=(
         "Each bar is the change in the XLV forward return, in percentage points, per point of year-over-year "
-        "change in UMCSENT; whiskers are 95% intervals. Whiskers that cross zero mean no clear effect."
+        "change in UMCSENT; whiskers are 95% intervals. Whiskers that cross zero mean no clear effect. "
+        f"The control series were pinned with the published run, so this regression sample ends in {_LP_END}."
     ),
     chart_name="local_projections",
     chart_caption="What this shows: the descriptive response of XLV forward returns across horizons, not the lagged trading rule.",
@@ -514,7 +517,7 @@ class StrategyConfig:
     SIGNAL_RULE_MD = f"""
 **Rule in plain English:** {_RULE}.
 
-Test-period results on data as known at the time ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} buy-and-hold; annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; position changes summing to {W.oos_n_trades} full XLV units over the test period (whole units; exact sum {_D['oos_sum_abs_position_change']}), with {_D['oos_months_position_change_gt_5pct']} months in which the position moved by more than {_D['position_change_threshold_pp']} percentage points; annual turnover {W.annual_turnover}.
+Test-period results on data as known at the time ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} buy-and-hold; annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; position changes over the test period summing to {_D['oos_sum_abs_position_change']} full XLV units, with {_D['oos_months_position_change_gt_5pct']} months in which the position moved by more than {_D['position_change_threshold_pp']} percentage points (counted from the trade log's {_D['n_oos_trade_log_rows']} test-period rows, including the move into the first test month); annual turnover {W.annual_turnover}.
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = f"""
@@ -541,6 +544,15 @@ This describes the backtested rule so it can be audited; it is not a trading rec
         "What this shows: test-period Sharpe of the rule by full calendar year against buy-and-hold XLV. It is not "
         "designed to make every year profitable."
     )
+    CROSS_PERIOD_CAPTIONS = {
+        "rolling_granger": (
+            "How to read it: in each 24-month window the test asks whether lags of the year-over-year change in "
+            "UMCSENT improve forecasts of the XLV return. Several lags are tried (the chart title names them), so the "
+            "plotted p-value is the smallest lag p-value multiplied by the number of lags tried (Bonferroni). "
+            "Periods below p = 0.05 indicate evidence in "
+            "that window; the F statistic (at the lag with the smallest p-value) is supporting context."
+        ),
+    }
     SHOW_TOURNAMENT_SCATTER = True
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_scatter"
     TOURNAMENT_SCATTER_CAPTION = (

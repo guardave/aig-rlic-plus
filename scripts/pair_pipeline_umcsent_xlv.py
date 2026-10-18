@@ -55,6 +55,8 @@ VALID_DIR = str(RES / f"tournament_validation_{DATE_TAG}")
 NOW_ISO = datetime.now(timezone.utc).isoformat()
 SIGNALS = spec_mod.SIGNALS
 OOS_START = pd.Timestamp(spec_mod.SPEC.oos_start)
+POSITION_CHANGE_THRESHOLD_PP = 5      # a test-period month counts as a position change above this size
+ROLLING_GRANGER_LAGS = 3              # rolling Granger: lags 1..3, p-value Bonferroni-adjusted for the 3 lags
 
 STAGE_TIMES: dict[str, float] = {}
 
@@ -481,6 +483,8 @@ def stage_core_models(df_monthly):
                 "r_squared": round(model.rsquared, 4),
                 "n": int(model.nobs),
                 "nw_lags": nw_lags,
+                "sample_start": valid.index.min().strftime("%Y-%m-%d"),
+                "sample_end": valid.index.max().strftime("%Y-%m-%d"),
             })
         except Exception as e:
             print(f"    LP at h={h} failed: {e}")
@@ -783,11 +787,15 @@ def stage_rolling_stability(df: pd.DataFrame) -> None:
     for i in range(24, len(d) + 1):
         sub = d.iloc[i - 24:i]
         try:
-            g = grangercausalitytests(sub[["xlv_ret", "umcsent_yoy"]], maxlag=3, verbose=False)
-            f = [g[k][0]["ssr_ftest"][0] for k in (1, 2, 3)]
-            j = int(np.argmax(f))
+            lags = range(1, ROLLING_GRANGER_LAGS + 1)
+            g = grangercausalitytests(sub[["xlv_ret", "umcsent_yoy"]], maxlag=ROLLING_GRANGER_LAGS, verbose=False)
+            f = [g[k][0]["ssr_ftest"][0] for k in lags]
+            pv = [g[k][0]["ssr_ftest"][1] for k in lags]
+            j = int(np.argmin(pv))
             rows.append({"date": sub.index[-1].strftime("%Y-%m-%d"), "granger_f_24m": f[j],
-                         "p_value_24m": g[j + 1][0]["ssr_ftest"][1], "best_lag": j + 1})
+                         # smallest p over the lags, Bonferroni-adjusted for the number of lags tried
+                         "p_value_24m": min(1.0, ROLLING_GRANGER_LAGS * pv[j]),
+                         "p_value_24m_unadjusted": pv[j], "best_lag": j + 1})
         except Exception:
             continue
     pd.DataFrame(rows).to_csv(RES / f"rolling_granger_{PAIR_ID}.csv", index=False)
@@ -1046,10 +1054,16 @@ def write_narrative_provenance(df: pd.DataFrame) -> None:
     # test-period position changes of the MAIN winner (winner_summary oos_n_trades is the harness abs_sum count:
     # int(sum |position change|), i.e. full XLV units traded); the P2 rule resizes most months
     sr = pd.read_csv(RES / f"strategy_returns_{DATE_TAG}.csv")
-    dpos = np.abs(np.diff(sr.loc[sr["sample"] == "OOS", "position"].dropna().to_numpy(float)))
-    derived["position_change_threshold_pp"] = 5
-    derived["oos_months_position_change_gt_5pct"] = int((dpos > 0.05).sum())
-    derived["oos_sum_abs_position_change"] = round(float(dpos.sum()), 4)
+    # counted from the broker-style trade log itself, so page and log agree: every log row dated in the test
+    # period, INCLUDING the move into the first test month from the last training-period position
+    blog = pd.read_csv(RES / "winner_trades_broker_style.csv", parse_dates=["trade_date"])
+    oos_first = pd.Timestamp(sr.loc[sr["sample"] == "OOS", "date"].iloc[0])
+    tlo = blog[blog["trade_date"] >= oos_first]
+    size = tlo["trade_size_pct"].astype(float) / 100
+    derived["position_change_threshold_pp"] = POSITION_CHANGE_THRESHOLD_PP
+    derived["oos_months_position_change_gt_5pct"] = int((size > POSITION_CHANGE_THRESHOLD_PP / 100).sum())
+    derived["oos_sum_abs_position_change"] = round(float(size.sum()), 4)
+    derived["n_oos_trade_log_rows"] = int(len(tlo))
     # XLV pin splice (legacy closes through 2025-11, Yahoo from 2025-12): adjusted-close basis check
     sc = json.loads((Path(DATA_DIR) / "phaseB_inputs" / "xlv_splice_check_20261017.json").read_text())
     derived["xlv_splice_close_ratio_max_abs_dev"] = max(abs(sc["close_ratio_yahoo_over_legacy_min"] - 1),
