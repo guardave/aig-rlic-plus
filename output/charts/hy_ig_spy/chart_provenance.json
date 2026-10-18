@@ -1,0 +1,446 @@
+{
+ "ccf": {
+  "chart_sha256": "ac15387e87e2848bef28f040e544a1e5c6b4eea4fb80b377bc391e7829afccb8",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:28+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "chance_check": {
+  "chart_sha256": "997ceb205bf5d4916b71ccb0528fc2fd9a698dc8ca25deddbf539640af960792",
+  "results_tag": "20261017",
+  "producer": "scripts/harness/charts.py",
+  "recorded_at": "2026-10-18T00:47:45+00:00",
+  "inputs": {
+   "results/hy_ig_spy/lead_curve_20261017.csv": "aff55a78b9a6df346109368b12c790ac46567551a004b670d974778ef910b0c5",
+   "results/hy_ig_spy/null_tournament_20261017.csv": "5ffbe5ce49132f9a8c5aab2474b18a1057120715752fc516504f1ec960d9b5a4",
+   "results/hy_ig_spy/track_summary.json": "c3327393fb3de6842dc9dc52a99e69036a28c15bd021be5dd67bb339f394d712",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "correlation_heatmap": {
+  "chart_sha256": "956a3743ae5650b337b0824bba6781fffc58d77a055f194dcfeeb6a8d955797d",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
+   "results/hy_ig_spy/core_models_20261017/quantile_regression.csv": "4aa6bcd4b706c9539855ef9c369a2a75d89d7e61b53b5685bc2760cdb5159da9",
+   "results/hy_ig_spy/exploratory_20261017/correlations.csv": "655315cc66d985cc901eb1cbb8838647334b4259aa843bcc3896f49b94604eac",
+   "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
+   "results/hy_ig_spy/regime_quartile_forward_tests_20261017.csv": "2d13fdf20d9b5d70388ebeca4a700916acb5cd01019c6f8f998766b95b79af19",
+   "results/hy_ig_spy/regime_quartile_returns.csv": "1b6370497e3bf0abb9279502b413c30bd582069956ff5a0a680d7ad9d99c620e",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/strategy_returns_20261017.csv": "76894cf74331c377ac6d7ea941a67dc0b1bafc1f07c6d20acab9258299c45773",
+   "results/hy_ig_spy/tournament_results_20261017.csv": "935fe7c1b25ce66f22810ca0087f6c55970fa654a0dce44c6eac050f100f0b95",
+   "results/hy_ig_spy/tournament_validation_20261017/walk_forward.csv": "47e9b46f63fc704fd75f9b5345565d36b789e9f8d8a0a1f4aeb603ae283cf0c4",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "correlations": {
+  "chart_sha256": "b252b969758aad51c9fd30542ce81ff22c7e02c3fcfc5739a45e7d253a963eee",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:28+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "correlations_lead_view": {
+  "chart_sha256": "5263b907f6238773b986e768b79defc7ae206c291765d80f315e73fb1e9ef48c",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_lead_charts.py",
+  "recorded_at": "2026-10-18T00:47:35+00:00",
+  "inputs": {
+   "results/hy_ig_spy/lead_correlation_20261017.csv": "5905596d45bab9fd22a2fcaafceae45280ec2e201b73e6dc9e04f9e1b81cf612",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "drawdown": {
+  "chart_sha256": "8d40912cd3cb9269d4f9d96b4477a558cd1d892664f52e2057c88cb3be4edc5f",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
+   "results/hy_ig_spy/core_models_20261017/quantile_regression.csv": "4aa6bcd4b706c9539855ef9c369a2a75d89d7e61b53b5685bc2760cdb5159da9",
+   "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
+   "results/hy_ig_spy/regime_quartile_forward_tests_20261017.csv": "2d13fdf20d9b5d70388ebeca4a700916acb5cd01019c6f8f998766b95b79af19",
+   "results/hy_ig_spy/regime_quartile_returns.csv": "1b6370497e3bf0abb9279502b413c30bd582069956ff5a0a680d7ad9d99c620e",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/strategy_returns_20261017.csv": "76894cf74331c377ac6d7ea941a67dc0b1bafc1f07c6d20acab9258299c45773",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "drawdown_comparison": {
+  "chart_sha256": "286c8847cea34a9885de11200c6fcbe5c87099d52dd5ff804adb277728bd9430",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
+   "results/hy_ig_spy/core_models_20261017/quantile_regression.csv": "4aa6bcd4b706c9539855ef9c369a2a75d89d7e61b53b5685bc2760cdb5159da9",
+   "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
+   "results/hy_ig_spy/regime_quartile_forward_tests_20261017.csv": "2d13fdf20d9b5d70388ebeca4a700916acb5cd01019c6f8f998766b95b79af19",
+   "results/hy_ig_spy/regime_quartile_returns.csv": "1b6370497e3bf0abb9279502b413c30bd582069956ff5a0a680d7ad9d99c620e",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/strategy_returns_20261017.csv": "76894cf74331c377ac6d7ea941a67dc0b1bafc1f07c6d20acab9258299c45773",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "equity_curves": {
+  "chart_sha256": "1516a4b88f4a13e9ece558e29d3c687b6c80d0e912c54590627b10a0ab292724",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
+   "results/hy_ig_spy/core_models_20261017/quantile_regression.csv": "4aa6bcd4b706c9539855ef9c369a2a75d89d7e61b53b5685bc2760cdb5159da9",
+   "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
+   "results/hy_ig_spy/regime_quartile_forward_tests_20261017.csv": "2d13fdf20d9b5d70388ebeca4a700916acb5cd01019c6f8f998766b95b79af19",
+   "results/hy_ig_spy/regime_quartile_returns.csv": "1b6370497e3bf0abb9279502b413c30bd582069956ff5a0a680d7ad9d99c620e",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/strategy_returns_20261017.csv": "76894cf74331c377ac6d7ea941a67dc0b1bafc1f07c6d20acab9258299c45773",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "granger_f_by_lag": {
+  "chart_sha256": "d877d587d8405225cf44f5ca8e710c212b154a45773cb05eaddc2bdadc9b50f0",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:29+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "hero": {
+  "chart_sha256": "dc461c407c3f6f9540deb52180a131e426fe3cb6cf3eee6feb6c868bee1b7611",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:28+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495"
+  }
+ },
+ "history_zoom_covid": {
+  "chart_sha256": "b1ec40566960e6d20bd07c86876d1cd9e3c474f7fdd6ce022e49e6a6855fefeb",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:28+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "history_zoom_dotcom": {
+  "chart_sha256": "e075f93471a12d7dd64dcfd1aad930449e41a5bc0fb8518bdf913e1cdc641ce4",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:28+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "history_zoom_gfc": {
+  "chart_sha256": "c034206880d6bbe6a1358bc9c353e99cf0291ef17c724539c205599a6cb3b330",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:28+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "hmm_regime_probs": {
+  "chart_sha256": "71a8f309f6dc11f1a3f146bfa75d3177e3e59a3c60c23da9053586228a56eb62",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:31+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "lead_plateau": {
+  "chart_sha256": "72a27f7a65bb3ee5d79ad77cfbd5e8d86a4bab649d113ce7599f5eabc372c151",
+  "results_tag": "20261017",
+  "producer": "scripts/harness/charts.py",
+  "recorded_at": "2026-10-18T00:47:42+00:00",
+  "inputs": {
+   "results/hy_ig_spy/lead_curve_20261017.csv": "aff55a78b9a6df346109368b12c790ac46567551a004b670d974778ef910b0c5"
+  }
+ },
+ "lead_sharpe_distribution": {
+  "chart_sha256": "1e10b0594a719cb344336cb9e715d338211fc5fab681b3bea256164e65275436",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_lead_charts.py",
+  "recorded_at": "2026-10-18T00:47:38+00:00",
+  "inputs": {
+   "results/hy_ig_spy/lead_clean_envelope_20261017.csv": "edb7ce7343b460262bb7570a0e6275c103e3a09a96026b6f60b1fde5eaa07f6f",
+   "results/hy_ig_spy/lead_correlation_20261017.csv": "5905596d45bab9fd22a2fcaafceae45280ec2e201b73e6dc9e04f9e1b81cf612",
+   "results/hy_ig_spy/lead_winner_curve_20261017.csv": "088f696e2232ac26560a0aeb21ebb275033a541c2ef0f3d91ee0992844fe48b3",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "local_projections": {
+  "chart_sha256": "0c51207d6f1066307b9f6fb51a8aeb18981e3ed4768d68bdf19a0731bfedc64d",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
+   "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
+   "results/hy_ig_spy/regime_quartile_forward_tests_20261017.csv": "2d13fdf20d9b5d70388ebeca4a700916acb5cd01019c6f8f998766b95b79af19",
+   "results/hy_ig_spy/regime_quartile_returns.csv": "1b6370497e3bf0abb9279502b413c30bd582069956ff5a0a680d7ad9d99c620e",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "quantile_regression": {
+  "chart_sha256": "0cbbc56c444d49ed66c986cad81ff2dda56e817d9199b82765ae9bc90fd822c6",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
+   "results/hy_ig_spy/core_models_20261017/quantile_regression.csv": "4aa6bcd4b706c9539855ef9c369a2a75d89d7e61b53b5685bc2760cdb5159da9",
+   "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
+   "results/hy_ig_spy/regime_quartile_forward_tests_20261017.csv": "2d13fdf20d9b5d70388ebeca4a700916acb5cd01019c6f8f998766b95b79af19",
+   "results/hy_ig_spy/regime_quartile_returns.csv": "1b6370497e3bf0abb9279502b413c30bd582069956ff5a0a680d7ad9d99c620e",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "quartile_returns": {
+  "chart_sha256": "9c7780405d48089a90ac24bf49e4434e04e166d2f3b4178651e7d2e83b846a7d",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
+   "results/hy_ig_spy/core_models_20261017/quantile_regression.csv": "4aa6bcd4b706c9539855ef9c369a2a75d89d7e61b53b5685bc2760cdb5159da9",
+   "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
+   "results/hy_ig_spy/regime_quartile_forward_tests_20261017.csv": "2d13fdf20d9b5d70388ebeca4a700916acb5cd01019c6f8f998766b95b79af19",
+   "results/hy_ig_spy/regime_quartile_returns.csv": "1b6370497e3bf0abb9279502b413c30bd582069956ff5a0a680d7ad9d99c620e",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/strategy_returns_20261017.csv": "76894cf74331c377ac6d7ea941a67dc0b1bafc1f07c6d20acab9258299c45773",
+   "results/hy_ig_spy/tournament_results_20261017.csv": "935fe7c1b25ce66f22810ca0087f6c55970fa654a0dce44c6eac050f100f0b95",
+   "results/hy_ig_spy/tournament_validation_20261017/walk_forward.csv": "47e9b46f63fc704fd75f9b5345565d36b789e9f8d8a0a1f4aeb603ae283cf0c4",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "regime_quartile_returns": {
+  "chart_sha256": "f1b4dc5bb69919cb6fec0bfba5086463bfb379716d5c6dd96371a9a8802069a8",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:31+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
+   "results/hy_ig_spy/regime_quartile_forward_tests_20261017.csv": "2d13fdf20d9b5d70388ebeca4a700916acb5cd01019c6f8f998766b95b79af19",
+   "results/hy_ig_spy/regime_quartile_returns.csv": "1b6370497e3bf0abb9279502b413c30bd582069956ff5a0a680d7ad9d99c620e",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "regime_stats": {
+  "chart_sha256": "fd3a1ab092673f33f3e32fca7188a9787e2e508b023ce4854119ba2bbf8c3389",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:28+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "returns_by_regime": {
+  "chart_sha256": "f1f2d574af09c5cf8f426ce334e83339f44d3e7bedb1fce13f710f9687675cbe",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
+   "results/hy_ig_spy/core_models_20261017/quantile_regression.csv": "4aa6bcd4b706c9539855ef9c369a2a75d89d7e61b53b5685bc2760cdb5159da9",
+   "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
+   "results/hy_ig_spy/regime_quartile_forward_tests_20261017.csv": "2d13fdf20d9b5d70388ebeca4a700916acb5cd01019c6f8f998766b95b79af19",
+   "results/hy_ig_spy/regime_quartile_returns.csv": "1b6370497e3bf0abb9279502b413c30bd582069956ff5a0a680d7ad9d99c620e",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/strategy_returns_20261017.csv": "76894cf74331c377ac6d7ea941a67dc0b1bafc1f07c6d20acab9258299c45773",
+   "results/hy_ig_spy/tournament_results_20261017.csv": "935fe7c1b25ce66f22810ca0087f6c55970fa654a0dce44c6eac050f100f0b95",
+   "results/hy_ig_spy/tournament_validation_20261017/walk_forward.csv": "47e9b46f63fc704fd75f9b5345565d36b789e9f8d8a0a1f4aeb603ae283cf0c4",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "rolling_correlation": {
+  "chart_sha256": "976966274d9508606af9dd650f1e04cde1d4121d0d16742f78c04811911d1702",
+  "results_tag": "20261017",
+  "producer": "scripts/viz_cp_retro_apply.py",
+  "recorded_at": "2026-10-18T00:47:34+00:00",
+  "inputs": {
+   "results/hy_ig_spy/rolling_correlation_hy_ig_spy.csv": "95a240556d16f71110262af36b71f78f3ca94735991e5c14a1e49f20b50dee19",
+   "results/hy_ig_spy/subperiod_sharpe.csv": "122361ad3e5a4dcd39a3272abea6df6a7429e3a131ef0f727ff74d9aac7b45ab",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "rolling_granger": {
+  "chart_sha256": "c9a6a99379a7eea3a3e06a28937e38d4f070c19282a965306f814d29c367a84c",
+  "results_tag": "20261017",
+  "producer": "scripts/viz_cp_retro_apply.py",
+  "recorded_at": "2026-10-18T00:47:34+00:00",
+  "inputs": {
+   "results/hy_ig_spy/rolling_correlation_hy_ig_spy.csv": "95a240556d16f71110262af36b71f78f3ca94735991e5c14a1e49f20b50dee19",
+   "results/hy_ig_spy/rolling_granger_hy_ig_spy.csv": "915e3987e94c3bbfbb0f25e191c98471a5ec41e1900a3090196aee12f20b9666",
+   "results/hy_ig_spy/rolling_sharpe_hy_ig_spy.csv": "e38bd9909509881017ad0b33a4e552a8574a499bf65ad794b7b43324aa491d58",
+   "results/hy_ig_spy/structural_break_hy_ig_spy.json": "f9f44716b3bb8be708828b9df84b214435ad6ba9b2a6e62d8222b947143dfea6",
+   "results/hy_ig_spy/subperiod_sharpe.csv": "122361ad3e5a4dcd39a3272abea6df6a7429e3a131ef0f727ff74d9aac7b45ab",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "rolling_sharpe_cp": {
+  "chart_sha256": "a1269feaf3cf6b1537474a72180678665c95dc8fd26442e285190d17b9f5fcce",
+  "results_tag": "20261017",
+  "producer": "scripts/viz_cp_retro_apply.py",
+  "recorded_at": "2026-10-18T00:47:34+00:00",
+  "inputs": {
+   "results/hy_ig_spy/rolling_correlation_hy_ig_spy.csv": "95a240556d16f71110262af36b71f78f3ca94735991e5c14a1e49f20b50dee19",
+   "results/hy_ig_spy/rolling_sharpe_hy_ig_spy.csv": "e38bd9909509881017ad0b33a4e552a8574a499bf65ad794b7b43324aa491d58",
+   "results/hy_ig_spy/structural_break_hy_ig_spy.json": "f9f44716b3bb8be708828b9df84b214435ad6ba9b2a6e62d8222b947143dfea6",
+   "results/hy_ig_spy/subperiod_sharpe.csv": "122361ad3e5a4dcd39a3272abea6df6a7429e3a131ef0f727ff74d9aac7b45ab",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "spread_history_annotated": {
+  "chart_sha256": "2229c96e1a9b43d11311b967b2ed161c42cb426c14fff2c69b6784064e94fcb7",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
+   "results/hy_ig_spy/core_models_20261017/quantile_regression.csv": "4aa6bcd4b706c9539855ef9c369a2a75d89d7e61b53b5685bc2760cdb5159da9",
+   "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
+   "results/hy_ig_spy/regime_quartile_forward_tests_20261017.csv": "2d13fdf20d9b5d70388ebeca4a700916acb5cd01019c6f8f998766b95b79af19",
+   "results/hy_ig_spy/regime_quartile_returns.csv": "1b6370497e3bf0abb9279502b413c30bd582069956ff5a0a680d7ad9d99c620e",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/strategy_returns_20261017.csv": "76894cf74331c377ac6d7ea941a67dc0b1bafc1f07c6d20acab9258299c45773",
+   "results/hy_ig_spy/tournament_results_20261017.csv": "935fe7c1b25ce66f22810ca0087f6c55970fa654a0dce44c6eac050f100f0b95",
+   "results/hy_ig_spy/tournament_validation_20261017/walk_forward.csv": "47e9b46f63fc704fd75f9b5345565d36b789e9f8d8a0a1f4aeb603ae283cf0c4",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "structural_break": {
+  "chart_sha256": "92778652832711d79ebc565ed2693fc0ada25ba3eb123f06a26f5577b16f2d4b",
+  "results_tag": "20261017",
+  "producer": "scripts/viz_cp_retro_apply.py",
+  "recorded_at": "2026-10-18T00:47:34+00:00",
+  "inputs": {
+   "results/hy_ig_spy/rolling_correlation_hy_ig_spy.csv": "95a240556d16f71110262af36b71f78f3ca94735991e5c14a1e49f20b50dee19",
+   "results/hy_ig_spy/structural_break_hy_ig_spy.json": "f9f44716b3bb8be708828b9df84b214435ad6ba9b2a6e62d8222b947143dfea6",
+   "results/hy_ig_spy/subperiod_sharpe.csv": "122361ad3e5a4dcd39a3272abea6df6a7429e3a131ef0f727ff74d9aac7b45ab",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "subperiod_sharpe": {
+  "chart_sha256": "a8ef6f6f32ebbfde3c871e01375d51cb4422ac9f9d7e42423cc13e0315b45853",
+  "results_tag": "20261017",
+  "producer": "scripts/viz_cp_retro_apply.py",
+  "recorded_at": "2026-10-18T00:47:33+00:00",
+  "inputs": {
+   "results/hy_ig_spy/subperiod_sharpe.csv": "122361ad3e5a4dcd39a3272abea6df6a7429e3a131ef0f727ff74d9aac7b45ab"
+  }
+ },
+ "tournament_scatter": {
+  "chart_sha256": "90db8f96d6dc043a0e1a120ec54d05b4f76e9dedf4183a761bc4190c42070ec9",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
+   "results/hy_ig_spy/core_models_20261017/quantile_regression.csv": "4aa6bcd4b706c9539855ef9c369a2a75d89d7e61b53b5685bc2760cdb5159da9",
+   "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
+   "results/hy_ig_spy/regime_quartile_forward_tests_20261017.csv": "2d13fdf20d9b5d70388ebeca4a700916acb5cd01019c6f8f998766b95b79af19",
+   "results/hy_ig_spy/regime_quartile_returns.csv": "1b6370497e3bf0abb9279502b413c30bd582069956ff5a0a680d7ad9d99c620e",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/strategy_returns_20261017.csv": "76894cf74331c377ac6d7ea941a67dc0b1bafc1f07c6d20acab9258299c45773",
+   "results/hy_ig_spy/tournament_results_20261017.csv": "935fe7c1b25ce66f22810ca0087f6c55970fa654a0dce44c6eac050f100f0b95",
+   "results/hy_ig_spy/tournament_validation_20261017/walk_forward.csv": "47e9b46f63fc704fd75f9b5345565d36b789e9f8d8a0a1f4aeb603ae283cf0c4",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "tournament_sharpe_dist": {
+  "chart_sha256": "ccf77112c54f1932a2c728b9d29020117edccaf2e8688aa576d293023ace558f",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
+   "results/hy_ig_spy/core_models_20261017/quantile_regression.csv": "4aa6bcd4b706c9539855ef9c369a2a75d89d7e61b53b5685bc2760cdb5159da9",
+   "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
+   "results/hy_ig_spy/regime_quartile_forward_tests_20261017.csv": "2d13fdf20d9b5d70388ebeca4a700916acb5cd01019c6f8f998766b95b79af19",
+   "results/hy_ig_spy/regime_quartile_returns.csv": "1b6370497e3bf0abb9279502b413c30bd582069956ff5a0a680d7ad9d99c620e",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/strategy_returns_20261017.csv": "76894cf74331c377ac6d7ea941a67dc0b1bafc1f07c6d20acab9258299c45773",
+   "results/hy_ig_spy/tournament_results_20261017.csv": "935fe7c1b25ce66f22810ca0087f6c55970fa654a0dce44c6eac050f100f0b95",
+   "results/hy_ig_spy/tournament_validation_20261017/walk_forward.csv": "47e9b46f63fc704fd75f9b5345565d36b789e9f8d8a0a1f4aeb603ae283cf0c4",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "transfer_entropy": {
+  "chart_sha256": "85660d36ae4b27b7efacaf8979e44422b34037e07e292190658bad546422b9cc",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
+   "results/hy_ig_spy/regime_quartile_forward_tests_20261017.csv": "2d13fdf20d9b5d70388ebeca4a700916acb5cd01019c6f8f998766b95b79af19",
+   "results/hy_ig_spy/regime_quartile_returns.csv": "1b6370497e3bf0abb9279502b413c30bd582069956ff5a0a680d7ad9d99c620e",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ },
+ "walk_forward": {
+  "chart_sha256": "b8cda9c172424a38e0ac39d7fc93a6cf6f09133949fc1b9d707596b843a0401a",
+  "results_tag": "20261017",
+  "producer": "scripts/generate_charts_hy_ig_spy.py",
+  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "inputs": {
+   "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
+   "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
+   "results/hy_ig_spy/core_models_20261017/quantile_regression.csv": "4aa6bcd4b706c9539855ef9c369a2a75d89d7e61b53b5685bc2760cdb5159da9",
+   "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
+   "results/hy_ig_spy/regime_quartile_forward_tests_20261017.csv": "2d13fdf20d9b5d70388ebeca4a700916acb5cd01019c6f8f998766b95b79af19",
+   "results/hy_ig_spy/regime_quartile_returns.csv": "1b6370497e3bf0abb9279502b413c30bd582069956ff5a0a680d7ad9d99c620e",
+   "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
+   "results/hy_ig_spy/strategy_returns_20261017.csv": "76894cf74331c377ac6d7ea941a67dc0b1bafc1f07c6d20acab9258299c45773",
+   "results/hy_ig_spy/tournament_validation_20261017/walk_forward.csv": "47e9b46f63fc704fd75f9b5345565d36b789e9f8d8a0a1f4aeb603ae283cf0c4",
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+  }
+ }
+}

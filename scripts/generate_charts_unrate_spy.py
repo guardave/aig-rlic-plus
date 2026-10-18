@@ -15,6 +15,7 @@ from plotly.subplots import make_subplots
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
+import chart_provenance  # noqa: E402  (records chart inputs; imported before any data is read)
 from _nber import add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
 from _ci_band import ci95_halfwidth  # noqa: E402
@@ -40,6 +41,7 @@ def load_monthly() -> pd.DataFrame:
 
 def save(name: str, fig: go.Figure, caption: str, sources: list[str]) -> None:
     fig.write_json(OUT / f"{name}.json")
+    chart_provenance.record(PAIR, OUT / f"{name}.json", sources, "scripts/generate_charts_unrate_spy.py")
     try:
         fig.write_image(OUT / f"_perceptual_check_{name}.png", width=1200, height=600, scale=1)
     except Exception as exc:  # noqa: BLE001 - PNG is a secondary perceptual-check artifact

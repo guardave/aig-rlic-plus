@@ -17,6 +17,7 @@ from plotly.subplots import make_subplots
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _chart_layout import apply_caption_layout  # noqa: E402
+import chart_provenance  # noqa: E402  (records chart inputs; imported before any data is read)
 
 warnings.filterwarnings("ignore")
 
@@ -68,6 +69,7 @@ def save_chart(fig, out_dir: Path, chart_name: str, pair_id: str, chart_type: st
     meta_path = out_dir / f"{chart_name}_meta.json"
 
     chart_path.write_text(fig.to_json())
+    chart_provenance.record(pair_id, chart_path, (), "scripts/viz_cp_retro_apply.py")
 
     meta = {
         "pair_id": pair_id,

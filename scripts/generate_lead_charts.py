@@ -44,6 +44,8 @@ import plotly.io as pio
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "app"))
+sys.path.insert(0, str(ROOT / "scripts"))
+import chart_provenance  # noqa: E402  (records chart inputs; imported before any data is read)
 CREATED = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 PAL = json.loads((ROOT / "docs/schemas/color_palette_registry.json").read_text())["palettes"]["okabe_ito_2026"]
@@ -687,12 +689,15 @@ def run(pair):
     f1, c1, src1 = (build_corr_chart_daily(pair, ind, tgt, w) if pair in DAILY_NATIVE_CORR
                     else build_corr_chart(pair, ind, tgt, w))
     (d / "correlations_lead_view.json").write_text(pio.to_json(f1))
+    chart_provenance.record(pair, d / "correlations_lead_view.json", [src1], "scripts/generate_lead_charts.py")
     write_meta(pair, "correlations_lead_view", "lead_correlation_view", "heatmap", c1,
                ["VIZ-LEAD1", "VIZ-IC1", "VIZ-TX1", "VIZ-O1"], [src1])
     _perceptual_png(f1, d / "_perceptual_check_correlations_lead_view.png")
 
     f2, c2, src2 = build_sharpe_chart(pair, ind, tgt, bh, w)
     (d / "lead_sharpe_distribution.json").write_text(pio.to_json(f2))
+    chart_provenance.record(pair, d / "lead_sharpe_distribution.json", [src2, f"results/{pair}/winner_summary.json"],
+                            "scripts/generate_lead_charts.py")
     write_meta(pair, "lead_sharpe_distribution", "lead_sharpe_distribution", "bar", c2,
                ["VIZ-LEAD1", "VIZ-IC1", "VIZ-TX1", "VIZ-O1"],
                [src2, f"results/{pair}/winner_summary.json"])

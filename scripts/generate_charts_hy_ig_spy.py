@@ -24,6 +24,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _stamp import iso_utc_now  # noqa: E402
+import chart_provenance  # noqa: E402  (records chart inputs; imported before any data is read)
 
 import numpy as np
 import pandas as pd
@@ -166,6 +167,7 @@ def _save_chart(fig, name, narrative_note, method_name=None, expected_chart_type
     chart_path = os.path.join(CHART_DIR, f"{name}.json")
     with open(chart_path, "w") as f:
         json.dump(fig_dict, f)
+    chart_provenance.record(PAIR_ID, chart_path, (), "scripts/generate_charts_hy_ig_spy.py")
 
     # Save sidecar (VIZ-O1: disposition mandate; default "consumed" — every
     # chart this generator emits is rendered by a page_template slot. If a

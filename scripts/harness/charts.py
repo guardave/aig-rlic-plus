@@ -7,6 +7,7 @@ hidden by default), stable lead range band #56B4E9 alpha 0.25, null histogram #9
 from __future__ import annotations
 
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -15,6 +16,9 @@ import pandas as pd
 import plotly.graph_objects as go
 
 REPO = Path(__file__).resolve().parents[2]
+if str(REPO / "scripts") not in sys.path:
+    sys.path.insert(0, str(REPO / "scripts"))
+import chart_provenance  # noqa: E402  (records chart inputs)
 C_MAIN, C_REV, C_BAND, C_NULL, C_TEXT = "#0072B2", "#D55E00", "#56B4E9", "#999999", "#222222"
 LABEL = {"real_time": "As known at the time", "revised": "As revised today (hindsight)", "market": "Market data"}
 UNIT_WORD = {"months": "months", "quarters": "quarters", "days": "trading days"}
@@ -28,6 +32,7 @@ def _save(pair: str, name: str, fig: go.Figure, caption: str, sources: list[str]
     out = REPO / "output" / "charts" / pair / "plotly"
     out.mkdir(parents=True, exist_ok=True)
     fig.write_json(out / f"{name}.json")
+    chart_provenance.record(pair, out / f"{name}.json", sources, "scripts/harness/charts.py")
     meta = {"chart_name": name, "pair_id": pair, "generated_at": datetime.now(timezone.utc).isoformat(),
             "generated_by": "scripts/harness/charts.py", "caption": caption, "narrative_alignment_note": caption,
             "disposition": "consumed", "source_artifacts": sources}
