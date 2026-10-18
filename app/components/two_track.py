@@ -281,7 +281,8 @@ def render_chance_check(pair_id: str, ts: dict) -> None:
                                 f"{nt['n_draws']:,} scrambled-signal contests")
                                + " (the indicator, as known at each date, shifted against the returns by a fixed "
                                  "number of periods, wrapping around once; same selection rule)."
-                               + draws_note(nt) + coarse_note(pair_id, nt) + is_window_note(pair_id)))
+                               + draws_note(nt) + coarse_note(pair_id, nt) + is_window_note(pair_id)
+                               + r71_note(pair_id)))
 
 
 def render_lead_plateau(pair_id: str, ts: dict, ws: dict) -> None:
@@ -377,6 +378,27 @@ def coarse_note(pair_id: str, nt: dict) -> str:
     if eff is not None:
         out += (f", about {eff:.0f} of them effectively independent (contests at neighbouring shifts overlap"
                 " heavily)")
+    return out + "."
+
+
+def r71_note(pair_id: str) -> str:
+    """The R7.1 calibration result stated on every pair, pass or fail (QA B1 umcsent F2: a pass 0.001 inside the
+    tolerance was invisible): the mean timing Sharpe of the scrambled contests' winners, its dependence-aware SE,
+    the tolerance and the outcome, tagged from winner_summary tracks.main.null_tournament. '' without a null."""
+    try:
+        ws = P.json_file(Path(__file__).resolve().parents[2] / "results" / pair_id / "winner_summary.json")
+        n = ws["tracks"]["main"]["null_tournament"]
+        m, se, tol, ok = (n["timing_sharpe_mean"], n["timing_sharpe_se_dependent"], n["r71_tolerance"],
+                          n["r71_pass"])
+    except (OSError, ValueError, KeyError, TypeError):
+        return ""
+    if m is None or se is None or tol is None or ok is None:
+        return ""
+    out = (f" Calibration check (R7.1): the scrambled contests' winners have a mean timing Sharpe of {m:.3f}"
+           f" (dependence-aware standard error {se:.3f}) against a tolerance of {tol:.3f} in absolute value;"
+           f" the check {'passes' if bool(ok) else 'does not pass'}")
+    if float(se) * 2 < float(tol):
+        out += " (the tolerance is set by its fixed floor, not by the standard error)"
     return out + "."
 
 

@@ -86,6 +86,11 @@
       "why": "Sharpe difference vs buy-and-hold and its bootstrap interval"
     },
     {
+      "pattern": "/null_tournament/r71_tolerance$",
+      "kind": "sharpe",
+      "why": "R7.1 tolerance on the mean timing Sharpe of the null winners (Sharpe units)"
+    },
+    {
       "pattern": "/null_tournament/timing_sharpe_effective_draws$",
       "kind": "estimate",
       "why": "Bartlett effective number of independent null draws (non-integer statistic, not a Sharpe ratio)"

@@ -164,14 +164,23 @@ def test_absent_input_is_reported_with_a_rebuild_path_not_as_stale(repo):
     assert "not present in this checkout" in r and "pair_pipeline_toy_spy.py" in r and "stale" not in r
 
 
-def test_pilot_chart_inputs_are_all_tracked():
+def test_every_committed_chart_record_lists_only_tracked_inputs():
+    # QA B1 umcsent F1: a chart record listed a gitignored parquet, so a clean clone failed the gate. Every input of
+    # every COMMITTED chart_provenance.json (any pair) must be git-tracked.
     import subprocess
     root = Path(__file__).resolve().parents[2]
-    for pair in ("unrate_spy", "cc_delinquency_spy", "hy_ig_spy"):
-        ins = {i for e in json.loads(cp.manifest_path(pair).read_text()).values() for i in e["inputs"]}
-        untracked = [i for i in ins if subprocess.run(["git", "ls-files", "--error-unmatch", i], cwd=root,
-                                                       capture_output=True).returncode]
-        assert not untracked, (pair, untracked)              # a fresh clone can verify every record
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    tracked = set(subprocess.run(["git", "ls-files", "-z"], cwd=root, capture_output=True, text=True,
+                                 env=env).stdout.split("\0"))
+    manifests = sorted(m for m in tracked if m.startswith("output/charts/") and m.endswith("/chart_provenance.json"))
+    assert {f"output/charts/{p}/chart_provenance.json" for p in ("unrate_spy", "cc_delinquency_spy", "hy_ig_spy")} \
+        <= set(manifests)
+    bad = {}
+    for m in manifests:
+        ins = {i for e in json.loads((root / m).read_text()).values() for i in e.get("inputs", {})}
+        if ins - tracked:
+            bad[m] = sorted(ins - tracked)
+    assert not bad, bad                                      # a fresh clone can verify every record
 
 
 def test_reads_of_other_pairs_results_are_not_inputs(repo):

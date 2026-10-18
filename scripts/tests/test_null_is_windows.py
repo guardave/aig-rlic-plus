@@ -110,3 +110,35 @@ def test_coarse_note_is_tagged_in_gate_mode(tmp_path, monkeypatch):
                     tmp_path / "results" / "toy_spy" / "track_summary.json")
     clean, _k, _p, sents, _d = g.parse_markers(two_track.coarse_note("toy_spy", nt))
     assert len(sents) == 2 and "36" in clean and "14" in clean
+
+
+def _r71_pair(tmp_path, monkeypatch, m, se, tol, ok):
+    d = tmp_path / "results" / "toy_spy"
+    d.mkdir(parents=True)
+    nt = {"timing_sharpe_mean": m, "timing_sharpe_se_dependent": se, "r71_tolerance": tol, "r71_pass": ok}
+    import json
+    (d / "winner_summary.json").write_text(json.dumps({"tracks": {"main": {"null_tournament": nt}}}))
+    monkeypatch.setattr(two_track, "__file__", str(tmp_path / "app" / "components" / "two_track.py"))
+    monkeypatch.setattr(P, "RESULTS", tmp_path / "results")
+
+
+def test_r71_result_is_stated_on_a_pass_too(tmp_path, monkeypatch):
+    # QA B1 umcsent F2: R7.1 was stated only on failure; a pass 0.001 inside the floor was invisible
+    _r71_pair(tmp_path, monkeypatch, 0.0991, 0.0452, 0.1, True)
+    note = two_track.r71_note("toy_spy")
+    assert "0.099" in note and "0.045" in note and "0.100" in note and "the check passes" in note
+    assert "set by its fixed floor" in note
+    monkeypatch.setenv("AIG_PROVENANCE_GATE", "1")
+    _clean, _k, _p, sents, _d = g.parse_markers(two_track.r71_note("toy_spy"))
+    assert len(sents) == 3
+
+
+def test_r71_failure_is_stated_without_the_floor_clause_when_the_se_sets_it(tmp_path, monkeypatch):
+    _r71_pair(tmp_path, monkeypatch, 0.1244, 0.0268, 0.1, False)
+    assert "does not pass" in two_track.r71_note("toy_spy")
+    (tmp_path / "results" / "toy_spy" / "winner_summary.json").write_text(
+        '{"tracks": {"main": {"null_tournament": {"timing_sharpe_mean": 0.2, "timing_sharpe_se_dependent": 0.06,'
+        ' "r71_tolerance": 0.12, "r71_pass": false}}}}')
+    note = two_track.r71_note("toy_spy")
+    assert "does not pass" in note and "fixed floor" not in note
+    assert two_track.r71_note("absent_spy") == ""

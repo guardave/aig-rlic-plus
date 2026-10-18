@@ -1643,7 +1643,12 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
             # moving rolling median with its latest value.
             _trule = winner.get('threshold_rule', '')
             _th = resolve_threshold(pair_id, winner)
-            if _th["spec"] is not None or 'roll' in str(winner.get('threshold_code', '')).lower():
+            _p2 = any(str(winner.get(k) or "").startswith("P2")
+                      for k in ("strategy_family", "strategy", "strategy_code"))
+            if _p2:      # QA B1 umcsent F5: a signal-strength rule has no threshold; its 'gt' code meant nothing
+                st.markdown("**Threshold:** none (the position is sized by where the signal sits in its "
+                            "trailing range; there is no threshold to cross)")
+            elif _th["spec"] is not None or 'roll' in str(winner.get('threshold_code', '')).lower():
                 _tl = _th["label"] or "rolling threshold (window not recorded)"
                 if _th["source"] == "recorded":
                     _tv_txt = f"latest value `{_th['raw']}`"
