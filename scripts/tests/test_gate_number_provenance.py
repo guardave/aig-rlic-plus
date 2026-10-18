@@ -238,7 +238,7 @@ def test_l2v2_f4_table_cells_are_sentinel_verified_and_sign_aware():
         wrong = "Sharpe | " + P._tag("987.65", "wf:oos_sharpe")
     finally:
         _gate_off()
-    tpool = g.load_table_pool(PAIR, g.load_pool(PAIR))
+    tpool = g.load_pool(PAIR)
     f, _ = g.check_tagged(wrong, tpool, [], _ws()["winner_fields"], "t [table]", PAIR)
     assert any(x.startswith("MISMATCH") for x in f)
     f, _ = g.check_tagged(_authored("Stale estimate -57"), tpool, [], {}, "t [table]", PAIR)
@@ -404,5 +404,5 @@ def test_n4_definition_pool_takes_only_named_pipeline_parameters(tmp_path, monke
     pool = g.spec_numbers("toy_spy")
     assert {36.0, 1.0, 3.0} <= pool
     assert not {987.0, 20.0, 21.0, 72.0} & pool, pool                 # code literals and computed values excluded
-    assert 0 <= g.coincidence_definition("toy_spy") < 0.05
+    assert 0 <= g.coincidence_definition("toy_spy")["declared_mix"] < 0.05
     g._SPEC_POOL.pop("toy_spy", None)

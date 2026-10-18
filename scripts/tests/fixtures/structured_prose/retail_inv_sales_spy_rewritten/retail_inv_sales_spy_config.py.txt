@@ -2,11 +2,11 @@
 import json
 from pathlib import Path
 
-from components.winner_fields import WinnerFields
+from components.winner_fields import load
 
 THRESHOLD_TEXT = {"T_roll_median": "its 5-year rolling median", "T_roll_heading": "Rolling 5-Year Median"}
 
-W = WinnerFields("retail_inv_sales_spy", json.loads(Path(__file__).with_name("winner_summary.json").read_text())["winner_fields"])
+W = load("retail_inv_sales_spy")
 
 
 class StoryConfig:

@@ -13,6 +13,17 @@ RETAIL = FIX / "retail_inv_sales_spy_8198187b"        # config + winner_summary 
 REWRITTEN = FIX / "retail_inv_sales_spy_rewritten"
 
 
+@pytest.fixture(autouse=True)
+def _fixture_results(tmp_path, monkeypatch):
+    """A config reads its fields with components.winner_fields.load(pair) (PROVENANCE-API v5 allows nothing else):
+    point load() at the fixture's own winner_summary.json."""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "app"))
+    from components import winner_fields
+    (tmp_path / "retail_inv_sales_spy").mkdir()
+    shutil.copy(REWRITTEN / "winner_summary.json", tmp_path / "retail_inv_sales_spy" / "winner_summary.json")
+    monkeypatch.setattr(winner_fields, "_RESULTS", tmp_path)
+
+
 def findings(d, hard=False):
     cfg = next(iter(sorted(d.glob("*_config.py*"))))
     return g.check_pair_files(cfg, d / "winner_summary.json", hard)

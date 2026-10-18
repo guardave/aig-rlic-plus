@@ -93,7 +93,7 @@
       "paths": [
         "*"
       ],
-      "regex": "\\bR\\d+(?:\\.\\d+)+\\b|\\b[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_.]*\\d[A-Za-z0-9_.]*\\b|\\b[A-Z][A-Z0-9]*\\d[A-Z0-9]*\\b|\\b(?:[STP]\\d{1,2}[a-z]?|T\\d_\\w+|rp\\d{2}|p\\d{2})\\b",
+      "regex": "\\bR\\d+(?:\\.\\d+)+\\b|\\b[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]*\\d[A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*\\b(?!\\.\\d)|\\b[A-Z][A-Z0-9]*\\d[A-Z0-9]*\\b|\\b(?:[STP]\\d{1,2}[a-z]?|T\\d_\\w+|rp\\d{2}|p\\d{2})\\b",
       "why": "Series ids (BAMLH0A0HYM2, DGS10, VIX3M), column / signal / threshold codes (hy_ig_roc_63d, T_roll_p75, S6, T1, P2) and strategy family names. Leads (L<n>) are not identifiers and stay banned. Methodology rule ids (R7.1) are rule names, not values."
     },
     {

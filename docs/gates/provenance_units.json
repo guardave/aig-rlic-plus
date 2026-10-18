@@ -1,20 +1,124 @@
 {
-  "description": "Declared kind of every artifact leaf a page may format (Codex L2v3 N2). The number-provenance gate allows x100 / a '%' display only on ratio kinds, annualisation (x periods per year) only on a per-period return at the pair's own frequency (candidates manifest ppy), and +/-1 only on counts / leads. A leaf matching no rule has kind 'unknown': it may be shown as is (or negated / differenced with a leaf of the same kind) but never scaled. The first matching rule wins; patterns are searched in the source path (file#key/path).",
+  "description": "Declared kind of every artifact leaf a page may format (Codex L2v3 N2; v5 after QA L2v4 #4). The number-provenance gate allows x100 / a '%' display only on ratio kinds, annualisation (x periods per year) only on a per-period return at the pair's own frequency (candidates manifest ppy), and +/-1 only on counts / leads. Every NUMERIC leaf a page shows must match a rule (a numeric leaf of kind 'unknown' fails), and its value must be consistent with its kind (value_checks). The first matching rule wins; patterns are searched in the source path (file#key/path). Patterns are anchored on a path separator: a rule never matches the tail of a longer key.",
+  "value_checks": {
+    "ratio": "abs(value) <= 1.5 (a stored percent such as 43.48 is kind percent)",
+    "percent": "already x100: never shown x 100 again",
+    "count": "integer-valued, >= 0",
+    "lead": "integer-valued (a negative lag is allowed)",
+    "pvalue": "0 <= value <= 1",
+    "turnover": "value >= 0",
+    "sharpe": "abs(value) < 10"
+  },
   "rules": [
-    {"pattern": "(?:^|/)(?:ann_return|ann_vol|max_dd|max_drawdown|oos_ann_return|oos_ann_vol|oos_max_drawdown|bh_ann_return|bh_max_drawdown|win_rate|oos_win_rate|exposure|oos_exposure|is_exposure)(?:/|$)", "kind": "ratio", "why": "fractions of capital or of time (0.152 = 15.2%)"},
-    {"pattern": "#/vs_buy_hold/(?:ann_return|ann_vol|max_dd)/", "kind": "ratio", "why": "strategy / B&H return, volatility and drawdown fractions"},
-    {"pattern": "(?:winner_percentile|selection_stat_percentile|is_max_percentile|winner_oos_percentile|_percentile)(?:/|$)", "kind": "ratio", "why": "share of null contests below the statistic"},
-    {"pattern": "(?:_share|share)(?:/|$)", "kind": "ratio", "why": "share of windows / days"},
-    {"pattern": "exposure_bounds/\\d", "kind": "ratio", "why": "IS exposure bounds as fractions"},
-    {"pattern": "quartile_next_month_ann_return/Q\\d|quartile_concurrent_ann_return", "kind": "ratio", "why": "annualised returns (already annualised by the pipeline)"},
-    {"pattern": "spy_drawdown/|/drawdown(?:/|$)", "kind": "ratio", "why": "drawdown fractions"},
-    {"pattern": "hmm_regime_(?:calm|stress)/ann_return", "kind": "ratio", "why": "annualised regime return (pipeline)"},
-    {"pattern": "r\\d+/(?:mean_Q\\d|q4_minus_q1)$", "kind": "period_return", "why": "mean next-period return by quartile (per period)"},
-    {"pattern": "r\\d+/mean_return$", "kind": "period_return", "why": "mean per-period return"},
-    {"pattern": "(?:pct_stress_days|pct_is|pct_oos)(?:/|$)", "kind": "ratio", "why": "shares of days"},
-    {"pattern": "(?:sharpe|sortino|calmar)(?:/|$|_)", "kind": "sharpe", "why": "Sharpe-type ratios (never x100)"},
-    {"pattern": "(?:p_value|pvalue|p_is|p_oos|p_diff_le_0|p_selection_stat)(?:/|$)", "kind": "stat", "why": "probabilities reported as p-values (shown as is)"},
-    {"pattern": "(?:lead|lead_value|lead_days|lead_grid/\\d|leads/\\d|window_leads/\\d)(?:/|$)", "kind": "lead", "why": "lead in the pair's period unit"},
-    {"pattern": "(?:n_\\w+|_n|is_n|oos_n|n|n_months|n_draws|count|rows)(?:/|$)", "kind": "count", "why": "counts"}
+    {
+      "pattern": "(?:^|[/#])(?:pct_\\w+|\\w+_pct)(?:/|$)",
+      "kind": "percent",
+      "why": "stored already in percent (43.48 = 43.48%): hmm/pct_*, *_ann_return_pct"
+    },
+    {
+      "pattern": "(?:^|[/#])(?:ann_return|ann_vol|max_dd|max_drawdown|oos_ann_return|oos_ann_vol|oos_max_drawdown|bh_ann_return|bh_max_drawdown|win_rate|oos_win_rate|exposure|oos_exposure|is_exposure)(?:/|$)",
+      "kind": "ratio",
+      "why": "fractions of capital or of time (0.152 = 15.2%)"
+    },
+    {
+      "pattern": "#/vs_buy_hold/(?:ann_return|ann_vol|max_dd)/",
+      "kind": "ratio",
+      "why": "strategy / B&H return, volatility and drawdown fractions"
+    },
+    {
+      "pattern": "(?:^|[/#_])(?:winner_percentile|selection_stat_percentile|is_max_percentile|winner_oos_percentile|percentile)(?:/|$)",
+      "kind": "ratio",
+      "why": "share of null contests below the statistic"
+    },
+    {
+      "pattern": "(?:^|[/#_])share(?:/|$)",
+      "kind": "ratio",
+      "why": "share of windows / days"
+    },
+    {
+      "pattern": "exposure_bounds/\\d+$",
+      "kind": "ratio",
+      "why": "IS exposure bounds as fractions"
+    },
+    {
+      "pattern": "quartile_next_month_ann_return/Q\\d$|quartile_concurrent_ann_return/Q\\d$",
+      "kind": "ratio",
+      "why": "annualised returns (already annualised by the pipeline), fractions"
+    },
+    {
+      "pattern": "(?:^|/)spy_drawdown/|/drawdown(?:/|$)",
+      "kind": "ratio",
+      "why": "drawdown fractions"
+    },
+    {
+      "pattern": "hmm_regime_(?:calm|stress)/ann_return$",
+      "kind": "ratio",
+      "why": "annualised regime return (pipeline), fraction"
+    },
+    {
+      "pattern": "(?:^|[/#])r\\d+/(?:mean_Q\\d|q4_minus_q1)$",
+      "kind": "period_return",
+      "why": "mean next-period return by quartile (per period)"
+    },
+    {
+      "pattern": "(?:^|[/#])r\\d+/mean_return$",
+      "kind": "period_return",
+      "why": "mean per-period return"
+    },
+    {
+      "pattern": "(?:^|[/#])r\\d+/quantile$",
+      "kind": "ratio",
+      "why": "quantile level of a quantile regression (0.05 = 5th percentile)"
+    },
+    {
+      "pattern": "/hmm/smoothed_vs_causal/\\d+/(?:smoothed|causal)$",
+      "kind": "ratio",
+      "why": "HMM state probabilities"
+    },
+    {
+      "pattern": "#/vs_buy_hold/(?:ci_95/\\d|sharpe_diff|observed)$",
+      "kind": "sharpe",
+      "why": "Sharpe difference vs buy-and-hold and its bootstrap interval"
+    },
+    {
+      "pattern": "(?:sharpe|sortino|calmar)(?:/|$|_)",
+      "kind": "sharpe",
+      "why": "Sharpe-type ratios (never x100)"
+    },
+    {
+      "pattern": "(?:^|[/#_])(?:p_value|pvalue|p_is|p_oos|p_diff_le_0|p_selection_stat|p|sig_p_max|sig_p_min|joint_wald_p|spread_to_spy_p)(?:/|$)",
+      "kind": "pvalue",
+      "why": "probabilities reported as p-values (shown as is)"
+    },
+    {
+      "pattern": "(?:^|[/#])(?:coef|t_stat|hac_t|q4_minus_q1_hac_t|f_stat|spread_to_spy_f|spy_to_spread_f|max_abs_z|statistic|r|lag\\d+|L\\d+|gap_corr_next_day_oos|spearman_is_oos)(?:/|$)|/rolling_correlation/(?:max|min)$|/transfer_entropy_proxy_mean/\\w+$|/static_corr_level_fwd/\\d+$",
+      "kind": "estimate",
+      "why": "regression coefficients, test statistics and correlations (shown as is, never scaled); transfer-entropy proxies and rank correlations"
+    },
+    {
+      "pattern": "(?:^|[/#])(?:lead|\\w+_lead|lead_value|lead_days|lag|sig_lag_max|sig_lag_min|position_shift|\\w*horizon_days|lead_grid/\\d+|leads/\\d+|window_leads/\\d+)(?:/|$)",
+      "kind": "lead",
+      "why": "lead / lag / horizon / position shift in the pair's period unit"
+    },
+    {
+      "pattern": "(?:^|[/#])(?:\\w*turnover\\w*)(?:/|$)",
+      "kind": "turnover",
+      "why": "position changes per year (shown as is)"
+    },
+    {
+      "pattern": "(?:^|[/#])(?:n|n_\\w+|\\w+_trades|\\w+_n|count|rows|draws|block_length|total_combos|hac_maxlags|oos_months|history_years)(?:/|$)",
+      "kind": "count",
+      "why": "counts"
+    },
+    {
+      "pattern": "(?:^|[/#])(?:threshold_value|\\w+_threshold)(?:/|$)|/history/(?:peaks/\\w+/0|spread_at/[\\d-]+|spread_low_\\d+/0)$",
+      "kind": "level",
+      "why": "indicator levels and thresholds in the indicator's own units (never scaled)"
+    },
+    {
+      "pattern": "(?:^|[/#])(?:first_year|last_year)(?:/|$)",
+      "kind": "year",
+      "why": "calendar years"
+    }
   ]
 }

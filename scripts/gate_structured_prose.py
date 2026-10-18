@@ -504,56 +504,87 @@ FORBIDDEN_CALLS = {"getattr", "setattr", "__import__", "eval", "exec", "compile"
                    "import_module", "reload"}
 
 
+# v5 (QA L2v4 #5): what a schema-1.3 config may import and how it may use P, as allowlists. The forge damage is
+# bounded (a forged tag is re-evaluated from its source, so it can only show some leaf's true value), but the rule
+# is stated, not inferred from underscore names.
+CONFIG_MODULES = {"__future__", "json", "pathlib", "pandas", "numpy", "math", "re", "datetime", "textwrap",
+                  "typing", "dataclasses"}
+CONFIG_COMPONENT_IMPORTS = {"components.page_templates": None,             # None: any *Config class
+                            "components.winner_fields": {"load", "lead_grid"}}
+P_API = {"json_file", "csv_file", "col_dict", "colmin", "colmax", "colmaxabs", "length", "count", "lead_grid",
+         "year", "items", "prefix", "definitions", "definition_text"}
+
+
 def provenance_api(cfg_path: Path) -> list[str]:
-    """PROVENANCE-API (hard, schema-1.3 pairs; Codex L2v2 F1 / F10, L2v3 N1): a config may not mint tags or
-    definitions itself. The ONLY allowed import of the module is `from components import provenance as P`; any
-    other form (import components.provenance, from components.provenance import ...), any dynamic access
-    (getattr / importlib / __import__ / eval / exec / vars / globals / sys.modules), any private name on P, and
-    DefText are hard failures; definition_text() only as the value of an approved methodology block,
-    definitions() only for a *_TEXT dict."""
+    """PROVENANCE-API (hard, schema-1.3 pairs; Codex L2v2 F1 / F10, L2v3 N1, QA L2v4 #5). A config may not mint
+    tags or definitions itself:
+      * imports: only CONFIG_MODULES, `from components import provenance as P`, and the CONFIG_COMPONENT_IMPORTS
+        names; anything else that touches the components package (or pair_configs, or a relative import) fails;
+      * P appears only as `P.<name>(...)` with <name> in P_API (no alias Q = P, no P passed or stored, no
+        P.gate_on / P.os / P._x / P.DefText);
+      * no dynamic access (getattr / eval / ... / sys.modules), no dunder attribute (x.__class__), no `.src`,
+        no `type(...)(...)`, no DefText;
+      * definition_text() only as the value of an approved methodology block, definitions() only for a *_TEXT
+        dict."""
     tree = ast.parse(cfg_path.read_text())
-    aliases, out = set(), []
+    out = []
+    parent = {c: x for x in ast.walk(tree) for c in ast.iter_child_nodes(x)}
+
+    def bad(n, msg):
+        out.append(f"PROVENANCE-API (line {n.lineno}): {msg}")
+
     for n in ast.walk(tree):
-        if isinstance(n, ast.ImportFrom) and n.module == "components":
-            for a in n.names:
-                if a.name == "provenance":
-                    if a.asname != "P":
-                        out.append(f"PROVENANCE-API (line {n.lineno}): import provenance only as "
-                                   "`from components import provenance as P`")
-                    aliases.add(a.asname or a.name)
-        elif isinstance(n, ast.ImportFrom) and (n.module or "").startswith("components.provenance"):
-            out.append(f"PROVENANCE-API (line {n.lineno}): `from components.provenance import ...` is not allowed")
+        if isinstance(n, ast.ImportFrom):
+            mod = n.module or ""
+            if n.level:
+                bad(n, "relative imports are not allowed in a config")
+            elif mod == "components":
+                for a in n.names:
+                    if not (a.name == "provenance" and a.asname == "P"):
+                        bad(n, "from components import only `provenance as P`")
+            elif mod in CONFIG_COMPONENT_IMPORTS:
+                allowed = CONFIG_COMPONENT_IMPORTS[mod]
+                for a in n.names:
+                    ok = a.name.endswith("Config") if allowed is None else a.name in allowed
+                    if not ok or a.asname:
+                        bad(n, f"`from {mod} import {a.name}` is not allowed in a config")
+            elif mod.split(".")[0] not in CONFIG_MODULES:
+                bad(n, f"`from {mod} import ...` is not allowed in a config (allowed: {sorted(CONFIG_MODULES)})")
         elif isinstance(n, ast.Import):
             for a in n.names:
-                if a.name.startswith("components.provenance") or a.name in ("importlib", "builtins"):
-                    out.append(f"PROVENANCE-API (line {n.lineno}): `import {a.name}` is not allowed in a config")
-        elif isinstance(n, ast.ImportFrom) and n.module in ("importlib", "builtins"):
-            out.append(f"PROVENANCE-API (line {n.lineno}): `from {n.module} import ...` is not allowed in a config")
+                if a.name.split(".")[0] not in CONFIG_MODULES:
+                    bad(n, f"`import {a.name}` is not allowed in a config")
         elif isinstance(n, ast.Call):
             fn = n.func.id if isinstance(n.func, ast.Name) else getattr(n.func, "attr", "")
             if fn in FORBIDDEN_CALLS:
-                out.append(f"PROVENANCE-API (line {n.lineno}): dynamic access `{fn}(...)` is not allowed in a config")
-        elif isinstance(n, ast.Attribute) and n.attr in ("modules", "__dict__", "__globals__") :
-            out.append(f"PROVENANCE-API (line {n.lineno}): `.{n.attr}` is not allowed in a config")
-        elif isinstance(n, ast.Name) and n.id == "DefText":
-            out.append(f"PROVENANCE-API (line {n.lineno}): DefText is not allowed in a config")
-    for n in ast.walk(tree):
-        if isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name) and n.value.id in aliases \
-                and (n.attr.startswith("_") or n.attr == "DefText"):
-            out.append(f"PROVENANCE-API (line {n.lineno}): {n.value.id}.{n.attr} (configs never mint tags)")
-    parent = {c: x for x in ast.walk(tree) for c in ast.iter_child_nodes(x)}
+                bad(n, f"dynamic access `{fn}(...)` is not allowed in a config")
+            if isinstance(n.func, ast.Call) and isinstance(n.func.func, ast.Name) and n.func.func.id == "type":
+                bad(n, "`type(...)(...)` is not allowed in a config")
+        elif isinstance(n, ast.Attribute):
+            if n.attr.startswith("__") or n.attr in ("modules", "src"):
+                bad(n, f"`.{n.attr}` is not allowed in a config")
+        elif isinstance(n, ast.Name):
+            if n.id == "DefText":
+                bad(n, "DefText is not allowed in a config")
+            elif n.id == "P":
+                at = parent.get(n)
+                call = parent.get(at)
+                if not (isinstance(at, ast.Attribute) and at.value is n and isinstance(call, ast.Call)
+                        and call.func is at and at.attr in P_API):
+                    what = f"P.{at.attr}" if isinstance(at, ast.Attribute) and at.value is n else "P"
+                    bad(n, f"{what}: P may only be used as `P.<name>(...)` with <name> in {sorted(P_API)}")
     for n in ast.walk(tree):
         if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and isinstance(n.func.value, ast.Name) \
-                and n.func.value.id in aliases and n.func.attr in ("definition_text", "definitions"):
+                and n.func.value.id == "P" and n.func.attr in ("definition_text", "definitions"):
             p = parent.get(n)
             targets = [t.id for t in getattr(p, "targets", []) if isinstance(t, ast.Name)] \
                 if isinstance(p, ast.Assign) else []
             ok = (targets and all(t in APPROVED_DEF_ATTRS for t in targets)) if n.func.attr == "definition_text" \
                 else (targets and all(t.endswith("_TEXT") for t in targets))
             if not ok:
-                out.append(f"PROVENANCE-API (line {n.lineno}): {n.func.attr}() must be assigned to "
-                           + ("an approved methodology block " + str(sorted(APPROVED_DEF_ATTRS))
-                              if n.func.attr == "definition_text" else "a *_TEXT dict"))
+                bad(n, f"{n.func.attr}() must be assigned to "
+                    + ("an approved methodology block " + str(sorted(APPROVED_DEF_ATTRS))
+                       if n.func.attr == "definition_text" else "a *_TEXT dict"))
     return out
 
 
