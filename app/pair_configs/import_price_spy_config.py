@@ -63,7 +63,7 @@ _CHANCE_TEXT = (f"the real winner's stable-range score is above the winners of a
 THRESHOLD_TEXT = P.definitions({
     "T0_zero": "zero",
     "T_z_0": "zero (its own five-year average)",
-    "T_z_1.0": "one standard deviation above its own average (a z-score of one)",
+    "T_z_1.0": "a z-score of one",
     "T_roll_p25": "its rolling 60-month 25th percentile",
     "T_roll_p50": "its rolling 60-month median",
 })
@@ -162,7 +162,8 @@ class StoryConfig:
     HERO_CAPTION = (
         "How to read it: the Import Price Index (left axis, index level) is shown with SPY (right axis) on the same "
         "time axis. Gray bands are NBER recessions; pink bands mark months when import prices were below their "
-        "year-earlier level."
+        "year-earlier level. The short gap near the end of the line is a month with no published reading (it was "
+        "skipped during a federal government shutdown)."
     )
 
     REGIME_TITLE = "What History Shows: SPY Performance by Import-Price Growth Regime"
@@ -229,7 +230,8 @@ Import prices are dominated by fuel and by the dollar. Falling import prices can
                 "began raising rates and equities sold off. This is the episode the imported-inflation hypothesis "
                 "describes most directly."
             ),
-            "caption": "2022: import prices peaked in mid-2022 as equities sold off on rate hikes.",
+            "caption": "2022: import prices peaked in mid-2022 as equities sold off on rate hikes. The gap near the end "
+                       "of the line is a month with no published reading (federal government shutdown).",
         },
     ]
 
@@ -442,7 +444,7 @@ class StrategyConfig:
         f"Update (2026-10-18). The previous development version of this page reported the rule {W.previous_rule} "
         f"(test-period Sharpe {W.previous_oos_sharpe}, run of {W.previous_tag}), the single highest training Sharpe "
         "on revised data with fixed release lags; that version was not published on the main site, which still shows "
-        "an older rule picked on its test-period Sharpe over a different lead grid. The page now reports the rule "
+        "an older rule from an earlier run with a different lead grid and selection method. The page now reports the rule "
         "selected on the training period from data as known at the time, with point-in-time release dates and the "
         "stable-lead-range rule; today's revised data are shown for comparison only."
     )
@@ -608,15 +610,18 @@ _METHODS_TABLE_MD = P.definition_text("""
 | Paired block bootstrap | How uncertain is the Sharpe difference versus buy-and-hold? | Interval for the headline comparison |
 """)
 
+_CE = _WS.get("cross_eval") or {}
+_CE_NOTE = {True: "", False: " (that rule does not pass the training validity filters on this data)"}.get(
+    bool((_CE.get("revised_winner_on_main") or {}).get("valid", True)), "")
 _C_TOP_TEXT = (f" Its stable lead range {W.comparison_plateau_range} reaches the top of the declared lead grid; longer "
                "leads were not tested." if _C_AT_TOP else "")
 
 _TOURNAMENT_DESIGN_MD = f"""
 Grid: import-price growth transforms x zero, z-score and rolling-percentile thresholds x the long/cash strategy x procyclical/countercyclical orientations x leads {_GRID_RANGE} months, where the lead is the whole gap between the reading month and the month whose return it trades ({W.n_candidates} declared combinations; {W.n_distinct} distinct position series, the others repeat a series exactly). Each data track selects its own winner on the training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it.
 
-- As known at the time (headline): `{_RID}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe} ({W.is_start} to {W.is_end}), test-period Sharpe {W.oos_sharpe}. The single highest training Sharpe on this track ({W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}; it is shown for reference and is not the selection rule.{_MAIN_TAIL}
+- As known at the time (headline): `{_RID}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe} ({W.is_start} to {W.is_end}), test-period Sharpe {W.oos_sharpe}. The raw single highest training Sharpe on this track (argmax, {W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}; it is shown for reference and is not the selection rule.{_MAIN_TAIL}
 - As revised today (hindsight): `{_RID_REVISED}`, stable lead range {W.comparison_plateau_range}, training Sharpe {W.comparison_is_sharpe} ({W.comparison_is_start} to {W.comparison_is_end}), test-period Sharpe {W.comparison_oos_sharpe}.{_C_TOP_TEXT}{_COMP_TAIL}
-- Cross-evaluation: the headline rule scored on revised data has test-period Sharpe {W.ce_main_on_revised_oos_sharpe}; the hindsight rule scored on data as known at the time has {W.ce_revised_on_main_oos_sharpe}.
+- Cross-evaluation: the headline rule scored on revised data has test-period Sharpe {W.ce_main_on_revised_oos_sharpe}; the hindsight rule scored on data as known at the time has {W.ce_revised_on_main_oos_sharpe}{_CE_NOTE}.
 - Chance check: across {W.null_draws} contests run on circularly shifted import-price data, {_CHANCE_TEXT}.
 - Previous rule of this page: `{W.previous_rule}` ({W.previous_selection}; run of {W.previous_tag}, development version, not published on the main site), test-period Sharpe {W.previous_oos_sharpe}. The new framework replays that run exactly (same rows, same winner, same returns).
 """
