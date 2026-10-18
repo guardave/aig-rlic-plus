@@ -914,11 +914,13 @@
       "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 5 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 5 = 5 - position_shift 0. Evidence: USGS Mineral Industry Surveys 'Cement in <month>' PDF publication (S3 Last-Modified) dates, 2021-09..2026-06; S&P Global confirms Apr-2025 data published 2025-07-24; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 2..14 -> 5..14.",
       "conformed": true,
       "reconfirmed_winner": "cement_yoy / L4 / countercyclical / OOS Sharpe 1.253 (#255 floored re-run, DATE_TAG 20261008)",
+      "note": "Phase B harness (20261018): single track (today's revised USGS values; no archive of first releases), D9 lead-plateau selection on the registry grid L5..L14 with position_shift 0, point-in-time release timing (USGS_CEMENT_MIS). Published 20261016 rule (raw IS-Sharpe argmax, fixed lag) replayed by the harness and kept as the previous rule.",
       "position_shift": 0,
       "lead_floor_effective": 5,
       "release_calendar_series": "USGS_CEMENT_MIS",
-      "alignment": "fixed_lag",
-      "value_vintage": "revised_no_archive"
+      "alignment": "pit_asof",
+      "value_vintage": "revised_no_archive",
+      "track_policy": "single_revised_no_archive"
     },
     "mfg_new_orders_spy": {
       "signal_frequency": "monthly",
