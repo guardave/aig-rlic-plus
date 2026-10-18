@@ -51,7 +51,8 @@ _QR_ALL_CI_ZERO = bool(((_QR_T["ci_low"] <= 0) & (_QR_T["ci_high"] >= 0)).all())
 # the earlier research run (development branch only, never on the main site): its own selection record
 _EARLY_SEL = P.csv_file(_RES / "legacy_oos_selection_20261015.csv")
 _EARLY = _EARLY_SEL[_EARLY_SEL["role"] == "primary_is_selected_common_start"].iloc[0]
-_EARLY_RULE = f"{_EARLY['signal']} / {_EARLY['threshold']} / {_EARLY['direction']} / L{_EARLY['lead_months']}"
+_EARLY_RULE = f"{_EARLY['signal']} / {_EARLY['threshold']} / L{_EARLY['lead_months']}"
+_EARLY_DIRECTION = str(_EARLY["direction"])
 _EARLY_BRANCH = "spike261015_is_oos_floor"     # the development branch that holds the earlier research run
 _PREV_DIRECTION = str(W.value("previous_rule")).split("|")[3]   # orientation of the main-site rule (its key)
 
@@ -447,7 +448,8 @@ class StrategyConfig:
         f"{W.previous_oos_sharpe}, run of {W.previous_tag}), {_PREV_DIRECTION}. That previously published rule was "
         "chosen by its test-period score, on a different lead grid with fixed lags, so its test-period result was "
         "not a held-out result. An earlier research run (on the development branch "
-        f"`{_EARLY_BRANCH}`, never shown on the main site) picked {_EARLY_RULE} as the single highest training "
+        f"`{_EARLY_BRANCH}`, never shown on the main site) picked {_EARLY_RULE}, {_EARLY_DIRECTION}, as the single "
+        "highest training "
         "Sharpe with fixed lags. The page now reports the "
         "rule selected on the training period with point-in-time release dates and the stable-lead-range rule. There "
         "is one data track: no archive of earlier values of this index exists, so every result uses values as "
@@ -564,7 +566,9 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     TRADE_LOG_EXAMPLE_MD = (
         "**A concrete example from this pair:** the broker-style log records each switch between SPY and cash "
         f"that the rule makes when the {_SIG} reading crosses {_THR}. It covers the full reconstructed history "
-        f"({_EV['n_trade_log_rows']} rows), not only the test period."
+        f"({_EV['n_trade_log_rows']} rows), not only the test period. Its first row dated in the test period "
+        f"({W.oos_start}) is the switch from the last training-period position; the {W.oos_n_trades} switches "
+        "counted for the test period come after it."
     )
 
     TRADE_LOG_COLUMN_EXAMPLES = {
@@ -620,7 +624,7 @@ Grid: expected-conditions signals x zero, z-score and rolling-percentile thresho
 - Winner: `{_RID}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe} ({W.is_start} to {W.is_end}; buy-and-hold {W.bh_is_sharpe}), test-period Sharpe {W.oos_sharpe}. The raw single highest training Sharpe (argmax, {W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}; it is shown for reference and is not the selection rule.{_MAIN_TAIL}
 - Chance check: across {W.null_draws} contests run on circularly shifted index data, {_CHANCE_TEXT}.
 - Rule previously shown on the main site: `{W.previous_rule}` (run of {W.previous_tag}), {_PREV_DIRECTION}, with a previous test-period Sharpe of {W.previous_oos_sharpe}. The previously published rule was chosen by its test-period score on the lead grid of that run, so that score was not a held-out result. The new framework replays that run exactly (same rows in the same order, same test-period scores, same winner, same returns).
-- Earlier research run: `{_EARLY_RULE}` (the single highest training Sharpe with fixed lags), on the development branch `{_EARLY_BRANCH}`, never shown on the main site.
+- Earlier research run: `{_EARLY_RULE}`, {_EARLY_DIRECTION} (the single highest training Sharpe with fixed lags), on the development branch `{_EARLY_BRANCH}`, never shown on the main site.
 """
 
 _REFERENCES_MD = """
