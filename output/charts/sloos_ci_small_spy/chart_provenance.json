@@ -3,7 +3,7 @@
   "chart_sha256": "2964ad7eac56cffc2fbe5a211eb21fc6e7ffff531fd58c42456d3727977cac0d",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:16:47+00:00",
+  "recorded_at": "2026-10-18T07:22:28+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",
@@ -39,7 +39,7 @@
   "chart_sha256": "3bccf360f3a87d088b75670d758d21d2f4029dca16934ffd964be62d4a9965a4",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:16:45+00:00",
+  "recorded_at": "2026-10-18T07:22:25+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",
@@ -52,7 +52,7 @@
   "chart_sha256": "319164c999c4332f330d1a0bd3619b2ace7ee658e2188d3c43356b65b544b8f8",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:17:06+00:00",
+  "recorded_at": "2026-10-18T07:22:44+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",
@@ -71,7 +71,7 @@
   "chart_sha256": "0f55eb376779e8c6005134d9627c4fbf1360eceb133f5a3d4de5886b95c536f8",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:17:03+00:00",
+  "recorded_at": "2026-10-18T07:22:41+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",
@@ -90,7 +90,7 @@
   "chart_sha256": "12789fb85779cfafe3b42c052bb76f637c0b1907cb7eaaadbd6603d9d874b4e9",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:16:51+00:00",
+  "recorded_at": "2026-10-18T07:22:32+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",
@@ -105,7 +105,7 @@
   "chart_sha256": "24393d803f7c4d18deda9b06aba93bdcfd932f42cdc4d6d467e2b4939e51e30c",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:16:39+00:00",
+  "recorded_at": "2026-10-18T07:22:19+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f"
@@ -115,7 +115,7 @@
   "chart_sha256": "f771c08a8744ac7d1d87e71d21582d071efa501fd55245d5b4ce9cceae364299",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:17:35+00:00",
+  "recorded_at": "2026-10-18T07:23:16+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",
@@ -139,7 +139,7 @@
   "chart_sha256": "fbd055260f09aafe03fdf2e711d3212e88ebf344ce4112c0b13a891ce931322b",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:17:28+00:00",
+  "recorded_at": "2026-10-18T07:23:09+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",
@@ -163,7 +163,7 @@
   "chart_sha256": "02bb4f65b2676f3b8647a4ce2a3ad7d70bd98bbd2cf308eeb11530da452be219",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:17:31+00:00",
+  "recorded_at": "2026-10-18T07:23:13+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",
@@ -183,11 +183,11 @@
    "results/sloos_ci_small_spy/winner_summary.json": "5193fedbb2a6f0591072cd02d1330530fa20732db6d3bec738c00d5349d75bbc"
   }
  },
- "history_zoom_rate_hike_2022": {
+ "history_zoom_inflation_2022": {
   "chart_sha256": "3bf5b94b22a906219d6491f9c654f433ed17c07887eaade66f4abb93af234e32",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:17:40+00:00",
+  "recorded_at": "2026-10-18T07:23:20+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",
@@ -230,7 +230,7 @@
   "chart_sha256": "5c4e760fac8f36cac616d8fc84444cff2d3f2e1f9f2f78409c55f711b28da4db",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:16:56+00:00",
+  "recorded_at": "2026-10-18T07:22:35+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",
@@ -246,7 +246,7 @@
   "chart_sha256": "1d83afaabff323df2aaabdd8d39a322949fc73d0d6f8db647374c57b5c5f0e88",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:17:00+00:00",
+  "recorded_at": "2026-10-18T07:22:38+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",
@@ -264,7 +264,7 @@
   "chart_sha256": "e5c28b9b8b17000d8b70a10054d4de7103c7eee7db8d0815abf986fdb8707ef0",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:16:42+00:00",
+  "recorded_at": "2026-10-18T07:22:22+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",
@@ -276,7 +276,7 @@
   "chart_sha256": "9c1f60eaabbebe7864c40077c1904d422546f1fdbbdf63f3e0a3295bf08c3fab",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:17:16+00:00",
+  "recorded_at": "2026-10-18T07:22:54+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",
@@ -297,7 +297,7 @@
   "chart_sha256": "5ecc919e5487899f69a6a7f961d2e817fe2483c7804fc6ce1750ac423d62b4a0",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:17:20+00:00",
+  "recorded_at": "2026-10-18T07:22:57+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",
@@ -320,7 +320,7 @@
   "chart_sha256": "0af9c8b647ccdc57b6d79ee80ba9f0b601deb65de28c4a7070a9d9d63f094218",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:17:23+00:00",
+  "recorded_at": "2026-10-18T07:23:01+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",
@@ -344,7 +344,7 @@
   "chart_sha256": "5c94b26a76ff55ebb51b9b716535c52cd35b404eb57b8114c003fb21f83a3252",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:17:12+00:00",
+  "recorded_at": "2026-10-18T07:22:50+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",
@@ -364,7 +364,7 @@
   "chart_sha256": "5c94b26a76ff55ebb51b9b716535c52cd35b404eb57b8114c003fb21f83a3252",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:17:09+00:00",
+  "recorded_at": "2026-10-18T07:22:47+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",
@@ -384,7 +384,7 @@
   "chart_sha256": "0af9c8b647ccdc57b6d79ee80ba9f0b601deb65de28c4a7070a9d9d63f094218",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_sloos_ci_small_spy.py",
-  "recorded_at": "2026-10-18T07:17:25+00:00",
+  "recorded_at": "2026-10-18T07:23:05+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/sloos_ci_small_spy_quarterly_latest.parquet": "11e3f859290a2ba15d371aac803224fe190fee87729718fea55b30da5b43340f",

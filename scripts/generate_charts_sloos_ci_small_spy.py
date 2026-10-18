@@ -349,6 +349,16 @@ def chart_history_zoom(slug: str, title: str, start: str, end: str) -> None:
          "tightening above zero.", [PANEL])
 
 
+def prune_records() -> None:
+    """Drop provenance records of charts this pair no longer has (a renamed chart leaves its old record behind)."""
+    mp = chart_provenance.manifest_path(PAIR)
+    man = json.loads(mp.read_text())
+    keep = {k: v for k, v in man.items() if (OUT / f"{k}.json").is_file()}
+    if keep != man:
+        mp.write_text(json.dumps(dict(sorted(keep.items())), indent=1) + "\n")
+        print(f"  pruned records: {sorted(set(man) - set(keep))}")
+
+
 def main() -> None:
     chart_hero()
     chart_regime_stats()
@@ -365,7 +375,8 @@ def main() -> None:
     chart_history_zoom("dotcom", "Dot-Com Bust: Banks Tightened Through 2000-2001", "1999-03-31", "2003-12-31")
     chart_history_zoom("gfc", "Financial Crisis: Net Tightening Reached Survey Highs", "2006-03-31", "2010-12-31")
     chart_history_zoom("covid", "COVID Shock: A Sharp, Brief Tightening", "2018-03-31", "2021-12-31")
-    chart_history_zoom("rate_hike_2022", "2022-2024 Rate Hikes: Tightening Rose Again", "2021-03-31", "2025-12-31")
+    chart_history_zoom("inflation_2022", "2022-2024 Rate Hikes: Tightening Rose Again", "2021-03-31", "2025-12-31")
+    prune_records()
     print(f"Done. Charts saved to {OUT}")
 
 

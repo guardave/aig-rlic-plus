@@ -233,7 +233,7 @@ Leads are in QUARTERS; Sharpe ratios are annualized by the square root of 4. Cre
             "caption": "COVID: a sharp, brief tightening after the crash.",
         },
         {
-            "slug": "rate_hike_2022",
+            "slug": "inflation_2022",
             "title": "2022-2024 Rate Hikes",
             "narrative": (
                 "Banks tightened again from late 2022 into 2023 as policy rates rose and regional banks came under "
