@@ -1017,7 +1017,7 @@
     },
     "nhs_saar_rebuilt_spy": {
       "signal_frequency": "monthly",
-      "signal_description": "New Home Sales SAAR, Census HSN1F (monthly) -- #255 publication-lag-floored REBUILD of nhs_saar_spy, reconstructed from the live FRED API (HSN1F) + yfinance SPY on 2026-10-08 (NOT Dana's committed parquet); the parallel original nhs_saar_spy is left untouched for comparison. Winner deploys at L14 -- the TOP of the floored grid [2..14]; a grid-ceiling/long-lead result flagged per Step 4 for adjudication (likely fragile / multiple-testing), reinforced by the 14-month lead sitting beyond the 12-month Granger window where forward significance (lags 1-2, 5-7) actually appears.",
+      "signal_description": "New Home Sales SAAR, Census HSN1F (monthly) -- #255 publication-lag-floored rebuild of nhs_saar_spy (the parallel original nhs_saar_spy is a separate pair).",
       "publication_lag": "Census, ~24th-26th of M+1 (ALFRED median 25 d, p90 29 d)",
       "real_time": false,
       "lead_axis": "months",
@@ -1039,14 +1039,15 @@
       ],
       "observed_winner_lead_unit": "months",
       "class": "monthly",
-      "note": "Floored rebuild of nhs_saar_spy. Winner deploys at L14 -- the TOP of the floored grid [2..14]; a grid-ceiling/long-lead result flagged per Step 4 for adjudication (likely fragile / multiple-testing). Axis is coherent monthly and conformed to the derived floor.",
+      "note": "Phase B port (2026-10-18): rebuilt on scripts/harness (two tracks: real-time ALFRED vintages = MAIN, revised = comparison; D9 lead plateau; point-in-time release timing), registry grid L2..L14 with position_shift 0. The 20261015 rule (pct_6m/T_roll_p50/P1/L13, raw IS argmax on a common IS start, commit 525922aa, never merged to main) is replayed exactly by the harness and kept as the previous rule.",
       "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 2 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 2 = 2 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
       "conformed": true,
       "position_shift": 0,
       "lead_floor_effective": 2,
       "release_calendar_series": "HSN1F",
-      "alignment": "fixed_lag",
-      "value_vintage": "revised_alfred"
+      "alignment": "pit_asof",
+      "value_vintage": "revised_alfred",
+      "track_policy": "compute_twice"
     },
     "cc_delinquency_spy": {
       "signal_frequency": "quarterly",
