@@ -157,18 +157,22 @@ def track_record(res: TrackResult, signal_display: dict, null_summary: dict | No
                                   max_dd={"strat": _r(pw["max_drawdown"]), "bh": _r(pb["max_drawdown"])})
         rec["hac"] = {"oos_strategy_mean": hac_t_mean(oos["strategy_return"].to_numpy()),
                       "oos_excess_mean": hac_t_mean((oos["strategy_return"] - oos["benchmark_return"]).to_numpy())}
-    rec["undefined_tail"] = undefined_tail(ws, res.oos_mask, spec.ppy, pw["sharpe"])
+    rec["undefined_tail"] = undefined_tail(ws, res.oos_mask, spec.ppy, pw["sharpe"], spec.position_shift)
     if null_summary is not None:
         rec["null_tournament"] = null_summary
     return rec
 
 
-def undefined_tail(ws: pd.DataFrame, oos_mask: np.ndarray, ppy: int, oos_sharpe: float) -> dict | None:
-    """Trailing test periods whose position is undefined (no published reading: the fleet rule holds cash), and the
-    test-period Sharpe had the last defined position been held instead (a SENSITIVITY, not the rule; QA pilot-visual
-    H1 / Lead ruling: undefined means cash stays). None when the test period ends on a defined position."""
+def undefined_tail(ws: pd.DataFrame, oos_mask: np.ndarray, ppy: int, oos_sharpe: float,
+                   position_shift: int = 0) -> dict | None:
+    """Trailing test periods whose RETURN comes from an undefined position (no published reading: the fleet rule
+    holds cash), and the test-period Sharpe had the last defined position been held instead (a SENSITIVITY, not the
+    rule; QA pilot-visual H1 / Lead ruling: undefined means cash stays). With position_shift = 1 the position of row
+    t earns row t+1's return, so an undefined position on the last row earns nothing in the sample and is not a cash
+    period (permit_spy B1). None when every test-period return comes from a defined position."""
+    held_all = ws["position"].shift(position_shift)
     o = ws.loc[oos_mask].reset_index(drop=True)
-    pos = o["position"]
+    pos = held_all.loc[oos_mask].reset_index(drop=True)
     k = 0
     for v in pos.iloc[::-1]:
         if pd.isna(v):

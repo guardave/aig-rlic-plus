@@ -57,6 +57,25 @@ def test_undefined_tail_is_reported_with_a_hold_last_sensitivity():
     assert undefined_tail(ws.assign(position=1.0), np.ones(n, bool), 12, 1.0) is None
 
 
+def test_undefined_tail_counts_returns_from_undefined_positions_under_a_one_period_shift():
+    # permit_spy B1: with position_shift = 1 the last row's position earns no return in the sample; a NaN only on
+    # the last row is not a cash period
+    import numpy as np
+    from harness.artifacts import undefined_tail
+    n = 24
+    d = pd.date_range("2024-01-31", periods=n, freq="ME")
+    br = np.full(n, 0.01)
+    pos = np.array([0.205] * (n - 1) + [np.nan])
+    sr = np.r_[0.0, pos[:-1] * br[1:]]                       # row t earns position t-1
+    ws = pd.DataFrame({"date": d, "position": pos, "strategy_return": sr, "benchmark_return": br})
+    assert undefined_tail(ws, np.ones(n, bool), 12, 1.0, position_shift=1) is None
+    assert undefined_tail(ws, np.ones(n, bool), 12, 1.0, position_shift=0)["n_periods"] == 1
+    # three undefined positions -> the last two returns came from undefined positions
+    pos3 = np.array([0.5] * (n - 3) + [np.nan] * 3)
+    ut = undefined_tail(ws.assign(position=pos3), np.ones(n, bool), 12, 1.0, position_shift=1)
+    assert ut["n_periods"] == 2 and ut["first_date"] == "2025-11-30" and ut["last_defined_position"] == 0.5
+
+
 def test_move_to_cash_on_an_undefined_signal_says_why():
     import numpy as np
     log = trade_log(pd.DataFrame({"date": pd.date_range("2026-01-31", periods=4, freq="ME"),
