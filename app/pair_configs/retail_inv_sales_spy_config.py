@@ -63,7 +63,10 @@ if W.has("comparison_null_percentile"):
         "stable-range score is "
         + (f"above the winners of all {W.comparison_null_draws} scrambled contests"
            if W.value("comparison_null_percentile") == 1 else
-           f"at the {W.comparison_null_percentile} point of the scrambled scores") + ".")
+           f"at the {W.comparison_null_percentile} point of the scrambled scores"
+           + ("; most scrambled contests scored higher" if _HIND_NULL.get("p_selection_stat") is not None
+              and _HIND_NULL["p_selection_stat"] > _HIND_NULL["selection_stat_percentile"] else ""))
+        + ".")
 else:
     _CHANCE_TEXT = "the chance check was not run for the hindsight track."
 
@@ -421,7 +424,9 @@ EVIDENCE_METHOD_BLOCKS = {
         f"the long/cash strategy, both orientations and the lead grid {_GRID_RANGE} months. On data as known at the "
         f"time none is eligible (longest training window {_IR['n_is_rows']} months, {_IR['min_required']} required). On "
         f"today's revised data (hindsight) {W.comparison_n_valid} are valid on the training period and the selected "
-        f"rule is `{_RID_H}`, chosen by {W.comparison_selection_objective}."
+        f"rule is `{_RID_H}`, chosen by {W.comparison_selection_objective}. Chance check on the hindsight track: "
+        f"{_CHANCE_TEXT} (The chance-check panel above covers data as known at the time only, where no contest can "
+        "be run.)"
     ),
     "transition": (
         "**Transition:** the Strategy page shows why there is no ranked rule and the hindsight rule with its caveats."
