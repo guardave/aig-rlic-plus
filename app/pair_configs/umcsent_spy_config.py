@@ -1,257 +1,245 @@
-"""U. Michigan Expected Business Conditions x SPY pair configuration (Rule APP-PT1).
+"""University of Michigan Expected Business Conditions x SPY pair configuration (Rule APP-PT1). Pair `umcsent_spy`,
+page 36.
 
-New pair, MONTHLY sentiment pair. The University of Michigan
-"expected change in business conditions" survey diffusion (Data Master /
-University of Michigan; canonical column `umcsent`) is a forward-looking
-consumer-SENTIMENT sub-series and a classic LEADING indicator. Its economic
-PRIOR is PROCYCLICAL (rising expected business conditions -> consumer optimism
--> stronger spending / risk-on -> favor SPY). NOTE: this is the expected-
-conditions sub-series, DISTINCT from the separate headline "University of
-Michigan Consumer Sentiment" used in the umcsent_xlv pair -- use the display
-name "U. Michigan Expected Business Conditions" and do not call it headline
-consumer sentiment.
+Phase B: every result number is rendered from the structured winner fields (results/umcsent_spy/winner_summary.json
+`winner_fields`, via components.winner_fields) or from the evidence tables listed in evidence_facts; none is typed
+here (scripts/gate_structured_prose.py, scripts/gate_number_provenance.py).
 
-Unlike a nominal-dollar level, this diffusion LEVEL is bounded and mean-
-reverting, so it is STATIONARY (ADF rejects a unit root, p = 0.0002; KPSS does
-not reject stationarity). The tested signals are therefore the level itself and
-transforms of it -- level, 1-month change, 12-month change (measured over a
-full year), and a 60-month rolling z-score -- NOT growth-rate transforms.
+The series is the Michigan survey's EXPECTED BUSINESS CONDITIONS index from Data Master (sheet
+UoM_ExptdChgBinesCyle), not the headline Consumer Sentiment index (FRED UMCSENT, used by umcsent_xlv and
+consumer_sentiment_spy). UMCSENT appears here only as the source of the survey's release dates (timing).
 
-HONEST FRAMING (binding). This is a found-in-search CANDIDATE, not a validated
-edge. Every number below is sourced from results/umcsent_spy/*:
-  - CORRECTION (2026-09): an earlier version of this pair computed the
-    "12-month change" signal as a 4-month change (diff(4)) by mistake. With the
-    properly computed 12-month change (diff(12), a full year) the tournament
-    re-selected the winner as `chg_12m / T_roll_p50 / L9` at OOS Sharpe 1.43
-    (up from the buggy 1.23), and every figure below reflects the corrected
-    2026-09-12 run.
-  - The tournament winner (`chg_12m` 12-month change / T_roll_p50 60-month
-    rolling-median threshold / PROCYCLICAL / L9 months / P1_long_cash; OOS
-    Sharpe 1.43 vs 0.93 B&H) is the grid maximum over 168 combinations (all 168
-    valid). The MEDIAN valid combo scores 0.659 -- it UNDERPERFORMS buy-and-hold
-    (0.93) (winner_summary.json).
-  - DIRECTION IS CONSISTENT WITH THE PRIOR. Expected-conditions optimism is
-    procyclical and a LEADING indicator, and the search also selected a
-    PROCYCLICAL rule (hold SPY when the 9-month-lagged 12-month change is at or
-    above its 60-month rolling median -- i.e. when year-over-year expectations
-    are improving relative to their recent norm).
-    `interpretation_metadata.json` records expected_direction procyclical vs
-    observed_direction procyclical, direction_consistent = true, confidence =
-    low. So the strategy orientation is economically sensible; the caution is
-    about validation and lead durability.
-  - The concurrent regime evidence does NOT corroborate a clean procyclical
-    gradient: sorting months by the expected-conditions level, the strongest-
-    optimism quartile Q4 has the LOWEST concurrent SPY Sharpe (0.67) and the
-    weakest-optimism Q1 the highest (0.86), with Q2 0.71 and Q3 0.81 -- an
-    essentially flat, non-monotone pattern (regime_quartile_returns.csv). The
-    direction claim therefore rests on the strategy orientation and the prior,
-    not on a concurrent optimism gradient -- another reason confidence is LOW.
-  - No lead-lag forecast. The 12-month-change signal does NOT Granger-cause SPY
-    at any tested lag (minimum p = 0.22 at lag 5) (granger_by_lag.csv). Linear
-    correlation with forward SPY is near zero at every horizon and no cell is
-    significant; the largest |r| anywhere is the level vs 6-month-forward SPY
-    (r = 0.07, p = 0.17) (core_models_20261008/correlations.csv). Local
-    projections are near-null at every horizon (no coefficient significant;
-    trivial R^2) (local_projections.csv). Pre-whitened cross-correlation clears
-    the confidence band at NO offset; what little structure exists sits on the
-    SPY-leads side (|ccf| up to ~0.10 at lag -1, at the band edge), the reverse
-    of a forecasting signal, while the optimism-leads side is uniformly small
-    (ccf_prewhitened.csv).
-  - The defensible virtue is DRAWDOWN / VOLATILITY REDUCTION: OOS max drawdown
-    -7.6% vs -23.9% for buy-and-hold, at an essentially MATCHED annual return
-    (14.8% vs 14.8%) and lower volatility (10.1%) -- read the Sharpe as
-    volatility/drawdown avoidance, not a return advantage. Turnover is LOW
-    (1.22/yr, 10 OOS trades): the rule flips about once a year.
-  - LEAD DURABILITY CAVEAT. The winner uses a 9-month lead (L9) on a survey.
-    A 9-month lead on a monthly sentiment series with few cycles in the sample
-    needs adjacent-lead durability checking -- and the runner-up
-    (`chg_12m / T0_zero / L6`, 1.396) is close but at a different threshold and
-    a 6-month lead, so the exact L9 / rolling-median choice is not uniquely
-    robust (analyst_suggestions.json).
-  - Status is `found_in_search` (evidence_status.json): the winner still needs
-    a frozen-rule holdout / final exam.
-
-MONTHLY conventions: leads in MONTHS (winner L9); Sharpe annualized by
-sqrt(12); OOS window 2017-08-31 -> 2025-09-30 (98 months). Numbers sourced from
-results/umcsent_spy/ (winner_summary.json, kpis.json, evidence_status.json,
-interpretation_metadata.json, core_models_20261008/*,
-regime_quartile_returns.csv, subperiod_sharpe.csv, granger_by_lag.csv,
-stationarity_tests_20261008.csv, structural_break_umcsent_spy.json,
-tournament_results_20261008.csv).
+ONE track (track_policy single_revised_no_archive): no public archive of past values of this index exists
+(registry value_vintage revised_no_archive), so the backtest uses today's values with release-calendar timing; the
+shared data-basis strip states that from track_summary.json. The previous rule of this page is the one shown on the
+main site (20260912 run, commit d1b68ecd, selected on test-period Sharpe), replayed exactly by the harness and named
+from the previous_* fields (heading "Correction"). A later development run (branch spike261015_is_oos_floor) is named as an earlier research run from its own
+selection record.
 """
 
 from __future__ import annotations
 
+from pathlib import Path
+
+from components import provenance as P
 from components.page_templates import MethodologyConfig
+from components.winner_fields import load
+
+PAIR = "umcsent_spy"
+W = load(PAIR)
+_RES = Path(__file__).resolve().parents[2] / "results" / PAIR
+_WS = P.json_file(_RES / "winner_summary.json")
+_TAG = _WS["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
+_Q = P.col_dict(P.csv_file(_RES / "regime_quartile_returns.csv"), "quartile", "sharpe")
+_QR = P.col_dict(P.csv_file(_RES / f"core_models_{_TAG}" / "quantile_regression.csv"), "quantile", "coef")
+_QR_P = P.col_dict(P.csv_file(_RES / f"core_models_{_TAG}" / "quantile_regression.csv"), "quantile", "p_value")
+_QT = P.json_file(_RES / f"core_models_{_TAG}" / "quantile_equality_test.json")
+_LP_T = P.csv_file(_RES / f"core_models_{_TAG}" / "local_projections.csv")
+_LP_COEF = P.col_dict(_LP_T, "horizon", "coef")
+_LP_P = P.col_dict(_LP_T, "horizon", "p_value")
+_TS = P.json_file(_RES / "track_summary.json")
+_EV = P.json_file(_RES / f"evidence_facts_{_TAG}.json")["derived"]
+_G_SIG = bool(_EV["granger_min_p_holm"] < 0.05)
+_NT = _TS.get("null_tournament") or {}
+_MAN = P.json_file(_RES / f"candidates_manifest_{_TAG}.json")
+_GRID = P.lead_grid(PAIR)
+_GRID_RANGE = f"L{_GRID[0]}-L{_GRID[-1]}"
+_PLATEAU = W.value("plateau_leads") or []
+_AT_TOP = bool(_PLATEAU) and _PLATEAU[-1] == _GRID[-1]
+_QR_T = P.csv_file(_RES / f"core_models_{_TAG}" / "quantile_regression.csv")
+_QR_ALL_CI_ZERO = bool(((_QR_T["ci_low"] <= 0) & (_QR_T["ci_high"] >= 0)).all())
+# the earlier research run (development branch only, never on the main site): its own selection record
+_EARLY_SEL = P.csv_file(_RES / "legacy_oos_selection_20261015.csv")
+_EARLY = _EARLY_SEL[_EARLY_SEL["role"] == "primary_is_selected_common_start"].iloc[0]
+_EARLY_RULE = f"{_EARLY['signal']} / {_EARLY['threshold']} / {_EARLY['direction']} / L{_EARLY['lead_months']}"
+_EARLY_BRANCH = "spike261015_is_oos_floor"     # the development branch that holds the earlier research run
+_PREV_DIRECTION = str(W.value("previous_rule")).split("|")[3]   # orientation of the main-site rule (its key)
+
+
+def _r71_caveat() -> str:
+    """Chance-check calibration disclosure (R7.1), rendered from the null diagnosis in track_summary.json."""
+    if _NT.get("r71_pass") is not False:
+        return ""
+    d = _NT.get("r71_diagnosis")
+    return ("- **Chance-check calibration.** The scrambled contests should show no timing skill on average "
+            "(the R7.1 check); here they do not meet it. " + (d["reading"] if d else "No diagnosis recorded.")
+            + " The chance-check percentile therefore compares the winner against a null that carries the same "
+            "effect.\n")
+
+
+_R71_CAVEAT = _r71_caveat()
+_CHANCE_TEXT = (f"the real winner's stable-range score is above the winners of all {W.null_draws} scrambled contests"
+                if W.value("null_percentile") == 1 else
+                f"the real winner's stable-range score ranks at the {W.null_percentile} point of the scrambled scores")
+
+THRESHOLD_TEXT = P.definitions({
+    "T0_zero": "zero",
+    "T_z_0": "zero (its own five-year average)",
+    "T_z_1.0": "a z-score of one",
+    "T_roll_p25": "its rolling 60-month 25th percentile",
+    "T_roll_p50": "its rolling 60-month median",
+    "T_roll_p75": "its rolling 60-month 75th percentile",
+})
+SIGNAL_TEXT = P.definitions({
+    "level": "Expected Business Conditions level",
+    "diff_1m": "month-on-month change in Expected Business Conditions",
+    "chg_12m": "12-month change in Expected Business Conditions",
+    "zscore_60m": "z-score of Expected Business Conditions against its own five-year history",
+})
+SIDE = {"countercyclical": "at or below", "procyclical": "at or above"}
+_EVID_SIG = SIGNAL_TEXT["level"]      # the transform the descriptive tests use (pipeline EVIDENCE_SIGNAL)
+_NO_ARCHIVE = ("No archive of earlier values of this index exists, so every result on these pages uses values as "
+               "revised today: any month that was revised after its first publication may differ from what was "
+               "known at the time, and that hindsight cannot be measured.")
+_SERIES = ("the University of Michigan Expected Business Conditions index (from the project's Data Master workbook; "
+           "not the headline Consumer Sentiment index)")
+
+
+def _rule() -> str:
+    """Plain-English rule of the winner (long/cash), from its structured fields."""
+    sig = f"the {SIGNAL_TEXT.get(W.value('signal_code'), W.signal_code)} from {W.lead_word} months earlier"
+    side = SIDE.get(W.value("direction"), W.direction)
+    thr = THRESHOLD_TEXT.get(W.value("threshold_code"), W.threshold_code)
+    return f"hold SPY when {sig} is {side} {thr}; otherwise hold cash"
+
+
+_SIG = SIGNAL_TEXT.get(W.value("signal_code"), W.signal_code)
+_THR = THRESHOLD_TEXT.get(W.value("threshold_code"), W.threshold_code)
+_RULE = _rule()
+_RID = " / ".join([W.signal_code, W.threshold_code, W.strategy_family, f"L{W.lead}"])
+_IF_THEN = (
+    f"- **IF** `{W.signal_code}` from {W.lead_word} months earlier is {SIDE.get(W.value('direction'), W.direction)} "
+    f"{_THR} -> hold SPY.\n"
+    "- **ELSE** -> hold cash."
+)
+_MAIN_TAIL = (
+    f" The test period ends with {W.tail_n_periods} month(s) without a defined position ({W.tail_first_date} to "
+    f"{W.tail_last_date}), held in cash under the undefined-means-cash rule; holding the last position instead would "
+    f"give a test-period Sharpe of {W.tail_hold_last_sharpe}."
+    if W.has("tail_n_periods") else "")
 
 
 class StoryConfig:
-    PAGE_TITLE = "The Story: Expected Business Conditions as a Procyclical SPY Overlay"
+    PAGE_TITLE = "The Story: Michigan Expected Business Conditions as a Signal for SPY"
     PAGE_SUBTITLE = (
-        "U. Michigan Expected Business Conditions (Data Master / University of "
-        "Michigan) x S&P 500 (SPY), a monthly forward-looking sentiment "
-        "diffusion tested against SPY returns."
+        "U. Michigan Expected Business Conditions x S&P 500 (SPY): a monthly household survey of the business outlook "
+        "tested as a timing signal for SPY."
     )
 
     HEADLINE_H2 = (
-        "## Sharpe 1.43 OOS versus 0.93 buy-and-hold, direction matches the "
-        "procyclical prior -- but the honest headline is the drawdown "
-        "(-7.6% vs -23.9%), and this is a found-in-search candidate on a "
-        "9-month lead that still needs a fresh holdout"
+        f"## Test-period Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, "
+        "on values as revised today (no archive of earlier values)"
     )
 
     PLAIN_ENGLISH = (
-        "The University of Michigan expected-change-in-business-conditions "
-        "series is a consumer survey diffusion of how households expect the "
-        "economy to fare over the year ahead. Because people spend and take "
-        "risk on their outlook, it is a forward-looking, LEADING sentiment "
-        "indicator, and the economic prior is procyclical: rising optimism "
-        "signals expansion and risk-on equities. This pair tests whether that "
-        "optimism can improve SPY timing. The winning rule runs the "
-        "economically sensible way -- hold SPY when year-over-year optimism is "
-        "improving relative to its recent norm -- so its direction matches the "
-        "prior. Read the result as a sentiment overlay and drawdown control, "
-        "not as a forecast: the formal lead-lag tests find no predictive edge, "
-        "the typical rule underperforms buy-and-hold, the concurrent quartile "
-        "evidence is flat, and the exact 9-month lead is not robust."
+        "Every month the University of Michigan Surveys of Consumers ask households whether they expect business "
+        "conditions in the country to be better or worse a year from now. This pair uses "
+        + _SERIES + ". The survey is released twice a month (a preliminary reading in mid-month and a final one at or "
+        "before the end of the survey month); the backtest takes its timing from the release dates of the "
+        "survey's headline index (FRED series UMCSENT), which comes out in the same release. This pair tests whether "
+        "the business outlook of households can improve SPY timing. "
+        + _NO_ARCHIVE
     )
 
     WHERE_THIS_FITS = (
-        "This is a sentiment overlay for broad U.S. equities. It belongs in "
-        "the portal as a procyclical context signal: useful for drawdown "
-        "control in the searched sample, and pointed the economically sensible "
-        "way, but not a standalone forecast. Readers should treat the direction "
-        "as sensible (it matches the procyclical prior) but treat the precise "
-        "9-month lead with skepticism until adjacent leads and a fresh holdout "
-        "confirm it."
+        "Expected Business Conditions is a survey of expectations, not a price: it is bounded and swings within a "
+        "range rather than trending. In the portal it is a sentiment signal for broad U.S. equities. It is a "
+        "different indicator from the headline Consumer Sentiment index used by the other Michigan pairs."
     )
 
     ONE_SENTENCE_THESIS = (
-        "Expected-conditions optimism is procyclical BY PRIOR and the search's "
-        "best rule -- a procyclical filter at a 9-month lead -- runs that way, "
-        "but the concurrent quartile evidence is flat and non-monotone "
-        "(strongest-optimism Q4 is the WEAKEST by Sharpe, 0.67 vs Q1 0.86) and "
-        "the signal does NOT lead SPY (Granger min p = 0.22; local projections "
-        "null; CCF clears the band at no offset), so it is a drawdown-reduction "
-        "candidate (-7.6% vs -23.9% max drawdown) that is found-in-search, "
-        "underperforms buy-and-hold at the median (0.659 vs 0.93), and rests on "
-        "a 9-month lead that needs adjacent-lead durability checking."
+        f"On values as revised today, the rule selected on the training period is to {_RULE}; in the test period it "
+        f"scored Sharpe {W.oos_sharpe} against {W.bh_oos_sharpe} for buy-and-hold."
     )
 
     KPI_CAPTION = (
-        "every performance number here is a SEARCH-PHASE, out-of-sample figure "
-        "on a 98-month window (2017-08-31 -> 2025-09-30). The winner was found "
-        "as the best of 168 valid combinations, and the MEDIAN valid combo "
-        "(0.659) UNDERPERFORMS buy-and-hold (0.93) -- the typical rule "
-        "subtracts value. The defensible number is the max drawdown "
-        "(-7.6% vs -23.9%) at an essentially MATCHED return (14.8% vs 14.8%) "
-        "and lower volatility (10.1%) -- read the Sharpe (1.43 vs 0.93) as "
-        "volatility/drawdown avoidance, not stock-picking skill. Sharpe ratios "
-        "use monthly sqrt(12) annualization."
+        f"Winner selected on training data ({W.is_start} to {W.is_end}) by {W.selection_objective}: "
+        f"{_SIG}, {W.threshold_code}, long/cash, {W.direction}, lead {W.lead_text}. Test-period Sharpe {W.oos_sharpe} "
+        f"versus {W.bh_oos_sharpe} for buy-and-hold ({W.oos_start} to {W.oos_end}). One data track: values as revised "
+        "today (no archive of earlier values)."
     )
 
-    HERO_TITLE = "Expected Business Conditions vs the S&P 500 (SPY)"
+    HERO_TITLE = "Michigan Expected Business Conditions vs the S&P 500 (SPY)"
     HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
-        "How to read it: the expected-conditions diffusion level (left axis) is "
-        "shown with SPY on the same time axis, NBER recessions shaded. Unlike a "
-        "price level, this survey series is bounded and mean-reverting (it is "
-        "stationary), so it oscillates rather than trending. The traded signal "
-        "is its 12-month change (the change over a full year), not the level "
-        "itself. Watch the shaded recessions -- optimism sagged into them, as a "
-        "leading sentiment gauge typically does."
+        "How to read it: the Expected Business Conditions index (left axis) is shown with SPY (right axis) on the "
+        "same time axis. Gray bands are NBER recessions. The values are today's; no archive of earlier values exists."
     )
 
     REGIME_TITLE = "What History Shows: SPY Performance by Expected-Conditions Regime"
     REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
-        "What this shows: months are sorted from Q1 (weakest optimism) to Q4 "
-        "(strongest), with concurrent SPY Sharpe in each. The pattern is "
-        "essentially FLAT and non-monotone: the strongest-optimism quartile Q4 "
-        "is actually the LOWEST (Sharpe 0.67) while the weakest-optimism Q1 is "
-        "the highest (0.86), with Q2 0.71 and Q3 0.81. So the concurrent regime "
-        "evidence does NOT corroborate a clean procyclical gradient -- one "
-        "reason confidence is LOW. Descriptive and concurrent, not a tradable "
-        "lead."
+        f"What this shows: months sorted by the {_EVID_SIG}, from Q1 (lowest) to Q4 (highest). "
+        f"Same-month SPY Sharpe is {_Q['Q1']:.2f} in Q1, {_Q['Q2']:.2f} in Q2, {_Q['Q3']:.2f} in Q3 and "
+        f"{_Q['Q4']:.2f} in Q4."
     )
 
-    NARRATIVE_SECTION_1 = """
+    NARRATIVE_SECTION_1 = f"""
 ### Headline Findings
 
-The winning rule is a **procyclical, 9-month-lagged expected-conditions filter**. It holds SPY when the 12-month change in expected business conditions from nine months earlier was at or above its 60-month rolling median (optimism improving relative to its recent norm), and holds cash otherwise. Out-of-sample (2017-08 to 2025-09), this rule earns a Sharpe of 1.43 versus 0.93 for buy-and-hold, with a maximum drawdown of **-7.6% versus -23.9%** at an essentially matched annualized return of 14.8% versus 14.8%. Read that as the honest headline: the rule's edge is a much shallower worst-case loss and lower volatility, **not** a return advantage. (Correction: an earlier version of this pair rested on a mislabeled 4-month change; with the properly computed 12-month change the winner is `chg_12m / T_roll_p50 / L9` at OOS Sharpe 1.43.)
+This result uses one data track: values as revised today, read with point-in-time release dates (a month's reading is used only after the survey release that publishes it). {_NO_ARCHIVE} The sample runs from {W.is_start} to {W.oos_end}, where the series in the project's data ends.
+
+The winning rule trades on the **{_SIG}** (long/cash): {_RULE}. It was selected on the training period ({W.is_start} to {W.is_end}) by {W.selection_objective} (stable lead range {W.plateau_range}), out of {W.n_valid} valid combinations ({W.n_distinct} distinct position series). In the test period ({W.oos_start} to {W.oos_end}) it records Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, with maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}. The test-period Sharpe difference is {W.sharpe_gap} (95% interval {W.ci_low} to {W.ci_high}).
 
 ### The Sentiment Hypothesis
 
-Expected business conditions measures how consumers expect the economy to do over the coming year -- a forward-looking sentiment reading. Because households spend and take risk on their outlook, it is a **leading** indicator, and the economic prior is that optimism is **procyclical**: rising expectations are risk-on for equities; falling expectations are an early sign demand is cooling.
+The usual prior is procyclical: households that expect better business conditions spend more, which supports earnings and equities, so a rule would hold SPY while expectations are strong. The survey asks about the change expected over the next year, though, not about conditions today, and in this data the index rose during the 2001 and 2020 recessions and late in the 2008-09 recession, when conditions were bad but expected to improve. A high reading can therefore mark a weak economy that households expect to recover, which is why the tournament tests both orientations. The selected rule is {W.direction}.
 
-The winning rule runs the **same** way as that prior -- it buys SPY when year-over-year optimism is improving relative to its recent norm -- so direction is consistent with the economic prior (`direction_consistent = true`). But the concurrent regime evidence does **not** corroborate a clean gradient: sorting months by the expected-conditions level, the strongest-optimism quartile Q4 has the *lowest* concurrent SPY Sharpe (0.67), not the highest, and the four quartiles are essentially flat (Q1 0.86, Q2 0.71, Q3 0.81, Q4 0.67). The caution here is not a sign flip; it is validation, a weak concurrent signal, and lead durability.
+### Why Timing Is Difficult
 
-### Why This Is Not a Forecast
-
-The formal lead-lag tests are blunt. The 12-month change does **not** Granger-cause SPY returns at any tested lag (minimum p = 0.22), forward-return correlations are near zero at every horizon (no significant cell), and local projections are essentially null. The pre-whitened cross-correlation clears the confidence band at no offset, and what little structure exists sits on the *SPY-leads* side -- the reverse of a forecasting signal. So while the winner's *direction* is sensible, its *predictive lead* is not established, and the precise 9-month lag it uses is not robust: a runner-up at a 6-month lead (and a zero threshold) is close behind. This dashboard therefore treats the pair as a searched sentiment overlay whose value, if any, is defensive.
+Equity prices anticipate the cycle too, and they often turn before survey expectations settle. The selected rule reacts to the reading from {W.lead_word} months earlier, so it responds to the household outlook with a long delay.
 """
 
     HISTORY_ZOOM_EPISODES = [
         {
             "slug": "dotcom",
-            "title": "Dot-Com Recession",
+            "title": "Dot-Com Bust",
             "narrative": (
-                "Expected conditions softened as the tech bust and 2001 "
-                "recession unfolded. The searched rule lost less than "
-                "buy-and-hold in this window (subperiod Sharpe -0.19 vs "
-                "-0.70), an early piece of its drawdown story, but still fell."
+                "The index rose through the 2001 recession and peaked in early 2002, while SPY kept falling into late "
+                "2002: households expected conditions to improve from a weak base, which is not the same as conditions "
+                "being good."
             ),
-            "caption": "Dot-Com: optimism sagged; the rule lost less than SPY (-0.19 vs -0.70).",
+            "caption": "Dot-Com: the index rose through the 2001 recession and peaked in early 2002.",
         },
         {
             "slug": "gfc",
             "title": "Global Financial Crisis",
             "narrative": (
-                "Expected conditions collapsed through 2008-09 as the outlook "
-                "darkened. Here the long 9-month lead kept the rule invested "
-                "into the decline, and it did WORSE than buy-and-hold "
-                "(-1.36 vs -1.03) -- the window where the lag hurt most."
+                "The index stayed low until late 2008 and then rose through 2009, while the recession was still "
+                "under way. SPY reached its low in early 2009, and both recovered through 2009."
             ),
-            "caption": "GFC: the long lead kept it invested; the rule did worse than SPY (-1.36 vs -1.03).",
+            "caption": "GFC: the index stayed low until late 2008, then rose through 2009.",
         },
         {
             "slug": "covid",
             "title": "COVID Shock",
             "narrative": (
-                "Expected conditions plunged in spring 2020 and rebounded. In "
-                "this crash window the rule was in cash (subperiod Sharpe 0.0 "
-                "vs -0.08 for SPY), so it sidestepped the loss -- but COVID is "
-                "an extreme, exogenous in-window outlier, so read any rule that "
-                "leans on it with caution."
+                "The index jumped to its highest reading in the project's data in April 2020, in the middle of the "
+                "crash: households expected business conditions to recover from a sudden collapse. A rule that reads "
+                "a high value as good news would have been invested through the shock."
             ),
-            "caption": "COVID: the rule sat in cash through the crash (0.0 vs -0.08).",
+            "caption": "COVID: the index jumped to its highest reading in April 2020.",
         },
         {
             "slug": "inflation_2022",
-            "title": "2022 Rate Shock",
+            "title": "2022 Rates Shock",
             "narrative": (
-                "Expected conditions fell to multi-decade lows in 2022 as "
-                "inflation bit. Here the rule stepped to cash and avoided the "
-                "drawdown (subperiod Sharpe 0.0 vs -0.76 for SPY) -- a "
-                "defensive win, though it reflects being flat, not a timed "
-                "re-entry."
+                "The index slid from its 2021 peak through 2022 as inflation rose and the Federal Reserve raised rates, "
+                "and it stayed well below that peak through 2025 while SPY recovered from late 2022."
             ),
-            "caption": "2022: the rule sat in cash and avoided the loss (0.0 vs -0.76).",
+            "caption": "2022: the index slid from its 2021 peak and stayed well below it.",
         },
     ]
 
     NARRATIVE_SECTION_2 = """
 ### What History Shows
 
-The stress charts show why the signal defends unevenly and is imperfect as a forecast. Expected conditions fell during the Dot-Com, GFC and COVID recessions. The searched rule lost less than buy-and-hold in the Dot-Com bear (-0.19 vs -0.70), and it was in cash -- so it sidestepped the loss -- through both the COVID crash (0.0 vs -0.08) and the 2022 rate shock (0.0 vs -0.76). But in the GFC it did **worse** than buy-and-hold (-1.36 vs -1.03): the long 9-month lead kept it invested into the decline. The strongest honest reading is not "expected conditions predicts drawdowns"; it is that a lagged, procyclical filter happened to sit in cash during several stress windows, which is where its drawdown advantage was earned -- and in the GFC the lag worked against it.
+The episodes show that this index often moves against the cycle in the short run: it rose in the 2001 and 2020 recessions, when households expected a recovery, and it stayed well below its 2021 peak through the equity recovery that began in late 2022. These episodes are context for reading the strategy result, not evidence that the rule adds value; the test-period comparison with buy-and-hold is on the Strategy page.
 """
 
     TRANSITION_TEXT = (
-        "The Evidence page tests whether this sentiment story survives "
-        "correlation, lead-lag, regime, and strategy checks. The winner's "
-        "direction matches the procyclical prior, but it does not survive as a "
-        "forecast: the value is defensive, not predictive, the concurrent "
-        "quartiles are flat, and the 9-month lead is not robust."
+        "The Evidence page tests whether this sentiment story survives correlation, lead-lag, regime, and "
+        "strategy checks."
     )
 
 
@@ -262,294 +250,275 @@ CORRELATION_BLOCK = dict(
     chart_status="ready",
     method_name="Correlation Analysis",
     method_theory=(
-        "Correlation measures whether the expected-conditions signal and "
-        "future SPY returns move together in a roughly linear way."
+        "Correlation measures whether Expected Business Conditions signals and future SPY returns move together in a "
+        "roughly linear way."
     ),
-    question="Does stronger expected-conditions optimism line up with better or worse future SPY returns?",
+    question="Do higher expected-conditions readings line up with better or worse future SPY returns?",
     how_to_read=(
-        "Read the heatmap by horizon and signal transform. Positive values "
-        "mean stronger optimism lines up with stronger future SPY returns; "
-        "pale cells mean no association."
+        "Read the heatmap by signal and horizon. Positive values mean a higher reading lines up with stronger future "
+        "SPY returns; negative values mean the opposite."
     ),
     chart_name="correlation_heatmap",
     chart_caption=(
-        "What this shows: the linear association is essentially zero at every "
-        "tradeable horizon and no cell is statistically significant. The "
-        "largest |r| anywhere is the level vs 6-month-forward SPY (r = 0.07, "
-        "p = 0.17) -- not a usable forecasting signal."
+        "What this shows: linear correlations between each expected-conditions signal and forward SPY returns at "
+        "several horizons."
     ),
     observation=(
-        "No transform shows a material linear association with forward SPY; "
-        "the 12-month-change cells are near zero (|r| <= 0.04), and the largest "
-        "cell anywhere is the level vs 6-month-forward SPY at r = 0.07 "
-        "(insignificant)."
+        "The index is persistent and forward returns overlap, so p-values for these correlations use Newey-West errors "
+        "with at least one lag fewer than the horizon."
     ),
     interpretation=(
-        "Correlation alone does not support trading the pair. The more "
-        "relevant question is whether a lagged optimism filter improves "
-        "portfolio behavior in the searched sample."
+        "Correlation alone is not enough to trade the pair; the tournament asks whether a lagged rule improves "
+        "portfolio behavior."
     ),
-    key_message="Expected conditions is not a linear SPY predictor at any tradeable horizon.",
+    key_message="Correlations describe the pair; they do not select the rule.",
 )
 
 GRANGER_BLOCK = dict(
     chart_status="ready",
     method_name="Granger Causality by Lag",
     method_theory=(
-        "Granger causality tests whether past values of one series improve "
-        "forecasts of another after accounting for its own history."
+        "Granger causality tests whether past values of one series improve forecasts of another after accounting "
+        "for its own history."
     ),
-    question="Does the expected-conditions signal lead SPY returns in a formal lag test?",
+    question=f"Does the past {_EVID_SIG} help forecast SPY returns in a formal lag test?",
     how_to_read=(
-        "Bars show p-values by monthly lag; the dashed line marks the 5% "
-        "significance level. Bars ABOVE the line are insignificant."
+        f"Bars show the p-value of the test at each of the {_EV['n_granger_lags']} monthly lags; diamonds show the "
+        "same p-values after a Holm adjustment for testing every lag. Only an adjusted value below the 0.05 line "
+        "counts as evidence once the best lag has been picked."
     ),
     chart_name="granger_f_by_lag",
     chart_caption=(
-        "What this shows: every lag is insignificant. The smallest p-value "
-        "across lags 1-6 is 0.22 -- the expected-conditions signal does not "
-        "Granger-cause SPY returns."
+        f"What this shows: the smallest single-lag p-value is {_EV['granger_min_p_single']:.3f} at lag "
+        f"{_EV['granger_best']['lag']}; after the Holm adjustment across the {_EV['n_granger_lags']} lags it is "
+        f"{_EV['granger_min_p_holm']:.3f}."
     ),
     observation=(
-        "Across the tested monthly lags the signal->SPY p-value never falls "
-        "below 0.22; the F-statistics are tiny. There is no formal evidence of "
-        "lead-lag causality."
+        f"Best lag {_EV['granger_best']['lag']}: p {_EV['granger_min_p_single']:.3f} on its own, "
+        f"{_EV['granger_min_p_holm']:.3f} after the Holm adjustment"
+        + (", below the 0.05 line." if _G_SIG else "; no lag is below the 0.05 line after the adjustment.")
     ),
     interpretation=(
-        "This rules out a causal claim. The strategy must be framed as a "
-        "searched sentiment overlay, not proof that expected conditions cause "
-        "future SPY returns."
+        "A Granger result is a statement about linear forecasting on today's values, not proof that household "
+        "expectations cause SPY returns."
     ),
-    key_message="Formal lead-lag evidence is absent (min p = 0.22); expected conditions does not lead SPY.",
+    key_message="Formal lead-lag evidence is reported as tested; read it with the tournament, not instead of it.",
 )
 
 QUARTILE_BLOCK = dict(
     chart_status="ready",
     method_name="Regime Quartile Analysis",
     method_theory=(
-        "Quartile analysis sorts months by the expected-conditions level and "
-        "compares concurrent SPY returns across optimism regimes."
+        f"Quartile analysis sorts months by the {_EVID_SIG} and compares SPY returns across the quartile groups."
     ),
-    question="Do weak and strong optimism regimes produce different SPY outcomes?",
+    question="Do low and high expected-conditions regimes produce different SPY outcomes?",
     how_to_read=(
-        "Q1 is the weakest-optimism regime; Q4 is the strongest. Compare "
-        "Sharpe, average return, and sample size across the four buckets."
+        "Q1 holds the lowest readings; Q4 the highest. Compare Sharpe, average return and sample size."
     ),
     chart_name="regime_stats",
     chart_caption=(
-        "What this shows: the concurrent Sharpe is essentially FLAT and "
-        "non-monotone across optimism regimes -- the strongest-optimism "
-        "quartile Q4 is the LOWEST (0.67) and the weakest-optimism Q1 the "
-        "highest (0.86), with Q2 0.71 and Q3 0.81. It does NOT corroborate a "
-        "clean procyclical gradient."
+        f"What this shows: same-month SPY Sharpe by expected-conditions quartile, {_Q['Q1']:.2f} in Q1 (lowest) and "
+        f"{_Q['Q4']:.2f} in Q4 (highest)."
     ),
     observation=(
-        "Concurrent SPY Sharpe is highest in the weakest-optimism quartile "
-        "(Q1 0.86) and lowest in the strongest (Q4 0.67), with the middle "
-        "buckets in between (Q2 0.71, Q3 0.81) -- a flat, non-monotone pattern."
+        f"SPY Sharpe in the same months: Q1 {_Q['Q1']:.2f}, Q2 {_Q['Q2']:.2f}, Q3 {_Q['Q3']:.2f}, Q4 {_Q['Q4']:.2f}."
     ),
     interpretation=(
-        "The concurrent pattern does not support a procyclical sentiment "
-        "gradient; the winner's procyclical orientation rests on the economic "
-        "prior and strategy direction, not on this evidence. It is another "
-        "reason to keep confidence LOW."
+        "Quartiles are concurrent, not predictive: they show the backdrop, while the tournament tests lagged rules."
     ),
-    key_message="Concurrent optimism regimes show no clean gradient -- the strongest-optimism quartile is the weakest, so this does not corroborate the procyclical reading.",
+    key_message="Expected-conditions regimes describe the equity backdrop.",
 )
 
 CCF_BLOCK = dict(
     chart_status="ready",
     method_name="Pre-Whitened Cross-Correlation",
     method_theory=(
-        "Pre-whitened cross-correlation filters each series' own persistence "
-        "before testing whether one tends to move before or after the other."
+        "Cross-correlation on first differences filters persistence before testing whether one series tends to "
+        "move before or after the other."
     ),
-    question="At which offsets does the expected-conditions signal line up with SPY returns?",
-    how_to_read=(
-        "Bars outside the dashed confidence band mark unusual lead-lag "
-        "correlation after filtering autocorrelation. Positive offsets mean "
-        "expected conditions leads; negative offsets mean SPY leads."
-    ),
+    question="At which offsets do monthly changes in the index line up with SPY returns?",
+    how_to_read="Bars outside the dashed band mark offsets with unusually large correlation; positive lags mean the index moves first.",
     chart_name="ccf_prewhitened",
     chart_caption=(
-        "What this shows: no offset clears the confidence band. What little "
-        "structure exists sits on the SPY-leads (negative-lag) side (|ccf| up "
-        "to ~0.10 at lag -1, right at the band edge), while every optimism-"
-        "leads offset is small (<= 0.04). That is the reverse of a forecasting "
-        "signal."
+        "What this shows: correlation of monthly changes in the index with SPY returns at offsets in months."
     ),
-    observation=(
-        "No cross-correlation is statistically significant at any offset; the "
-        "largest values are on the SPY-leads side (|ccf| ~0.10 at lag -1, "
-        "~0.08 at lag -6) and the optimism-leads side is uniformly small."
-    ),
-    interpretation=(
-        "There is no coherent window in which expected conditions foreshadows "
-        "SPY. If anything the (insignificant) structure runs the other way "
-        "(markets anticipating sentiment), which argues against an expected-"
-        "conditions forecast of SPY."
-    ),
-    key_message="No offset is significant; the largest correlation is on the SPY-leads side, so expected conditions shows no forecasting lead over SPY.",
+    observation="The index level is persistent from month to month, so differencing matters before reading lead-lag "
+                "bars.",
+    interpretation="Isolated significant bars are expected by chance across many offsets.",
+    key_message="Read the bars at positive lags for the index moving first.",
 )
 
 LOCAL_PROJECTIONS_BLOCK = dict(
     chart_status="ready",
     method_name="Local Projections",
     method_theory=(
-        "Local projections estimate how future SPY returns respond across "
-        "multiple horizons after a change in the expected-conditions signal."
+        "Local projections estimate how future SPY returns line up with the index over several horizons."
     ),
-    question="How does SPY respond after expected conditions changes?",
+    question=f"How do forward SPY returns relate to the {_EVID_SIG} at different horizons?",
     how_to_read=(
-        "Each bar is an estimated future SPY response after a move in the "
-        "expected-conditions signal. Coefficients near zero mean no detectable "
-        "effect."
+        f"Each bar is the estimated forward SPY return per point of the {_EVID_SIG}; whiskers are 95% confidence "
+        "intervals from Newey-West errors with at least one lag fewer than the horizon."
     ),
     chart_name="local_projections",
     chart_caption=(
-        "What this shows: coefficients are essentially zero across all "
-        "horizons (1, 3, 6 months), none statistically significant "
-        "(p from 0.43 to 0.91), with negligible R^2."
+        f"What this shows: slopes from {_LP_COEF[1]:+.4f} at the 1-month horizon to "
+        f"{_LP_COEF[12]:+.4f} at the 12-month horizon (p {_LP_P[12]:.2f} at the 12-month horizon)."
     ),
-    observation=(
-        "Point estimates are near zero at every horizon and no coefficient is "
-        "significant; the explained variance is trivial throughout."
-    ),
+    observation="The raw macro relationship is shown here, not the final lagged tournament rule.",
     interpretation=(
-        "There is essentially no linear predictive content at any horizon. "
-        "Nothing here rescues a forward-looking reading of the indicator."
+        "Overlapping horizons share observations; the Newey-West errors widen the longer-horizon intervals for that "
+        "reason."
     ),
-    key_message="Local projections are null; expected conditions carries no useful linear forecast for SPY.",
+    key_message="The horizon matters for expected-conditions signals.",
 )
 
 QUANTILE_BLOCK = dict(
     chart_status="ready",
     method_name="Quantile Regression",
     method_theory=(
-        "Quantile regression checks whether the expected-conditions signal "
-        "matters differently in weak, normal, and strong SPY return "
+        "Quantile regression checks whether the index matters differently in weak, normal and strong SPY return "
         "environments."
     ),
-    question="Does expected conditions behave differently in market tails?",
+    question="Does the index behave differently in market tails?",
     how_to_read=(
-        "Compare the signal coefficient across return quantiles. A larger "
-        "coefficient means a stronger association with that part of the SPY "
-        "return distribution."
+        f"Compare the coefficient across the quantiles of {_EV['n_months_qr_horizon']}-month forward SPY returns; "
+        f"whiskers and the equality test come from a moving-block bootstrap (blocks of {_EV['n_months_qr_block']} months) "
+        "because the forward returns overlap."
     ),
     chart_name="quantile_coef",
     chart_caption=(
-        "What this shows: the coefficient is close to zero and flat across "
-        "quantiles -- no material tail sensitivity for the expected-conditions "
-        "signal."
+        f"What this shows: slopes of {_EV['n_months_qr_horizon']}-month forward SPY returns on the {_EVID_SIG}, "
+        f"{_QR[0.1]:+.4f} at tau=0.10 and {_QR[0.5]:+.4f} at tau=0.50; a cross-quantile equality test does "
+        f"{'not ' if not _QT['reject_equality'] else ''}reject a uniform slope (Wald p={_QT['p_value']:.4f})."
     ),
     observation=(
-        "The estimated coefficient is small and essentially unchanged across "
-        "the tested quantiles, consistent with the near-null correlation and "
-        "local-projection results."
+        f"The block-bootstrap Wald test {'does not reject' if not _QT['reject_equality'] else 'rejects'} slope "
+        f"equality across quantiles (p={_QT['p_value']:.4f})"
+        + ("." if not _QR_ALL_CI_ZERO else "; every quantile's own 95% interval includes zero (smallest single-slope "
+                                           f"p-value {min(_QR_P.values()):.2f}), so the evidence is about the slopes "
+                                           "differing from one another, not about any one of them.")
     ),
     interpretation=(
-        "Expected conditions does not flag elevated crash risk or exceptional "
-        "upside -- there is no tail channel to trade."
+        "Tail asymmetry is only established if the equality test rejects; even then, read the individual slopes "
+        "with their intervals."
     ),
-    key_message="Expected conditions shows no material state-dependent effect across SPY return tails.",
+    key_message=f"Cross-quantile equality Wald p={_QT['p_value']:.4f}.",
 )
 
 
 EVIDENCE_METHOD_BLOCKS = {
-    "title": "The Evidence: Direction Matches the Procyclical Prior, but It Does Not Forecast SPY",
+    "title": "The Evidence: Michigan Expected Business Conditions and SPY",
     "overview": (
-        "The evidence supports a cautious sentiment overlay -- and nothing "
-        "stronger. The strategy winner improves search-phase OOS Sharpe and "
-        "its direction is procyclical, matching the prior, but the concurrent "
-        "quartiles are flat, formal lead-lag evidence is absent (Granger min "
-        "p = 0.22; local projections null; CCF clears the band at no offset), "
-        "and the exact 9-month lead is not robust (a 6-month-lead runner-up is "
-        "close behind)."
+        "The tests below describe a sentiment overlay. The selected rule's test-period Sharpe is "
+        f"{W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, on values as revised today (no archive of "
+        "earlier values)."
     ),
     "plain_english": (
-        "This page asks whether expected conditions helps time SPY. The answer "
-        "is: not as a forecast. The winning rule's direction matches the "
-        "procyclical prior, but the concurrent quartiles are flat (the "
-        "strongest-optimism bucket is not the best) and the causal tests find "
-        "no lead. Treat it as a defensive, procyclical-by-prior overlay, not an "
-        "early-warning system, and be skeptical of the precise 9-month lag."
+        "This page asks whether the University of Michigan Expected Business Conditions index (not the headline "
+        "Consumer Sentiment index) helps with SPY timing, first with descriptive tests, then with the tournament. "
+        "All of it uses values as revised today, because no archive of earlier values exists."
     ),
     "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
     "level1_labels": ["Correlation", "Granger", "Quartiles", "CCF"],
     "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK],
     "level2_labels": ["Local Projections", "Quantile Regression"],
     "tournament_intro": (
-        "The tournament tested 168 strategy combinations (all 168 valid) "
-        "across four expected-conditions transforms (level, 1-month change, "
-        "12-month change, 60-month rolling z-score), fixed and rolling "
-        "thresholds, a long/cash strategy, and leads from 0 to 12 months. The "
-        "selected winner is `chg_12m / T_roll_p50 / P1_long_cash procyclical / "
-        "L9`, with OOS Sharpe 1.43. The MEDIAN valid combo scores 0.659 -- "
-        "below buy-and-hold's 0.93 -- and the runner-up (`chg_12m / T0_zero / "
-        "P1_long_cash / L6`, 1.396) is close behind but at a different "
-        "threshold and a 6-month lead, so the exact 9-month lead is a fragile "
-        "choice rather than a robust economic edge."
+        f"The tournament tested {W.n_candidates} declared strategy combinations ({W.n_valid} valid on the training "
+        f"period; {W.n_distinct} distinct position series) across {P.length(_MAN['signals'])} expected-conditions signals, zero, "
+        f"z-score and rolling-percentile thresholds, the long/cash strategy, both orientations and the lead grid "
+        f"{_GRID_RANGE} months, on values as revised today. The selected winner is `{_RID}`, chosen on the training "
+        f"period by {W.selection_objective}."
     ),
     "transition": (
-        "**Transition:** the evidence is a procyclical-by-prior overlay that "
-        "matches the direction, not causation. The Strategy page shows the "
-        "exact long/cash rule, the drawdown advantage that is its real virtue, "
-        "and the deployment caveats -- including the lead-durability caution."
+        "**Transition:** the Strategy page shows the exact rule, its threshold and the deployment caveats."
     ),
 }
 
 
 class StrategyConfig:
-    PAGE_TITLE = "The Strategy: A Procyclical, Lagged Expected-Conditions Long/Cash Overlay"
+    PAGE_TITLE = "The Strategy: A Lagged Expected Business Conditions Overlay for SPY"
     PAGE_SUBTITLE = (
-        "A searched SPY allocation rule using the 12-month change in expected "
-        "business conditions, a 60-month rolling-median threshold, a "
-        "procyclical orientation, and a 9-month lead -- valued for drawdown "
-        "reduction, not for its Sharpe, and flagged as resting on a lead that "
-        "needs durability checking."
+        f"A searched SPY allocation rule: {_SIG}, long/cash, lead {W.lead_text}, on values as revised today (no "
+        "archive of earlier values)."
+    )
+
+    STATISTICAL_FRAMING_BANNER = (
+        f"Correction (2026-10-18). The main site previously showed the rule {W.previous_rule} (test-period Sharpe "
+        f"{W.previous_oos_sharpe}, run of {W.previous_tag}), {_PREV_DIRECTION}. That previously published rule was "
+        "chosen by its test-period score, on a different lead grid with fixed lags, so its test-period result was "
+        "not a held-out result. An earlier research run (on the development branch "
+        f"`{_EARLY_BRANCH}`, never shown on the main site) picked {_EARLY_RULE} as the single highest training "
+        "Sharpe with fixed lags. The page now reports the "
+        "rule selected on the training period with point-in-time release dates and the stable-lead-range rule. There "
+        "is one data track: no archive of earlier values of this index exists, so every result uses values as "
+        "revised today."
     )
 
     PLAIN_ENGLISH = (
-        "The rule holds SPY when the 12-month change in expected business "
-        "conditions from nine months earlier was at or above its 60-month "
-        "rolling median (optimism improving relative to its recent norm); "
-        "otherwise it holds cash. This is a lagged, PROCYCLICAL sentiment "
-        "filter -- consistent with the prior for a leading indicator -- not a "
-        "real-time recession forecast. Judge it by its shallower drawdown "
-        "(-7.6% vs -23.9%) and lower volatility, not by the headline Sharpe."
+        f"The rule is to {_RULE}. It is a lagged sentiment rule, not a forecast of the survey or of a recession."
+    )
+
+    # Status and badge rule come from track_summary.json (components.two_track.badge_status); facts only here.
+    EXECUTIVE_CONFIDENCE_SUMMARY = dict(
+        status="",
+        status_detail=(
+            "Selected on the training period from values as revised today (no archive of earlier values); it has "
+            "not faced a frozen-rule hold-out test."
+        ),
+        strengths=[
+            f"Point-in-time release dates and a long training period: {W.is_n} months ({W.is_start} to "
+            f"{W.is_end}).",
+            f"The chosen lead sits in a stable lead range ({W.plateau_range}).",
+        ],
+        risks=[
+            f"Test-period Sharpe difference versus buy-and-hold {W.sharpe_gap}, 95% interval {W.ci_low} to "
+            f"{W.ci_high}.",
+            "No archive of earlier values of this index exists, so the backtest uses values as revised today; any "
+            "hindsight from revisions cannot be measured.",
+            f"The single highest training Sharpe in the grid ({W.raw_argmax_rule} at L{W.raw_argmax_lead}) lies "
+            f"{W.raw_argmax_position}; it was not chosen.",
+            f"The rule previously shown on the main site ({W.previous_rule}) was chosen by its test-period score.",
+        ] + ([f"The stable lead range {W.plateau_range} reaches the top of the declared lead grid ({_GRID_RANGE} "
+              "months); longer leads were not tested."] if _AT_TOP else []),
+        conclusion=(
+            f"Rule {_RID}: test-period Sharpe "
+            f"{W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold ({W.oos_start} to {W.oos_end}), maximum "
+            f"drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}, on values as revised today."
+        ),
     )
 
     DOWNLOADS = [
-        {"label": "Granger causality by lag", "path": "results/umcsent_spy/granger_by_lag.csv"},
-        {"label": "Regime quartile returns", "path": "results/umcsent_spy/regime_quartile_returns.csv"},
-        {"label": "Tournament results", "path": "results/umcsent_spy/tournament_results_20261015.csv"},
-        {"label": "Stationarity tests", "path": "results/umcsent_spy/stationarity_tests_20261015.csv"},
+        {"label": "Granger causality by lag", "path": f"results/{PAIR}/granger_by_lag.csv"},
+        {"label": "Regime quartile returns", "path": f"results/{PAIR}/regime_quartile_returns.csv"},
+        {"label": "Tournament results (values as revised today)", "path": f"results/{PAIR}/tournament_results_{_TAG}.csv"},
+        {"label": f"Main-site rule's tournament (run of {W.previous_tag}, replayed exactly)",
+         "path": f"results/{PAIR}/tournament_results_{W.value('previous_tag')}.csv"},
+        {"label": "Stationarity tests", "path": f"results/{PAIR}/stationarity_tests_{_TAG}.csv"},
     ]
 
-    SIGNAL_RULE_MD = """
-**Rule in plain English:** hold SPY when the 12-month change in expected business conditions, taken from nine months earlier, was at or above its 60-month rolling median (i.e. when year-over-year optimism was *improving* relative to its recent norm); otherwise hold cash. This is a procyclical rule and runs the same way as the economic prior.
+    SIGNAL_RULE_MD = f"""
+**Rule in plain English:** {_RULE}.
 
 If-then form:
-- **IF** `umcsent_chg_12m` from 9 months earlier is at or above its 60-month rolling median -> hold SPY.
-- **ELSE** -> hold cash.
+{_IF_THEN}
 
-Search-phase OOS results (2017-08-31 to 2025-09-30, 98 months): Sharpe 1.43 versus 0.93 buy-and-hold; annualized return 14.8% versus 14.8%; **maximum drawdown -7.6% versus -23.9%**; annualized volatility 10.1%; win rate 43.9%; 10 trades; annual turnover 1.22 (low). The drawdown and volatility reduction, not the Sharpe or the (essentially matched) return, is the defensible result.
+Test-period results on values as revised today ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} buy-and-hold; annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; {W.oos_n_trades} switches between SPY and cash within the test period (each moves the whole position); annual turnover {W.annual_turnover}; in SPY {W.oos_exposure} of the test-period months.{_MAIN_TAIL}
 """
 
-    HOW_SIGNAL_IS_GENERATED_MD = """
-First, the data process reads the University of Michigan expected-change-in-business-conditions diffusion (`umcsent`) at month-end. Second, it computes the 12-month change (`umcsent_chg_12m`, the level today minus the level twelve months earlier -- now correctly measured over a full year). Third, it applies a 9-month lag before the SPY allocation is set. Finally, the lagged signal is compared with its 60-month rolling median: when the lagged 12-month change is at or above that rolling median, hold SPY; otherwise cash (the procyclical orientation).
+    HOW_SIGNAL_IS_GENERATED_MD = f"""
+First, the process takes the Expected Business Conditions index as it stands today (no archive of earlier values exists) and computes the {_SIG} and its threshold on the survey's own monthly dates. Second, for each month it uses only readings already published when the month's return window opens (the survey month's reading is released by the end of that month; the release dates come from the survey's headline index, FRED UMCSENT, published in the same release), taking the reading from {W.lead_word} months earlier. Finally, the reading is compared with {_THR}.
 
-OOS Sharpe means out-of-sample risk-adjusted return. OOS Return is the annualized out-of-sample return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of out-of-sample months with positive strategy return (below half here partly because the rule holds cash for stretches).
+OOS Sharpe means test-period (out-of-sample) risk-adjusted return. OOS Return is the annualized test-period return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of test-period months with positive strategy return.
 """
 
-    MANUAL_USE_MD = """
+    MANUAL_USE_MD = f"""
 This describes the backtested rule so it can be audited; it is not a trading recommendation.
 
-1. Read the U. Michigan expected-conditions diffusion (`umcsent`) at month end.
-2. Compute the 12-month change (today's level minus the level twelve months earlier).
-3. Take the value from 9 months earlier and compare it with its 60-month rolling median.
-4. Hold SPY when that lagged 12-month change was at or above its rolling median; otherwise hold cash.
-5. Recheck monthly. Turnover is low (1.22/yr): the rule flips about once a year.
+1. At month end, read the Michigan Expected Business Conditions index as currently published.
+2. Compute the threshold ({_THR}) from the published series.
+3. Take the reading from {W.lead_word} months earlier and compare it with that threshold.
+4. Set the position as the rule says (long/cash) and hold it for the following month.
+5. Recheck monthly.
 """
 
     EQUITY_CHART_NAME = "equity_curves"
@@ -557,120 +526,112 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     WALK_FORWARD_TITLE = "Subperiod Sharpe and Durability"
     WALK_FORWARD_CHART_NAME = "subperiod_sharpe"
     WALK_FORWARD_CAPTION = (
-        "What this shows: Sharpe is return per unit of volatility. The "
-        "subperiod chart compares the searched rule with buy-and-hold SPY "
-        "during major stress windows. The rule loses LESS in the Dot-Com bear "
-        "(-0.19 vs -0.70) and sits in cash -- avoiding the loss -- through the "
-        "COVID crash (0.0 vs -0.08) and the 2022 rate shock (0.0 vs -0.76), but "
-        "it does WORSE than buy-and-hold in the GFC (-1.36 vs -1.03) because "
-        "the long lead kept it invested. The stress defense is real but not "
-        "universal."
+        "What this shows: Sharpe is return per unit of volatility. The subperiod chart compares the searched rule "
+        "with buy-and-hold SPY during major stress windows; each label says whether the window falls in the "
+        "training period or in the test period, and how many months it holds. Annualized Sharpe ratios over windows "
+        "of a few months are noisy; read the window length on each label."
     )
     CROSS_PERIOD_CAPTIONS = {
         "rolling_correlation": (
-            "How to read it: the indicator is the expected-conditions signal; "
-            "the target is SPY returns. The rolling correlation tests whether "
-            "their linear relationship is stable through time. Large swings "
-            "mean the relationship is unstable and the rule needs ongoing "
-            "monitoring."
+            f"How to read it: the indicator is the {_EVID_SIG}; the target is SPY returns. The rolling correlation "
+            "tests whether their linear relationship is stable through time."
         ),
         "structural_break": (
-            "How to read it: the structural break proxy asks whether the "
-            "expected-conditions/SPY relationship changes enough that one "
-            "fixed model is unlikely to describe the whole sample. A larger "
-            "break statistic means the relationship shifted more materially "
-            "across periods (here the max absolute rolling-correlation z-score "
-            "reaches 3.1)."
+            "How to read it: the structural break proxy asks whether the expected-conditions/SPY relationship changes "
+            "enough that one "
+            "fixed model is unlikely to describe the whole sample."
         ),
     }
     SHOW_TOURNAMENT_SCATTER = True
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_sharpe_dist"
     TOURNAMENT_SCATTER_CAPTION = (
-        "What this shows: OOS Sharpe distribution across valid searched "
-        "combinations by lead. The winner (1.43) is a right-tail maximum; the "
-        "median valid combo (0.659) sits BELOW buy-and-hold (0.93), so the "
-        "typical rule built on this indicator subtracts value."
+        "What this shows: test-period Sharpe distribution across valid searched strategy combinations by lead. The "
+        "winner is chosen on the training period, not on this test-period score."
     )
 
-    CAVEATS_MD = """
+    CAVEATS_MD = f"""
 **Main caveats:**
 
-1. The result is marked `found_in_search`; the median valid combo underperforms buy-and-hold, and the winner still needs a frozen-rule holdout confirmation before it can be called deployable. Confidence is LOW.
-2. The winner uses a 9-month lead (L9) on a monthly survey with few cycles in the sample. A 9-month lead needs adjacent-lead durability checking -- and the runner-up at a 6-month lead (`chg_12m / T0_zero / L6`, 1.396) is close behind at a different threshold, so the precise 9-month choice is fragile.
-3. Granger causality is insignificant at every lag (min p = 0.22), local projections are null, and the pre-whitened CCF clears the band at no offset (the largest values are on the SPY-leads side) -- so this is not a proven causal forecast, even though the direction is sensible.
-4. The defensible virtue is drawdown and volatility reduction, not return: the annualized return (14.8%) is essentially matched to buy-and-hold (14.8%), so read the Sharpe as volatility/drawdown avoidance.
-5. The stress defense is uneven: the rule did WORSE than buy-and-hold in the GFC (-1.36 vs -1.03) because the long lead kept it invested into the decline.
-6. Corrected pair: an earlier winner rested on a mislabeled 4-month change; with the properly computed 12-month change the winner is `chg_12m / T_roll_p50 / L9` at OOS Sharpe 1.43.
-7. This is the University of Michigan *expected business conditions* sub-series (forward-looking), distinct from the headline consumer-sentiment index; do not conflate the two.
+- The result is marked `found_in_search`; it still needs a frozen-rule holdout confirmation.
+- {_NO_ARCHIVE}
+- The series in the project's data ends in {W.oos_end}, so the test period ends there; later SPY months are not tested.
+- The series is the Michigan Expected Business Conditions index from the project's Data Master workbook, not the headline Consumer Sentiment index (FRED UMCSENT); UMCSENT supplies only the release dates.
+- The rule previously shown on the main site ({W.previous_rule}, run of {W.previous_tag}) was chosen by its test-period score; the new framework replays it exactly and no longer selects it.
+- The index measures the change households expect over the next year, so it can rise in a recession; a high reading is not the same as a strong economy.
+{_R71_CAVEAT}
 """
 
     TRADE_LOG_EXAMPLE_MD = (
-        "**A concrete example from this pair:** the broker-style log records a "
-        "BUY when the 9-month-lagged 12-month change in expected conditions "
-        "crossed at or above its 60-month rolling median, taking exposure from "
-        "0% to 100% SPY. A SELL moves back to cash when the lagged 12-month "
-        "change fell below its rolling median."
+        "**A concrete example from this pair:** the broker-style log records each switch between SPY and cash "
+        f"that the rule makes when the {_SIG} reading crosses {_THR}. It covers the full reconstructed history "
+        f"({_EV['n_trade_log_rows']} rows), not only the test period."
     )
 
     TRADE_LOG_COLUMN_EXAMPLES = {
-        "trade_date": "1996-09-30",
+        "trade_date": "month end",
         "side": "BUY",
         "instrument": "SPY",
-        "quantity_pct": "100.0",
+        "quantity_pct": "target weight after the trade",
         "commission_bps": "5",
-        "reason": "P1_long_cash: chg_12m procyclical rule crossed T_roll_p50; position 0% to 100%",
+        "reason": f"{W.signal_code} {W.direction} rule crossed {W.threshold_code}",
     }
 
 
 STRATEGY_CONFIG = StrategyConfig()
 
 
-_DATA_SOURCES_MD = """
+_DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator | Data Master (University of Michigan) | `UMCSENT`, U. Michigan Expected Business Conditions (forward-looking survey diffusion) | Monthly |
-| Target | Yahoo Finance or local SPY monthly fallback panel | SPY adjusted close / monthly returns | Monthly |
-"""
+| Indicator (today's values; no archive of earlier values exists) | Data Master workbook (sheet UoM_ExptdChgBinesCyle, University of Michigan Surveys of Consumers), pinned snapshot in data/release_calendar/snapshots/ | `UMICH_EXP_BUS_COND`, U. Michigan Expected Business Conditions (survey index; not the headline Consumer Sentiment index) | Monthly |
+| Release dates (timing only) | data/release_calendar/release_calendar.csv, series `UMCSENT` (FRED / ALFRED first-release dates of the survey's headline index, published in the same release) | first publication date per survey month | Monthly |
+| Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted month-end close | Monthly |
+""")
 
 _INDICATOR_CONSTRUCTION_MD = (
-    "The raw indicator is the University of Michigan expected-change-in-"
-    "business-conditions diffusion (a forward-looking sentiment sub-series, "
-    "distinct from the headline consumer-sentiment index). Unlike a "
-    "nominal-dollar price level, this survey diffusion is bounded and "
-    "mean-reverting, so the LEVEL itself is stationary (ADF rejects a unit "
-    "root, p = 0.0002; KPSS does not reject stationarity). The pipeline "
-    "constructs the level, its 1-month change, its 12-month change, and a "
-    "60-month rolling z-score -- all stationary. The winning signal is "
-    "`umcsent_chg_12m`, the 12-month change (now correctly measured over a "
-    "full year; an earlier version mislabeled a 4-month change), used with a "
-    "9-month lead, a 60-month rolling-median threshold, and a procyclical "
-    "orientation (long SPY when the lagged 12-month change is at or above its "
-    "rolling median)."
+    "The raw indicator is the University of Michigan Expected Business Conditions index (Data Master; not the "
+    "headline Consumer Sentiment index), a bounded survey index that swings within a range rather than trending, so "
+    f"the level itself is a tradable signal. The pipeline constructs the {SIGNAL_TEXT['level']}; the "
+    f"{SIGNAL_TEXT['diff_1m']}; the {SIGNAL_TEXT['chg_12m']}; and the {SIGNAL_TEXT['zscore_60m']}. Signals and "
+    "rolling thresholds are computed on the survey's own monthly dates from today's values and then aligned to each "
+    "month with the release calendar (UMCSENT release dates), so a reading is used only after it was published. The "
+    f"winning signal is `{W.signal_code}` ({_SIG}), used with a lead of {W.lead_text}; the reading is compared with "
+    f"{_THR}."
 )
 
-_METHODS_TABLE_MD = """
+_METHODS_TABLE_MD = P.definition_text("""
 | Method | Question It Answers | Why We Chose It |
 |---|---|---|
-| Correlation analysis | Does the expected-conditions signal move linearly with future SPY returns? | Simple baseline before richer tests |
-| Regime quartiles | Do weak and strong optimism regimes behave differently? | Makes the procyclical story interpretable |
-| Pre-whitened CCF | Is there any lead-lag echo after filtering persistence? | Reduces false lead-lag signals from autocorrelation |
-| Granger causality | Does past expected-conditions information improve SPY forecasts? | Formal lead-lag check |
-| Local projections | How does SPY respond over future horizons? | Shows horizon-specific effects |
-| Quantile regression | Is the effect different in weak or strong market states? | Tests tail and regime sensitivity |
+| Correlation analysis (Newey-West p-values) | Do expected-conditions signals move linearly with future SPY returns? | Simple baseline before richer tests |
+| Regime quartiles | Do low and high expected-conditions regimes behave differently? | Makes the sentiment story interpretable |
+| Pre-whitened CCF | Where is the lead-lag relationship strongest after filtering persistence? | Reduces false lead-lag signals from autocorrelation |
+| Granger causality (Holm-adjusted across lags) | Does the past index improve SPY forecasts? | Formal lead-lag check |
+| Local projections (Newey-West errors) | How do forward SPY returns relate to the index over horizons? | Shows horizon-specific effects |
+| Quantile regression (moving-block bootstrap) | Is the effect different in weak or strong market states? | Tests tail and regime sensitivity |
 | Structural break / rolling correlation | Is the relationship stable across time? | Durability and overfit guard |
-"""
+| Lead-plateau selection (D9) | Is the chosen lead part of a stable range rather than an isolated peak? | Guards against picking a lucky single lead |
+| Chance check (null tournament) | How does the winner compare with contests run on scrambled signals? | Measures how much selection alone can produce |
+| Paired block bootstrap | How uncertain is the Sharpe difference versus buy-and-hold? | Interval for the headline comparison |
+""")
 
-_TOURNAMENT_DESIGN_MD = """
-Grid: expected-conditions transforms (level, 1-month change, 12-month change, 60-month rolling z-score) x fixed and rolling thresholds x a long/cash strategy x procyclical/countercyclical orientations x lead times (0-12 months). The final tournament has 168 combinations, all 168 valid. The winning rule is `umcsent_chg_12m / T_roll_p50 / P1_long_cash procyclical / L9`, the maximum OOS Sharpe (1.43). The median valid combo (0.659) underperforms buy-and-hold (0.93), and the runner-up (`chg_12m / T0_zero / P1_long_cash / L6`, 1.396) is close behind but at a different threshold and a 6-month lead -- read the winner as a selection maximum whose exact 9-month lead is fragile, not a validated edge. The winner's direction is procyclical, consistent with the leading-indicator prior (`direction_consistent = true`).
+_TOURNAMENT_DESIGN_MD = f"""
+Grid: expected-conditions signals x zero, z-score and rolling-percentile thresholds x the long/cash strategy x procyclical/countercyclical orientations x leads {_GRID_RANGE} months, where the lead is the whole gap between the reading month and the month whose return it trades ({W.n_candidates} declared combinations; {W.n_distinct} distinct position series). The winner is selected on the training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it. There is one data track (values as revised today), so there is no second winner to compare.
+
+- Winner: `{_RID}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe} ({W.is_start} to {W.is_end}; buy-and-hold {W.bh_is_sharpe}), test-period Sharpe {W.oos_sharpe}. The raw single highest training Sharpe (argmax, {W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}; it is shown for reference and is not the selection rule.{_MAIN_TAIL}
+- Chance check: across {W.null_draws} contests run on circularly shifted index data, {_CHANCE_TEXT}.
+- Rule previously shown on the main site: `{W.previous_rule}` (run of {W.previous_tag}), {_PREV_DIRECTION}, with a previous test-period Sharpe of {W.previous_oos_sharpe}. The previously published rule was chosen by its test-period score on the lead grid of that run, so that score was not a held-out result. The new framework replays that run exactly (same rows in the same order, same test-period scores, same winner, same returns).
+- Earlier research run: `{_EARLY_RULE}` (the single highest training Sharpe with fixed lags), on the development branch `{_EARLY_BRANCH}`, never shown on the main site.
 """
 
 _REFERENCES_MD = """
-1. University of Michigan, Surveys of Consumers, expected change in business conditions (index of consumer expectations component).
-2. Federal Reserve Economic Data (FRED), `UMCSENT`, University of Michigan: Consumer Sentiment (parent survey).
-3. The Conference Board, Leading Economic Index (consumer expectations is a component).
-4. Yahoo Finance, SPY adjusted price history.
-5. Granger, C. W. J. (1969). "Investigating Causal Relations by Econometric Models and Cross-spectral Methods."
-6. Jorda, O. (2005). "Estimation and Inference of Impulse Responses by Local Projections."
+1. University of Michigan, Surveys of Consumers (expected change in business conditions).
+2. Federal Reserve Bank of St. Louis, FRED / ALFRED series UMCSENT (release dates of the survey; timing only).
+3. Yahoo Finance, SPY adjusted price history.
+4. Granger, C. W. J. (1969). "Investigating Causal Relations by Econometric Models and Cross-spectral Methods."
+5. Jorda, O. (2005). "Estimation and Inference of Impulse Responses by Local Projections."
+6. Newey, W. K., and West, K. D. (1987). "A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix."
+7. Holm, S. (1979). "A Simple Sequentially Rejective Multiple Test Procedure."
+8. Politis, D. N., and Romano, J. P. (1992). "A Circular Block-Resampling Procedure for Stationary Data."
 """
 
 METHODOLOGY_CONFIG = MethodologyConfig(
@@ -680,16 +641,12 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     tournament_design_md=_TOURNAMENT_DESIGN_MD,
     references_md=_REFERENCES_MD,
     sample_period_note=(
-        "Monthly sample from 1993-01-31 to 2025-09-30, with out-of-sample "
-        "window 2017-08-31 to 2025-09-30 (98 months). SPY history limits the "
-        "usable sample even though the survey begins earlier."
+        f"Monthly sample; training period {W.is_start} to {W.is_end} and test period {W.oos_start} to "
+        f"{W.oos_end}, on values as revised today (one track; no archive of earlier values). The sample ends with the "
+        "last reading in the project's data."
     ),
     plain_english=(
-        "This page documents how the U. Michigan expected-conditions diffusion "
-        "was turned into stationary signals (its level is already stationary), "
-        "how the econometric checks were run, and how the tournament selected "
-        "the final SPY allocation rule -- along with the honest caveat that the "
-        "selection maximum is a procyclical rule whose direction is sensible "
-        "but whose 9-month lead is fragile and not yet a validated edge."
+        "This page documents how the Michigan Expected Business Conditions index was turned into testable signals, how the econometric "
+        "checks were run, and how the tournament selected the final SPY allocation rule."
     ),
 )
