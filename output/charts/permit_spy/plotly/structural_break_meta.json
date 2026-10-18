@@ -1,7 +1,7 @@
 {
   "chart_name": "structural_break",
   "pair_id": "permit_spy",
-  "generated_at": "2026-10-18T00:36:36.890038+00:00",
+  "generated_at": "2026-10-18T01:16:34.858786+00:00",
   "generated_by": "scripts/generate_charts_permit_spy.py",
   "caption": "Proxy check for large changes in the PERMIT-SPY relationship.",
   "narrative_alignment_note": "Proxy check for large changes in the PERMIT-SPY relationship.",

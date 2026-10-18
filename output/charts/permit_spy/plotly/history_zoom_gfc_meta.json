@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_gfc",
   "pair_id": "permit_spy",
-  "generated_at": "2026-10-18T00:36:50.512764+00:00",
+  "generated_at": "2026-10-18T01:16:57.345399+00:00",
   "generated_by": "scripts/generate_charts_permit_spy.py",
   "caption": "Housing Bust and Financial Crisis: Permits Fell Before Equities; gray bands are NBER recessions and pink bands mark permits below their year-earlier level.",
   "narrative_alignment_note": "Housing Bust and Financial Crisis: Permits Fell Before Equities; gray bands are NBER recessions and pink bands mark permits below their year-earlier level.",
