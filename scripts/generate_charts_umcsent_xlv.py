@@ -19,6 +19,7 @@ import plotly.graph_objects as go
 import plotly.io as pio
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import chart_provenance  # noqa: E402  (records chart inputs; imported before any data is read)
 from harness.charts import zoom_dual_panel  # noqa: E402
 from plotly.subplots import make_subplots
 
@@ -74,6 +75,7 @@ def save_chart(fig, name, *, caption=None, rules=None, sources=None, alignment=N
     name = canonical_name(name)
     path = os.path.join(CHART_DIR, f"{name}.json")
     fig.write_json(path)
+    chart_provenance.record(PAIR_ID, path, sources or [], "scripts/generate_charts_umcsent_xlv.py")
     meta = {
         "chart_name": name,
         "pair_id": PAIR_ID,
