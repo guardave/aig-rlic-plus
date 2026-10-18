@@ -1137,7 +1137,7 @@
       "publication_lag": "U. Michigan, preliminary mid-month and final at or before the end of the survey month (ALFRED median -3.5 d, p90 0 d)",
       "real_time": false,
       "lead_axis": "months",
-      "lead_floor": 1,
+      "lead_floor": 0,
       "lead_grid": [
         1,
         2,
@@ -1156,13 +1156,14 @@
       "observed_winner_lead_unit": "months",
       "conformed": true,
       "class": "monthly",
-      "note": "NEW pair (#headline-sentiment x SPY). #255-floored grid [1..13]; winner diff_1m/T_roll_p75/countercyclical/L12. Compare with umcsent_xlv (same series vs XLV) and umcsent_spy (expected-business-conditions vs SPY).",
-      "position_shift": 0,
+      "note": "Phase B harness (20261018): two tracks (real-time ALFRED vintages = MAIN; revised = comparison), D9 lead-plateau selection on the registry grid L1..L13 with position_shift 1, point-in-time release timing. Published 20261015 rule (raw IS-Sharpe argmax, fixed lag, no position shift: level/T_roll_p25/procyclical/L1) replayed exactly and kept as the previous rule. Compare with umcsent_xlv (same series vs XLV) and umcsent_spy (expected-business-conditions vs SPY).",
+      "position_shift": 1,
       "lead_floor_effective": 1,
       "release_calendar_series": "UMCSENT",
-      "alignment": "fixed_lag",
+      "alignment": "pit_asof",
       "value_vintage": "revised_alfred",
-      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 1 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 1 = 1 - position_shift 0. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged."
+      "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 1 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 0 = 1 - position_shift 1. Evidence: ALFRED first-vintage realtime_start, ref periods 2018-01..2026-09; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid unchanged.",
+      "track_policy": "compute_twice"
     }
   }
 }
