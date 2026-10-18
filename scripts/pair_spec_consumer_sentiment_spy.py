@@ -44,8 +44,8 @@ def features(levels: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def _roll_q(q: float):
-    return lambda s: s.rolling(ROLL_WINDOW, min_periods=ROLL_MIN_PERIODS).quantile(q)
+def _roll_q(q: float, window: int = ROLL_WINDOW, min_periods: int = ROLL_MIN_PERIODS):
+    return lambda s: s.rolling(window, min_periods=min_periods).quantile(q)
 
 
 def rules(signal: str) -> dict[str, Rule]:
