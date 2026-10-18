@@ -227,7 +227,7 @@ CORRELATION_BLOCK = dict(
     ),
     question="Does stronger cement shipment growth line up with stronger SPY returns over the following months?",
     how_to_read=(
-        "Rows are cement growth transforms, columns are forward SPY return horizons. Red is positive, blue negative; "
+        "Rows are cement growth transforms, columns are forward SPY return horizons. Blue is positive, red negative; "
         "a star marks a HAC p-value below "
         f"{_D['significance_p']:.2f}."
     ),
