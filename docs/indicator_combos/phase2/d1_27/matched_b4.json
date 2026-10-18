@@ -1,0 +1,62 @@
+{
+ "status": "Exploratory",
+ "question": "D1-27",
+ "note": "all predictions scored on rows where B4 exists",
+ "H1": {
+  "rows": "2006-01-31..2025-09-30",
+  "months": 237,
+  "recessions_covered": [
+   "2007-12",
+   "2020-02"
+  ],
+  "brier": {
+   "model": 0.20982,
+   "term_only_same_rows": 0.22934,
+   "term_only_full_history": 0.17983,
+   "B1_base_rate": 0.1512,
+   "B2a_best_single": 0.22096,
+   "B3_naive_composite": 0.20726,
+   "B4_sma_flag": 0.14784
+  },
+  "lowest_brier": "B4_sma_flag",
+  "B4_rank_of_7": 1
+ },
+ "H2": {
+  "rows": "2004-01-31..2025-09-30",
+  "months": 261,
+  "recessions_covered": [
+   "2007-12",
+   "2020-02"
+  ],
+  "brier": {
+   "model": 0.21314,
+   "term_only_same_rows": 0.16708,
+   "term_only_full_history": 0.16708,
+   "B1_base_rate": 0.14045,
+   "B2a_best_single": 0.16708,
+   "B3_naive_composite": 0.19734,
+   "B4_sma_flag": 0.12884
+  },
+  "lowest_brier": "B4_sma_flag",
+  "B4_rank_of_7": 1
+ },
+ "H3": {
+  "rows": "2006-01-31..2025-09-30",
+  "months": 237,
+  "recessions_covered": [
+   "2007-12",
+   "2020-02"
+  ],
+  "brier": {
+   "model": 0.1605,
+   "term_only_same_rows": 0.22934,
+   "term_only_full_history": 0.17983,
+   "B1_base_rate": 0.1512,
+   "B2a_best_single": 0.18302,
+   "B3_naive_composite": 0.14455,
+   "B4_sma_flag": 0.14784
+  },
+  "lowest_brier": "B3_naive_composite",
+  "B4_rank_of_7": 2
+ }
+}

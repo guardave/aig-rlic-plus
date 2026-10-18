@@ -1,0 +1,573 @@
+{
+ "status": "Exploratory",
+ "question": "D1-27",
+ "registry": "frozen d780845f; not a V-C/V-S evaluation",
+ "family": "F-REC",
+ "family_registered_hypotheses": 7,
+ "correction": "Holm over 7 (unrun = p 1)",
+ "label": "NBER recession month in (t, t+12]",
+ "label_lag_months": 24,
+ "refit": "annual (January)",
+ "null": {
+  "type": "N1 circular shift of added predictors",
+  "K": 500,
+  "seed": 20261018
+ },
+ "models": {
+  "H1": {
+   "members": [
+    "term",
+    "credit"
+   ],
+   "eval_start": "2005-01-31",
+   "full": {
+    "window": "2006-01-31..2025-09-30",
+    "months": 237,
+    "recessions_covered": [
+     "2007-12",
+     "2020-02"
+    ],
+    "recessions_count": 2,
+    "scores": {
+     "model": {
+      "n": 237,
+      "positives": 42,
+      "brier": 0.20982,
+      "mean_log_score": -0.77171,
+      "calibration_slope": 0.146
+     },
+     "term_only_same_rows": {
+      "n": 237,
+      "positives": 42,
+      "brier": 0.22934,
+      "mean_log_score": -0.72041,
+      "calibration_slope": 0.182
+     },
+     "term_only_full_history": {
+      "n": 237,
+      "positives": 42,
+      "brier": 0.17983,
+      "mean_log_score": -0.56476,
+      "calibration_slope": -0.01
+     },
+     "B1_base_rate": {
+      "n": 237,
+      "positives": 42,
+      "brier": 0.1512,
+      "mean_log_score": -0.48424,
+      "calibration_slope": -9.993
+     },
+     "B2a_best_single": {
+      "n": 237,
+      "positives": 42,
+      "brier": 0.22096,
+      "mean_log_score": -0.69593,
+      "calibration_slope": 0.22
+     },
+     "B3_naive_composite": {
+      "n": 237,
+      "positives": 42,
+      "brier": 0.20726,
+      "mean_log_score": -0.79168,
+      "calibration_slope": 0.115
+     },
+     "B4_sma_flag_subwindow": {
+      "n": 237,
+      "positives": 42,
+      "brier": 0.14784,
+      "mean_log_score": -0.45941,
+      "calibration_slope": 0.741
+     }
+    },
+    "bss_vs_term_same_rows": 0.0851,
+    "bss_vs_term_full_history": -0.1668,
+    "bss_vs_B2a": 0.0504,
+    "bss_vs_B3": -0.0124,
+    "bss_vs_B1": -0.3877,
+    "p_block_bootstrap_one_sided": 0.3285,
+    "episode_log_score_gain_vs_term": {
+     "2007-12": -35.873,
+     "2020-02": 0.285
+    }
+   },
+   "ex2020": {
+    "window": "2006-01-31..2019-02-28",
+    "months": 158,
+    "recessions_covered": [
+     "2007-12"
+    ],
+    "recessions_count": 1,
+    "scores": {
+     "model": {
+      "n": 158,
+      "positives": 29,
+      "brier": 0.15038,
+      "mean_log_score": -0.64251,
+      "calibration_slope": 0.187
+     },
+     "term_only_same_rows": {
+      "n": 158,
+      "positives": 29,
+      "brier": 0.21384,
+      "mean_log_score": -0.72008,
+      "calibration_slope": 0.178
+     },
+     "term_only_full_history": {
+      "n": 158,
+      "positives": 29,
+      "brier": 0.15981,
+      "mean_log_score": -0.5365,
+      "calibration_slope": 0.011
+     },
+     "B1_base_rate": {
+      "n": 158,
+      "positives": 29,
+      "brier": 0.15822,
+      "mean_log_score": -0.50338,
+      "calibration_slope": -12.056
+     },
+     "B2a_best_single": {
+      "n": 158,
+      "positives": 29,
+      "brier": 0.21384,
+      "mean_log_score": -0.72008,
+      "calibration_slope": 0.178
+     },
+     "B3_naive_composite": {
+      "n": 158,
+      "positives": 29,
+      "brier": 0.15965,
+      "mean_log_score": -0.74006,
+      "calibration_slope": 0.133
+     },
+     "B4_sma_flag_subwindow": {
+      "n": 158,
+      "positives": 29,
+      "brier": 0.14153,
+      "mean_log_score": -0.43838,
+      "calibration_slope": 1.243
+     }
+    },
+    "bss_vs_term_same_rows": 0.2968,
+    "bss_vs_term_full_history": 0.059,
+    "bss_vs_B2a": 0.2968,
+    "bss_vs_B3": 0.0581,
+    "bss_vs_B1": 0.0496,
+    "p_block_bootstrap_one_sided": 0.111,
+    "episode_log_score_gain_vs_term": {
+     "2007-12": -35.873
+    }
+   },
+   "B2a_choices": {
+    "2006-01-31": "term",
+    "2007-01-31": "term",
+    "2008-01-31": "term",
+    "2009-01-31": "term",
+    "2010-01-31": "term",
+    "2011-01-31": "term",
+    "2012-01-31": "term",
+    "2013-01-31": "term",
+    "2014-01-31": "term",
+    "2015-01-31": "term",
+    "2016-01-31": "term",
+    "2017-01-31": "term",
+    "2018-01-31": "term",
+    "2019-01-31": "term",
+    "2020-01-31": "term",
+    "2021-01-31": "credit",
+    "2022-01-31": "credit",
+    "2023-01-31": "term",
+    "2024-01-31": "term",
+    "2025-01-31": "term",
+    "2026-01-31": "term"
+   },
+   "null_bss_percentile_full": 90.4,
+   "null_bss_quantiles": {
+    "5": -0.3917,
+    "50": -0.121,
+    "95": 0.215
+   }
+  },
+  "H2": {
+   "members": [
+    "term",
+    "sahm"
+   ],
+   "eval_start": "1988-01-31",
+   "full": {
+    "window": "1988-01-31..2025-09-30",
+    "months": 453,
+    "recessions_covered": [
+     "1990-07",
+     "2001-03",
+     "2007-12",
+     "2020-02"
+    ],
+    "recessions_count": 4,
+    "scores": {
+     "model": {
+      "n": 453,
+      "positives": 80,
+      "brier": 0.19349,
+      "mean_log_score": -0.67783,
+      "calibration_slope": 0.129
+     },
+     "term_only_same_rows": {
+      "n": 453,
+      "positives": 80,
+      "brier": 0.16615,
+      "mean_log_score": -0.51472,
+      "calibration_slope": 0.282
+     },
+     "term_only_full_history": {
+      "n": 453,
+      "positives": 80,
+      "brier": 0.16615,
+      "mean_log_score": -0.51472,
+      "calibration_slope": 0.282
+     },
+     "B1_base_rate": {
+      "n": 453,
+      "positives": 80,
+      "brier": 0.1523,
+      "mean_log_score": -0.48749,
+      "calibration_slope": -2.718
+     },
+     "B2a_best_single": {
+      "n": 453,
+      "positives": 80,
+      "brier": 0.18099,
+      "mean_log_score": -0.60014,
+      "calibration_slope": -0.186
+     },
+     "B3_naive_composite": {
+      "n": 453,
+      "positives": 80,
+      "brier": 0.17019,
+      "mean_log_score": -0.61001,
+      "calibration_slope": 0.202
+     },
+     "B4_sma_flag_subwindow": {
+      "n": 261,
+      "positives": 42,
+      "brier": 0.12884,
+      "mean_log_score": -0.42745,
+      "calibration_slope": 0.625
+     }
+    },
+    "bss_vs_term_same_rows": -0.1646,
+    "bss_vs_term_full_history": -0.1646,
+    "bss_vs_B2a": -0.0691,
+    "bss_vs_B3": -0.1369,
+    "bss_vs_B1": -0.2705,
+    "p_block_bootstrap_one_sided": 0.87,
+    "episode_log_score_gain_vs_term": {
+     "1990-07": -27.36,
+     "2001-03": -0.601,
+     "2007-12": 15.482,
+     "2020-02": 1.32
+    }
+   },
+   "ex2020": {
+    "window": "1988-01-31..2019-02-28",
+    "months": 374,
+    "recessions_covered": [
+     "1990-07",
+     "2001-03",
+     "2007-12"
+    ],
+    "recessions_count": 3,
+    "scores": {
+     "model": {
+      "n": 374,
+      "positives": 67,
+      "brier": 0.15172,
+      "mean_log_score": -0.48531,
+      "calibration_slope": 0.402
+     },
+     "term_only_same_rows": {
+      "n": 374,
+      "positives": 67,
+      "brier": 0.1548,
+      "mean_log_score": -0.49221,
+      "calibration_slope": 0.37
+     },
+     "term_only_full_history": {
+      "n": 374,
+      "positives": 67,
+      "brier": 0.1548,
+      "mean_log_score": -0.49221,
+      "calibration_slope": 0.37
+     },
+     "B1_base_rate": {
+      "n": 374,
+      "positives": 67,
+      "brier": 0.1555,
+      "mean_log_score": -0.49627,
+      "calibration_slope": -2.822
+     },
+     "B2a_best_single": {
+      "n": 374,
+      "positives": 67,
+      "brier": 0.17278,
+      "mean_log_score": -0.59568,
+      "calibration_slope": -0.231
+     },
+     "B3_naive_composite": {
+      "n": 374,
+      "positives": 67,
+      "brier": 0.13501,
+      "mean_log_score": -0.42999,
+      "calibration_slope": 0.57
+     },
+     "B4_sma_flag_subwindow": {
+      "n": 182,
+      "positives": 29,
+      "brier": 0.11637,
+      "mean_log_score": -0.39047,
+      "calibration_slope": 0.946
+     }
+    },
+    "bss_vs_term_same_rows": 0.0199,
+    "bss_vs_term_full_history": 0.0199,
+    "bss_vs_B2a": 0.1219,
+    "bss_vs_B3": -0.1238,
+    "bss_vs_B1": 0.0243,
+    "p_block_bootstrap_one_sided": 0.4455,
+    "episode_log_score_gain_vs_term": {
+     "1990-07": -27.36,
+     "2001-03": -0.601,
+     "2007-12": 15.482
+    }
+   },
+   "B2a_choices": {
+    "1988-01-31": "sahm",
+    "1989-01-31": "sahm",
+    "1990-01-31": "sahm",
+    "1991-01-31": "sahm",
+    "1992-01-31": "sahm",
+    "1993-01-31": "sahm",
+    "1994-01-31": "term",
+    "1995-01-31": "term",
+    "1996-01-31": "term",
+    "1997-01-31": "term",
+    "1998-01-31": "term",
+    "1999-01-31": "term",
+    "2000-01-31": "term",
+    "2001-01-31": "term",
+    "2002-01-31": "sahm",
+    "2003-01-31": "sahm",
+    "2004-01-31": "term",
+    "2005-01-31": "term",
+    "2006-01-31": "term",
+    "2007-01-31": "term",
+    "2008-01-31": "term",
+    "2009-01-31": "term",
+    "2010-01-31": "term",
+    "2011-01-31": "term",
+    "2012-01-31": "term",
+    "2013-01-31": "term",
+    "2014-01-31": "term",
+    "2015-01-31": "term",
+    "2016-01-31": "term",
+    "2017-01-31": "term",
+    "2018-01-31": "term",
+    "2019-01-31": "term",
+    "2020-01-31": "term",
+    "2021-01-31": "term",
+    "2022-01-31": "term",
+    "2023-01-31": "term",
+    "2024-01-31": "term",
+    "2025-01-31": "term",
+    "2026-01-31": "term"
+   },
+   "null_bss_percentile_full": 39.6,
+   "null_bss_quantiles": {
+    "5": -0.3865,
+    "50": -0.1301,
+    "95": 0.0146
+   }
+  },
+  "H3": {
+   "members": [
+    "term",
+    "credit",
+    "sahm",
+    "permit"
+   ],
+   "eval_start": "2005-01-31",
+   "full": {
+    "window": "2006-01-31..2025-09-30",
+    "months": 237,
+    "recessions_covered": [
+     "2007-12",
+     "2020-02"
+    ],
+    "recessions_count": 2,
+    "scores": {
+     "model": {
+      "n": 237,
+      "positives": 42,
+      "brier": 0.1605,
+      "mean_log_score": -0.73693,
+      "calibration_slope": 0.228
+     },
+     "term_only_same_rows": {
+      "n": 237,
+      "positives": 42,
+      "brier": 0.22934,
+      "mean_log_score": -0.72041,
+      "calibration_slope": 0.182
+     },
+     "term_only_full_history": {
+      "n": 237,
+      "positives": 42,
+      "brier": 0.17983,
+      "mean_log_score": -0.56476,
+      "calibration_slope": -0.01
+     },
+     "B1_base_rate": {
+      "n": 237,
+      "positives": 42,
+      "brier": 0.1512,
+      "mean_log_score": -0.48424,
+      "calibration_slope": -9.993
+     },
+     "B2a_best_single": {
+      "n": 237,
+      "positives": 42,
+      "brier": 0.18302,
+      "mean_log_score": -0.76332,
+      "calibration_slope": 0.189
+     },
+     "B3_naive_composite": {
+      "n": 237,
+      "positives": 42,
+      "brier": 0.14455,
+      "mean_log_score": -0.68937,
+      "calibration_slope": 0.295
+     },
+     "B4_sma_flag_subwindow": {
+      "n": 237,
+      "positives": 42,
+      "brier": 0.14784,
+      "mean_log_score": -0.45941,
+      "calibration_slope": 0.741
+     }
+    },
+    "bss_vs_term_same_rows": 0.3002,
+    "bss_vs_term_full_history": 0.1075,
+    "bss_vs_B2a": 0.123,
+    "bss_vs_B3": -0.1103,
+    "bss_vs_B1": -0.0615,
+    "p_block_bootstrap_one_sided": 0.1115,
+    "episode_log_score_gain_vs_term": {
+     "2007-12": 32.21,
+     "2020-02": -64.954
+    }
+   },
+   "ex2020": {
+    "window": "2006-01-31..2019-02-28",
+    "months": 158,
+    "recessions_covered": [
+     "2007-12"
+    ],
+    "recessions_count": 1,
+    "scores": {
+     "model": {
+      "n": 158,
+      "positives": 29,
+      "brier": 0.05363,
+      "mean_log_score": -0.17653,
+      "calibration_slope": 0.607
+     },
+     "term_only_same_rows": {
+      "n": 158,
+      "positives": 29,
+      "brier": 0.21384,
+      "mean_log_score": -0.72008,
+      "calibration_slope": 0.178
+     },
+     "term_only_full_history": {
+      "n": 158,
+      "positives": 29,
+      "brier": 0.15981,
+      "mean_log_score": -0.5365,
+      "calibration_slope": 0.011
+     },
+     "B1_base_rate": {
+      "n": 158,
+      "positives": 29,
+      "brier": 0.15822,
+      "mean_log_score": -0.50338,
+      "calibration_slope": -12.056
+     },
+     "B2a_best_single": {
+      "n": 158,
+      "positives": 29,
+      "brier": 0.1823,
+      "mean_log_score": -0.84362,
+      "calibration_slope": 0.221
+     },
+     "B3_naive_composite": {
+      "n": 158,
+      "positives": 29,
+      "brier": 0.07828,
+      "mean_log_score": -0.52548,
+      "calibration_slope": 0.409
+     },
+     "B4_sma_flag_subwindow": {
+      "n": 158,
+      "positives": 29,
+      "brier": 0.14153,
+      "mean_log_score": -0.43838,
+      "calibration_slope": 1.243
+     }
+    },
+    "bss_vs_term_same_rows": 0.7492,
+    "bss_vs_term_full_history": 0.6644,
+    "bss_vs_B2a": 0.7058,
+    "bss_vs_B3": 0.3149,
+    "bss_vs_B1": 0.661,
+    "p_block_bootstrap_one_sided": 0.003,
+    "episode_log_score_gain_vs_term": {
+     "2007-12": 32.21
+    }
+   },
+   "B2a_choices": {
+    "2006-01-31": "term",
+    "2007-01-31": "term",
+    "2008-01-31": "term",
+    "2009-01-31": "permit",
+    "2010-01-31": "term",
+    "2011-01-31": "permit",
+    "2012-01-31": "permit",
+    "2013-01-31": "permit",
+    "2014-01-31": "permit",
+    "2015-01-31": "permit",
+    "2016-01-31": "permit",
+    "2017-01-31": "permit",
+    "2018-01-31": "permit",
+    "2019-01-31": "permit",
+    "2020-01-31": "permit",
+    "2021-01-31": "permit",
+    "2022-01-31": "permit",
+    "2023-01-31": "permit",
+    "2024-01-31": "permit",
+    "2025-01-31": "permit",
+    "2026-01-31": "permit"
+   },
+   "null_bss_percentile_full": 100.0,
+   "null_bss_quantiles": {
+    "5": -0.8755,
+    "50": -0.2582,
+    "95": 0.1008
+   }
+  }
+ },
+ "holm_adjusted_p_full": {
+  "H3": 0.7805,
+  "H1": 1.0,
+  "H2": 1.0
+ }
+}
