@@ -148,7 +148,7 @@ def test_resolution_rules_template_fallback():
     assert g.check_text(f"Window {ws['oos_period_start']} to {ws['oos_period_end']}.", pool, [], "t") == []
     assert g.check_text("It was right 97.3% of the time.", pool, [], "t")
     assert g.check_text("The rule waits nineteen months.", pool, [], "t")
-    assert g.check_text("It ranks at the 82nd percentile.", pool, [], "t")
+    assert g.check_text("It ranks at the 72nd percentile.", pool, [], "t")   # an ordinal absent from the pool
 
 
 def test_injected_stale_prose_fails_end_to_end_v2():
