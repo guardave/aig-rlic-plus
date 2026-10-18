@@ -167,3 +167,12 @@ def test_pilot_chart_inputs_are_all_tracked():
         untracked = [i for i in ins if subprocess.run(["git", "ls-files", "--error-unmatch", i], cwd=root,
                                                        capture_output=True).returncode]
         assert not untracked, (pair, untracked)              # a fresh clone can verify every record
+
+
+def test_reads_of_other_pairs_results_are_not_inputs(repo):
+    (repo / "results" / "other_spy").mkdir()
+    (repo / "results" / "other_spy" / "x.csv").write_text("a\n1\n")
+    with open(repo / "results" / "other_spy" / "x.csv") as fh:     # a producer looping over pairs read this
+        fh.read()
+    e = cp.record(PAIR, _chart(repo), ["results/toy_spy/subperiod_sharpe.csv"], "test")
+    assert not [i for i in e["inputs"] if i.startswith("results/other_spy/")]

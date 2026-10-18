@@ -76,6 +76,8 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 APP = REPO / "app"
+if str(APP) not in sys.path:                     # components.provenance (markers, loaders) at import time
+    sys.path.insert(0, str(APP))
 RESULTS = REPO / "results"
 ALLOWLIST = REPO / "docs" / "gates" / "number_provenance_allowlist.json"
 PROSE_ALLOWLIST = REPO / "docs" / "gates" / "structured_prose_allowlist.json"

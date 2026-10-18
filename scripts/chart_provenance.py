@@ -105,7 +105,10 @@ def record(pair: str, chart_json, sources=(), producer: str | None = None) -> di
     (repo-relative or absolute); files read so far by this process under data/ or results/ are added."""
     chart_json = Path(chart_json)
     declared = {r for r in (_rel(REPO / s if not Path(s).is_absolute() else s) for s in sources) if r}
-    inputs = sorted((declared | _READS) - {_rel(chart_json)})
+    # reads of OTHER pairs' results (a producer looping over several pairs in one process) are not this chart's
+    # inputs; declared sources are always kept
+    own = {r for r in _READS if r.startswith(("data/", f"results/{pair}/"))}
+    inputs = sorted((declared | own) - {_rel(chart_json)})
     inputs = [p for p in inputs if (REPO / p).is_file()]
     if not inputs:
         raise ValueError(f"chart_provenance: {chart_json.name} has no inputs under data/ or results/")
