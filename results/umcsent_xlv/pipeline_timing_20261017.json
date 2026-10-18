@@ -1,13 +1,14 @@
 {
   "pair_id": "umcsent_xlv",
-  "elapsed_seconds": 2498.619822740555,
+  "elapsed_seconds": 597.2735543251038,
   "stage_times": {
     "1_2_panel": 0.1,
-    "3_stationarity_and_quality": 1.7,
-    "4_exploratory": 0.1,
-    "5_core_models": 11.9,
-    "6_tournament_harness": 2484.8,
+    "3_stationarity_and_quality": 1.8,
+    "4_exploratory": 1.1,
+    "5_core_models": 167.3,
+    "5b_rolling_stability": 14.7,
+    "6_tournament_harness": 412.2,
     "7_validation": 0.0
   },
-  "generated_at": "2026-10-17T22:27:35.757214+00:00"
+  "generated_at": "2026-10-18T05:13:05.421761+00:00"
 }
