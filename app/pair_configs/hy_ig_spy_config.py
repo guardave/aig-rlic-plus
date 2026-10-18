@@ -898,9 +898,10 @@ class StrategyConfig:
     )
 
     LEADERBOARD_NOTE_MD = (
-        "Rows ranked by in-sample Sharpe. Strategy P2 sizes on the signal's trailing 504-day range and ignores the "
-        f"threshold, so it is declared once per signal and lead ({W.n_valid} valid rows, {W.n_distinct} distinct "
-        "series)."
+        "Rows ranked by raw in-sample Sharpe (the winner is chosen by the stable lead range rule, not by rank). About "
+        "the row count: the table holds every strategy family (long/cash, signal strength, long/short), and the signal-strength family (P2) sizes on "
+        f"the signal's trailing 504-day range without a threshold, so it enters once per signal and lead "
+        f"({W.n_valid} valid rows, {W.n_distinct} distinct series)."
     )
 
     CROSS_PERIOD_CAPTIONS = {

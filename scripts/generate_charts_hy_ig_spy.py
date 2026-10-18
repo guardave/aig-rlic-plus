@@ -145,13 +145,44 @@ def _add_recessions(fig, idx_min, idx_max, row=None, col=None):
             fig.add_vrect(**kwargs)
 
 
-def _note(fig, text, y=-0.12, size=9, yanchor="auto"):
+def _note(fig, text, y=None, size=9, yanchor="top"):
+    """Footnote under the chart. Placed by _place_footnotes at save time: below the x-axis tick labels and title,
+    wrapped at word boundaries, with the bottom margin grown to fit (QA pilot-visual M1: a fixed paper y=-0.12
+    overprinted tick labels and axis titles)."""
     fig.add_annotation(
-        text=text, xref="paper", yref="paper",
-        x=0, y=y, showarrow=False,
+        text=text, xref="paper", yref="paper", name="footnote",
+        x=0, y=0 if y is None else y, showarrow=False,
         font=dict(size=size, color="#666666" if size > 9 else "#888888"), xanchor="left", yanchor=yanchor,
         align="left",
     )
+
+
+def _wrap_html(text: str, width: int = 150) -> str:
+    import textwrap
+    out = []
+    for part in str(text).split("<br>"):
+        out += textwrap.wrap(part, width=width) or [""]
+    return "<br>".join(out)
+
+
+def _place_footnotes(fig) -> None:
+    lay = fig.layout
+    has_xtitle = any(getattr(getattr(lay, k), "title", None) is not None and getattr(lay, k).title.text
+                     for k in lay if str(k).startswith("xaxis") and getattr(lay, k) is not None)
+    legend_below = getattr(lay.legend, "orientation", None) == "h" and (lay.legend.y is not None and lay.legend.y < 0)
+    base = 64 if has_xtitle else 40
+    base += 34 if legend_below else 0
+    notes = [a for a in (lay.annotations or ()) if a.name == "footnote"]
+    if not notes:
+        return
+    lines = 0
+    for a in notes:
+        a.text = _wrap_html(a.text)
+        a.update(y=0, yanchor="top", yshift=-(base + 13 * lines))
+        lines += a.text.count("<br>") + 1
+    need = base + 13 * lines + 16
+    m = lay.margin.b if lay.margin and lay.margin.b is not None else 80
+    fig.update_layout(margin=dict(b=max(m, need)), height=(lay.height or 450) + max(0, need - m))
 
 
 def _save_chart(fig, name, narrative_note, method_name=None, expected_chart_type="line"):
@@ -163,6 +194,8 @@ def _save_chart(fig, name, narrative_note, method_name=None, expected_chart_type
     traces = fig_dict["data"]
     assert len(traces) >= 1, f"VIZ-IC1 FAIL {name}: 0 traces"
 
+    _place_footnotes(fig)
+    fig_dict = json.loads(fig.to_json())
     # Save chart
     chart_path = os.path.join(CHART_DIR, f"{name}.json")
     with open(chart_path, "w") as f:
@@ -349,21 +382,37 @@ def _chart_history_zoom(name, start_str, end_str, title, episode_label):
 
     # Event annotations from Ray's timeline
     evts = _load_events()
-    ep_evts = evts[(evts["date"] >= ts) & (evts["date"] <= te)].head(5)
-    for _, row_ev in ep_evts.iterrows():
-        dt = row_ev["date"]
-        if dt < zoom.index.min() or dt > zoom.index.max():
-            continue
-        idx = zoom.index.get_indexer([dt], method="nearest")[0]
-        y_val = zoom["hy_ig_spread_pct"].iloc[idx]
-        short_label = row_ev["event"][:40] if len(str(row_ev["event"])) > 40 else str(row_ev["event"])
-        fig.add_annotation(
-            x=dt, y=y_val, text=short_label[:30],
-            showarrow=True, arrowhead=2, arrowsize=0.7, ax=0, ay=-35,
-            font=dict(size=8, color=EVENT_LINE),
-            bgcolor="rgba(255,255,255,0.82)", borderpad=2,
-            row=1, col=1,
-        )
+    ep_evts = evts[(evts["date"] >= ts) & (evts["date"] <= te)].sort_values("date").head(5)
+    ep_evts = ep_evts[(ep_evts["date"] >= zoom.index.min()) & (ep_evts["date"] <= zoom.index.max())]
+    import textwrap
+    # QA pilot-visual M5: never cut mid-word ("Lehman Brothers bankruptcy — s"): wrap at word boundaries, at most two
+    # lines (an ellipsis only after a whole word). Events within 10% of the window form a cluster whose labels fan
+    # out horizontally along one row (alternating heights), so they never stack on each other.
+    span = (te - ts).total_seconds()
+    clusters, cur = [], []
+    for _, ev in ep_evts.iterrows():
+        if cur and (ev["date"] - cur[0]["date"]).total_seconds() > 0.10 * span:
+            clusters.append(cur)
+            cur = []
+        cur.append(ev)
+    if cur:
+        clusters.append(cur)
+    for cl in clusters:
+        m = len(cl)
+        for k, row_ev in enumerate(cl):
+            dt = row_ev["date"]
+            idx = zoom.index.get_indexer([dt], method="nearest")[0]
+            y_val = zoom["hy_ig_spread_pct"].iloc[idx]
+            lab = textwrap.wrap(str(row_ev["event"]).split(" — ")[0].split(";")[0], width=20)
+            label = "<br>".join(lab[:2]) + ("…" if len(lab) > 2 else "")
+            fig.add_annotation(
+                x=dt, y=y_val, text=label,
+                showarrow=True, arrowhead=2, arrowsize=0.7,
+                ax=(k - (m - 1) / 2) * 112 if m > 1 else 0, ay=-40 - 26 * (k % 2),
+                font=dict(size=8, color=EVENT_LINE),
+                bgcolor="rgba(255,255,255,0.82)", borderpad=2,
+                row=1, col=1,
+            )
 
     fig.update_layout(
         title=dict(text=title),
@@ -778,7 +827,7 @@ def chart_drawdown():
         xaxis_title="Date", yaxis_title="Drawdown from Peak (%)",
         template=TEMPLATE, height=400, showlegend=True, margin=dict(r=180, b=80),
     )
-    _note(fig, f"OOS drawdown of the winner {_winner_label()} (canonical strategy_returns series).")
+    _note(fig, f"OOS drawdown of the winner {_winner_label()} (the deployed return series the headline uses).")
     _save_chart(fig, "drawdown", narrative_note=f"Winner OOS max drawdown {strat_dd.min():.1f}%.",
                 method_name="Drawdown Analysis", expected_chart_type="area")
 

@@ -1,9 +1,9 @@
 {
  "ccf": {
-  "chart_sha256": "ac15387e87e2848bef28f040e544a1e5c6b4eea4fb80b377bc391e7829afccb8",
+  "chart_sha256": "894ad4d969f6e3e32753ebe06c5b11b505001004088b05ed8ff01a4bbed9cdbb",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:28+00:00",
+  "recorded_at": "2026-10-18T03:20:07+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
@@ -23,10 +23,10 @@
   }
  },
  "correlation_heatmap": {
-  "chart_sha256": "956a3743ae5650b337b0824bba6781fffc58d77a055f194dcfeeb6a8d955797d",
+  "chart_sha256": "4512987cd022ed0b7b02a90ef47d09c9000d18f7f55958b0c9cea4c5054baee0",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "recorded_at": "2026-10-18T03:20:12+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -43,10 +43,10 @@
   }
  },
  "correlations": {
-  "chart_sha256": "b252b969758aad51c9fd30542ce81ff22c7e02c3fcfc5739a45e7d253a963eee",
+  "chart_sha256": "91d09c620b674ec54ad87600ce9eaf847d6ecf8cd25dc2770495d3d44124ed21",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:28+00:00",
+  "recorded_at": "2026-10-18T03:20:07+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
@@ -64,10 +64,10 @@
   }
  },
  "drawdown": {
-  "chart_sha256": "8d40912cd3cb9269d4f9d96b4477a558cd1d892664f52e2057c88cb3be4edc5f",
+  "chart_sha256": "a40b2821835edf10870f0ad336382deae96932825309175fd857d5f359d815b3",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "recorded_at": "2026-10-18T03:20:11+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -81,10 +81,10 @@
   }
  },
  "drawdown_comparison": {
-  "chart_sha256": "286c8847cea34a9885de11200c6fcbe5c87099d52dd5ff804adb277728bd9430",
+  "chart_sha256": "114a2f9257c2319e7d9e47b094e7998a25987ed23067209f85d9ba6ec6361518",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "recorded_at": "2026-10-18T03:20:11+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -98,10 +98,10 @@
   }
  },
  "equity_curves": {
-  "chart_sha256": "1516a4b88f4a13e9ece558e29d3c687b6c80d0e912c54590627b10a0ab292724",
+  "chart_sha256": "1215bfc6f610fe3b48e5199e38f4e52b79a421e93116d9e7fd8d0c9d8861f5e2",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "recorded_at": "2026-10-18T03:20:11+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -115,10 +115,10 @@
   }
  },
  "granger_f_by_lag": {
-  "chart_sha256": "d877d587d8405225cf44f5ca8e710c212b154a45773cb05eaddc2bdadc9b50f0",
+  "chart_sha256": "7f945b3499c97b3bb9fc1fbb2bb9ef87e0d8a4408b6097e49c4dfcc6b3f569f6",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:29+00:00",
+  "recorded_at": "2026-10-18T03:20:08+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
@@ -127,19 +127,19 @@
   }
  },
  "hero": {
-  "chart_sha256": "dc461c407c3f6f9540deb52180a131e426fe3cb6cf3eee6feb6c868bee1b7611",
+  "chart_sha256": "5efebbafc598ce42dcfcbcdfb095a59120ab964de406157612e199f38313852b",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:28+00:00",
+  "recorded_at": "2026-10-18T03:20:06+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495"
   }
  },
  "history_zoom_covid": {
-  "chart_sha256": "b1ec40566960e6d20bd07c86876d1cd9e3c474f7fdd6ce022e49e6a6855fefeb",
+  "chart_sha256": "7774b314c3eb9e07bc8b1551538e50af188edad415e521f73ce7e05010386f20",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:28+00:00",
+  "recorded_at": "2026-10-18T03:20:07+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
@@ -147,10 +147,10 @@
   }
  },
  "history_zoom_dotcom": {
-  "chart_sha256": "e075f93471a12d7dd64dcfd1aad930449e41a5bc0fb8518bdf913e1cdc641ce4",
+  "chart_sha256": "e72d6501bd78d6de78598a4f9f8d6695fb82fc865d9c89dcf79aafcb0b316a07",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:28+00:00",
+  "recorded_at": "2026-10-18T03:20:06+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
@@ -158,10 +158,10 @@
   }
  },
  "history_zoom_gfc": {
-  "chart_sha256": "c034206880d6bbe6a1358bc9c353e99cf0291ef17c724539c205599a6cb3b330",
+  "chart_sha256": "349c151f72bba3eb0a231e624b2793a36be4b4b9bd6948f41ea1dfcc3f0c7a87",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:28+00:00",
+  "recorded_at": "2026-10-18T03:20:07+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
@@ -169,10 +169,10 @@
   }
  },
  "hmm_regime_probs": {
-  "chart_sha256": "71a8f309f6dc11f1a3f146bfa75d3177e3e59a3c60c23da9053586228a56eb62",
+  "chart_sha256": "ad37ecb92146b29507ab82dca82ca5e5a5f35720fa13235428956c967accbb22",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:31+00:00",
+  "recorded_at": "2026-10-18T03:20:10+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
@@ -202,10 +202,10 @@
   }
  },
  "local_projections": {
-  "chart_sha256": "0c51207d6f1066307b9f6fb51a8aeb18981e3ed4768d68bdf19a0731bfedc64d",
+  "chart_sha256": "4f8798fc2b67428d6bcb516637d200656f45d1453d14abd86ced5cc7579d14ee",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "recorded_at": "2026-10-18T03:20:11+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -217,10 +217,10 @@
   }
  },
  "quantile_regression": {
-  "chart_sha256": "0cbbc56c444d49ed66c986cad81ff2dda56e817d9199b82765ae9bc90fd822c6",
+  "chart_sha256": "aa07876aae689e31b9f0f7a26391d1c0c1d565262f6411f2bbf015dae19084cd",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "recorded_at": "2026-10-18T03:20:11+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -233,10 +233,10 @@
   }
  },
  "quartile_returns": {
-  "chart_sha256": "9c7780405d48089a90ac24bf49e4434e04e166d2f3b4178651e7d2e83b846a7d",
+  "chart_sha256": "632e9207899df426a1986d80fbe89408247d7526ccd19385ad780ad9c402a6db",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "recorded_at": "2026-10-18T03:20:11+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -252,10 +252,10 @@
   }
  },
  "regime_quartile_returns": {
-  "chart_sha256": "f1b4dc5bb69919cb6fec0bfba5086463bfb379716d5c6dd96371a9a8802069a8",
+  "chart_sha256": "bde85a3e42627b471bef6e5c0cf351714cd4df1671d0683b84a2ee54e1edd8c1",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:31+00:00",
+  "recorded_at": "2026-10-18T03:20:10+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
@@ -266,10 +266,10 @@
   }
  },
  "regime_stats": {
-  "chart_sha256": "fd3a1ab092673f33f3e32fca7188a9787e2e508b023ce4854119ba2bbf8c3389",
+  "chart_sha256": "7c24a954f0f2d30580e326084577b0be6e5c995bc30cf8eb281c3fda6ba93c68",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:28+00:00",
+  "recorded_at": "2026-10-18T03:20:06+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/signals_20261017.parquet": "fba675e5fa58e6525a1740fd2822373471cf73d8c9d3c7f67a7efb9a324a4936",
@@ -277,10 +277,10 @@
   }
  },
  "returns_by_regime": {
-  "chart_sha256": "f1f2d574af09c5cf8f426ce334e83339f44d3e7bedb1fce13f710f9687675cbe",
+  "chart_sha256": "1292ff48cd6f45f431b971cace3fdbfd72bfb24b3bdb48586ed3f9c8c6def1f9",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "recorded_at": "2026-10-18T03:20:11+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -299,7 +299,7 @@
   "chart_sha256": "976966274d9508606af9dd650f1e04cde1d4121d0d16742f78c04811911d1702",
   "results_tag": "20261017",
   "producer": "scripts/viz_cp_retro_apply.py",
-  "recorded_at": "2026-10-18T00:47:34+00:00",
+  "recorded_at": "2026-10-18T03:25:08+00:00",
   "inputs": {
    "results/hy_ig_spy/rolling_correlation_hy_ig_spy.csv": "95a240556d16f71110262af36b71f78f3ca94735991e5c14a1e49f20b50dee19",
    "results/hy_ig_spy/subperiod_sharpe.csv": "122361ad3e5a4dcd39a3272abea6df6a7429e3a131ef0f727ff74d9aac7b45ab",
@@ -310,7 +310,7 @@
   "chart_sha256": "c9a6a99379a7eea3a3e06a28937e38d4f070c19282a965306f814d29c367a84c",
   "results_tag": "20261017",
   "producer": "scripts/viz_cp_retro_apply.py",
-  "recorded_at": "2026-10-18T00:47:34+00:00",
+  "recorded_at": "2026-10-18T03:25:08+00:00",
   "inputs": {
    "results/hy_ig_spy/rolling_correlation_hy_ig_spy.csv": "95a240556d16f71110262af36b71f78f3ca94735991e5c14a1e49f20b50dee19",
    "results/hy_ig_spy/rolling_granger_hy_ig_spy.csv": "915e3987e94c3bbfbb0f25e191c98471a5ec41e1900a3090196aee12f20b9666",
@@ -324,7 +324,7 @@
   "chart_sha256": "a1269feaf3cf6b1537474a72180678665c95dc8fd26442e285190d17b9f5fcce",
   "results_tag": "20261017",
   "producer": "scripts/viz_cp_retro_apply.py",
-  "recorded_at": "2026-10-18T00:47:34+00:00",
+  "recorded_at": "2026-10-18T03:25:08+00:00",
   "inputs": {
    "results/hy_ig_spy/rolling_correlation_hy_ig_spy.csv": "95a240556d16f71110262af36b71f78f3ca94735991e5c14a1e49f20b50dee19",
    "results/hy_ig_spy/rolling_sharpe_hy_ig_spy.csv": "e38bd9909509881017ad0b33a4e552a8574a499bf65ad794b7b43324aa491d58",
@@ -334,10 +334,10 @@
   }
  },
  "spread_history_annotated": {
-  "chart_sha256": "2229c96e1a9b43d11311b967b2ed161c42cb426c14fff2c69b6784064e94fcb7",
+  "chart_sha256": "6fb4ede1dfb963942479f325089a1959221661950cb8f0506c1c07fff80cdc44",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "recorded_at": "2026-10-18T03:20:11+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -356,7 +356,7 @@
   "chart_sha256": "92778652832711d79ebc565ed2693fc0ada25ba3eb123f06a26f5577b16f2d4b",
   "results_tag": "20261017",
   "producer": "scripts/viz_cp_retro_apply.py",
-  "recorded_at": "2026-10-18T00:47:34+00:00",
+  "recorded_at": "2026-10-18T03:25:08+00:00",
   "inputs": {
    "results/hy_ig_spy/rolling_correlation_hy_ig_spy.csv": "95a240556d16f71110262af36b71f78f3ca94735991e5c14a1e49f20b50dee19",
    "results/hy_ig_spy/structural_break_hy_ig_spy.json": "f9f44716b3bb8be708828b9df84b214435ad6ba9b2a6e62d8222b947143dfea6",
@@ -368,16 +368,16 @@
   "chart_sha256": "a8ef6f6f32ebbfde3c871e01375d51cb4422ac9f9d7e42423cc13e0315b45853",
   "results_tag": "20261017",
   "producer": "scripts/viz_cp_retro_apply.py",
-  "recorded_at": "2026-10-18T00:47:33+00:00",
+  "recorded_at": "2026-10-18T03:25:08+00:00",
   "inputs": {
    "results/hy_ig_spy/subperiod_sharpe.csv": "122361ad3e5a4dcd39a3272abea6df6a7429e3a131ef0f727ff74d9aac7b45ab"
   }
  },
  "tournament_scatter": {
-  "chart_sha256": "90db8f96d6dc043a0e1a120ec54d05b4f76e9dedf4183a761bc4190c42070ec9",
+  "chart_sha256": "eaefd5101e472580c15678d6b03f8eaa1805c7d5ec83a7331a75e51cf960dbef",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "recorded_at": "2026-10-18T03:20:11+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -393,10 +393,10 @@
   }
  },
  "tournament_sharpe_dist": {
-  "chart_sha256": "ccf77112c54f1932a2c728b9d29020117edccaf2e8688aa576d293023ace558f",
+  "chart_sha256": "7c482783a12c874a5eff49dc7bcd47c77207e31cdd457c58a93313fa749bd4d4",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "recorded_at": "2026-10-18T03:20:11+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",
@@ -412,10 +412,10 @@
   }
  },
  "transfer_entropy": {
-  "chart_sha256": "85660d36ae4b27b7efacaf8979e44422b34037e07e292190658bad546422b9cc",
+  "chart_sha256": "c2b520153b990476045a8654d25a09aa831e95ee0a7009e71caa55ef7375764f",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "recorded_at": "2026-10-18T03:20:11+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/granger_by_lag.csv": "4bd8aa637d50cb960a07f0c1b591a55cb5bd5bc7c524e9529c6f2107ff175e1a",
@@ -426,10 +426,10 @@
   }
  },
  "walk_forward": {
-  "chart_sha256": "b8cda9c172424a38e0ac39d7fc93a6cf6f09133949fc1b9d707596b843a0401a",
+  "chart_sha256": "f2d5931b15c1c359c6ee50e4d25d0891818b1ced20ed727c2f97d98dfe4fcd12",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_hy_ig_spy.py",
-  "recorded_at": "2026-10-18T00:47:32+00:00",
+  "recorded_at": "2026-10-18T03:20:11+00:00",
   "inputs": {
    "data/hy_ig_spy_daily_20000101_20260422.parquet": "d276ba3341fe6e761adcfe868611e9cfe46e00c06f1b59add16f3f92d7ad2495",
    "results/hy_ig_spy/core_models_20261017/local_projections.csv": "e0f4aa2722683a7615561ea673680f07d2f969156fa80ab2a9cdb4706ba71bbc",

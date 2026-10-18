@@ -43,7 +43,7 @@ def load_episodes(pair_id: str) -> list:
     return registry.get(category, registry["_fallback"])
 RESULTS = BASE / "results"
 CHARTS = BASE / "output" / "charts"
-GENERATED_AT = "2026-04-24"
+GENERATED_AT = datetime.now().strftime("%Y-%m-%d")   # the run date (QA L9: a fixed date went stale)
 
 PAIRS = [
     "dff_ted_spy",

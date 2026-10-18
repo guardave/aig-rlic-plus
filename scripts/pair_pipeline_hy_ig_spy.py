@@ -1106,34 +1106,9 @@ def stage_winner_artifacts(tourn: pd.DataFrame, vinfo: dict):
     with open(os.path.join(RESULTS_DIR, "oos_split_record.json"), "w") as f:
         json.dump(oos_record, f, indent=2)
 
-    # ── trade logs (full sample, each trade tagged IS/OOS) ──
-    pc = pos.dropna()
-    chg = pc.diff().fillna(pc.iloc[0])
-    entries = chg[chg.abs() > 0.05].index
-    cum = (1 + sr.fillna(0)).cumprod()
-    lagged_sig = _H["lag"][lead]
-    from harness.candidates import x_col
-    xname = spec_mod.SPEC.rules(sig_name)[tname].x_name if strat != "P2" else "raw"
-    sig_l = lagged_sig[x_col(sig_name, xname)] if x_col(sig_name, xname) in lagged_sig else work[sig_col].shift(lead)
-    trades, broker = [], []
-    for i, ed in enumerate(entries):
-        xd = entries[i + 1] if i + 1 < len(entries) else work.index[-1]
-        ep = float(pos.loc[ed])
-        tr = float(cum.loc[xd] / cum.loc[ed] - 1) if cum.loc[ed] != 0 else 0.0
-        side = "Long" if ep > 0 else ("Short" if ep < 0 else "Cash")
-        smp = "OOS" if ed >= pd.Timestamp(OOS_START) else "IS"
-        trades.append({"entry_date": ed.strftime("%Y-%m-%d"), "exit_date": xd.strftime("%Y-%m-%d"), "direction": side,
-                       "position": round(ep, 4), "holding_days": (xd - ed).days,
-                       "trade_return_pct": round(tr * 100, 2), "sample": smp})
-        broker.append({"trade_id": i + 1, "entry_date": ed.strftime("%Y-%m-%d"), "exit_date": xd.strftime("%Y-%m-%d"),
-                       "direction": side, "qty_pct": round(ep * 100, 2), "notional_usd": round(ep * 10_000.0, 2),  # $10,000 stake (Strategy page text)
-                       "price_entry": round(float(work.loc[ed, "spy"]), 2), "holding_days": (xd - ed).days,
-                       "trade_return_pct": round(tr * 100, 2), "signal_code": sig_name, "threshold_code": tname,
-                       "strategy_code": strat, "signal_value": round(float(sig_l.loc[ed]), 6) if pd.notna(sig_l.loc[ed]) else None,
-                       "sample": smp})
-    pd.DataFrame(trades).to_csv(os.path.join(RESULTS_DIR, "winner_trade_log.csv"), index=False)
-    pd.DataFrame(broker).to_csv(os.path.join(RESULTS_DIR, "winner_trades_broker_style.csv"), index=False)
-    print(f"  trade logs: {len(trades)} position changes (OOS {sum(t['sample']=='OOS' for t in trades)})")
+    # ── trade logs: the shared harness format (QA pilot-visual M4; scripts/harness/artifacts.trade_log) ──
+    n_trades = write_trade_logs(f"{sig_name} / {tname} / {strat} rule")
+    print(f"  trade logs: {n_trades} position changes")
 
     # ── ECON-SR3 / CP1 sidecars from the canonical series ──
     strat_ret = sr.fillna(0.0)
@@ -1629,6 +1604,18 @@ def stage_narrative_provenance():
                                      "n_above_bh": int((wf["oos_sharpe"] > wf["bh_sharpe"]).sum())}
     write_evidence_facts(PAIR_ID, DATE_TAG, sources=NARRATIVE_SOURCES, derived=derived)
     print("  narrative provenance: evidence_facts sources + derived written")
+
+
+def write_trade_logs(reason: str) -> int:
+    """winner_trade_log.csv and winner_trades_broker_style.csv in the shared harness format (one row per position
+    change: quantity_pct = weight after, trade_size_pct, signal and threshold at the change), from the deployed
+    series the harness wrote (strategy_returns_<tag>.csv)."""
+    from harness.artifacts import trade_log
+    ws = pd.read_csv(os.path.join(RESULTS_DIR, f"strategy_returns_{DATE_TAG}.csv"), parse_dates=["date"])
+    log = trade_log(ws, "SPY", 5, reason)
+    for f in ("winner_trade_log.csv", "winner_trades_broker_style.csv"):
+        log.to_csv(os.path.join(RESULTS_DIR, f), index=False)
+    return len(log)
 
 
 def main():
