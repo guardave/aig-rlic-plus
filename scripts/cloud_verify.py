@@ -564,32 +564,41 @@ def gate29_parquet_preflight(pairs, project_root=None):
 
 
 def gate_dp1_dual_panel_preflight(pairs, project_root=None):
-    """GATE-DP1 (Wave 10K, 2026-04-24): Dual-Panel Trace Visibility Check.
+    """GATE-DP1 (Wave 10K, 2026-04-24; v2 2026-10-18): Dual-Panel Trace Visibility Check.
 
-    For every history_zoom_*.json chart committed under
-    ``output/charts/{pair_id}/plotly/``, verify that:
-      - top-panel traces (yaxis absent or "y") are assigned xaxis="x" (or absent)
-      - bottom-panel traces (yaxis="y2") are assigned xaxis="x2"
+    For every history_zoom_*.json chart committed under ``output/charts/{pair_id}/plotly/``:
+      - VIZ-V1: no y-axis may overlay another (``overlaying`` set). Indicator and target sit in separate stacked
+        panels on a shared x-axis; a secondary-y overlay of the target fails.
+      - every trace's x-axis must be the x-axis its y-axis is anchored to. Otherwise the trace draws against
+        the wrong subplot reference and can be invisible.
 
-    Root cause of the gap: all 29 history_zoom charts shipped with
-    xaxis="x" on the bottom-panel target trace.  The panel rendered with
-    correct y-axis tick labels but a completely blank line — data was present
-    in the JSON (800+ points) but invisible on screen because the trace was
-    drawing against the wrong x-axis subplot reference.
+    Root cause of the original gap: all 29 history_zoom charts shipped with xaxis="x" on the bottom-panel
+    target trace. That panel rendered with correct y-axis tick labels but a completely blank line: the data
+    was present in the JSON (800+ points) but invisible on screen, because the trace drew against the wrong
+    x-axis subplot reference. v1 assumed "yaxis y2 = bottom panel, expects x2". That heuristic false-failed
+    correctly drawn secondary-y overlays (17 pairs, 2026-10-18), and it passed a trace on x2 whose y-axis
+    overlaid the top panel (gold_copper_xli). v2 checks the layout's actual anchors and states the VIZ-V1
+    layout rule explicitly.
 
-    GATE-HZE1 confirms heading presence; it cannot catch this because it only
-    checks the DOM heading string, not chart internal structure.  GATE-DP1 is
-    a JSON-structural extension of GATE-27 and runs as part of the preflight
-    before any browser time is spent.
+    GATE-HZE1 confirms heading presence; it cannot catch this because it only checks the DOM heading string,
+    not chart internal structure. GATE-DP1 is a JSON-structural extension of GATE-27 and runs as part of the
+    preflight before any browser time is spent.
 
     Returns: list of failure dicts (empty = all charts pass).
     """
     project_root = project_root or _REPO_ROOT
     import glob as _glob
+
+    def _key(ref):                                   # 'x2' -> 'xaxis2', 'y' -> 'yaxis'
+        ref = (ref or "").split(" ")[0]
+        return f"{ref[0]}axis{ref[1:]}" if ref else ""
+
     failures = []
     for pair_id in pairs:
         pattern = f"{project_root}/output/charts/{pair_id}/plotly/history_zoom_*.json"
         for fpath in sorted(_glob.glob(pattern)):
+            if fpath.endswith("_meta.json"):
+                continue
             chart_name = os.path.basename(fpath)
             try:
                 with open(fpath) as f:
@@ -605,43 +614,53 @@ def gate_dp1_dual_panel_preflight(pairs, project_root=None):
                 print(f"  GATE-DP1 FAIL {pair_id}/{chart_name}: JSON parse error: {exc}", flush=True)
                 continue
 
+            layout = chart.get("layout", {}) or {}
             traces = chart.get("data", [])
-            chart_ok = True
+            findings = []
+            for k in sorted(x for x in layout if x.startswith("yaxis")):
+                if (layout[k] or {}).get("overlaying"):
+                    findings.append((None, None, None, None, (
+                        f"GATE-DP1 FAIL: {k} overlays {layout[k]['overlaying']} (secondary-y overlay). VIZ-V1: "
+                        f"indicator and target go in separate stacked panels on a shared x-axis "
+                        f"(scripts/harness/charts.py::zoom_dual_panel). File: {fpath}")))
             for i, trace in enumerate(traces):
-                yaxis = trace.get("yaxis", "y")   # absent defaults to top panel
-                xaxis = trace.get("xaxis", "x")   # absent defaults to top panel
-                is_bottom = yaxis == "y2"
-                expected_xaxis = "x2" if is_bottom else "x"
-                if xaxis != expected_xaxis:
-                    chart_ok = False
-                    finding = (
+                if "xaxis" not in trace and "yaxis" not in trace and not trace.get("x"):
+                    continue                          # legend-only proxy trace
+                yaxis = trace.get("yaxis", "y")
+                xaxis = trace.get("xaxis", "x")
+                yk = _key(yaxis)
+                base = _key((layout.get(yk) or {}).get("overlaying")) or yk
+                expected = (layout.get(base) or {}).get("anchor", "x") if base in layout else "x"
+                if expected == "free":
+                    continue
+                if xaxis != expected:
+                    findings.append((i, trace.get("name", "<unnamed>"), yaxis, (xaxis, expected), (
                         f"GATE-DP1 FAIL: trace[{i}] '{trace.get('name', '<unnamed>')}' "
                         f"has yaxis='{yaxis}' but xaxis='{xaxis}' "
-                        f"(expected '{expected_xaxis}'). "
+                        f"(its y-axis is anchored to '{expected}'). "
                         f"Mismatched axis reference = invisible trace on screen. "
-                        f"Owner: Vera. File: {fpath}"
-                    )
-                    failures.append({
-                        "pair_id": pair_id,
-                        "chart": chart_name,
-                        "gate": "GATE-DP1",
-                        "trace_index": i,
-                        "trace_name": trace.get("name", "<unnamed>"),
-                        "yaxis": yaxis,
-                        "xaxis_actual": xaxis,
-                        "xaxis_expected": expected_xaxis,
-                        "finding": finding,
-                        "detail": str(fpath),
-                    })
-                    print(f"  GATE-DP1 FAIL {pair_id}/{chart_name}: {finding}", flush=True)
-            if chart_ok:
+                        f"Owner: Vera. File: {fpath}")))
+            for i, name, yaxis, xs, finding in findings:
+                failures.append({
+                    "pair_id": pair_id,
+                    "chart": chart_name,
+                    "gate": "GATE-DP1",
+                    "trace_index": i,
+                    "trace_name": name,
+                    "yaxis": yaxis,
+                    "xaxis_actual": xs[0] if xs else None,
+                    "xaxis_expected": xs[1] if xs else None,
+                    "finding": finding,
+                    "detail": str(fpath),
+                })
+                print(f"  GATE-DP1 FAIL {pair_id}/{chart_name}: {finding}", flush=True)
+            if not findings:
                 print(
                     f"  GATE-DP1 PASS {pair_id}/{chart_name}: "
-                    f"{len(traces)} trace(s) axis-assignments correct",
+                    f"{len(traces)} trace(s) axis-assignments correct, no overlaid y-axes",
                     flush=True,
                 )
     return failures
-
 
 def gate_viz_nber2_preflight(pairs, project_root=None):
     """GATE-VIZ-NBER2 (Wave 10K, 2026-04-24): Episode-window-aware NBER shading check.

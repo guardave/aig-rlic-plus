@@ -405,6 +405,12 @@ else:
 
 **GATE-DP1 — Dual-Panel Trace Visibility Check (added Wave 10K, 2026-04-24).**
 
+> **v2 (2026-10-18).** The panel test below ("yaxis y2 = bottom panel, expects x2") was a heuristic. It false-failed correctly drawn secondary-y overlays, which was 17 pairs, and it passed a trace drawn against the wrong x-axis (gold_copper_xli). The canonical check, `scripts/cloud_verify.py::gate_dp1_dual_panel_preflight`, now asserts two things:
+> 1. **VIZ-V1 layout:** no `yaxis*` in a history zoom may carry `overlaying`. The indicator and the target go in separate stacked panels.
+> 2. **Anchor consistency:** every trace's `xaxis` equals the `anchor` of its y-axis, or of that y-axis's overlay base.
+>
+> The shared converter `scripts/harness/charts.py::zoom_dual_panel(fig)` turns a secondary-y zoom into stacked panels. Every zoom generator calls it before saving. Tests: `scripts/tests/test_gate_dp1_zoom_panels.py`.
+
 > **Data present in a JSON file does not mean data visible on screen. A trace silently assigned to the wrong axis reference renders with correct tick labels and data points internally — but draws nothing to the viewport. GATE-DP1 closes the gap between "file exists and has data" and "chart renders correctly."**
 
 **Root cause of the gap.** GATE-HZE1 confirms that the "How the Signal Performed in Past Crises" heading is present in the Story DOM — and it passed for all 29 committed `history_zoom_*.json` charts. But the bottom panel (target trace) in every one of those 29 charts was assigned `xaxis="x"` instead of `xaxis="x2"`. The panel rendered with correct y-axis labels and tick values, but the line itself was invisible. GATE-HZE1 cannot catch this: it checks heading presence, not chart visual correctness. The chart files exist, the heading is in the DOM, the section renders — and the bottom panel is blank.
