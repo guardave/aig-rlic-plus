@@ -3,15 +3,15 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-15T18:19:04.012448+00:00",
+  "last_updated_at": "2026-10-18T13:48:01.780053+00:00",
   "indicator_axis": {
     "canonical_column": "umcsent",
     "display_name": "U. Michigan Expected Business Conditions",
     "derivatives": [
       {
         "name": "umcsent",
-        "definition": "U. Michigan Expected Business Conditions",
-        "formula": "Data Master (University of Michigan)",
+        "definition": "Michigan Expected Business Conditions index",
+        "formula": "Data Master (UoM_ExptdChgBinesCyle)",
         "role": "raw",
         "appears_in_charts": [
           "hero"
@@ -19,12 +19,17 @@
       },
       {
         "name": "umcsent_level",
-        "definition": "Expected-conditions level (diffusion)",
+        "definition": "Index level (bounded survey index, used as is)",
         "formula": "identity",
         "role": "threshold_input",
         "appears_in_charts": [
           "hero",
-          "regime_stats"
+          "regime_stats",
+          "local_projections",
+          "quantile_coef",
+          "rolling_correlation",
+          "granger_f_by_lag",
+          "ccf_prewhitened"
         ]
       },
       {
@@ -38,16 +43,14 @@
         "name": "umcsent_chg_12m",
         "definition": "12-month change",
         "formula": "x_t - x_{t-12}",
-        "role": "threshold_input",
-        "appears_in_charts": [
-          "local_projections"
-        ]
+        "role": "derivative",
+        "appears_in_charts": []
       },
       {
         "name": "umcsent_zscore_60m",
-        "definition": "Level vs 5-year history",
-        "formula": "(x-mean60m)/std60m",
-        "role": "threshold_input",
+        "definition": "Level versus its five-year history",
+        "formula": "(x - mean60)/std60",
+        "role": "derivative",
         "appears_in_charts": []
       }
     ]
@@ -69,39 +72,55 @@
       {
         "name": "spy_ret",
         "definition": "SPY monthly return",
-        "formula": "spy_t/spy_{t-1}-1",
+        "formula": "spy_t / spy_{t-1} - 1",
         "role": "derivative",
-        "appears_in_charts": []
+        "appears_in_charts": [
+          "regime_stats",
+          "ccf_prewhitened"
+        ]
       },
       {
         "name": "spy_fwd_1m",
-        "definition": "1-month forward SPY return",
-        "formula": "spy_{t+1}/spy_t-1",
+        "definition": "One-month forward SPY return",
+        "formula": "spy_{t+1} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "correlation_heatmap",
+          "local_projections"
         ]
       },
       {
         "name": "spy_fwd_3m",
-        "definition": "3-month forward SPY return",
-        "formula": "spy_{t+3}/spy_t-1",
+        "definition": "Three-month forward SPY return",
+        "formula": "spy_{t+3} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
+          "correlation_heatmap",
           "local_projections",
           "quantile_coef"
         ]
       },
       {
         "name": "spy_fwd_6m",
-        "definition": "6-month forward SPY return",
-        "formula": "spy_{t+6}/spy_t-1",
+        "definition": "Six-month forward SPY return",
+        "formula": "spy_{t+6} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "correlation_heatmap",
+          "local_projections"
+        ]
+      },
+      {
+        "name": "spy_fwd_12m",
+        "definition": "Twelve-month forward SPY return",
+        "formula": "spy_{t+12} / spy_t - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap",
+          "local_projections"
         ]
       }
     ]
   },
-  "notes": "Scope limited to U. Michigan Expected Business Conditions signals and SPY returns."
+  "notes": "Scope limited to Michigan Expected Business Conditions signals and SPY returns."
 }

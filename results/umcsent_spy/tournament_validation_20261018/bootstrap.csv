@@ -1,0 +1,2 @@
+signal,threshold,strategy,track,oos_sharpe,oos_percentile_in_grid,sharpe_diff_vs_bh,ci_95_low,ci_95_high,p_diff_le_0,method,block_length,draws,seed
+zscore_60m,T_roll_p50,P1_long_cash,as revised today (single track),0.660308,0.5096153846153846,-0.2712,-0.911,0.3681,0.8064,paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H),6,5000,42

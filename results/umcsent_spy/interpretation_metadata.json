@@ -26,21 +26,22 @@
     ]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-10-15T18:19:04.012448+00:00",
+  "last_updated_at": "2026-10-18T13:48:01.780053+00:00",
   "indicator": "umcsent",
   "target": "spy",
   "expected_direction": "procyclical",
   "observed_direction": "countercyclical",
   "direction_consistent": false,
-  "mechanism": "The University of Michigan expected-change-in-business-conditions series is a consumer diffusion measure of forward economic optimism. Rising optimism precedes stronger spending and risk-on equity conditions; falling optimism precedes retrenchment. The strategy holds SPY when optimism is elevated.",
+  "mechanism": "The University of Michigan Surveys of Consumers ask households whether they expect business conditions to improve or worsen. Rising expectations are read as a sign of stronger spending and risk-on equity conditions; falling expectations as the opposite. The procyclical prior holds SPY when expectations are high or rising.",
   "confidence": "low",
-  "key_finding": "In-sample-selected rule uses chg_12m at L4; held-out OOS Sharpe 0.39 versus buy-and-hold 0.93.",
+  "key_finding": "On today's Michigan Expected Business Conditions values (no archive of past values exists), the rule selected on in-sample data uses zscore_60m at L9 (IS Sharpe 0.94) with test-period Sharpe 0.66 versus buy-and-hold 0.93.",
   "caveats": [
-    "Winner is search-selected on a single monthly sample and needs holdout validation.",
-    "Level thresholds are rolling-percentile based; regime pivots can drift across decades.",
-    "Lead estimates rest on a limited number of cycles in the sample."
+    "No public archive of past values of this index exists, so the backtest uses today's values; any revision would add hindsight that cannot be measured.",
+    "The strategy is search-selected and needs fresh holdout validation.",
+    "The Data Master series ends 2025-09, so the test period ends there.",
+    "The rule published on the main site (20260912) was the highest out-of-sample Sharpe with fixed lags (the test period was used to choose it); it is replaced here."
   ],
-  "narrative_summary": "U. Michigan expected business conditions is tested as a procyclical sentiment overlay for SPY.",
+  "narrative_summary": "The University of Michigan Expected Business Conditions index is tested as a procyclical sentiment overlay for SPY: hold equity when expectations are favourable.",
   "known_stress_episodes": [
     {
       "label": "Dot-Com recession",
@@ -68,8 +69,8 @@
     }
   ],
   "data_provenance": {
-    "source": "Data Master.xlsx (University of Michigan)",
-    "series_id": "UMCSENT",
-    "accessed_at": "2026-10-15T18:19:04.012448+00:00"
+    "source": "Data Master.xlsx (sheet UoM_ExptdChgBinesCyle), pinned snapshot 20261016T232733Z; release timing from FRED UMCSENT release dates",
+    "series_id": "UMICH_EXP_BUS_COND",
+    "accessed_at": "2026-10-18T13:48:01.780053+00:00"
   }
 }
