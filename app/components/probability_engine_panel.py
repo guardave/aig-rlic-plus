@@ -554,15 +554,12 @@ def render_probability_engine_panel(pair_id: str) -> None:
     meta_path = pair_dir / "interpretation_metadata.json"
     metadata, meta_errors = validate_soft(meta_path, "interpretation_metadata")
     if meta_errors and meta_path.exists():
+        # the schema errors stay out of the page (plain text for readers); they are kept for debugging
+        st.session_state[f"se1_metadata_errors_{pair_id}"] = meta_errors
         st.warning(
-            f"`interpretation_metadata.json` schema violation "
-            f"(APP-SEV1 L2 — panel still renders with default stress windows): "
-            + "; ".join(meta_errors[:3])
-            + "\n\nPlain English: the side file that describes how to "
-            "interpret the signal (stress episodes, expected direction) "
-            "does not fully conform to its schema. We fell back to "
-            "default stress windows (GFC + COVID) so the chart could "
-            "still render, but the notes file should be regenerated."
+            "The notes describing this signal's stress episodes are incomplete, so the chart uses the default "
+            "episodes (the global financial crisis and the COVID shock). The strategy results on this "
+            "page are unaffected."
         )
     if metadata is None:
         metadata = {}
