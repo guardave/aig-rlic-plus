@@ -1,12 +1,12 @@
 {
   "chart_name": "ccf_prewhitened",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-16T18:30:19.951690+00:00",
+  "generated_at": "2026-10-18T10:33:55.043114+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
-  "caption": "Pre-whitened cross-correlation between retail-sales growth and SPY returns.",
-  "narrative_alignment_note": "Pre-whitened cross-correlation between retail-sales growth and SPY returns.",
+  "caption": "Cross-correlation between the monthly change in YoY retail sales growth and SPY returns; dashed lines are approximate 95% bands.",
+  "narrative_alignment_note": "Cross-correlation between the monthly change in YoY retail sales growth and SPY returns; dashed lines are approximate 95% bands.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/rsxfs_spy/core_models_20261016/ccf_prewhitened.csv"
+    "results/rsxfs_spy/core_models_20261018/ccf_prewhitened.csv"
   ]
 }

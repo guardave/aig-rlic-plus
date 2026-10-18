@@ -1,12 +1,13 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-16T18:30:20.886465+00:00",
+  "generated_at": "2026-10-18T10:34:08.340511+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
-  "caption": "Retail-sales-growth coefficient across SPY forward-return quantiles.",
-  "narrative_alignment_note": "Retail-sales-growth coefficient across SPY forward-return quantiles.",
+  "caption": "Coefficient of YoY growth in retail sales ex food services across quantiles of the 3-month forward SPY return; whiskers are moving-block bootstrap 95% intervals.",
+  "narrative_alignment_note": "Coefficient of YoY growth in retail sales ex food services across quantiles of the 3-month forward SPY return; whiskers are moving-block bootstrap 95% intervals.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/rsxfs_spy/core_models_20261016/quantile_regression.csv"
+    "results/rsxfs_spy/core_models_20261018/quantile_regression.csv",
+    "results/rsxfs_spy/core_models_20261018/quantile_equality_test.json"
   ]
 }

@@ -1,5 +1,6 @@
 {
   "pair_id": "rsxfs_spy",
-  "method": "rolling-correlation z-score proxy",
-  "max_abs_z": 3.5278512751639943
+  "method": "rolling-correlation z-score proxy (not a formal break test)",
+  "window_months": 60,
+  "max_abs_z": 3.2311618644691187
 }

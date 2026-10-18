@@ -1,10 +1,10 @@
 {
   "chart_name": "history_zoom_gfc",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-16T18:30:21.221383+00:00",
+  "generated_at": "2026-10-18T10:35:01.361107+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
-  "caption": "Global Financial Crisis: Retail Sales Fell Sharply; gray bands are NBER recessions.",
-  "narrative_alignment_note": "Global Financial Crisis: Retail Sales Fell Sharply; gray bands are NBER recessions.",
+  "caption": "Global Financial Crisis, 2006-2010: YoY growth in retail sales ex food services and SPY; gray bands are NBER recessions and pink bands mark months when retail sales were below their year-earlier level.",
+  "narrative_alignment_note": "Global Financial Crisis, 2006-2010: YoY growth in retail sales ex food services and SPY; gray bands are NBER recessions and pink bands mark months when retail sales were below their year-earlier level.",
   "disposition": "consumed",
   "source_artifacts": [
     "data/rsxfs_spy_monthly_latest.parquet"

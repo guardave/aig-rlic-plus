@@ -1,0 +1,417 @@
+{
+ "ccf_prewhitened": {
+  "chart_sha256": "f1f9d13ec537a0b98d776d6b370b5c3d6220dc8e754ecd8c4963a731bdd732ce",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:33:50+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/core_models_20261018/ccf_prewhitened.csv": "12418cef691dcf7652cb341d3a80e887c3bf2058d41adc64c5d81baed5a212a6",
+   "results/rsxfs_spy/core_models_20261018/correlations.csv": "8b213d41d64c438468a55e3313ef462b55f65d067e811e8411683ed136bc93f2",
+   "results/rsxfs_spy/evidence_facts_20261018.json": "5a04074c011b35c507ed4760031334028e8e604402321f1ea252b069559adc23",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "chance_check": {
+  "chart_sha256": "bce033f06a2d027af3196723ec6bd04d336f146e107b358fd0dcb7fccc1e1d4c",
+  "results_tag": "20261018",
+  "producer": "scripts/harness/charts.py",
+  "recorded_at": "2026-10-18T10:26:46+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/phaseB_inputs/rsxfs_spy_monthly_legacy_20261016.csv": "cad6f60d1f6f38d50c509986eeec0ac473318ab09056da9b321e71275002ba86",
+   "data/phaseB_inputs/spy_month_end_20261017.csv": "dba97c9aaa1cf16c8727e8e6300c053c3a3f718290001ad368bd80dfb51f1be5",
+   "data/release_calendar/release_calendar.csv": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
+   "data/release_calendar/release_calendar_meta.json": "9c8ab4d3258bf7938b38557a99f8266b638943d34e95fbed963d581484dd3e96",
+   "data/release_calendar/vintages/RSXFS.csv.gz": "c1643ec45e42e8dc54b33ac34788077519558a8e90ebc59c2ec1917416eb6630",
+   "results/rsxfs_spy/hindsight_lead_curve_20261018.csv": "f1c9c31ca6f80cfb06af3cd7acf3e18efacbe89381dc3f6249c23c56418f04b9",
+   "results/rsxfs_spy/lead_curve_20261018.csv": "fe1f9898e7577c636b70468f0f77e882cbe519023c95fa563af66aaeb416d559",
+   "results/rsxfs_spy/legacy_oos_selection_20261016.csv": "e87a69c49a56ba2bc03ae00d1e2d1b74b355b13cdb2b2a297478e8beae669b25",
+   "results/rsxfs_spy/null_tournament_20261018.csv": "2dc518bddabbbd148dac52fc07645610a887fc99428fa796307aac5cbd065af1",
+   "results/rsxfs_spy/strategy_returns_20261016.csv": "553fe2d276eab9ff53a581a974f6dd4bcdcc4b6398a469a19dfd513fc9787165",
+   "results/rsxfs_spy/tournament_results_20261016.csv": "72244cce19024c9b1381db20903249498ca22cfc9f642b4012213ba4637f3da5",
+   "results/rsxfs_spy/track_summary.json": "dc56400aa2552d404002e1c5ca958a186021f54997a61609ead3d0755aaa8a57",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "correlation_heatmap": {
+  "chart_sha256": "64a37474727d60fea3cf20ad4e964a6d243b0b2f90d839bcb2cdc38854a301c2",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:33:47+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/core_models_20261018/correlations.csv": "8b213d41d64c438468a55e3313ef462b55f65d067e811e8411683ed136bc93f2",
+   "results/rsxfs_spy/evidence_facts_20261018.json": "5a04074c011b35c507ed4760031334028e8e604402321f1ea252b069559adc23",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "drawdown": {
+  "chart_sha256": "34d12e740b3d299aa7920ab864d44affe719ae7e3ce38b2082be2a7994b3329e",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:34:13+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/core_models_20261018/ccf_prewhitened.csv": "12418cef691dcf7652cb341d3a80e887c3bf2058d41adc64c5d81baed5a212a6",
+   "results/rsxfs_spy/core_models_20261018/correlations.csv": "8b213d41d64c438468a55e3313ef462b55f65d067e811e8411683ed136bc93f2",
+   "results/rsxfs_spy/core_models_20261018/granger_causality.csv": "58e064ef20c652abedeb840cf568981a8595053d49c2b3335b445caec8e215f6",
+   "results/rsxfs_spy/core_models_20261018/local_projections.csv": "5ab8ca438aedb8c79e6e1339f70f2f466fe78c78db7a34388af005560119e5d6",
+   "results/rsxfs_spy/core_models_20261018/quantile_equality_test.json": "448df8d8c992926b7486faa72b9ecf7af960c2865b3b283086a280e27361fd25",
+   "results/rsxfs_spy/core_models_20261018/quantile_regression.csv": "f05c39c865335f0ba67247e5dcab49234f294090350302fe18d96b873b3e8e18",
+   "results/rsxfs_spy/evidence_facts_20261018.json": "5a04074c011b35c507ed4760031334028e8e604402321f1ea252b069559adc23",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/strategy_returns_20261018.csv": "1c117d40ee21a275d4a44f75ef1aef3c39c7e5889f5afcdeeabf3af21dc45d19",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "equity_curves": {
+  "chart_sha256": "641ac011d764b9ee65552e8b7c1c1803bea07f88e1874825f40ce4f9326d3db9",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:34:08+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/core_models_20261018/ccf_prewhitened.csv": "12418cef691dcf7652cb341d3a80e887c3bf2058d41adc64c5d81baed5a212a6",
+   "results/rsxfs_spy/core_models_20261018/correlations.csv": "8b213d41d64c438468a55e3313ef462b55f65d067e811e8411683ed136bc93f2",
+   "results/rsxfs_spy/core_models_20261018/granger_causality.csv": "58e064ef20c652abedeb840cf568981a8595053d49c2b3335b445caec8e215f6",
+   "results/rsxfs_spy/core_models_20261018/local_projections.csv": "5ab8ca438aedb8c79e6e1339f70f2f466fe78c78db7a34388af005560119e5d6",
+   "results/rsxfs_spy/core_models_20261018/quantile_equality_test.json": "448df8d8c992926b7486faa72b9ecf7af960c2865b3b283086a280e27361fd25",
+   "results/rsxfs_spy/core_models_20261018/quantile_regression.csv": "f05c39c865335f0ba67247e5dcab49234f294090350302fe18d96b873b3e8e18",
+   "results/rsxfs_spy/evidence_facts_20261018.json": "5a04074c011b35c507ed4760031334028e8e604402321f1ea252b069559adc23",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/strategy_returns_20261018.csv": "1c117d40ee21a275d4a44f75ef1aef3c39c7e5889f5afcdeeabf3af21dc45d19",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "granger_f_by_lag": {
+  "chart_sha256": "7d5ee4bca2e1f6a0f61ddc84aa28011d00f75936d4d25530004ecb42a5c37924",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:33:55+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/core_models_20261018/ccf_prewhitened.csv": "12418cef691dcf7652cb341d3a80e887c3bf2058d41adc64c5d81baed5a212a6",
+   "results/rsxfs_spy/core_models_20261018/correlations.csv": "8b213d41d64c438468a55e3313ef462b55f65d067e811e8411683ed136bc93f2",
+   "results/rsxfs_spy/core_models_20261018/granger_causality.csv": "58e064ef20c652abedeb840cf568981a8595053d49c2b3335b445caec8e215f6",
+   "results/rsxfs_spy/evidence_facts_20261018.json": "5a04074c011b35c507ed4760031334028e8e604402321f1ea252b069559adc23",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "hero": {
+  "chart_sha256": "57d69a821c1ddbe6dde9a9b6a01b8eca80f05a9db6c95dd077622c3082bb02c7",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:33:38+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a"
+  }
+ },
+ "history_zoom_covid": {
+  "chart_sha256": "4321c95fa80d8c44237501d798e0078b17e312bc853fbbf7c4318c646626b57f",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:35:01+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/core_models_20261018/ccf_prewhitened.csv": "12418cef691dcf7652cb341d3a80e887c3bf2058d41adc64c5d81baed5a212a6",
+   "results/rsxfs_spy/core_models_20261018/correlations.csv": "8b213d41d64c438468a55e3313ef462b55f65d067e811e8411683ed136bc93f2",
+   "results/rsxfs_spy/core_models_20261018/granger_causality.csv": "58e064ef20c652abedeb840cf568981a8595053d49c2b3335b445caec8e215f6",
+   "results/rsxfs_spy/core_models_20261018/local_projections.csv": "5ab8ca438aedb8c79e6e1339f70f2f466fe78c78db7a34388af005560119e5d6",
+   "results/rsxfs_spy/core_models_20261018/quantile_equality_test.json": "448df8d8c992926b7486faa72b9ecf7af960c2865b3b283086a280e27361fd25",
+   "results/rsxfs_spy/core_models_20261018/quantile_regression.csv": "f05c39c865335f0ba67247e5dcab49234f294090350302fe18d96b873b3e8e18",
+   "results/rsxfs_spy/evidence_facts_20261018.json": "5a04074c011b35c507ed4760031334028e8e604402321f1ea252b069559adc23",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/rolling_correlation_rsxfs_spy.csv": "800592d14fd9352dad74488005cff17360ddac6dd01e1f6cab6f0146ebece7a3",
+   "results/rsxfs_spy/strategy_returns_20261018.csv": "1c117d40ee21a275d4a44f75ef1aef3c39c7e5889f5afcdeeabf3af21dc45d19",
+   "results/rsxfs_spy/structural_break_rsxfs_spy.json": "cbd7549833074e058b31f769f935f0a4a98d64938a802be8c5371958ed9483e0",
+   "results/rsxfs_spy/subperiod_sharpe.csv": "c95ee2b76373c85dc387c3bef36664ca9415dd106afa361ac0dfd8c2c47d97e5",
+   "results/rsxfs_spy/tournament_results_20261018.csv": "9b7dddc017450652a62f10a5fe2b597b53574c730ab8497473bee0b8afeb56b5",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "history_zoom_dotcom": {
+  "chart_sha256": "74fef8f18848493f1159805606c271ea4ce8d2e4cee734a1dc70534e7f29d8d3",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:34:50+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/core_models_20261018/ccf_prewhitened.csv": "12418cef691dcf7652cb341d3a80e887c3bf2058d41adc64c5d81baed5a212a6",
+   "results/rsxfs_spy/core_models_20261018/correlations.csv": "8b213d41d64c438468a55e3313ef462b55f65d067e811e8411683ed136bc93f2",
+   "results/rsxfs_spy/core_models_20261018/granger_causality.csv": "58e064ef20c652abedeb840cf568981a8595053d49c2b3335b445caec8e215f6",
+   "results/rsxfs_spy/core_models_20261018/local_projections.csv": "5ab8ca438aedb8c79e6e1339f70f2f466fe78c78db7a34388af005560119e5d6",
+   "results/rsxfs_spy/core_models_20261018/quantile_equality_test.json": "448df8d8c992926b7486faa72b9ecf7af960c2865b3b283086a280e27361fd25",
+   "results/rsxfs_spy/core_models_20261018/quantile_regression.csv": "f05c39c865335f0ba67247e5dcab49234f294090350302fe18d96b873b3e8e18",
+   "results/rsxfs_spy/evidence_facts_20261018.json": "5a04074c011b35c507ed4760031334028e8e604402321f1ea252b069559adc23",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/rolling_correlation_rsxfs_spy.csv": "800592d14fd9352dad74488005cff17360ddac6dd01e1f6cab6f0146ebece7a3",
+   "results/rsxfs_spy/strategy_returns_20261018.csv": "1c117d40ee21a275d4a44f75ef1aef3c39c7e5889f5afcdeeabf3af21dc45d19",
+   "results/rsxfs_spy/structural_break_rsxfs_spy.json": "cbd7549833074e058b31f769f935f0a4a98d64938a802be8c5371958ed9483e0",
+   "results/rsxfs_spy/subperiod_sharpe.csv": "c95ee2b76373c85dc387c3bef36664ca9415dd106afa361ac0dfd8c2c47d97e5",
+   "results/rsxfs_spy/tournament_results_20261018.csv": "9b7dddc017450652a62f10a5fe2b597b53574c730ab8497473bee0b8afeb56b5",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "history_zoom_gfc": {
+  "chart_sha256": "5a42f16f2a061e8347a0b0d7a01a7588dc49ed22a399f965f9b2ee4a8c651b96",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:34:55+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/core_models_20261018/ccf_prewhitened.csv": "12418cef691dcf7652cb341d3a80e887c3bf2058d41adc64c5d81baed5a212a6",
+   "results/rsxfs_spy/core_models_20261018/correlations.csv": "8b213d41d64c438468a55e3313ef462b55f65d067e811e8411683ed136bc93f2",
+   "results/rsxfs_spy/core_models_20261018/granger_causality.csv": "58e064ef20c652abedeb840cf568981a8595053d49c2b3335b445caec8e215f6",
+   "results/rsxfs_spy/core_models_20261018/local_projections.csv": "5ab8ca438aedb8c79e6e1339f70f2f466fe78c78db7a34388af005560119e5d6",
+   "results/rsxfs_spy/core_models_20261018/quantile_equality_test.json": "448df8d8c992926b7486faa72b9ecf7af960c2865b3b283086a280e27361fd25",
+   "results/rsxfs_spy/core_models_20261018/quantile_regression.csv": "f05c39c865335f0ba67247e5dcab49234f294090350302fe18d96b873b3e8e18",
+   "results/rsxfs_spy/evidence_facts_20261018.json": "5a04074c011b35c507ed4760031334028e8e604402321f1ea252b069559adc23",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/rolling_correlation_rsxfs_spy.csv": "800592d14fd9352dad74488005cff17360ddac6dd01e1f6cab6f0146ebece7a3",
+   "results/rsxfs_spy/strategy_returns_20261018.csv": "1c117d40ee21a275d4a44f75ef1aef3c39c7e5889f5afcdeeabf3af21dc45d19",
+   "results/rsxfs_spy/structural_break_rsxfs_spy.json": "cbd7549833074e058b31f769f935f0a4a98d64938a802be8c5371958ed9483e0",
+   "results/rsxfs_spy/subperiod_sharpe.csv": "c95ee2b76373c85dc387c3bef36664ca9415dd106afa361ac0dfd8c2c47d97e5",
+   "results/rsxfs_spy/tournament_results_20261018.csv": "9b7dddc017450652a62f10a5fe2b597b53574c730ab8497473bee0b8afeb56b5",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "history_zoom_inflation_2022": {
+  "chart_sha256": "5a071ee7d304e6ce7f4bfcea67e11606e543f5c5f6bb5134e647775bc21ec270",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:35:06+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/core_models_20261018/ccf_prewhitened.csv": "12418cef691dcf7652cb341d3a80e887c3bf2058d41adc64c5d81baed5a212a6",
+   "results/rsxfs_spy/core_models_20261018/correlations.csv": "8b213d41d64c438468a55e3313ef462b55f65d067e811e8411683ed136bc93f2",
+   "results/rsxfs_spy/core_models_20261018/granger_causality.csv": "58e064ef20c652abedeb840cf568981a8595053d49c2b3335b445caec8e215f6",
+   "results/rsxfs_spy/core_models_20261018/local_projections.csv": "5ab8ca438aedb8c79e6e1339f70f2f466fe78c78db7a34388af005560119e5d6",
+   "results/rsxfs_spy/core_models_20261018/quantile_equality_test.json": "448df8d8c992926b7486faa72b9ecf7af960c2865b3b283086a280e27361fd25",
+   "results/rsxfs_spy/core_models_20261018/quantile_regression.csv": "f05c39c865335f0ba67247e5dcab49234f294090350302fe18d96b873b3e8e18",
+   "results/rsxfs_spy/evidence_facts_20261018.json": "5a04074c011b35c507ed4760031334028e8e604402321f1ea252b069559adc23",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/rolling_correlation_rsxfs_spy.csv": "800592d14fd9352dad74488005cff17360ddac6dd01e1f6cab6f0146ebece7a3",
+   "results/rsxfs_spy/strategy_returns_20261018.csv": "1c117d40ee21a275d4a44f75ef1aef3c39c7e5889f5afcdeeabf3af21dc45d19",
+   "results/rsxfs_spy/structural_break_rsxfs_spy.json": "cbd7549833074e058b31f769f935f0a4a98d64938a802be8c5371958ed9483e0",
+   "results/rsxfs_spy/subperiod_sharpe.csv": "c95ee2b76373c85dc387c3bef36664ca9415dd106afa361ac0dfd8c2c47d97e5",
+   "results/rsxfs_spy/tournament_results_20261018.csv": "9b7dddc017450652a62f10a5fe2b597b53574c730ab8497473bee0b8afeb56b5",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "lead_plateau": {
+  "chart_sha256": "839a4a30470950e2d0326298583709439fe8e40e2324e92d5d87dcfcd7f962c3",
+  "results_tag": "20261018",
+  "producer": "scripts/harness/charts.py",
+  "recorded_at": "2026-10-18T10:26:38+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/phaseB_inputs/rsxfs_spy_monthly_legacy_20261016.csv": "cad6f60d1f6f38d50c509986eeec0ac473318ab09056da9b321e71275002ba86",
+   "data/phaseB_inputs/spy_month_end_20261017.csv": "dba97c9aaa1cf16c8727e8e6300c053c3a3f718290001ad368bd80dfb51f1be5",
+   "data/release_calendar/release_calendar.csv": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
+   "data/release_calendar/release_calendar_meta.json": "9c8ab4d3258bf7938b38557a99f8266b638943d34e95fbed963d581484dd3e96",
+   "data/release_calendar/vintages/RSXFS.csv.gz": "c1643ec45e42e8dc54b33ac34788077519558a8e90ebc59c2ec1917416eb6630",
+   "results/rsxfs_spy/hindsight_lead_curve_20261018.csv": "f1c9c31ca6f80cfb06af3cd7acf3e18efacbe89381dc3f6249c23c56418f04b9",
+   "results/rsxfs_spy/lead_curve_20261018.csv": "fe1f9898e7577c636b70468f0f77e882cbe519023c95fa563af66aaeb416d559",
+   "results/rsxfs_spy/legacy_oos_selection_20261016.csv": "e87a69c49a56ba2bc03ae00d1e2d1b74b355b13cdb2b2a297478e8beae669b25",
+   "results/rsxfs_spy/strategy_returns_20261016.csv": "553fe2d276eab9ff53a581a974f6dd4bcdcc4b6398a469a19dfd513fc9787165",
+   "results/rsxfs_spy/tournament_results_20261016.csv": "72244cce19024c9b1381db20903249498ca22cfc9f642b4012213ba4637f3da5"
+  }
+ },
+ "local_projections": {
+  "chart_sha256": "087c5b0641999f649cab331c622bad8a502ca2f212bca5f5b00439daff391544",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:33:59+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/core_models_20261018/ccf_prewhitened.csv": "12418cef691dcf7652cb341d3a80e887c3bf2058d41adc64c5d81baed5a212a6",
+   "results/rsxfs_spy/core_models_20261018/correlations.csv": "8b213d41d64c438468a55e3313ef462b55f65d067e811e8411683ed136bc93f2",
+   "results/rsxfs_spy/core_models_20261018/granger_causality.csv": "58e064ef20c652abedeb840cf568981a8595053d49c2b3335b445caec8e215f6",
+   "results/rsxfs_spy/core_models_20261018/local_projections.csv": "5ab8ca438aedb8c79e6e1339f70f2f466fe78c78db7a34388af005560119e5d6",
+   "results/rsxfs_spy/evidence_facts_20261018.json": "5a04074c011b35c507ed4760031334028e8e604402321f1ea252b069559adc23",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "quantile_coef": {
+  "chart_sha256": "5c591d27d019e56dc780ae392b9311ca6f332bd9dfdeb3d108250a9a760e3b87",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:34:03+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/core_models_20261018/ccf_prewhitened.csv": "12418cef691dcf7652cb341d3a80e887c3bf2058d41adc64c5d81baed5a212a6",
+   "results/rsxfs_spy/core_models_20261018/correlations.csv": "8b213d41d64c438468a55e3313ef462b55f65d067e811e8411683ed136bc93f2",
+   "results/rsxfs_spy/core_models_20261018/granger_causality.csv": "58e064ef20c652abedeb840cf568981a8595053d49c2b3335b445caec8e215f6",
+   "results/rsxfs_spy/core_models_20261018/local_projections.csv": "5ab8ca438aedb8c79e6e1339f70f2f466fe78c78db7a34388af005560119e5d6",
+   "results/rsxfs_spy/core_models_20261018/quantile_equality_test.json": "448df8d8c992926b7486faa72b9ecf7af960c2865b3b283086a280e27361fd25",
+   "results/rsxfs_spy/core_models_20261018/quantile_regression.csv": "f05c39c865335f0ba67247e5dcab49234f294090350302fe18d96b873b3e8e18",
+   "results/rsxfs_spy/evidence_facts_20261018.json": "5a04074c011b35c507ed4760031334028e8e604402321f1ea252b069559adc23",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "regime_stats": {
+  "chart_sha256": "9dc0334e8bb7248adc8df9035afd1733961e9cdc7c5bdc4499c138c375dc6408",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:33:42+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "rolling_correlation": {
+  "chart_sha256": "cc74dda852ab06dee4b849551b0eab7695f192247467c0e65d2b9a259b387ac4",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:34:27+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/core_models_20261018/ccf_prewhitened.csv": "12418cef691dcf7652cb341d3a80e887c3bf2058d41adc64c5d81baed5a212a6",
+   "results/rsxfs_spy/core_models_20261018/correlations.csv": "8b213d41d64c438468a55e3313ef462b55f65d067e811e8411683ed136bc93f2",
+   "results/rsxfs_spy/core_models_20261018/granger_causality.csv": "58e064ef20c652abedeb840cf568981a8595053d49c2b3335b445caec8e215f6",
+   "results/rsxfs_spy/core_models_20261018/local_projections.csv": "5ab8ca438aedb8c79e6e1339f70f2f466fe78c78db7a34388af005560119e5d6",
+   "results/rsxfs_spy/core_models_20261018/quantile_equality_test.json": "448df8d8c992926b7486faa72b9ecf7af960c2865b3b283086a280e27361fd25",
+   "results/rsxfs_spy/core_models_20261018/quantile_regression.csv": "f05c39c865335f0ba67247e5dcab49234f294090350302fe18d96b873b3e8e18",
+   "results/rsxfs_spy/evidence_facts_20261018.json": "5a04074c011b35c507ed4760031334028e8e604402321f1ea252b069559adc23",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/rolling_correlation_rsxfs_spy.csv": "800592d14fd9352dad74488005cff17360ddac6dd01e1f6cab6f0146ebece7a3",
+   "results/rsxfs_spy/strategy_returns_20261018.csv": "1c117d40ee21a275d4a44f75ef1aef3c39c7e5889f5afcdeeabf3af21dc45d19",
+   "results/rsxfs_spy/tournament_results_20261018.csv": "9b7dddc017450652a62f10a5fe2b597b53574c730ab8497473bee0b8afeb56b5",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "structural_break": {
+  "chart_sha256": "26b3b840afb27d286ecdf3b2f65322d1564e48f9031b70261439f9d31df28a6d",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:34:31+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/core_models_20261018/ccf_prewhitened.csv": "12418cef691dcf7652cb341d3a80e887c3bf2058d41adc64c5d81baed5a212a6",
+   "results/rsxfs_spy/core_models_20261018/correlations.csv": "8b213d41d64c438468a55e3313ef462b55f65d067e811e8411683ed136bc93f2",
+   "results/rsxfs_spy/core_models_20261018/granger_causality.csv": "58e064ef20c652abedeb840cf568981a8595053d49c2b3335b445caec8e215f6",
+   "results/rsxfs_spy/core_models_20261018/local_projections.csv": "5ab8ca438aedb8c79e6e1339f70f2f466fe78c78db7a34388af005560119e5d6",
+   "results/rsxfs_spy/core_models_20261018/quantile_equality_test.json": "448df8d8c992926b7486faa72b9ecf7af960c2865b3b283086a280e27361fd25",
+   "results/rsxfs_spy/core_models_20261018/quantile_regression.csv": "f05c39c865335f0ba67247e5dcab49234f294090350302fe18d96b873b3e8e18",
+   "results/rsxfs_spy/evidence_facts_20261018.json": "5a04074c011b35c507ed4760031334028e8e604402321f1ea252b069559adc23",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/rolling_correlation_rsxfs_spy.csv": "800592d14fd9352dad74488005cff17360ddac6dd01e1f6cab6f0146ebece7a3",
+   "results/rsxfs_spy/strategy_returns_20261018.csv": "1c117d40ee21a275d4a44f75ef1aef3c39c7e5889f5afcdeeabf3af21dc45d19",
+   "results/rsxfs_spy/structural_break_rsxfs_spy.json": "cbd7549833074e058b31f769f935f0a4a98d64938a802be8c5371958ed9483e0",
+   "results/rsxfs_spy/tournament_results_20261018.csv": "9b7dddc017450652a62f10a5fe2b597b53574c730ab8497473bee0b8afeb56b5",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "subperiod_sharpe": {
+  "chart_sha256": "5172e0fc982d65af3d715686c79475d1bde9957d9093b555a1428424485948b6",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:34:37+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/core_models_20261018/ccf_prewhitened.csv": "12418cef691dcf7652cb341d3a80e887c3bf2058d41adc64c5d81baed5a212a6",
+   "results/rsxfs_spy/core_models_20261018/correlations.csv": "8b213d41d64c438468a55e3313ef462b55f65d067e811e8411683ed136bc93f2",
+   "results/rsxfs_spy/core_models_20261018/granger_causality.csv": "58e064ef20c652abedeb840cf568981a8595053d49c2b3335b445caec8e215f6",
+   "results/rsxfs_spy/core_models_20261018/local_projections.csv": "5ab8ca438aedb8c79e6e1339f70f2f466fe78c78db7a34388af005560119e5d6",
+   "results/rsxfs_spy/core_models_20261018/quantile_equality_test.json": "448df8d8c992926b7486faa72b9ecf7af960c2865b3b283086a280e27361fd25",
+   "results/rsxfs_spy/core_models_20261018/quantile_regression.csv": "f05c39c865335f0ba67247e5dcab49234f294090350302fe18d96b873b3e8e18",
+   "results/rsxfs_spy/evidence_facts_20261018.json": "5a04074c011b35c507ed4760031334028e8e604402321f1ea252b069559adc23",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/rolling_correlation_rsxfs_spy.csv": "800592d14fd9352dad74488005cff17360ddac6dd01e1f6cab6f0146ebece7a3",
+   "results/rsxfs_spy/strategy_returns_20261018.csv": "1c117d40ee21a275d4a44f75ef1aef3c39c7e5889f5afcdeeabf3af21dc45d19",
+   "results/rsxfs_spy/structural_break_rsxfs_spy.json": "cbd7549833074e058b31f769f935f0a4a98d64938a802be8c5371958ed9483e0",
+   "results/rsxfs_spy/subperiod_sharpe.csv": "c95ee2b76373c85dc387c3bef36664ca9415dd106afa361ac0dfd8c2c47d97e5",
+   "results/rsxfs_spy/tournament_results_20261018.csv": "9b7dddc017450652a62f10a5fe2b597b53574c730ab8497473bee0b8afeb56b5",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "tournament_scatter": {
+  "chart_sha256": "9bdc761e37b34819e7d99f1c325d48faec71f80a34459247ec4c17baa4321d4e",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:34:23+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/core_models_20261018/ccf_prewhitened.csv": "12418cef691dcf7652cb341d3a80e887c3bf2058d41adc64c5d81baed5a212a6",
+   "results/rsxfs_spy/core_models_20261018/correlations.csv": "8b213d41d64c438468a55e3313ef462b55f65d067e811e8411683ed136bc93f2",
+   "results/rsxfs_spy/core_models_20261018/granger_causality.csv": "58e064ef20c652abedeb840cf568981a8595053d49c2b3335b445caec8e215f6",
+   "results/rsxfs_spy/core_models_20261018/local_projections.csv": "5ab8ca438aedb8c79e6e1339f70f2f466fe78c78db7a34388af005560119e5d6",
+   "results/rsxfs_spy/core_models_20261018/quantile_equality_test.json": "448df8d8c992926b7486faa72b9ecf7af960c2865b3b283086a280e27361fd25",
+   "results/rsxfs_spy/core_models_20261018/quantile_regression.csv": "f05c39c865335f0ba67247e5dcab49234f294090350302fe18d96b873b3e8e18",
+   "results/rsxfs_spy/evidence_facts_20261018.json": "5a04074c011b35c507ed4760031334028e8e604402321f1ea252b069559adc23",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/strategy_returns_20261018.csv": "1c117d40ee21a275d4a44f75ef1aef3c39c7e5889f5afcdeeabf3af21dc45d19",
+   "results/rsxfs_spy/tournament_results_20261018.csv": "9b7dddc017450652a62f10a5fe2b597b53574c730ab8497473bee0b8afeb56b5",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "tournament_sharpe_dist": {
+  "chart_sha256": "9bdc761e37b34819e7d99f1c325d48faec71f80a34459247ec4c17baa4321d4e",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:34:18+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/core_models_20261018/ccf_prewhitened.csv": "12418cef691dcf7652cb341d3a80e887c3bf2058d41adc64c5d81baed5a212a6",
+   "results/rsxfs_spy/core_models_20261018/correlations.csv": "8b213d41d64c438468a55e3313ef462b55f65d067e811e8411683ed136bc93f2",
+   "results/rsxfs_spy/core_models_20261018/granger_causality.csv": "58e064ef20c652abedeb840cf568981a8595053d49c2b3335b445caec8e215f6",
+   "results/rsxfs_spy/core_models_20261018/local_projections.csv": "5ab8ca438aedb8c79e6e1339f70f2f466fe78c78db7a34388af005560119e5d6",
+   "results/rsxfs_spy/core_models_20261018/quantile_equality_test.json": "448df8d8c992926b7486faa72b9ecf7af960c2865b3b283086a280e27361fd25",
+   "results/rsxfs_spy/core_models_20261018/quantile_regression.csv": "f05c39c865335f0ba67247e5dcab49234f294090350302fe18d96b873b3e8e18",
+   "results/rsxfs_spy/evidence_facts_20261018.json": "5a04074c011b35c507ed4760031334028e8e604402321f1ea252b069559adc23",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/strategy_returns_20261018.csv": "1c117d40ee21a275d4a44f75ef1aef3c39c7e5889f5afcdeeabf3af21dc45d19",
+   "results/rsxfs_spy/tournament_results_20261018.csv": "9b7dddc017450652a62f10a5fe2b597b53574c730ab8497473bee0b8afeb56b5",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ },
+ "walk_forward": {
+  "chart_sha256": "5172e0fc982d65af3d715686c79475d1bde9957d9093b555a1428424485948b6",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_rsxfs_spy.py",
+  "recorded_at": "2026-10-18T10:34:44+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
+   "results/rsxfs_spy/core_models_20261018/ccf_prewhitened.csv": "12418cef691dcf7652cb341d3a80e887c3bf2058d41adc64c5d81baed5a212a6",
+   "results/rsxfs_spy/core_models_20261018/correlations.csv": "8b213d41d64c438468a55e3313ef462b55f65d067e811e8411683ed136bc93f2",
+   "results/rsxfs_spy/core_models_20261018/granger_causality.csv": "58e064ef20c652abedeb840cf568981a8595053d49c2b3335b445caec8e215f6",
+   "results/rsxfs_spy/core_models_20261018/local_projections.csv": "5ab8ca438aedb8c79e6e1339f70f2f466fe78c78db7a34388af005560119e5d6",
+   "results/rsxfs_spy/core_models_20261018/quantile_equality_test.json": "448df8d8c992926b7486faa72b9ecf7af960c2865b3b283086a280e27361fd25",
+   "results/rsxfs_spy/core_models_20261018/quantile_regression.csv": "f05c39c865335f0ba67247e5dcab49234f294090350302fe18d96b873b3e8e18",
+   "results/rsxfs_spy/evidence_facts_20261018.json": "5a04074c011b35c507ed4760031334028e8e604402321f1ea252b069559adc23",
+   "results/rsxfs_spy/regime_quartile_returns.csv": "98cc750ffc0eddf844fbaf69030e856bb0e70896390bf3beda7c21d08065783f",
+   "results/rsxfs_spy/rolling_correlation_rsxfs_spy.csv": "800592d14fd9352dad74488005cff17360ddac6dd01e1f6cab6f0146ebece7a3",
+   "results/rsxfs_spy/strategy_returns_20261018.csv": "1c117d40ee21a275d4a44f75ef1aef3c39c7e5889f5afcdeeabf3af21dc45d19",
+   "results/rsxfs_spy/structural_break_rsxfs_spy.json": "cbd7549833074e058b31f769f935f0a4a98d64938a802be8c5371958ed9483e0",
+   "results/rsxfs_spy/subperiod_sharpe.csv": "c95ee2b76373c85dc387c3bef36664ca9415dd106afa361ac0dfd8c2c47d97e5",
+   "results/rsxfs_spy/tournament_results_20261018.csv": "9b7dddc017450652a62f10a5fe2b597b53574c730ab8497473bee0b8afeb56b5",
+   "results/rsxfs_spy/winner_summary.json": "570f765e33fc4951689f4eee9f1334fa7e99f1fbed04cd5cecbbbc4e7fe88412"
+  }
+ }
+}

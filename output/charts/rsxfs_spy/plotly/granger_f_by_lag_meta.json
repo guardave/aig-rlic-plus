@@ -1,12 +1,13 @@
 {
   "chart_name": "granger_f_by_lag",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-16T18:30:19.982552+00:00",
+  "generated_at": "2026-10-18T10:33:59.290487+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
-  "caption": "Granger p-values by lag for retail-sales growth predicting SPY returns.",
-  "narrative_alignment_note": "Granger p-values by lag for retail-sales growth predicting SPY returns.",
+  "caption": "Granger p-values by lag for YoY growth in retail sales ex food services predicting SPY returns, with the significance line and the Bonferroni line for the number of lags tried.",
+  "narrative_alignment_note": "Granger p-values by lag for YoY growth in retail sales ex food services predicting SPY returns, with the significance line and the Bonferroni line for the number of lags tried.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/rsxfs_spy/core_models_20261016/granger_causality.csv"
+    "results/rsxfs_spy/core_models_20261018/granger_causality.csv",
+    "results/rsxfs_spy/evidence_facts_20261018.json"
   ]
 }

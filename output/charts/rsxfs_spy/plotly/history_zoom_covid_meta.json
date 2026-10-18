@@ -1,10 +1,10 @@
 {
   "chart_name": "history_zoom_covid",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-16T18:30:21.266824+00:00",
+  "generated_at": "2026-10-18T10:35:06.684063+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
-  "caption": "COVID Shock: Retail Collapse and Violent Rebound; gray bands are NBER recessions.",
-  "narrative_alignment_note": "COVID Shock: Retail Collapse and Violent Rebound; gray bands are NBER recessions.",
+  "caption": "COVID Shock, 2018-2021: YoY growth in retail sales ex food services and SPY; gray bands are NBER recessions and pink bands mark months when retail sales were below their year-earlier level.",
+  "narrative_alignment_note": "COVID Shock, 2018-2021: YoY growth in retail sales ex food services and SPY; gray bands are NBER recessions and pink bands mark months when retail sales were below their year-earlier level.",
   "disposition": "consumed",
   "source_artifacts": [
     "data/rsxfs_spy_monthly_latest.parquet"

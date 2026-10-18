@@ -1,12 +1,12 @@
 {
   "chart_name": "equity_curves",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-16T18:30:20.917403+00:00",
+  "generated_at": "2026-10-18T10:34:13.434275+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
-  "caption": "Winner strategy equity curve compared with buy-and-hold SPY.",
-  "narrative_alignment_note": "Winner strategy equity curve compared with buy-and-hold SPY.",
+  "caption": "Winner strategy (as known at the time: real-time RSXFS vintages) equity curve compared with buy-and-hold SPY, both from the first training month; the dotted line marks the start of the test period.",
+  "narrative_alignment_note": "Winner strategy (as known at the time: real-time RSXFS vintages) equity curve compared with buy-and-hold SPY, both from the first training month; the dotted line marks the start of the test period.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/rsxfs_spy/strategy_returns_20261016.csv"
+    "results/rsxfs_spy/strategy_returns_20261018.csv"
   ]
 }

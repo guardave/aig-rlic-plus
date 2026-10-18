@@ -3,7 +3,7 @@
   "schema_version": "1.1.0",
   "indicator_nature": "coincident",
   "indicator_type": "macro",
-  "strategy_objective": "procyclical_capture",
+  "strategy_objective": "max_sharpe",
   "owner_writes": {
     "dana": [
       "indicator_nature",
@@ -25,52 +25,53 @@
       "caveats"
     ]
   },
-  "last_updated_by": "ray",
-  "last_updated_at": "2026-10-16T18:22:37.530227+00:00",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-10-18T10:22:31.735614+00:00",
   "indicator": "rsxfs",
   "target": "spy",
   "expected_direction": "procyclical",
   "observed_direction": "procyclical",
   "direction_consistent": true,
-  "mechanism": "Retail-sales growth tracks household consumption, the largest component of GDP; strong consumer spending is risk-on for equities and slowing spending is an early demand-softening signal. Exposure is scaled toward SPY when retail-sales growth is firm.",
+  "mechanism": "Retail sales track household goods spending, the largest part of consumption. Firm sales growth supports company revenues and earnings (risk-on); slowing sales are an early sign of softening consumer demand.",
   "confidence": "low",
-  "key_finding": "IS-selected rule uses yoy at L3 (IS Sharpe 0.90) with held-out OOS Sharpe 0.73 versus buy-and-hold 1.00.",
+  "key_finding": "As known at the time (real-time RSXFS vintages), the rule selected on in-sample data uses yoy_zscore_60m / T_z_0 at L8 (IS Sharpe 0.90); held-out OOS Sharpe 0.55 versus buy-and-hold SPY 1.00.",
   "caveats": [
-    "Retail sales is broadly coincident with the cycle, so a long apparent lead is likely a search artifact.",
-    "The strategy is search-selected and needs fresh holdout validation.",
-    "The 2020-21 COVID collapse/rebound is an extreme in-window outlier that can dominate the fit.",
-    "Advance retail-sales figures are revised in subsequent Monthly Retail Trade releases."
+    "The strategy is search-selected and needs a frozen-rule holdout confirmation.",
+    "Retail sales are nominal and the advance estimate is revised in later reports, so the as-known-at-the-time and revised tracks differ through revisions as well as release timing.",
+    "Retail sales are broadly coincident with the business cycle, so a long apparent lead needs scrutiny.",
+    "The 2020-21 collapse and rebound in retail sales is an extreme outlier inside the test window.",
+    "The test window was seen by the previously published runs, so it is not a frozen hold-out."
   ],
-  "narrative_summary": "RSXFS growth is tested as a procyclical consumer-demand overlay for SPY, not as a clean leading indicator.",
+  "narrative_summary": "Retail sales ex food services (RSXFS) growth is tested as a procyclical consumer-demand overlay for SPY, not as a clean leading indicator.",
   "known_stress_episodes": [
     {
       "label": "Dot-Com recession",
       "start": "2001-03-01",
       "end": "2001-11-30",
-      "note": "Consumer spending softened."
+      "note": "NBER recession."
     },
     {
       "label": "Global Financial Crisis",
       "start": "2007-12-01",
       "end": "2009-06-30",
-      "note": "Retail sales fell sharply."
+      "note": "NBER recession."
     },
     {
       "label": "COVID shock",
       "start": "2020-02-01",
       "end": "2020-04-30",
-      "note": "Retail collapsed then rebounded violently."
+      "note": "NBER recession."
     },
     {
-      "label": "2022 rate shock",
+      "label": "2022 drawdown",
       "start": "2022-01-01",
       "end": "2022-12-31",
-      "note": "Nominal sales stayed high on inflation."
+      "note": "Rate-hike bear market."
     }
   ],
   "data_provenance": {
-    "source": "FRED",
+    "source": "FRED / ALFRED (U.S. Census Bureau, Advance Monthly Retail Trade Survey)",
     "series_id": "RSXFS",
-    "accessed_at": "2026-10-16T18:22:37.530227+00:00"
+    "accessed_at": "2026-10-18T10:22:31.735614+00:00"
   }
 }

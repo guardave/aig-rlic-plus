@@ -1,10 +1,10 @@
 {
   "chart_name": "history_zoom_dotcom",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-16T18:30:21.176467+00:00",
+  "generated_at": "2026-10-18T10:34:55.531385+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
-  "caption": "Dot-Com Recession: Consumer Spending Softened; gray bands are NBER recessions.",
-  "narrative_alignment_note": "Dot-Com Recession: Consumer Spending Softened; gray bands are NBER recessions.",
+  "caption": "Dot-Com Bust, 1999-2003: YoY growth in retail sales ex food services and SPY; gray bands are NBER recessions and pink bands mark months when retail sales were below their year-earlier level.",
+  "narrative_alignment_note": "Dot-Com Bust, 1999-2003: YoY growth in retail sales ex food services and SPY; gray bands are NBER recessions and pink bands mark months when retail sales were below their year-earlier level.",
   "disposition": "consumed",
   "source_artifacts": [
     "data/rsxfs_spy_monthly_latest.parquet"
