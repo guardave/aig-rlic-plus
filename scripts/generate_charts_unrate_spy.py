@@ -275,6 +275,9 @@ def chart_structural_break() -> None:
 
 def chart_subperiod() -> None:
     sp = pd.read_csv(RES / "subperiod_sharpe.csv")
+    # reader labels for the episode keys (QA pilot-visual L8: "Dot_Com", "Rate_Hike_2022" on the axis)
+    names = {"Dot_Com": "Dot-Com bust", "Rate_Hike_2022": "2022 rate hikes", "GFC": "GFC", "COVID": "COVID"}
+    sp["period"] = [names.get(x, str(x).replace("_", " ")) for x in sp["period"]]
     fig = go.Figure()
     fig.add_trace(go.Bar(x=sp["period"], y=sp["strategy_sharpe"], name="Strategy Sharpe", marker_color=C_STRAT))
     fig.add_trace(go.Bar(x=sp["period"], y=sp["buy_hold_sharpe"], name="SPY Sharpe", marker_color=C_BENCH))

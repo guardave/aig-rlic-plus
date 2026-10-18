@@ -124,7 +124,7 @@ The exact rule that produced the 1.27 Sharpe is simple enough to apply by hand. 
 | Step | What | How |
 |---|---|---|
 | 1. Pull two prices | Gold and copper futures closes | Yahoo Finance tickers `GC=F` and `HG=F`, or any equivalent feed |
-| 2. Compute the ratio | gold ($/oz) ÷ copper ($/lb) | Today's value vs its trailing 6-month mean is the comparison that matters |
+| 2. Compute the ratio | gold (\\$/oz) ÷ copper (\\$/lb) | Today's value vs its trailing 6-month mean is the comparison that matters |
 | 3. Compute the 126-day z-score | (today's ratio − 6-month mean) ÷ 6-month standard deviation | Tells you whether the ratio is unusually high or low versus its own 6-month history |
 | 4. Compare to threshold | **≈ −0.03** (in-sample-median calibration) | High z-score = gold is rich versus copper = bearish for XLI; below threshold = risk-on, above = risk-off |
 | 5. Take a position | Below threshold → **long XLI 100%**; above → **cash (0% XLI)** | No short side; no leverage; no lead |
@@ -165,7 +165,7 @@ The z-score is just the gold/copper ratio translated into "how unusual is it ver
             ),
             "caption": (
                 "GFC long-lead case: ratio z-score climbs above +2 well "
-                "before XLI's worst drawdown — the dual-panel shows the lead."
+                "before XLI's worst drawdown — the stacked panels show the lead."
             ),
         },
         {
@@ -1089,7 +1089,7 @@ class StrategyConfig:
     HOW_SIGNAL_IS_GENERATED_MD = (
         "Each trading day, we pull gold and copper futures closes "
         "(GC=F and HG=F on Yahoo Finance), compute the ratio "
-        "(gold / copper, in $/oz divided by $/lb), then compute its "
+        "(gold / copper, in \\$/oz divided by \\$/lb), then compute its "
         "126-day rolling z-score: how many standard deviations is "
         "today's ratio away from its trailing 6-month mean? That z-score "
         "is the signal. The threshold (~-0.03) was tuned to the in-sample "
@@ -1102,7 +1102,7 @@ class StrategyConfig:
         "API — follow this daily routine:\n\n"
         "1. **Pull gold and copper closes** from any financial data feed "
         "(e.g. Yahoo Finance tickers `GC=F` and `HG=F`).\n"
-        "2. **Compute the ratio** = gold price ($/oz) / copper price ($/lb).\n"
+        "2. **Compute the ratio** = gold price (\\$/oz) / copper price (\\$/lb).\n"
         "3. **Compute the 126-day rolling z-score** of the ratio "
         "(today's ratio minus its trailing 6-month mean, divided by its "
         "trailing 6-month standard deviation).\n"
@@ -1202,8 +1202,8 @@ and caveats, not as trading signals.
 
 
 _INDICATOR_CONSTRUCTION_MD = (
-    "The primary indicator is the **gold/copper ratio** = gold ($/oz) "
-    "divided by copper ($/lb). From the raw ratio we derive: the natural "
+    "The primary indicator is the **gold/copper ratio** = gold (\\$/oz) "
+    "divided by copper (\\$/lb). From the raw ratio we derive: the natural "
     "log (better-distributed for stationarity-sensitive tests), rolling "
     "z-scores at 126-day and 252-day windows, 504-day and 1260-day "
     "percentile ranks, 5/21/63/126-day rates-of-change, 21/63/252-day "

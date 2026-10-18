@@ -401,6 +401,9 @@ def chart_structural_break() -> None:
 
 def chart_subperiod() -> None:
     sp = pd.read_csv(RES / "subperiod_sharpe.csv")
+    # reader labels for the episode keys (QA pilot-visual L8: "Dot_Com", "Rate_Hike_2022" on the axis)
+    names = {"Dot_Com": "Dot-Com bust", "Rate_Hike_2022": "2022 rate hikes", "GFC": "GFC", "COVID": "COVID"}
+    sp["period"] = [names.get(x, str(x).replace("_", " ")) for x in sp["period"]]
     fig = go.Figure()
     fig.add_trace(go.Bar(x=sp["period"], y=sp["strategy_sharpe"], name="Strategy Sharpe", marker_color=C_STRAT))
     fig.add_trace(go.Bar(x=sp["period"], y=sp["buy_hold_sharpe"], name="SPY Sharpe", marker_color=C_BENCH))
@@ -409,8 +412,15 @@ def chart_subperiod() -> None:
         yaxis_title="Sharpe",
         barmode="group",
         template="plotly_white",
-        height=410,
+        height=440,
+        margin=dict(b=90),
     )
+    # quarterly data: an episode holds only a handful of returns, so its Sharpe is a very noisy number (a single
+    # in-market quarter among four gives exactly 1.0 for 2022)
+    fig.add_annotation(text="Each episode covers only a few quarterly returns, so these Sharpe ratios are very "
+                            "noisy; zero means the strategy was in cash or had no data.", xref="paper", yref="paper",
+                       x=0, y=0, yanchor="top", yshift=-40, showarrow=False, xanchor="left",
+                       font=dict(size=10, color="#666666"))
     save(
         "subperiod_sharpe",
         fig,

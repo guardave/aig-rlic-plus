@@ -3,7 +3,7 @@
   "chart_sha256": "62d174a473012cbd584dc19b00b2b8a2a89102e176e76b5bd4d30c01089608a2",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:26:33+00:00",
+  "recorded_at": "2026-10-18T03:42:08+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/core_models_20261017/ccf_prewhitened.csv": "42f9bd5487157d1c08120c7232afdf6e7a1af8c121df7b1da791e32107f7dc90",
@@ -29,7 +29,7 @@
   "chart_sha256": "198c7bdf8a039f40850711198003428bd2422716c7c5b0f1a0f10406c74394bc",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:26:30+00:00",
+  "recorded_at": "2026-10-18T03:42:05+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/core_models_20261017/correlations.csv": "1a9902f05b3d93e6df6e777e0cc9783c311f44aefa94c17d3787a885fd13a6dc",
@@ -41,7 +41,7 @@
   "chart_sha256": "bccb8303f53ca6828ddd5e1c0365647c0a4974e762a236750a330350d76e8308",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:26:47+00:00",
+  "recorded_at": "2026-10-18T03:42:22+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/core_models_20261017/ccf_prewhitened.csv": "42f9bd5487157d1c08120c7232afdf6e7a1af8c121df7b1da791e32107f7dc90",
@@ -59,7 +59,7 @@
   "chart_sha256": "114e6a7c408ba4e1f26aac4c3cc3804b9eb31e8e9d038e5584cb6f68b26cad0a",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:26:44+00:00",
+  "recorded_at": "2026-10-18T03:42:19+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/core_models_20261017/ccf_prewhitened.csv": "42f9bd5487157d1c08120c7232afdf6e7a1af8c121df7b1da791e32107f7dc90",
@@ -77,7 +77,7 @@
   "chart_sha256": "1763c5a9416f18705eca331244d71babb25fb5399c0ed8e61058e7845ef3636f",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:26:36+00:00",
+  "recorded_at": "2026-10-18T03:42:10+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/core_models_20261017/ccf_prewhitened.csv": "42f9bd5487157d1c08120c7232afdf6e7a1af8c121df7b1da791e32107f7dc90",
@@ -91,7 +91,7 @@
   "chart_sha256": "08fefb23751d3ad5f4ddba16b399ff17bca81672f0bca6b5656a15cb9ef4ee1b",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:26:25+00:00",
+  "recorded_at": "2026-10-18T03:41:59+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0"
   }
@@ -100,7 +100,7 @@
   "chart_sha256": "0a2c329dd109beb3ef48d0a3c19f9fda1a3d7fb3fb9feaecfa3325df0027a502",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:27:11+00:00",
+  "recorded_at": "2026-10-18T03:42:46+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/core_models_20261017/ccf_prewhitened.csv": "42f9bd5487157d1c08120c7232afdf6e7a1af8c121df7b1da791e32107f7dc90",
@@ -122,7 +122,7 @@
   "chart_sha256": "9dacd93d46cc1df302827088d8bd46fd0db18f5b837b023808cd96432cad2ed8",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:27:05+00:00",
+  "recorded_at": "2026-10-18T03:42:41+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/core_models_20261017/ccf_prewhitened.csv": "42f9bd5487157d1c08120c7232afdf6e7a1af8c121df7b1da791e32107f7dc90",
@@ -144,7 +144,7 @@
   "chart_sha256": "2072c91a9b6cf56c76115714a787636c64c3dce73f8814a4333cc2ce8156ffe2",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:27:08+00:00",
+  "recorded_at": "2026-10-18T03:42:43+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/core_models_20261017/ccf_prewhitened.csv": "42f9bd5487157d1c08120c7232afdf6e7a1af8c121df7b1da791e32107f7dc90",
@@ -166,7 +166,7 @@
   "chart_sha256": "dc87697efc61b56a3e92d7975273b760b162c2062aac765aaa8c527d9428ce4b",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:27:14+00:00",
+  "recorded_at": "2026-10-18T03:42:49+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/core_models_20261017/ccf_prewhitened.csv": "42f9bd5487157d1c08120c7232afdf6e7a1af8c121df7b1da791e32107f7dc90",
@@ -198,7 +198,7 @@
   "chart_sha256": "b5c6e98031cf04235aa96b64223343f62610c3ffc1bb528e33effb54b4b7d3ec",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:26:39+00:00",
+  "recorded_at": "2026-10-18T03:42:14+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/core_models_20261017/ccf_prewhitened.csv": "42f9bd5487157d1c08120c7232afdf6e7a1af8c121df7b1da791e32107f7dc90",
@@ -213,7 +213,7 @@
   "chart_sha256": "48bb2df44b4381eabe407a149f7dd37ade69599a94ae4c18a40f3fe07f88f802",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:26:42+00:00",
+  "recorded_at": "2026-10-18T03:42:17+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/core_models_20261017/ccf_prewhitened.csv": "42f9bd5487157d1c08120c7232afdf6e7a1af8c121df7b1da791e32107f7dc90",
@@ -230,7 +230,7 @@
   "chart_sha256": "57705356a4bfa2cb7ee7c4b1b5c082732f514e165f160ef340fede4818eeeb5f",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:26:28+00:00",
+  "recorded_at": "2026-10-18T03:42:02+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/regime_quartile_returns.csv": "f006c4dad83963d6b2bcc2b2ba925985b71c93133fb60b99d0af878433f5008d",
@@ -241,7 +241,7 @@
   "chart_sha256": "cdabe123be81544226b62fa6d9c68977de1b2bb6ae4ae48c6f7f116289d099ae",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:26:55+00:00",
+  "recorded_at": "2026-10-18T03:42:30+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/core_models_20261017/ccf_prewhitened.csv": "42f9bd5487157d1c08120c7232afdf6e7a1af8c121df7b1da791e32107f7dc90",
@@ -261,7 +261,7 @@
   "chart_sha256": "d96cf405ff2fc03c3629c7f7e86d0bdf428bfdd137f6ee95d9ee0e141a431c35",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:26:57+00:00",
+  "recorded_at": "2026-10-18T03:42:32+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/core_models_20261017/ccf_prewhitened.csv": "42f9bd5487157d1c08120c7232afdf6e7a1af8c121df7b1da791e32107f7dc90",
@@ -279,10 +279,10 @@
   }
  },
  "subperiod_sharpe": {
-  "chart_sha256": "a5643e727d7a5225c6e80fffd50c31552de66acad774d4abc119a8d86f957a37",
+  "chart_sha256": "09181a727139befa53668f98e7b2a4deeae5ad443e54e2648a7327d1b687c542",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:27:00+00:00",
+  "recorded_at": "2026-10-18T03:42:35+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/core_models_20261017/ccf_prewhitened.csv": "42f9bd5487157d1c08120c7232afdf6e7a1af8c121df7b1da791e32107f7dc90",
@@ -304,7 +304,7 @@
   "chart_sha256": "2d15cc3d2dc07cf32e499f37659380a55cbaf9a0af26c4b30f333b19975fc374",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:26:52+00:00",
+  "recorded_at": "2026-10-18T03:42:27+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/core_models_20261017/ccf_prewhitened.csv": "42f9bd5487157d1c08120c7232afdf6e7a1af8c121df7b1da791e32107f7dc90",
@@ -323,7 +323,7 @@
   "chart_sha256": "2d15cc3d2dc07cf32e499f37659380a55cbaf9a0af26c4b30f333b19975fc374",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:26:49+00:00",
+  "recorded_at": "2026-10-18T03:42:25+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/core_models_20261017/ccf_prewhitened.csv": "42f9bd5487157d1c08120c7232afdf6e7a1af8c121df7b1da791e32107f7dc90",
@@ -339,10 +339,10 @@
   }
  },
  "walk_forward": {
-  "chart_sha256": "a5643e727d7a5225c6e80fffd50c31552de66acad774d4abc119a8d86f957a37",
+  "chart_sha256": "09181a727139befa53668f98e7b2a4deeae5ad443e54e2648a7327d1b687c542",
   "results_tag": "20261017",
   "producer": "scripts/generate_charts_unrate_spy.py",
-  "recorded_at": "2026-10-18T03:27:03+00:00",
+  "recorded_at": "2026-10-18T03:42:38+00:00",
   "inputs": {
    "data/unrate_spy_monthly_latest.parquet": "5841d8456e3162ab647867b6c155f7fcde10ad1a9419ec5dbb7ab2b909942ae0",
    "results/unrate_spy/core_models_20261017/ccf_prewhitened.csv": "42f9bd5487157d1c08120c7232afdf6e7a1af8c121df7b1da791e32107f7dc90",
