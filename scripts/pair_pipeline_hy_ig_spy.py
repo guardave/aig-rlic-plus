@@ -78,6 +78,7 @@ DATA_TAG       = "20260422"   # input data vintage (committed parquet)
 IS_END    = "2019-09-30"
 OOS_START = "2019-10-01"
 QR_HORIZON = 21  # trading days of forward SPY return in the quantile regression
+CCF_MAX_LAG = 20  # cross-correlation lags +/- this many trading days (methodology table)
 OOS_END   = END_DATE
 
 # Traded lead grid (trading days): standard daily points {0,1,5,21,63,126,252} that are
@@ -1324,7 +1325,7 @@ def stage_evidence_facts(df: pd.DataFrame):
     out["granger_daily_lag1"] = {"spread_to_spy_f": r(a["f_stat"], 2), "spread_to_spy_p": r(a["p_value"], 3),
                                  "spy_to_spread_f": r(b["f_stat"], 1)}
     d = pd.DataFrame({"ds": sp.diff(), "r": spy.pct_change()}).dropna()
-    lags = list(range(-20, 21))
+    lags = list(range(-CCF_MAX_LAG, CCF_MAX_LAG + 1))
     cc = {k: d["ds"].shift(-k).corr(d["r"]) for k in lags}
     band = 1.96 / np.sqrt(len(d))
     lead = [(k, v) for k, v in cc.items() if k < 0 and abs(v) > band]
