@@ -1,0 +1,2 @@
+signal,threshold,strategy,tx_cost_bps,gross_sharpe,net_sharpe
+zscore_60m,T_z_0,P1_long_cash,5,0.437257,0.427168

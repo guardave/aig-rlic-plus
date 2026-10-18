@@ -2,8 +2,8 @@
   "pair_id": "permit_yoy_spy",
   "schema_version": "1.1.0",
   "indicator_nature": "leading",
-  "indicator_type": "housing",
-  "strategy_objective": "procyclical_capture",
+  "indicator_type": "production",
+  "strategy_objective": "max_sharpe",
   "owner_writes": {
     "dana": [
       "indicator_nature",
@@ -25,22 +25,23 @@
       "caveats"
     ]
   },
-  "last_updated_by": "ray",
-  "last_updated_at": "2026-10-16T18:24:52.076276+00:00",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-10-18T10:15:33.218276+00:00",
   "indicator": "permit_yoy",
   "target": "spy",
   "expected_direction": "procyclical",
   "observed_direction": "procyclical",
   "direction_consistent": true,
-  "mechanism": "Building permits lead construction and housing activity, one of the earliest cyclical movers. When permit growth (YoY) is positive and rising, housing and its supply chain are expanding, which is risk-on for equities; negative/falling permit growth flags a cyclical downturn. The strategy holds SPY when permit YoY is favorable (growing).",
+  "mechanism": "Building permits lead housing starts and construction activity and are one of the earliest cyclical movers (a Conference Board leading-index component). Permits growing faster than a year earlier mark housing and its supply chain expanding (risk-on); shrinking permits are an early sign of a cyclical slowdown.",
   "confidence": "low",
-  "key_finding": "Best search-phase rule uses level at L10 with OOS Sharpe 0.20 versus buy-and-hold 0.92.",
+  "key_finding": "As known at the time (real-time PERMIT vintages), the rule selected on in-sample data uses zscore_60m / T_z_0 at L10 (IS Sharpe 0.83); held-out OOS Sharpe 0.44 versus buy-and-hold SPY 0.96.",
   "caveats": [
-    "Winner is search-selected on a single monthly sample and needs holdout validation.",
-    "Level thresholds are rolling-percentile based; regime pivots can drift across decades.",
-    "Lead estimates rest on a limited number of cycles in the sample."
+    "The strategy is search-selected and needs a frozen-rule holdout confirmation.",
+    "Building permits are revised after the first print, so the as-known-at-the-time and revised tracks differ through revisions as well as release timing.",
+    "Lead estimates rest on a limited number of housing cycles in the sample.",
+    "The test window was seen by the previously published runs, so it is not a frozen hold-out."
   ],
-  "narrative_summary": "Building Permits YoY is tested as a procyclical, leading housing-cycle overlay for SPY \u2014 hold equity when permit growth is positive/rising.",
+  "narrative_summary": "Building permits year-over-year growth (PERMIT) is tested as a procyclical housing-cycle overlay for SPY. The level of permits is a separate pair (permit_spy).",
   "known_stress_episodes": [
     {
       "label": "Dot-Com recession",
@@ -68,8 +69,8 @@
     }
   ],
   "data_provenance": {
-    "source": "Data Master.xlsx (Building Permits, H Permit sheet)",
-    "series_id": "PERMIT (YoY of level)",
-    "accessed_at": "2026-10-16T18:24:52.076276+00:00"
+    "source": "FRED / ALFRED (U.S. Census Bureau / HUD, new residential construction)",
+    "series_id": "PERMIT",
+    "accessed_at": "2026-10-18T10:15:33.218276+00:00"
   }
 }

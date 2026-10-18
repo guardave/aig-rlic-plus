@@ -1,0 +1,417 @@
+{
+ "ccf_prewhitened": {
+  "chart_sha256": "de33c7ad6b5e501cb57f7a796ca636e487e23167aeaed9f43e7a33027e763c34",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:23:12+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/core_models_20261018/ccf_prewhitened.csv": "f957bbcbd1fe44dd3e87b30b7d1b731f73f46d2ec5982a77837d7ee81b2b3385",
+   "results/permit_yoy_spy/core_models_20261018/correlations.csv": "da426c3650083689e07da4baffe2039d0efda59e045cd8876a0ea225913b0eb3",
+   "results/permit_yoy_spy/evidence_facts_20261018.json": "fc9f282724ce2106dab3a93cb3bcafbe1fc3b884f7158c66d4b2668d573266c4",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "chance_check": {
+  "chart_sha256": "3af15abf57bbaacabed90b57f6d89af4739d38a359236ffa85a6a97fb76798c7",
+  "results_tag": "20261018",
+  "producer": "scripts/harness/charts.py",
+  "recorded_at": "2026-10-18T10:19:42+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/phaseB_inputs/permit_yoy_spy_monthly_legacy_20261016.csv": "89f15065c64741dcd1830c0c75effcef72529e09a8ea4860c2632145d7c2d501",
+   "data/phaseB_inputs/spy_month_end_20261017.csv": "dba97c9aaa1cf16c8727e8e6300c053c3a3f718290001ad368bd80dfb51f1be5",
+   "data/release_calendar/release_calendar.csv": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
+   "data/release_calendar/release_calendar_meta.json": "9c8ab4d3258bf7938b38557a99f8266b638943d34e95fbed963d581484dd3e96",
+   "data/release_calendar/vintages/PERMIT.csv.gz": "6bb25cbbfba72b8ef733d45b86e61425fe938ddee64325cf49c2c9e667c41419",
+   "results/permit_yoy_spy/hindsight_lead_curve_20261018.csv": "ba281697bf357a9484487e9effe1bd4a9442c2b7db3a9ac8c5879129222d8087",
+   "results/permit_yoy_spy/lead_curve_20261018.csv": "9101bbe9fb68667645d03ba3c5c9671e3a843d038f00bb45632d8a61b4e276e5",
+   "results/permit_yoy_spy/legacy_oos_selection_20261016.csv": "2abda96e380d3fa50c0ac5ca4f9f81758966a45bfdfc467ca250e0669f8c8eb4",
+   "results/permit_yoy_spy/null_tournament_20261018.csv": "4a87a05c24d5419eb60f8a13564fff002762e12abd01a02cb6756214f2e3aae1",
+   "results/permit_yoy_spy/strategy_returns_20261016.csv": "665cbb773488b92d2f3b511ab86612b19c81a02039a37ab9c57478b23102fd5b",
+   "results/permit_yoy_spy/tournament_results_20261016.csv": "bae67689b2cf3f8690e12df8d3991c0e809da9bebe03a7c1546464d80aec0e0a",
+   "results/permit_yoy_spy/track_summary.json": "e154029f374bee57d4ac587a11fff2864539e14f4ea153a085cd34d0a260ffd4",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "correlation_heatmap": {
+  "chart_sha256": "ec66be85c262731617b4e59cde5a4f6a85568140bbe393421653b3258e15c921",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:23:04+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/core_models_20261018/correlations.csv": "da426c3650083689e07da4baffe2039d0efda59e045cd8876a0ea225913b0eb3",
+   "results/permit_yoy_spy/evidence_facts_20261018.json": "fc9f282724ce2106dab3a93cb3bcafbe1fc3b884f7158c66d4b2668d573266c4",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "drawdown": {
+  "chart_sha256": "04d2628b0018e607634da0d03e2630ca406994f67981c01e12c839832c08816d",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:23:45+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/core_models_20261018/ccf_prewhitened.csv": "f957bbcbd1fe44dd3e87b30b7d1b731f73f46d2ec5982a77837d7ee81b2b3385",
+   "results/permit_yoy_spy/core_models_20261018/correlations.csv": "da426c3650083689e07da4baffe2039d0efda59e045cd8876a0ea225913b0eb3",
+   "results/permit_yoy_spy/core_models_20261018/granger_causality.csv": "e2bd7ad5569258a8a909a63dc015fa7e12eb4b16e233ef6f47e651aa44265d4c",
+   "results/permit_yoy_spy/core_models_20261018/local_projections.csv": "94cf93e5080904d2e91018199bf36d89d417f778f8715cfc84571c71e43151c6",
+   "results/permit_yoy_spy/core_models_20261018/quantile_equality_test.json": "9a80a3c641ed0f0a2c74c94a176f0206bc8a1651acc2505aeb2a2b064f1032b9",
+   "results/permit_yoy_spy/core_models_20261018/quantile_regression.csv": "cc926ee92df47047a3fd2c1912ff3643c3492af2acf9d1aa5d4c6c26e35418d0",
+   "results/permit_yoy_spy/evidence_facts_20261018.json": "fc9f282724ce2106dab3a93cb3bcafbe1fc3b884f7158c66d4b2668d573266c4",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/strategy_returns_20261018.csv": "56992b2eaf5f971901b6e8fa49e9f69e7103a665f4aacdd7ab2a0f9baa76a65b",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "equity_curves": {
+  "chart_sha256": "fd6128ac30228208b5c3b7bf15258c21cf00fdc3bc2e67f3ade7f39ff221ef2e",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:23:38+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/core_models_20261018/ccf_prewhitened.csv": "f957bbcbd1fe44dd3e87b30b7d1b731f73f46d2ec5982a77837d7ee81b2b3385",
+   "results/permit_yoy_spy/core_models_20261018/correlations.csv": "da426c3650083689e07da4baffe2039d0efda59e045cd8876a0ea225913b0eb3",
+   "results/permit_yoy_spy/core_models_20261018/granger_causality.csv": "e2bd7ad5569258a8a909a63dc015fa7e12eb4b16e233ef6f47e651aa44265d4c",
+   "results/permit_yoy_spy/core_models_20261018/local_projections.csv": "94cf93e5080904d2e91018199bf36d89d417f778f8715cfc84571c71e43151c6",
+   "results/permit_yoy_spy/core_models_20261018/quantile_equality_test.json": "9a80a3c641ed0f0a2c74c94a176f0206bc8a1651acc2505aeb2a2b064f1032b9",
+   "results/permit_yoy_spy/core_models_20261018/quantile_regression.csv": "cc926ee92df47047a3fd2c1912ff3643c3492af2acf9d1aa5d4c6c26e35418d0",
+   "results/permit_yoy_spy/evidence_facts_20261018.json": "fc9f282724ce2106dab3a93cb3bcafbe1fc3b884f7158c66d4b2668d573266c4",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/strategy_returns_20261018.csv": "56992b2eaf5f971901b6e8fa49e9f69e7103a665f4aacdd7ab2a0f9baa76a65b",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "granger_f_by_lag": {
+  "chart_sha256": "73f9bb8420377942e3b5a6fbaff1e7e6a2fa0f202000c7ae8412bd102bb55606",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:23:18+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/core_models_20261018/ccf_prewhitened.csv": "f957bbcbd1fe44dd3e87b30b7d1b731f73f46d2ec5982a77837d7ee81b2b3385",
+   "results/permit_yoy_spy/core_models_20261018/correlations.csv": "da426c3650083689e07da4baffe2039d0efda59e045cd8876a0ea225913b0eb3",
+   "results/permit_yoy_spy/core_models_20261018/granger_causality.csv": "e2bd7ad5569258a8a909a63dc015fa7e12eb4b16e233ef6f47e651aa44265d4c",
+   "results/permit_yoy_spy/evidence_facts_20261018.json": "fc9f282724ce2106dab3a93cb3bcafbe1fc3b884f7158c66d4b2668d573266c4",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "hero": {
+  "chart_sha256": "ae7778ec9b43c4bae647ea78f6be9146896aefdbbc02fdd65b9cdcb1722e6609",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:22:50+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7"
+  }
+ },
+ "history_zoom_covid": {
+  "chart_sha256": "1b356d61c24c7039a88318e1875913a694c4861c9c5914a4f6d155e97f32afe7",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:24:43+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/core_models_20261018/ccf_prewhitened.csv": "f957bbcbd1fe44dd3e87b30b7d1b731f73f46d2ec5982a77837d7ee81b2b3385",
+   "results/permit_yoy_spy/core_models_20261018/correlations.csv": "da426c3650083689e07da4baffe2039d0efda59e045cd8876a0ea225913b0eb3",
+   "results/permit_yoy_spy/core_models_20261018/granger_causality.csv": "e2bd7ad5569258a8a909a63dc015fa7e12eb4b16e233ef6f47e651aa44265d4c",
+   "results/permit_yoy_spy/core_models_20261018/local_projections.csv": "94cf93e5080904d2e91018199bf36d89d417f778f8715cfc84571c71e43151c6",
+   "results/permit_yoy_spy/core_models_20261018/quantile_equality_test.json": "9a80a3c641ed0f0a2c74c94a176f0206bc8a1651acc2505aeb2a2b064f1032b9",
+   "results/permit_yoy_spy/core_models_20261018/quantile_regression.csv": "cc926ee92df47047a3fd2c1912ff3643c3492af2acf9d1aa5d4c6c26e35418d0",
+   "results/permit_yoy_spy/evidence_facts_20261018.json": "fc9f282724ce2106dab3a93cb3bcafbe1fc3b884f7158c66d4b2668d573266c4",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/rolling_correlation_permit_yoy_spy.csv": "d732e31f0803999b600abc6f3f0ba98dc34a151b3ed9b10e686da20660eb3412",
+   "results/permit_yoy_spy/strategy_returns_20261018.csv": "56992b2eaf5f971901b6e8fa49e9f69e7103a665f4aacdd7ab2a0f9baa76a65b",
+   "results/permit_yoy_spy/structural_break_permit_yoy_spy.json": "aaadf057daaf204daf932a6c51c4f8f2d5c7d54f2adc138c243afc7abeed1ccf",
+   "results/permit_yoy_spy/subperiod_sharpe.csv": "4ad78dfe091535edb89d8d874105856656ff5c6eb528e9ab0bbc6a6fefbf80e8",
+   "results/permit_yoy_spy/tournament_results_20261018.csv": "59735ceb015c8bf89d02ec8d53b46b75a040ffb0e6aaa06e35d72fd4b3e9ff21",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "history_zoom_dotcom": {
+  "chart_sha256": "b7be04679f0a954691cd4d12f0788e47e40723c607e42384b67619104acbc87b",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:24:30+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/core_models_20261018/ccf_prewhitened.csv": "f957bbcbd1fe44dd3e87b30b7d1b731f73f46d2ec5982a77837d7ee81b2b3385",
+   "results/permit_yoy_spy/core_models_20261018/correlations.csv": "da426c3650083689e07da4baffe2039d0efda59e045cd8876a0ea225913b0eb3",
+   "results/permit_yoy_spy/core_models_20261018/granger_causality.csv": "e2bd7ad5569258a8a909a63dc015fa7e12eb4b16e233ef6f47e651aa44265d4c",
+   "results/permit_yoy_spy/core_models_20261018/local_projections.csv": "94cf93e5080904d2e91018199bf36d89d417f778f8715cfc84571c71e43151c6",
+   "results/permit_yoy_spy/core_models_20261018/quantile_equality_test.json": "9a80a3c641ed0f0a2c74c94a176f0206bc8a1651acc2505aeb2a2b064f1032b9",
+   "results/permit_yoy_spy/core_models_20261018/quantile_regression.csv": "cc926ee92df47047a3fd2c1912ff3643c3492af2acf9d1aa5d4c6c26e35418d0",
+   "results/permit_yoy_spy/evidence_facts_20261018.json": "fc9f282724ce2106dab3a93cb3bcafbe1fc3b884f7158c66d4b2668d573266c4",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/rolling_correlation_permit_yoy_spy.csv": "d732e31f0803999b600abc6f3f0ba98dc34a151b3ed9b10e686da20660eb3412",
+   "results/permit_yoy_spy/strategy_returns_20261018.csv": "56992b2eaf5f971901b6e8fa49e9f69e7103a665f4aacdd7ab2a0f9baa76a65b",
+   "results/permit_yoy_spy/structural_break_permit_yoy_spy.json": "aaadf057daaf204daf932a6c51c4f8f2d5c7d54f2adc138c243afc7abeed1ccf",
+   "results/permit_yoy_spy/subperiod_sharpe.csv": "4ad78dfe091535edb89d8d874105856656ff5c6eb528e9ab0bbc6a6fefbf80e8",
+   "results/permit_yoy_spy/tournament_results_20261018.csv": "59735ceb015c8bf89d02ec8d53b46b75a040ffb0e6aaa06e35d72fd4b3e9ff21",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "history_zoom_gfc": {
+  "chart_sha256": "ba42c7e11251ae83aa0a4a511e5d908d3521728853c4801a05a9d8a44b573f07",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:24:36+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/core_models_20261018/ccf_prewhitened.csv": "f957bbcbd1fe44dd3e87b30b7d1b731f73f46d2ec5982a77837d7ee81b2b3385",
+   "results/permit_yoy_spy/core_models_20261018/correlations.csv": "da426c3650083689e07da4baffe2039d0efda59e045cd8876a0ea225913b0eb3",
+   "results/permit_yoy_spy/core_models_20261018/granger_causality.csv": "e2bd7ad5569258a8a909a63dc015fa7e12eb4b16e233ef6f47e651aa44265d4c",
+   "results/permit_yoy_spy/core_models_20261018/local_projections.csv": "94cf93e5080904d2e91018199bf36d89d417f778f8715cfc84571c71e43151c6",
+   "results/permit_yoy_spy/core_models_20261018/quantile_equality_test.json": "9a80a3c641ed0f0a2c74c94a176f0206bc8a1651acc2505aeb2a2b064f1032b9",
+   "results/permit_yoy_spy/core_models_20261018/quantile_regression.csv": "cc926ee92df47047a3fd2c1912ff3643c3492af2acf9d1aa5d4c6c26e35418d0",
+   "results/permit_yoy_spy/evidence_facts_20261018.json": "fc9f282724ce2106dab3a93cb3bcafbe1fc3b884f7158c66d4b2668d573266c4",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/rolling_correlation_permit_yoy_spy.csv": "d732e31f0803999b600abc6f3f0ba98dc34a151b3ed9b10e686da20660eb3412",
+   "results/permit_yoy_spy/strategy_returns_20261018.csv": "56992b2eaf5f971901b6e8fa49e9f69e7103a665f4aacdd7ab2a0f9baa76a65b",
+   "results/permit_yoy_spy/structural_break_permit_yoy_spy.json": "aaadf057daaf204daf932a6c51c4f8f2d5c7d54f2adc138c243afc7abeed1ccf",
+   "results/permit_yoy_spy/subperiod_sharpe.csv": "4ad78dfe091535edb89d8d874105856656ff5c6eb528e9ab0bbc6a6fefbf80e8",
+   "results/permit_yoy_spy/tournament_results_20261018.csv": "59735ceb015c8bf89d02ec8d53b46b75a040ffb0e6aaa06e35d72fd4b3e9ff21",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "history_zoom_inflation_2022": {
+  "chart_sha256": "4d3f96afb5e5170b722b223053676b5b871750224c938a972dd919f0d9241701",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:24:50+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/core_models_20261018/ccf_prewhitened.csv": "f957bbcbd1fe44dd3e87b30b7d1b731f73f46d2ec5982a77837d7ee81b2b3385",
+   "results/permit_yoy_spy/core_models_20261018/correlations.csv": "da426c3650083689e07da4baffe2039d0efda59e045cd8876a0ea225913b0eb3",
+   "results/permit_yoy_spy/core_models_20261018/granger_causality.csv": "e2bd7ad5569258a8a909a63dc015fa7e12eb4b16e233ef6f47e651aa44265d4c",
+   "results/permit_yoy_spy/core_models_20261018/local_projections.csv": "94cf93e5080904d2e91018199bf36d89d417f778f8715cfc84571c71e43151c6",
+   "results/permit_yoy_spy/core_models_20261018/quantile_equality_test.json": "9a80a3c641ed0f0a2c74c94a176f0206bc8a1651acc2505aeb2a2b064f1032b9",
+   "results/permit_yoy_spy/core_models_20261018/quantile_regression.csv": "cc926ee92df47047a3fd2c1912ff3643c3492af2acf9d1aa5d4c6c26e35418d0",
+   "results/permit_yoy_spy/evidence_facts_20261018.json": "fc9f282724ce2106dab3a93cb3bcafbe1fc3b884f7158c66d4b2668d573266c4",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/rolling_correlation_permit_yoy_spy.csv": "d732e31f0803999b600abc6f3f0ba98dc34a151b3ed9b10e686da20660eb3412",
+   "results/permit_yoy_spy/strategy_returns_20261018.csv": "56992b2eaf5f971901b6e8fa49e9f69e7103a665f4aacdd7ab2a0f9baa76a65b",
+   "results/permit_yoy_spy/structural_break_permit_yoy_spy.json": "aaadf057daaf204daf932a6c51c4f8f2d5c7d54f2adc138c243afc7abeed1ccf",
+   "results/permit_yoy_spy/subperiod_sharpe.csv": "4ad78dfe091535edb89d8d874105856656ff5c6eb528e9ab0bbc6a6fefbf80e8",
+   "results/permit_yoy_spy/tournament_results_20261018.csv": "59735ceb015c8bf89d02ec8d53b46b75a040ffb0e6aaa06e35d72fd4b3e9ff21",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "lead_plateau": {
+  "chart_sha256": "e6b0598563e2d049d609b1a626033c9ab0f6c1f02f56ec3c52a93820e2e399bd",
+  "results_tag": "20261018",
+  "producer": "scripts/harness/charts.py",
+  "recorded_at": "2026-10-18T10:19:36+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/phaseB_inputs/permit_yoy_spy_monthly_legacy_20261016.csv": "89f15065c64741dcd1830c0c75effcef72529e09a8ea4860c2632145d7c2d501",
+   "data/phaseB_inputs/spy_month_end_20261017.csv": "dba97c9aaa1cf16c8727e8e6300c053c3a3f718290001ad368bd80dfb51f1be5",
+   "data/release_calendar/release_calendar.csv": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
+   "data/release_calendar/release_calendar_meta.json": "9c8ab4d3258bf7938b38557a99f8266b638943d34e95fbed963d581484dd3e96",
+   "data/release_calendar/vintages/PERMIT.csv.gz": "6bb25cbbfba72b8ef733d45b86e61425fe938ddee64325cf49c2c9e667c41419",
+   "results/permit_yoy_spy/hindsight_lead_curve_20261018.csv": "ba281697bf357a9484487e9effe1bd4a9442c2b7db3a9ac8c5879129222d8087",
+   "results/permit_yoy_spy/lead_curve_20261018.csv": "9101bbe9fb68667645d03ba3c5c9671e3a843d038f00bb45632d8a61b4e276e5",
+   "results/permit_yoy_spy/legacy_oos_selection_20261016.csv": "2abda96e380d3fa50c0ac5ca4f9f81758966a45bfdfc467ca250e0669f8c8eb4",
+   "results/permit_yoy_spy/strategy_returns_20261016.csv": "665cbb773488b92d2f3b511ab86612b19c81a02039a37ab9c57478b23102fd5b",
+   "results/permit_yoy_spy/tournament_results_20261016.csv": "bae67689b2cf3f8690e12df8d3991c0e809da9bebe03a7c1546464d80aec0e0a"
+  }
+ },
+ "local_projections": {
+  "chart_sha256": "712cb56ab5f842053bcdd949d24fb38d3238fd5f10ed56e6c2a39cf8b9bf32fe",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:23:25+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/core_models_20261018/ccf_prewhitened.csv": "f957bbcbd1fe44dd3e87b30b7d1b731f73f46d2ec5982a77837d7ee81b2b3385",
+   "results/permit_yoy_spy/core_models_20261018/correlations.csv": "da426c3650083689e07da4baffe2039d0efda59e045cd8876a0ea225913b0eb3",
+   "results/permit_yoy_spy/core_models_20261018/granger_causality.csv": "e2bd7ad5569258a8a909a63dc015fa7e12eb4b16e233ef6f47e651aa44265d4c",
+   "results/permit_yoy_spy/core_models_20261018/local_projections.csv": "94cf93e5080904d2e91018199bf36d89d417f778f8715cfc84571c71e43151c6",
+   "results/permit_yoy_spy/evidence_facts_20261018.json": "fc9f282724ce2106dab3a93cb3bcafbe1fc3b884f7158c66d4b2668d573266c4",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "quantile_coef": {
+  "chart_sha256": "f728e5d6c95179350a7bc783a5081a0757033a665bd82c0ce386ebb8992a49fd",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:23:31+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/core_models_20261018/ccf_prewhitened.csv": "f957bbcbd1fe44dd3e87b30b7d1b731f73f46d2ec5982a77837d7ee81b2b3385",
+   "results/permit_yoy_spy/core_models_20261018/correlations.csv": "da426c3650083689e07da4baffe2039d0efda59e045cd8876a0ea225913b0eb3",
+   "results/permit_yoy_spy/core_models_20261018/granger_causality.csv": "e2bd7ad5569258a8a909a63dc015fa7e12eb4b16e233ef6f47e651aa44265d4c",
+   "results/permit_yoy_spy/core_models_20261018/local_projections.csv": "94cf93e5080904d2e91018199bf36d89d417f778f8715cfc84571c71e43151c6",
+   "results/permit_yoy_spy/core_models_20261018/quantile_equality_test.json": "9a80a3c641ed0f0a2c74c94a176f0206bc8a1651acc2505aeb2a2b064f1032b9",
+   "results/permit_yoy_spy/core_models_20261018/quantile_regression.csv": "cc926ee92df47047a3fd2c1912ff3643c3492af2acf9d1aa5d4c6c26e35418d0",
+   "results/permit_yoy_spy/evidence_facts_20261018.json": "fc9f282724ce2106dab3a93cb3bcafbe1fc3b884f7158c66d4b2668d573266c4",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "regime_stats": {
+  "chart_sha256": "0120db89ea051de1006d3d52ec53816f91e92fd9a19259a393513d3449a945b0",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:22:58+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "rolling_correlation": {
+  "chart_sha256": "1a0999961631503d13be67ced6e23f1c20fda0567c83faffacd2b37cd6b676dc",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:24:03+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/core_models_20261018/ccf_prewhitened.csv": "f957bbcbd1fe44dd3e87b30b7d1b731f73f46d2ec5982a77837d7ee81b2b3385",
+   "results/permit_yoy_spy/core_models_20261018/correlations.csv": "da426c3650083689e07da4baffe2039d0efda59e045cd8876a0ea225913b0eb3",
+   "results/permit_yoy_spy/core_models_20261018/granger_causality.csv": "e2bd7ad5569258a8a909a63dc015fa7e12eb4b16e233ef6f47e651aa44265d4c",
+   "results/permit_yoy_spy/core_models_20261018/local_projections.csv": "94cf93e5080904d2e91018199bf36d89d417f778f8715cfc84571c71e43151c6",
+   "results/permit_yoy_spy/core_models_20261018/quantile_equality_test.json": "9a80a3c641ed0f0a2c74c94a176f0206bc8a1651acc2505aeb2a2b064f1032b9",
+   "results/permit_yoy_spy/core_models_20261018/quantile_regression.csv": "cc926ee92df47047a3fd2c1912ff3643c3492af2acf9d1aa5d4c6c26e35418d0",
+   "results/permit_yoy_spy/evidence_facts_20261018.json": "fc9f282724ce2106dab3a93cb3bcafbe1fc3b884f7158c66d4b2668d573266c4",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/rolling_correlation_permit_yoy_spy.csv": "d732e31f0803999b600abc6f3f0ba98dc34a151b3ed9b10e686da20660eb3412",
+   "results/permit_yoy_spy/strategy_returns_20261018.csv": "56992b2eaf5f971901b6e8fa49e9f69e7103a665f4aacdd7ab2a0f9baa76a65b",
+   "results/permit_yoy_spy/tournament_results_20261018.csv": "59735ceb015c8bf89d02ec8d53b46b75a040ffb0e6aaa06e35d72fd4b3e9ff21",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "structural_break": {
+  "chart_sha256": "5b50ce938bd5b34742c4727c05b0cd16632a5d56172e6d4c953e14647efe41f9",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:24:10+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/core_models_20261018/ccf_prewhitened.csv": "f957bbcbd1fe44dd3e87b30b7d1b731f73f46d2ec5982a77837d7ee81b2b3385",
+   "results/permit_yoy_spy/core_models_20261018/correlations.csv": "da426c3650083689e07da4baffe2039d0efda59e045cd8876a0ea225913b0eb3",
+   "results/permit_yoy_spy/core_models_20261018/granger_causality.csv": "e2bd7ad5569258a8a909a63dc015fa7e12eb4b16e233ef6f47e651aa44265d4c",
+   "results/permit_yoy_spy/core_models_20261018/local_projections.csv": "94cf93e5080904d2e91018199bf36d89d417f778f8715cfc84571c71e43151c6",
+   "results/permit_yoy_spy/core_models_20261018/quantile_equality_test.json": "9a80a3c641ed0f0a2c74c94a176f0206bc8a1651acc2505aeb2a2b064f1032b9",
+   "results/permit_yoy_spy/core_models_20261018/quantile_regression.csv": "cc926ee92df47047a3fd2c1912ff3643c3492af2acf9d1aa5d4c6c26e35418d0",
+   "results/permit_yoy_spy/evidence_facts_20261018.json": "fc9f282724ce2106dab3a93cb3bcafbe1fc3b884f7158c66d4b2668d573266c4",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/rolling_correlation_permit_yoy_spy.csv": "d732e31f0803999b600abc6f3f0ba98dc34a151b3ed9b10e686da20660eb3412",
+   "results/permit_yoy_spy/strategy_returns_20261018.csv": "56992b2eaf5f971901b6e8fa49e9f69e7103a665f4aacdd7ab2a0f9baa76a65b",
+   "results/permit_yoy_spy/structural_break_permit_yoy_spy.json": "aaadf057daaf204daf932a6c51c4f8f2d5c7d54f2adc138c243afc7abeed1ccf",
+   "results/permit_yoy_spy/tournament_results_20261018.csv": "59735ceb015c8bf89d02ec8d53b46b75a040ffb0e6aaa06e35d72fd4b3e9ff21",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "subperiod_sharpe": {
+  "chart_sha256": "c08758a63eb582965a6b2bdc15aeee969f91067cef04e59bf0367fdd6b3c817a",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:24:17+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/core_models_20261018/ccf_prewhitened.csv": "f957bbcbd1fe44dd3e87b30b7d1b731f73f46d2ec5982a77837d7ee81b2b3385",
+   "results/permit_yoy_spy/core_models_20261018/correlations.csv": "da426c3650083689e07da4baffe2039d0efda59e045cd8876a0ea225913b0eb3",
+   "results/permit_yoy_spy/core_models_20261018/granger_causality.csv": "e2bd7ad5569258a8a909a63dc015fa7e12eb4b16e233ef6f47e651aa44265d4c",
+   "results/permit_yoy_spy/core_models_20261018/local_projections.csv": "94cf93e5080904d2e91018199bf36d89d417f778f8715cfc84571c71e43151c6",
+   "results/permit_yoy_spy/core_models_20261018/quantile_equality_test.json": "9a80a3c641ed0f0a2c74c94a176f0206bc8a1651acc2505aeb2a2b064f1032b9",
+   "results/permit_yoy_spy/core_models_20261018/quantile_regression.csv": "cc926ee92df47047a3fd2c1912ff3643c3492af2acf9d1aa5d4c6c26e35418d0",
+   "results/permit_yoy_spy/evidence_facts_20261018.json": "fc9f282724ce2106dab3a93cb3bcafbe1fc3b884f7158c66d4b2668d573266c4",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/rolling_correlation_permit_yoy_spy.csv": "d732e31f0803999b600abc6f3f0ba98dc34a151b3ed9b10e686da20660eb3412",
+   "results/permit_yoy_spy/strategy_returns_20261018.csv": "56992b2eaf5f971901b6e8fa49e9f69e7103a665f4aacdd7ab2a0f9baa76a65b",
+   "results/permit_yoy_spy/structural_break_permit_yoy_spy.json": "aaadf057daaf204daf932a6c51c4f8f2d5c7d54f2adc138c243afc7abeed1ccf",
+   "results/permit_yoy_spy/subperiod_sharpe.csv": "4ad78dfe091535edb89d8d874105856656ff5c6eb528e9ab0bbc6a6fefbf80e8",
+   "results/permit_yoy_spy/tournament_results_20261018.csv": "59735ceb015c8bf89d02ec8d53b46b75a040ffb0e6aaa06e35d72fd4b3e9ff21",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "tournament_scatter": {
+  "chart_sha256": "c47ebf95dd673bf3dc14d23ee27e644a3b19cbfeee4ad7ab75f302084e458cf4",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:23:57+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/core_models_20261018/ccf_prewhitened.csv": "f957bbcbd1fe44dd3e87b30b7d1b731f73f46d2ec5982a77837d7ee81b2b3385",
+   "results/permit_yoy_spy/core_models_20261018/correlations.csv": "da426c3650083689e07da4baffe2039d0efda59e045cd8876a0ea225913b0eb3",
+   "results/permit_yoy_spy/core_models_20261018/granger_causality.csv": "e2bd7ad5569258a8a909a63dc015fa7e12eb4b16e233ef6f47e651aa44265d4c",
+   "results/permit_yoy_spy/core_models_20261018/local_projections.csv": "94cf93e5080904d2e91018199bf36d89d417f778f8715cfc84571c71e43151c6",
+   "results/permit_yoy_spy/core_models_20261018/quantile_equality_test.json": "9a80a3c641ed0f0a2c74c94a176f0206bc8a1651acc2505aeb2a2b064f1032b9",
+   "results/permit_yoy_spy/core_models_20261018/quantile_regression.csv": "cc926ee92df47047a3fd2c1912ff3643c3492af2acf9d1aa5d4c6c26e35418d0",
+   "results/permit_yoy_spy/evidence_facts_20261018.json": "fc9f282724ce2106dab3a93cb3bcafbe1fc3b884f7158c66d4b2668d573266c4",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/strategy_returns_20261018.csv": "56992b2eaf5f971901b6e8fa49e9f69e7103a665f4aacdd7ab2a0f9baa76a65b",
+   "results/permit_yoy_spy/tournament_results_20261018.csv": "59735ceb015c8bf89d02ec8d53b46b75a040ffb0e6aaa06e35d72fd4b3e9ff21",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "tournament_sharpe_dist": {
+  "chart_sha256": "c47ebf95dd673bf3dc14d23ee27e644a3b19cbfeee4ad7ab75f302084e458cf4",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:23:51+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/core_models_20261018/ccf_prewhitened.csv": "f957bbcbd1fe44dd3e87b30b7d1b731f73f46d2ec5982a77837d7ee81b2b3385",
+   "results/permit_yoy_spy/core_models_20261018/correlations.csv": "da426c3650083689e07da4baffe2039d0efda59e045cd8876a0ea225913b0eb3",
+   "results/permit_yoy_spy/core_models_20261018/granger_causality.csv": "e2bd7ad5569258a8a909a63dc015fa7e12eb4b16e233ef6f47e651aa44265d4c",
+   "results/permit_yoy_spy/core_models_20261018/local_projections.csv": "94cf93e5080904d2e91018199bf36d89d417f778f8715cfc84571c71e43151c6",
+   "results/permit_yoy_spy/core_models_20261018/quantile_equality_test.json": "9a80a3c641ed0f0a2c74c94a176f0206bc8a1651acc2505aeb2a2b064f1032b9",
+   "results/permit_yoy_spy/core_models_20261018/quantile_regression.csv": "cc926ee92df47047a3fd2c1912ff3643c3492af2acf9d1aa5d4c6c26e35418d0",
+   "results/permit_yoy_spy/evidence_facts_20261018.json": "fc9f282724ce2106dab3a93cb3bcafbe1fc3b884f7158c66d4b2668d573266c4",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/strategy_returns_20261018.csv": "56992b2eaf5f971901b6e8fa49e9f69e7103a665f4aacdd7ab2a0f9baa76a65b",
+   "results/permit_yoy_spy/tournament_results_20261018.csv": "59735ceb015c8bf89d02ec8d53b46b75a040ffb0e6aaa06e35d72fd4b3e9ff21",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ },
+ "walk_forward": {
+  "chart_sha256": "c08758a63eb582965a6b2bdc15aeee969f91067cef04e59bf0367fdd6b3c817a",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_permit_yoy_spy.py",
+  "recorded_at": "2026-10-18T10:24:24+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
+   "results/permit_yoy_spy/core_models_20261018/ccf_prewhitened.csv": "f957bbcbd1fe44dd3e87b30b7d1b731f73f46d2ec5982a77837d7ee81b2b3385",
+   "results/permit_yoy_spy/core_models_20261018/correlations.csv": "da426c3650083689e07da4baffe2039d0efda59e045cd8876a0ea225913b0eb3",
+   "results/permit_yoy_spy/core_models_20261018/granger_causality.csv": "e2bd7ad5569258a8a909a63dc015fa7e12eb4b16e233ef6f47e651aa44265d4c",
+   "results/permit_yoy_spy/core_models_20261018/local_projections.csv": "94cf93e5080904d2e91018199bf36d89d417f778f8715cfc84571c71e43151c6",
+   "results/permit_yoy_spy/core_models_20261018/quantile_equality_test.json": "9a80a3c641ed0f0a2c74c94a176f0206bc8a1651acc2505aeb2a2b064f1032b9",
+   "results/permit_yoy_spy/core_models_20261018/quantile_regression.csv": "cc926ee92df47047a3fd2c1912ff3643c3492af2acf9d1aa5d4c6c26e35418d0",
+   "results/permit_yoy_spy/evidence_facts_20261018.json": "fc9f282724ce2106dab3a93cb3bcafbe1fc3b884f7158c66d4b2668d573266c4",
+   "results/permit_yoy_spy/regime_quartile_returns.csv": "eca025bc46651b227757e4d3e7f428186011b407e974244b2327766898b1ebcd",
+   "results/permit_yoy_spy/rolling_correlation_permit_yoy_spy.csv": "d732e31f0803999b600abc6f3f0ba98dc34a151b3ed9b10e686da20660eb3412",
+   "results/permit_yoy_spy/strategy_returns_20261018.csv": "56992b2eaf5f971901b6e8fa49e9f69e7103a665f4aacdd7ab2a0f9baa76a65b",
+   "results/permit_yoy_spy/structural_break_permit_yoy_spy.json": "aaadf057daaf204daf932a6c51c4f8f2d5c7d54f2adc138c243afc7abeed1ccf",
+   "results/permit_yoy_spy/subperiod_sharpe.csv": "4ad78dfe091535edb89d8d874105856656ff5c6eb528e9ab0bbc6a6fefbf80e8",
+   "results/permit_yoy_spy/tournament_results_20261018.csv": "59735ceb015c8bf89d02ec8d53b46b75a040ffb0e6aaa06e35d72fd4b3e9ff21",
+   "results/permit_yoy_spy/winner_summary.json": "ab3bc5ef6b2eb13145c17cc6e9a7a29060509e9d5604efecb6746a4000b3f9e9"
+  }
+ }
+}

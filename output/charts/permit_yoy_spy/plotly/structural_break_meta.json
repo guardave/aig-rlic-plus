@@ -1,12 +1,12 @@
 {
   "chart_name": "structural_break",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-16T18:30:33.705614+00:00",
+  "generated_at": "2026-10-18T10:24:17.343862+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
-  "caption": "Proxy check for large changes in the permit/SPY relationship.",
-  "narrative_alignment_note": "Proxy check for large changes in the permit/SPY relationship.",
+  "caption": "Proxy check for large swings in the permits growth-SPY correlation.",
+  "narrative_alignment_note": "Proxy check for large swings in the permits growth-SPY correlation.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/permit_yoy_spy/structural_break_permit_yoy_spy.json"
+    "results/permit_yoy_spy/structural_break_permit_yoy_spy.json"
   ]
 }

@@ -3,52 +3,67 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-16T18:24:52.076276+00:00",
+  "last_updated_at": "2026-10-18T10:15:33.218276+00:00",
   "indicator_axis": {
-    "canonical_column": "permit_yoy",
-    "display_name": "Building Permits YoY",
+    "canonical_column": "permit",
+    "display_name": "Building permits (PERMIT)",
     "derivatives": [
       {
-        "name": "permit_yoy",
-        "definition": "Building Permits YoY",
-        "formula": "Data Master (ISM)",
+        "name": "permit",
+        "definition": "Building permits level (PERMIT; thousands of units, SAAR)",
+        "formula": "FRED / ALFRED PERMIT",
         "role": "raw",
-        "appears_in_charts": [
-          "hero"
-        ]
+        "appears_in_charts": []
       },
       {
         "name": "permit_yoy_level",
-        "definition": "Permit YoY level (% change)",
-        "formula": "identity",
-        "role": "threshold_input",
+        "definition": "Year-over-year growth of permits (tournament signal level; descriptive-test transform)",
+        "formula": "100*(p_t/p_{t-12}-1)",
+        "role": "derivative",
         "appears_in_charts": [
+          "correlation_heatmap",
+          "regime_stats",
+          "granger_f_by_lag",
+          "ccf_prewhitened",
+          "local_projections",
+          "quantile_coef",
+          "rolling_correlation",
+          "structural_break",
           "hero",
-          "regime_stats"
+          "history_zoom_dotcom",
+          "history_zoom_gfc",
+          "history_zoom_covid",
+          "history_zoom_inflation_2022"
         ]
       },
       {
         "name": "permit_yoy_diff_1m",
-        "definition": "Month-on-month change",
-        "formula": "x_t - x_{t-1}",
+        "definition": "1-month change in YoY growth (tournament signal diff_1m)",
+        "formula": "yoy_t - yoy_{t-1}",
         "role": "derivative",
-        "appears_in_charts": []
+        "appears_in_charts": [
+          "correlation_heatmap"
+        ]
       },
       {
         "name": "permit_yoy_chg_12m",
-        "definition": "12-month change",
-        "formula": "x_t - x_{t-12}",
-        "role": "threshold_input",
+        "definition": "12-month change in YoY growth (tournament signal chg_12m)",
+        "formula": "yoy_t - yoy_{t-12}",
+        "role": "derivative",
         "appears_in_charts": [
-          "local_projections"
+          "correlation_heatmap"
         ]
       },
       {
         "name": "permit_yoy_zscore_60m",
-        "definition": "Level vs 5-year history",
-        "formula": "(x-mean60m)/std60m",
-        "role": "threshold_input",
-        "appears_in_charts": []
+        "definition": "YoY growth versus its 60-month history (tournament signal zscore_60m)",
+        "formula": "(yoy - mean60)/std60, min 24 readings",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap",
+          "equity_curves",
+          "drawdown"
+        ]
       }
     ]
   },
@@ -63,31 +78,44 @@
         "role": "raw",
         "appears_in_charts": [
           "hero",
-          "equity_curves"
+          "history_zoom_dotcom",
+          "history_zoom_gfc",
+          "history_zoom_covid",
+          "history_zoom_inflation_2022"
         ]
       },
       {
         "name": "spy_ret",
         "definition": "SPY monthly return",
-        "formula": "spy_t/spy_{t-1}-1",
+        "formula": "spy_t / spy_{t-1} - 1",
         "role": "derivative",
-        "appears_in_charts": []
+        "appears_in_charts": [
+          "equity_curves",
+          "drawdown",
+          "regime_stats",
+          "ccf_prewhitened",
+          "granger_f_by_lag",
+          "rolling_correlation",
+          "subperiod_sharpe"
+        ]
       },
       {
         "name": "spy_fwd_1m",
         "definition": "1-month forward SPY return",
-        "formula": "spy_{t+1}/spy_t-1",
+        "formula": "spy_{t+1} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "correlation_heatmap",
+          "local_projections"
         ]
       },
       {
         "name": "spy_fwd_3m",
         "definition": "3-month forward SPY return",
-        "formula": "spy_{t+3}/spy_t-1",
+        "formula": "spy_{t+3} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
+          "correlation_heatmap",
           "local_projections",
           "quantile_coef"
         ]
@@ -95,13 +123,24 @@
       {
         "name": "spy_fwd_6m",
         "definition": "6-month forward SPY return",
-        "formula": "spy_{t+6}/spy_t-1",
+        "formula": "spy_{t+6} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "correlation_heatmap",
+          "local_projections"
+        ]
+      },
+      {
+        "name": "spy_fwd_12m",
+        "definition": "12-month forward SPY return",
+        "formula": "spy_{t+12} / spy_t - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap",
+          "local_projections"
         ]
       }
     ]
   },
-  "notes": "Scope limited to Building Permits YoY signals and SPY returns."
+  "notes": "The YoY growth of building permits and three transforms of it are the tournament signals (pair spec SIGNALS); the permit level is never traded in this pair. YoY growth is the transform used by the descriptive tests."
 }

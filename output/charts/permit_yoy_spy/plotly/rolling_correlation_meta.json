@@ -1,12 +1,12 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-16T18:30:33.683212+00:00",
+  "generated_at": "2026-10-18T10:24:10.014789+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
-  "caption": "Rolling correlation between permit growth and SPY returns.",
-  "narrative_alignment_note": "Rolling correlation between permit growth and SPY returns.",
+  "caption": "Rolling 60-month correlation between YoY growth in building permits and SPY monthly returns.",
+  "narrative_alignment_note": "Rolling 60-month correlation between YoY growth in building permits and SPY monthly returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/permit_yoy_spy/rolling_correlation_permit_yoy_spy.csv"
+    "results/permit_yoy_spy/rolling_correlation_permit_yoy_spy.csv"
   ]
 }

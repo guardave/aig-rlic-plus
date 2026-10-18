@@ -1,12 +1,13 @@
 {
   "chart_name": "correlation_heatmap",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-16T18:30:32.545160+00:00",
+  "generated_at": "2026-10-18T10:23:12.155760+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
-  "caption": "Pearson correlations between permit-growth transforms and forward SPY returns.",
-  "narrative_alignment_note": "Pearson correlations between permit-growth transforms and forward SPY returns.",
+  "caption": "Pearson correlations between building permits YoY growth transforms and forward SPY returns; stars mark HAC p-values below the significance level.",
+  "narrative_alignment_note": "Pearson correlations between building permits YoY growth transforms and forward SPY returns; stars mark HAC p-values below the significance level.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/permit_yoy_spy/core_models_20261016/correlations.csv"
+    "results/permit_yoy_spy/core_models_20261018/correlations.csv",
+    "results/permit_yoy_spy/evidence_facts_20261018.json"
   ]
 }

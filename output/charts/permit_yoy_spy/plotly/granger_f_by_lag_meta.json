@@ -1,12 +1,13 @@
 {
   "chart_name": "granger_f_by_lag",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-16T18:30:32.620312+00:00",
+  "generated_at": "2026-10-18T10:23:25.092270+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
-  "caption": "Granger p-values by lag for permit growth predicting SPY returns.",
-  "narrative_alignment_note": "Granger p-values by lag for permit growth predicting SPY returns.",
+  "caption": "Granger p-values by lag for YoY growth in building permits predicting SPY returns, with the significance line and the Bonferroni line for the number of lags tried.",
+  "narrative_alignment_note": "Granger p-values by lag for YoY growth in building permits predicting SPY returns, with the significance line and the Bonferroni line for the number of lags tried.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/permit_yoy_spy/core_models_20261016/granger_causality.csv"
+    "results/permit_yoy_spy/core_models_20261018/granger_causality.csv",
+    "results/permit_yoy_spy/evidence_facts_20261018.json"
   ]
 }

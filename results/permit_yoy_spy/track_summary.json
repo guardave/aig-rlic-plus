@@ -1,0 +1,276 @@
+{
+  "pair_id": "permit_yoy_spy",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-10-18T10:19:33.175798+00:00",
+  "track_state": "both",
+  "track_policy": "compute_twice",
+  "main": {
+    "track": "real_time",
+    "eligible": true,
+    "window": [
+      "1999-09-30",
+      "2026-09-30"
+    ],
+    "n_obs": 325,
+    "winner": {
+      "signal": "zscore_60m",
+      "threshold": "T_z_0",
+      "strategy": "P1",
+      "direction": "procyclical",
+      "lead": 10
+    },
+    "is_sharpe": 0.829417,
+    "oos_sharpe": 0.437257,
+    "recessions_covered": [
+      "2001 recession",
+      "2008-09 recession",
+      "2020 recession"
+    ]
+  },
+  "comparison": {
+    "track": "revised",
+    "eligible": true,
+    "window": [
+      "1993-02-28",
+      "2026-09-30"
+    ],
+    "n_obs": 404,
+    "winner": {
+      "signal": "level",
+      "threshold": "T0_zero",
+      "strategy": "P1",
+      "direction": "procyclical",
+      "lead": 9
+    },
+    "is_sharpe": 0.970504,
+    "oos_sharpe": 0.704255,
+    "recessions_covered": [
+      "2001 recession",
+      "2008-09 recession",
+      "2020 recession"
+    ],
+    "same_winner": false,
+    "sharpe_gap": 0.266998
+  },
+  "cross_eval": {
+    "main_winner_on_revised": {
+      "is_sharpe": 0.8274249500090194,
+      "oos_sharpe": 0.45000343817304145,
+      "valid": true,
+      "is_eligible": true,
+      "window": {
+        "is_start": "1993-02-28",
+        "oos_start": "2017-07-31",
+        "oos_end": "2026-09-30"
+      }
+    },
+    "revised_winner_on_main": {
+      "is_sharpe": 0.9055917181872926,
+      "oos_sharpe": 0.706754082123276,
+      "valid": true,
+      "is_eligible": true,
+      "window": {
+        "is_start": "1999-09-30",
+        "oos_start": "2017-07-31",
+        "oos_end": "2026-09-30"
+      }
+    }
+  },
+  "insufficient_reason": null,
+  "plateau": {
+    "leads": [
+      8,
+      9,
+      10
+    ],
+    "winner_lead": 10,
+    "global_max_lead": 10,
+    "global_max_inside_plateau": true,
+    "scores": [
+      {
+        "lead": 2,
+        "score_rt": 0.381164
+      },
+      {
+        "lead": 3,
+        "score_rt": 0.491915
+      },
+      {
+        "lead": 4,
+        "score_rt": 0.618142
+      },
+      {
+        "lead": 5,
+        "score_rt": 0.726
+      },
+      {
+        "lead": 6,
+        "score_rt": 0.691276
+      },
+      {
+        "lead": 7,
+        "score_rt": 0.520377
+      },
+      {
+        "lead": 8,
+        "score_rt": 0.812114
+      },
+      {
+        "lead": 9,
+        "score_rt": 0.773167
+      },
+      {
+        "lead": 10,
+        "score_rt": 0.829417
+      },
+      {
+        "lead": 11,
+        "score_rt": 0.72336
+      },
+      {
+        "lead": 12,
+        "score_rt": 0.717936
+      },
+      {
+        "lead": 13,
+        "score_rt": 0.60905
+      }
+    ],
+    "score": 0.773167,
+    "revised_curve": [
+      {
+        "lead": 2,
+        "score_rev": 0.535819
+      },
+      {
+        "lead": 3,
+        "score_rev": 0.700678
+      },
+      {
+        "lead": 4,
+        "score_rev": 0.799402
+      },
+      {
+        "lead": 5,
+        "score_rev": 0.757947
+      },
+      {
+        "lead": 6,
+        "score_rev": 0.792157
+      },
+      {
+        "lead": 7,
+        "score_rev": 0.96779
+      },
+      {
+        "lead": 8,
+        "score_rev": 0.935033
+      },
+      {
+        "lead": 9,
+        "score_rev": 0.970504
+      },
+      {
+        "lead": 10,
+        "score_rev": 0.852968
+      },
+      {
+        "lead": 11,
+        "score_rev": 0.952679
+      },
+      {
+        "lead": 12,
+        "score_rev": 0.89927
+      },
+      {
+        "lead": 13,
+        "score_rev": 0.995955
+      }
+    ]
+  },
+  "null_tournament": {
+    "n_draws": 100,
+    "winner_percentile": 0.85,
+    "p_selection_stat": 0.15,
+    "is_max_percentile": 0.91,
+    "winner_oos_percentile": 0.11,
+    "null_scores_hist": {
+      "bins": [
+        0.4937,
+        0.5153,
+        0.5368,
+        0.5584,
+        0.5799,
+        0.6015,
+        0.6231,
+        0.6446,
+        0.6662,
+        0.6877,
+        0.7093,
+        0.7308,
+        0.7524,
+        0.774,
+        0.7955,
+        0.8171,
+        0.8386,
+        0.8602,
+        0.8818,
+        0.9033,
+        0.9249
+      ],
+      "counts": [
+        8,
+        7,
+        12,
+        6,
+        6,
+        11,
+        3,
+        8,
+        6,
+        6,
+        8,
+        3,
+        1,
+        3,
+        2,
+        2,
+        2,
+        0,
+        5,
+        1
+      ]
+    },
+    "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
+    "r71_pass": true,
+    "edge_flag": false,
+    "n_admissible_offsets": 196,
+    "n_draws_without_winner": 0,
+    "revised_winner_percentile": 0.84,
+    "revised_r71_pass": true
+  },
+  "vs_buy_hold": {
+    "sharpe_diff": -0.5269,
+    "ci_95": [
+      -1.1448,
+      0.054
+    ],
+    "p_diff_le_0": 0.9608,
+    "block_length": 6,
+    "draws": 5000,
+    "ann_return": {
+      "strat": 0.033928,
+      "bh": 0.149827
+    },
+    "ann_vol": {
+      "strat": 0.084393,
+      "bh": 0.158604
+    },
+    "max_dd": {
+      "strat": -0.201615,
+      "bh": -0.239272
+    }
+  },
+  "status_badge_source": "main",
+  "pair_version": null
+}

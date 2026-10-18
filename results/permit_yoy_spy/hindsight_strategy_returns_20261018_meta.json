@@ -1,0 +1,14 @@
+{
+  "pair_id": "permit_yoy_spy",
+  "track": "revised",
+  "role": "comparison",
+  "winner_key": "level|T0_zero|P1|procyclical|9",
+  "generated_at": "2026-10-18T10:19:33.172581+00:00",
+  "vintage_policy": {
+    "alignment": "pit_asof",
+    "release_series": "PERMIT",
+    "harsh": false
+  },
+  "calendar_sha256": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
+  "vintage_file_sha256": "6bb25cbbfba72b8ef733d45b86e61425fe938ddee64325cf49c2c9e667c41419"
+}

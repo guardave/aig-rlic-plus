@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_inflation_2022",
+  "pair_id": "permit_yoy_spy",
+  "generated_at": "2026-10-18T10:24:56.616423+00:00",
+  "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
+  "caption": "2022 Inflation and Rate Shock, 2021-2025: YoY growth in building permits and SPY; gray bands are NBER recessions and pink bands mark months when permits were below their year-earlier level.",
+  "narrative_alignment_note": "2022 Inflation and Rate Shock, 2021-2025: YoY growth in building permits and SPY; gray bands are NBER recessions and pink bands mark months when permits were below their year-earlier level.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/permit_yoy_spy_monthly_latest.parquet"
+  ]
+}
