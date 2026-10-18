@@ -165,6 +165,7 @@ def _mini_sparkline(
       down — signal falls below threshold (risk-off → risk-on transition)
       flat — signal stays near threshold (no-change zone)
     """
+    threshold = float(threshold)                        # plotly cannot encode the tagged float subclass
     if real_slice is not None and len(real_slice) > 3:
         y = real_slice.values.astype(float)
         x = np.arange(len(y))
@@ -486,8 +487,9 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
         )
         return
 
+    from components import provenance as P
     with open(winner_path) as fh:
-        winner = json.load(fh)
+        winner = P.artifact(json.load(fh), winner_path)   # tagged values in gate mode (v5.1)
 
     # fix260526 W1 #35: legacy winner_summary files (e.g. indpro_xlp) have
     # strategy_code=None — the previous default "P2" produced P2-style
@@ -522,7 +524,9 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
     _thr_unknown = False
     _p2_range = strategy == "P2" and winner.get("threshold_value") is None and _th["value"] is None
     try:
-        threshold = float(_raw_threshold)
+        # the recorded value keeps its provenance tag (float subclass; v5.1)
+        threshold = _raw_threshold if isinstance(_raw_threshold, float) and not isinstance(_raw_threshold, bool) \
+            else float(_raw_threshold)
     except (TypeError, ValueError):
         # No numeric threshold is recorded. The cards illustrate the rule's direction at a nominal level;
         # the caption says so (an internal schema note is not shown to readers - QA_VERIFY_B1 F2).

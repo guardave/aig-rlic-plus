@@ -106,9 +106,9 @@
       "why": "position changes per year, or their sum over the test period (shown as is)"
     },
     {
-      "pattern": "(?:^|[/#])(?:n|n_\\w+|is_n_\\w+|\\w+_trades|\\w+_n|count|rows|draws|block_length|total_combos|hac_maxlags|oos_months|oos_months_position_change_gt_\\w+|history_years)(?:/|$)",
+      "pattern": "(?:^|[/#])(?:n|n_\\w+|\\w+_rank|is_n_\\w+|\\w+_trades|\\w+_n|count|rows|draws|block_length|total_combos|hac_maxlags|oos_months|oos_months_position_change_gt_\\w+|history_years)(?:/|$)",
       "kind": "count",
-      "why": "counts"
+      "why": "counts and ranks"
     },
     {
       "pattern": "(?:^|[/#])(?:threshold_value|\\w+_threshold)(?:/|$)|/history/(?:peaks/\\w+/0|spread_at/[\\d-]+|spread_low_\\d+/0)$",
@@ -119,6 +119,21 @@
       "pattern": "(?:^|[/#])(?:first_year|last_year)(?:/|$)",
       "kind": "year",
       "why": "calendar years"
+    },
+    {
+      "pattern": "(?:^|[/#])(?:notional_usd|commission_usd|\\w+_usd|price|price_entry|price_exit|commission_bps|signal_value)(?:/|$)",
+      "kind": "level",
+      "why": "trade-log amounts, prices, costs and the signal reading (shown as is)"
+    },
+    {
+      "pattern": "(?:^|[/#])(?:position_before|position_after|position)(?:/|$)",
+      "kind": "ratio",
+      "why": "position as a fraction of capital (-1..1)"
+    },
+    {
+      "pattern": "(?:^|[/#])(?:holding_days|trade_id)(?:/|$)",
+      "kind": "count",
+      "why": "trade-log counts"
     }
   ]
 }

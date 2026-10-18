@@ -94,6 +94,10 @@ def _data_through(pair_id: str | None) -> str:
     if pair_id:
         end = _oos_end(pair_id)
         if end:
+            from components import provenance as P
+            if P.gate_on():                  # tagged at display time only: the cached value stays plain
+                p = _REPO_ROOT / "results" / pair_id / "winner_summary.json"
+                end = P.prefix(P.field_text(P.artifact(json.loads(p.read_text()), p), "oos_period_end"), 10)
             return f"Data through {end}"
     rng = _oos_end_range_all()
     if rng:

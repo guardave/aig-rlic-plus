@@ -13,6 +13,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from components import provenance as P
 from components.charts import load_plotly_chart
 from components.schema_check import validate_or_die
 
@@ -53,10 +54,16 @@ def load_track_summary(pair_id: str) -> dict | None:
 
 
 def _years(window) -> str:
+    """'1993-2026 (34 years)': years and length tagged from the window's dates (gate mode)."""
     if not window or not window[0]:
         return "n/a"
-    a, b = pd.Timestamp(window[0]), pd.Timestamp(window[1])
-    return f"{a.year}-{b.year} ({(b - a).days / 365.25:.0f} years)"
+    a, b = P.field_text(window, 0), P.field_text(window, 1)
+    return f"{P.year(a)}-{P.year(b)} ({P.span_years(a, b):.0f} years)"
+
+
+def _ym(d, key) -> str:
+    """'YYYY-MM' of a date field of a tagged dict / list (tagged in gate mode)."""
+    return P.prefix(P.field_text(d, key) or "", 7)
 
 
 def _lead_unit(winner: dict) -> str:
@@ -105,7 +112,7 @@ def render_data_basis_strip(ts: dict) -> None:
                 fig.add_trace(go.Bar(y=[i], x=[(b - a).total_seconds() * 1000], base=[a], orientation="h",
                                      marker_color=col, textfont=dict(color="white", size=13),
                                      text=[f"{lab} {_years(win)}"], textposition="inside", insidetextanchor="start",
-                                     hoverinfo="text", hovertext=[f"{lab}: {win[0]} to {win[1]}"], showlegend=False))
+                                     hoverinfo="text", hovertext=[f"{lab}: {P.field_text(win, 0)} to {P.field_text(win, 1)}"], showlegend=False))
             fig.update_layout(height=60 + 34 * len(rows), margin=dict(l=8, r=8, t=8, b=24), template="plotly_white",
                               yaxis=dict(visible=False, autorange="reversed"), xaxis=dict(type="date"), bargap=0.25)
             st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
@@ -145,7 +152,9 @@ def render_kpi_caption(ts: dict, ws: dict) -> None:
         return
     w = comp["winner"]
     gap = comp.get("sharpe_gap")
-    txt = (f"Winner on revised data: Sharpe {_num(comp['oos_sharpe'])} over {_years(comp['window'])[:9]} "
+    _w = comp["window"]
+    txt = (f"Winner on revised data: Sharpe {_num(comp['oos_sharpe'])} over "
+           f"{P.year(P.field_text(_w, 0))}-{P.year(P.field_text(_w, 1))} "
            "(hindsight; shown for comparison only).")
     if gap is not None:
         txt += f" The two differ by {abs(gap):.2f} Sharpe"
@@ -201,9 +210,9 @@ def _tourn_row(pair_id: str, prefix: str, tag: str, key: str) -> dict | None:
     p = _REPO / "results" / pair_id / f"{prefix}tournament_results_{tag}.csv"
     if not p.exists():
         return None
-    t = pd.read_csv(p)
-    hit = t[t.get("key", pd.Series(dtype=str)) == key]
-    return None if hit.empty else hit.iloc[0].to_dict()
+    t = P.csv_file(p)                                   # cells tagged in gate mode (v5.1)
+    hit = t.index[t["key"].astype(str) == key] if "key" in t.columns else []
+    return None if len(hit) == 0 else {c: t[c].tolist()[t.index.get_loc(hit[0])] for c in t.columns}
 
 
 def render_cross_eval_table(pair_id: str, ts: dict, ws: dict) -> None:
@@ -224,7 +233,7 @@ def render_cross_eval_table(pair_id: str, ts: dict, ws: dict) -> None:
     def own_row(rec, label, prefix):
         r = _tourn_row(pair_id, prefix, tag, rec["winner"]["key"]) or {}
         return [rule(rec), label, _num(rec["winner"]["is_sharpe"]), _num(rec["winner"]["oos_sharpe"]),
-                _num(rec["bh_oos"]["sharpe"]), f"{rec['is_window'][0][:7]} to {rec['oos_window'][1][:7]}",
+                _num(rec["bh_oos"]["sharpe"]), f"{_ym(rec['is_window'], 0)} to {_ym(rec['oos_window'], 1)}",
                 _pct(rec["winner"]["oos_max_drawdown"]) if r is not None else "n/a"]
 
     def cross_row(rec, label, other, prefix):
@@ -234,7 +243,7 @@ def render_cross_eval_table(pair_id: str, ts: dict, ws: dict) -> None:
         tr = _tourn_row(pair_id, prefix, tag, rec["winner"]["key"]) or {}
         note = "" if r.get("valid") else " (did not meet the training validity filters on this data)"
         return [rule(rec), label, _num(r["is_sharpe"]) + note, _num(r["oos_sharpe"]), _num(rec["bh_oos"]["sharpe"]),
-                f"{r['window']['is_start'][:7]} to {r['window']['oos_end'][:7]}", _pct(tr.get("max_drawdown"))]
+                f"{_ym(r['window'], 'is_start')} to {_ym(r['window'], 'oos_end')}", _pct(tr.get("max_drawdown"))]
 
     cols = ["Rule", "Data scored on", "Training Sharpe", "Test Sharpe", "B&H test Sharpe", "Window",
             "Test max drawdown"]
@@ -271,7 +280,7 @@ def render_chance_check(pair_id: str, ts: dict) -> None:
                                 f"ranks at the {_ordinal(round(nt['winner_percentile'] * 100))} percentile of "
                                 f"{nt['n_draws']:,} scrambled-signal contests")
                                + " (the indicator shifted in time against the returns, same selection rule)."
-                               + draws_note(nt)))
+                               + draws_note(nt) + is_window_note(pair_id)))
 
 
 def render_lead_plateau(pair_id: str, ts: dict, ws: dict) -> None:
@@ -309,6 +318,31 @@ def badge_status(ts: dict) -> str | None:
         return None
     lo, hi = vb["ci_95"]
     return "Candidate" if lo > 0 else ("Reject" if hi < 0 else "Watchlist")
+
+
+def is_window_note(pair_id: str) -> str:
+    """The training windows of the scrambled contests against the real winner's (QA B1 umcsent M1: real-time
+    contests at large shifts train on much shorter windows, so the percentile compares unlike samples). Read from
+    results/<pair>/null_is_windows_<tag>.csv (scripts/null_is_windows.py); '' when the pair has none."""
+    from components import provenance as P
+    rdir = Path(__file__).resolve().parents[2] / "results" / pair_id
+    files = sorted(rdir.glob("null_is_windows_*.csv"))
+    if not files:
+        return ""
+    try:
+        df = P.csv_file(files[-1])
+        ws = json.loads((rdir / "winner_summary.json").read_text())
+    except (OSError, ValueError):
+        return ""
+    unit = _lead_unit(ws) or "periods"
+    if not {"is_n_draw", "is_n_actual"} <= set(df.columns):
+        return ""
+    lo, hi, act = P.colmin(df, "is_n_draw"), P.colmax(df, "is_n_draw"), P.colmax(df, "is_n_actual")
+    if float(lo) == float(hi) == float(act):
+        return f" Every contest trained on the same {act:.0f} {unit} of in-sample data as the real winner."
+    return (f" Training windows differ: the scrambled contests trained on {lo:.0f} to {hi:.0f} {unit} of in-sample "
+            f"data, the real winner on {act:.0f}. A contest with a shorter window can reach a higher score by "
+            "chance, so this comparison is not like-for-like.")
 
 
 def draws_note(nt: dict) -> str:

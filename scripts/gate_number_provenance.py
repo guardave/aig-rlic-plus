@@ -1194,6 +1194,7 @@ def check_tagged(text: str, pool: dict, entries: list[dict], fields: dict, where
                 out.append(f"UNRESOLVED {where}: template number {m.group(0)!r} — \"{_ctx(body, m)}\"")
             else:
                 cnt.setdefault("template_blocks", set()).add(body.strip()[:70].replace("\n", " "))
+                cnt.setdefault("template_list", []).append((m.group(0), _ctx(body, m)))
     return out, cnt
 
 
@@ -1430,6 +1431,7 @@ def check_pair(pair: str, pages: dict | None = None) -> tuple[list[str], dict]:
     blocks_seen: set[str] = set()
     charts, rows_checked, nm = set(), 0, [0, 0]
     head, srows, derived = [], [], set()
+    tlist: list = []
     for sec, blocks in pages.items():
         for kind, b in blocks:
             where = f"{pair}/{sec}"
@@ -1479,12 +1481,13 @@ def check_pair(pair: str, pages: dict | None = None) -> tuple[list[str], dict]:
                 tot[k] += c[k]
             surf[surface] += c["template_tokens"] + c["provenance_tokens"]
             blocks_seen.update(f"{sec}: {x}" for x in c.get("template_blocks", ()))
+            tlist.extend((sec, surface, t, ctx) for t, ctx in c.get("template_list", ()))
     stats = {"tokens_pool": len(pool["nums"]), "coincidence_template": round(coincidence(pool), 3),
              "near_miss_template": round(near_miss(pool, _headline_centres(pair)), 3),
              "row_near_miss": round(nm[0] / nm[1], 3) if nm[1] else None, "rows_checked": rows_checked,
              "charts_checked": len(charts), "surfaces": surf,
              "definition": coincidence_definition(pair),
-             "files": pool["files"], "template_blocks": sorted(blocks_seen), **tot}
+             "files": pool["files"], "template_blocks": sorted(blocks_seen), "template_list": tlist, **tot}
     return findings, stats
 
 
@@ -1493,6 +1496,7 @@ def main(argv=None) -> int:
     ap.add_argument("pairs", nargs="*")
     ap.add_argument("--text", help="check this text file against --pair's pool (fixtures)")
     ap.add_argument("--pair")
+    ap.add_argument("--list-template", action="store_true", help="print every value-matched template token")
     a = ap.parse_args(argv)
     if a.text:
         f = check_text(Path(a.text).read_text(), load_pool(a.pair), _allow_entries(), a.pair)
@@ -1508,10 +1512,16 @@ def main(argv=None) -> int:
         print(f"      chart files: {st['charts_checked']} provenance-checked ({sf['chart_file']} text tokens not "
               f"value-matched); sourced tables: {st['rows_checked']} rows row-bound to their source "
               f"(near-miss acceptance {st['row_near_miss'] if st['row_near_miss'] is not None else 'n/a'})")
-        print(f"      VALUE-MATCHED RESIDUAL: {vm} template tokens (prose {sf['prose']}, runtime charts "
-              f"{sf['runtime_chart']}, unsourced tables {sf['unsourced_table']}) against a {st['tokens_pool']}-value "
-              f"curated pool: random-token coincidence {st['coincidence_template']:.1%}, near-miss stale Sharpe "
-              f"(+-0.01..0.10) accepted {st['near_miss_template']:.1%}")
+        nvm = len(st["template_list"])
+        print(f"      VALUE-MATCHED RESIDUAL (template numbers that are neither tagged nor an allowlisted descriptive "
+              f"phrase): {nvm} token(s)" + (f"; against the {st['tokens_pool']}-value curated pool random-token "
+                                           f"coincidence {st['coincidence_template']:.1%}, near-miss stale Sharpe "
+                                           f"(+-0.01..0.10) accepted {st['near_miss_template']:.1%}" if nvm else
+                                           " (none: every result number on the pages is tagged)")
+              + f". Descriptive template tokens allowlisted with a reason: {vm - nvm} (prose {sf['prose']}, runtime "
+                f"charts {sf['runtime_chart']}, unsourced tables {sf['unsourced_table']} template tokens in all).")
+        for sec, surf, t, ctx in ([] if a.list_template else st["template_list"]):
+            print(f"        value-matched {sec}/{surf}: {t!r} — {ctx[:120]}")
         dfn = st["definition"]
         print(f"      definitions: {st['definition_bound']} tokens bound to their own code (keyed definitions, "
               f"categorical labels; {dfn['codes']} spec codes, random-token acceptance {dfn['per_code_mix']:.1%}, "
@@ -1520,6 +1530,9 @@ def main(argv=None) -> int:
               f"numbers (random-token acceptance {dfn['declared_mix']:.1%}, integers 1-30 {dfn['declared_small']:.1%})")
         for x in f:
             print("     ", x[:260])
+        if a.list_template:
+            for sec, surf, t, ctx in st["template_list"]:
+                print(f"      TOKEN {sec}/{surf}: {t!r} — {ctx}")
         if st.get("template_blocks"):
             print(f"      value-matched template blocks: {len(st['template_blocks'])}")
             for b in st["template_blocks"]:

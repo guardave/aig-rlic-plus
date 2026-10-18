@@ -2,8 +2,8 @@
 
 Addresses stakeholder item S18-1. Rule APP-SE1 (AppDev SOP §3.6, §3.11.5),
 with Wave 1.5 pre-render validation extension: before rendering, the
-component MUST validate column presence, numeric bounds, and historical
-plausibility. Invalid data surfaces as ``st.error()`` and the chart is
+component MUST validate column presence, numeric bounds, and data integrity
+(a non-degenerate series; no claim about crisis response). Invalid data surfaces as ``st.error()`` and the chart is
 skipped — we never render a time-series from invalid signal values.
 
 **Wave 4D-2 (2026-04-19) refactor per APP-WS1 + APP-SEV1 + META-CF:**
@@ -150,7 +150,7 @@ def _validate_signal(
         # Heuristic: treat column as a z-score if its name ends with an
         # underscore-z + optional digits suffix (e.g. "_z", "_z63", "_z126")
         # or contains "_zscore".  All other non-probability columns skip the
-        # magnitude bound and rely solely on the historical-plausibility gate.
+        # magnitude bound and rely solely on the data-integrity check.
         _is_zscore_col = bool(
             re.search(r"_z\d*$", column) or "_zscore" in column
         )
@@ -162,9 +162,11 @@ def _validate_signal(
                     f"min={lo:.4f}, max={hi:.4f} — expected z-score in ~±5 range."
                 )
 
-    # Historical plausibility — during at least one known stress window the
-    # signal should reach the expected extreme. Default windows cover GFC and
-    # COVID; a pair may override via interpretation_metadata.known_stress_episodes.
+    # Data integrity (Lead ruling 2026-10-18 on SE1): the series must not be degenerate - constant, truncated or
+    # mostly missing where it matters. A placebo study showed that "reaches its own extreme in a stress window"
+    # is passed by 64-100% of random same-length windows, so this check makes NO claim that the signal responded
+    # to a crisis; whether it did is an evidence question (placebo-tested), not a render gate. Default windows
+    # cover GFC and COVID; a pair may override via interpretation_metadata.known_stress_episodes.
     stress_windows = metadata.get("known_stress_episodes") or [
         ("2008-09-01", "2009-06-30"),
         ("2020-02-15", "2020-04-30"),
@@ -221,7 +223,7 @@ def _validate_signal(
         names = ", ".join(w.get("label", f"{w.get('start')} to {w.get('end')}") if isinstance(w, dict)
                           else f"{w[0]} to {w[1]}" for w in stress_windows)
         return False, (
-            f"plausibility: the signal did not reach an extreme of its own history during the known stress "
+            f"integrity: the signal shows no reading in the extreme tenth of its own history during the stress "
             f"episodes ({names})"
         )
 
@@ -258,6 +260,7 @@ def _render_chart(
     grey zone tracking it. Labelling it "rolling, latest X" while drawing a flat
     line (the prior fix) was the specific defect re-opened by the reviewer.
     """
+    thr_lbl, threshold = threshold, float(threshold)   # tagged value for text, plain float for plotly (v5.1)
     series = signals_df[column].dropna()
     fig = go.Figure()
 
@@ -294,7 +297,7 @@ def _render_chart(
                 mode="lines",
                 name=(
                     f"Decision threshold ({rolling_label or f'rolling {rolling_window}m median'}, "
-                    f"latest {threshold:g}): "
+                    f"latest {thr_lbl:g}): "
                     + ("long at/below, cash above" if long_below else "long above, cash at/below")
                 ),
                 line=dict(color="#444444", width=1.4, dash="dash"),
@@ -328,7 +331,7 @@ def _render_chart(
                 mode="lines",
                 name=(
                     f"Decision threshold ("
-                    + (f"rolling, latest {threshold:g}" if is_rolling else f"{threshold:g}")
+                    + (f"rolling, latest {thr_lbl:g}" if is_rolling else f"{thr_lbl:g}")
                     + "): "
                     + ("long at/below, cash above" if long_below else "long above, cash at/below")
                 ),
@@ -457,7 +460,7 @@ def render_probability_engine_panel(pair_id: str) -> None:
     Flow:
         1. Load signals parquet (most recent) + winner_summary.json.
         2. Resolve the canonical signal column name.
-        3. Pre-render validation (column presence, bounds, plausibility).
+        3. Pre-render validation (column presence, bounds, data integrity).
         4. On failure → st.error(diagnostic); skip chart.
         5. On success → Plotly time-series + threshold line + NBER shading.
         6. 1-line st.caption() takeaway (APP-SE5).
@@ -569,13 +572,13 @@ def render_probability_engine_panel(pair_id: str) -> None:
     if not ok:
         # QA / Lead (B1): a plain, factual message; the diagnostic (column names, thresholds, window lists)
         # stays in session state for debugging and is never shown to readers.
-        if diagnostic.startswith("plausibility:"):
+        if diagnostic.startswith("integrity:"):
             st.warning(
-                "The signal panel cannot render: during the known stress episodes for this pair "
-                f"({diagnostic.split('episodes (', 1)[-1].rstrip(')')}) the signal never reached an extreme "
-                "of its own history, so a chart of it against those episodes would mislead. This says the "
-                "signal was quiet in those crises; the strategy results on this page are computed separately "
-                "and are unaffected."
+                "The signal panel cannot render: the stored signal history did not pass the data-integrity check "
+                "(a usable series varies, and somewhere in the stress episodes reaches the extremes of its own "
+                "range; this one looks constant, truncated or mostly missing there). This is a data check, not a "
+                "statement about how the signal behaved in crises. The strategy results on this page are computed "
+                "separately and are unaffected."
             )
         else:
             st.error(
@@ -593,7 +596,8 @@ def render_probability_engine_panel(pair_id: str) -> None:
     # ---- Validation passed — record + render ----
     # winner["threshold_value"] may be JSON null (None) — coerce safely.
     _tv = winner.get("threshold_value")
-    threshold = float(_tv) if _tv is not None else 0.5
+    # the recorded value keeps its provenance tag (a float subclass) so every text that prints it is tagged (v5.1)
+    threshold = (_tv if isinstance(_tv, float) else float(_tv)) if _tv is not None else 0.5
     is_probability = column.startswith(_PROBABILITY_PREFIXES) or "_prob_" in column
     st.session_state[f"se1_validation_{pair_id}"] = {
         "ok": True,

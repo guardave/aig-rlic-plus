@@ -122,6 +122,9 @@ def render_signal_universe(pair_id: str) -> None:
                  hide_index=True)
 
     ind_n = len(ind_df)
+    if hasattr(indicator_axis.get("derivatives"), "src"):  # tagged list (gate mode): a tagged count
+        from .provenance import length
+        ind_n = length(indicator_axis["derivatives"])
     st.caption(
         f"Takeaway: {ind_n} indicator-axis derivative{'s' if ind_n != 1 else ''} "
         "disclosed. Every derivative is a mathematical transform of the single "
@@ -147,6 +150,9 @@ def render_signal_universe(pair_id: str) -> None:
                  hide_index=True)
 
     tgt_n = len(tgt_df)
+    if hasattr(target_axis.get("derivatives"), "src"):
+        from .provenance import length
+        tgt_n = length(target_axis["derivatives"])
     st.caption(
         f"Takeaway: {tgt_n} target-axis derivative{'s' if tgt_n != 1 else ''} "
         "disclosed. All derived from the single canonical column "

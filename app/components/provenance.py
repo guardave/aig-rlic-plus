@@ -326,6 +326,28 @@ def prefix(text: "_PStr", n: int) -> "_PStr | str":
     return _PStr(str.__str__(text)[:n], f"prefix({text.src},{n})") if isinstance(text, _PStr) else text[:n]
 
 
+def field_text(d, key):
+    """Shared templates only (not in a config's P API): the field `key` of a tagged artifact dict as tagged text,
+    dates included (artifact() leaves ISO dates plain because template code parses them). Plain value outside the
+    gate or for an untagged dict; None when the field is missing."""
+    if isinstance(d, (list, tuple)):
+        v = d[key] if isinstance(key, int) and -len(d) <= key < len(d) else None
+        key = key % len(d) if v is not None else key
+    else:
+        v = d.get(key) if hasattr(d, "get") else None
+    src = getattr(d, "src", None)
+    if v is None or src is None or not gate_on() or isinstance(v, (dict, list)):
+        return v
+    return _PStr(str.__str__(v) if isinstance(v, str) else str(v), f"{src}/{_esc(str(key))}")
+
+
+def span_years(a, b):
+    """Years between two ISO dates (a window length), tagged years(<src a>,<src b>) when both dates are tagged."""
+    n = (pd.Timestamp(str.__str__(a) if isinstance(a, str) else a)
+         - pd.Timestamp(str.__str__(b) if isinstance(b, str) else b)).days / -365.25
+    return _PNum(n, f"years({a.src},{b.src})") if isinstance(a, _PStr) and isinstance(b, _PStr) else n
+
+
 def year(date_text: "_PStr") -> "_PStr | str":
     """The year of a tagged ISO date."""
     return prefix(date_text, 4)
@@ -388,6 +410,13 @@ class SourceError(ValueError):
     pass
 
 
+def _read_csv(f) -> pd.DataFrame:
+    """A CSV artifact as the templates read it: a leading '#' comment block (broker-style logs) is skipped."""
+    with open(f) as fh:
+        head = fh.read(1)
+    return pd.read_csv(f, comment="#") if head == "#" else pd.read_csv(f)
+
+
 def _art(ref: str, pair: str | None):
     path, _, key = ref.partition("#")
     if path.startswith("outside-results:"):
@@ -400,9 +429,9 @@ def _art(ref: str, pair: str | None):
         raise SourceError(f"source {f} is not inside {root}") from None
     if f.suffix == ".csv":
         if not key:
-            return pd.read_csv(f)
+            return _read_csv(f)
         row, col = key.split("/", 1)
-        return pd.read_csv(f)[_unesc(col)].iloc[int(row[1:])]
+        return _read_csv(f)[_unesc(col)].iloc[int(row[1:])]
     o = json.loads(f.read_text())
     for k in [x for x in key.split("/") if x != ""]:
         k = _unesc(k)
@@ -460,6 +489,8 @@ def kind_of(src: str, pair: str | None = None) -> str:
         return leaf_kind(f"{args[0]}/{_unesc(args[1])}")
     if fn in ("key", "prefix"):
         return "label"
+    if fn == "years":
+        return "duration"
     if fn in ("mul", "div", "add", "sub"):
         ka, kb = kind_of(args[0], pair), kind_of(args[1], pair)
         if "const" not in (ka, kb):
@@ -543,6 +574,8 @@ def evaluate(src: str, fields: dict | None = None, pair: str | None = None, _roo
         return k
     if fn == "prefix":
         return str(ev(args[0]))[:int(args[1])]
+    if fn == "years":
+        return (pd.Timestamp(str(ev(args[1]))) - pd.Timestamp(str(ev(args[0])))).days / 365.25
     if fn == "count":
         df = ev(args[0])
         col, op, other = _unesc(args[1]), args[2], _unesc(args[3])

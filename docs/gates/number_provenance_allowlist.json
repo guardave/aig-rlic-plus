@@ -1,24 +1,64 @@
 {
-  "entries": [
-    {
-      "id": "portal_progress",
-      "regex": "\\b\\d+ of \\d+ priority pairs analyzed\\b",
-      "why": "Sidebar portal status (pairs completed out of the prospective universe), computed from the registry for the whole portal; not a pair result."
-    },
-    {
-      "id": "grey_zone_band",
-      "regex": "\\bwithin about ±0\\.25 of the decision threshold\\b|\\(±0\\.25\\)",
-      "why": "Fixed display band of the probability-engine chart (template constant, the same for every pair), not a result."
-    },
-    {
-      "id": "bibliographic_citation",
-      "regex": "\\*[^*\\n]+\\*,\\s*\\d+\\(\\d+\\),\\s*\\d+\\s*[–-]\\s*\\d+|\\(\\d{4}[a-z]?\\)",
-      "why": "Reference list entries (journal volume(issue), pages; publication year): bibliographic metadata, not results."
-    },
-    {
-      "id": "trade_log_definitions",
-      "regex": "\\(0[–-]100\\)|/ 100 × \\$10,000 starting capital|\\$10,000 (?:starting stake|notional base|starting capital|notional)",
-      "why": "Trade-log definitions in the shared template: weight range 0-100 percent and the fixed $10,000 notional stake the broker-style log uses (a template constant, the same for every pair)."
-    }
-  ]
+ "entries": [
+  {
+   "id": "portal_progress",
+   "regex": "\\b\\d+ of \\d+ priority pairs analyzed\\b",
+   "why": "Sidebar portal status (pairs completed out of the prospective universe), computed from the registry for the whole portal; not a pair result."
+  },
+  {
+   "id": "grey_zone_band",
+   "regex": "\\bwithin about ±0\\.25 of the decision threshold\\b|\\(±0\\.25\\)",
+   "why": "Fixed display band of the probability-engine chart (template constant, the same for every pair), not a result."
+  },
+  {
+   "id": "bibliographic_citation",
+   "regex": "\\*[^*\\n]+\\*,\\s*\\d+\\(\\d+\\),\\s*\\d+\\s*[–-]\\s*\\d+|\\(\\d{4}[a-z]?\\)",
+   "why": "Reference list entries (journal volume(issue), pages; publication year): bibliographic metadata, not results."
+  },
+  {
+   "id": "trade_log_definitions",
+   "regex": "\\(0[–-]100\\)|/ 100 × \\$10,000 starting capital|\\$10,000 (?:starting stake|notional base|starting capital|notional)",
+   "why": "Trade-log definitions in the shared template: weight range 0-100 percent and the fixed $10,000 notional stake the broker-style log uses (a template constant, the same for every pair)."
+  },
+  {
+   "id": "page_structure",
+   "regex": "\\bseven-part structure\\b|\\bLevel [12]\\b|\\btwo tiers\\b|\\bRows 2 and 4\\b|\\bthese two tables\\b|\\bthe two data views\\b|\\bThe two differ\\b|\\bTwo files\\b|\\bfirst 10 executions\\b|\\b10-column schema\\b",
+   "why": "Page and table structure (section counts, tier names, row references, file counts): template layout, the same for every pair."
+  },
+  {
+   "id": "rule_mechanics",
+   "regex": "\\bbetween 100% and 0%|\\b100% (?:cash|SPY|XLV|XLP|XLI)\\b|\\brun of three neighbouring leads\\b|\\bround trip is two (?:executions|rows)\\b",
+   "why": "How a P1 long/cash rule and the stable lead range work (full exposure or cash; a window of three adjacent leads): method mechanics, not a pair result."
+  },
+  {
+   "id": "cost_convention",
+   "regex": "\\b5 basis points \\(0\\.05%\\)|\\babout 10 bps\\b",
+   "why": "Transaction-cost convention of every backtest (5 bp per execution, two per round trip): methodology constant."
+  },
+  {
+   "id": "threshold_rule_wording",
+   "regex": "\\brolling \\d+-(?:month|quarter|day|trading-day) (?:\\d+(?:st|nd|rd|th) percentile|median)\\b|\\brolling \\d+(?:st|nd|rd|th) percentile\\b",
+   "why": "The threshold rule's definition (window and percentile of the rolling boundary), parsed from the threshold code (components.rolling_threshold): the rule's parameters, not a measured result."
+  },
+  {
+   "id": "signal_label",
+   "regex": "\\b\\d+-(?:quarter|month|day) (?:change|z-score|momentum)\\b",
+   "why": "Signal display name (window of the transform), from the pair's declared signal labels: a parameter, not a result."
+  },
+  {
+   "id": "series_definition",
+   "regex": "\\b30\\+ days past due\\b",
+   "why": "Official definition of the delinquency series (FRED DRCCLACBN): data definition, not a result."
+  },
+  {
+   "id": "recession_names",
+   "regex": "\\bthe (?:2001|2008-09|2020) recession\\b",
+   "why": "Names of NBER recessions (episode labels from the track summary's coverage list), not results."
+  },
+  {
+   "id": "trigger_scenarios",
+   "regex": "\\b\\d/3 scenarios located\\b",
+   "why": "Diagnostic of the trigger-card illustration (how many of the three illustrated crossings were found in the signal history), not a research result."
+  }
+ ]
 }

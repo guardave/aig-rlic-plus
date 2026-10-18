@@ -64,6 +64,7 @@ from components.narrative import (
 from components.position_adjustment_panel import render_position_adjustment_panel
 from components.provenance import artifact as _artifact
 from components.provenance import table_source as _table_source
+from components import provenance as _P
 from components.rolling_threshold import resolve_threshold
 from components.probability_engine_panel import render_probability_engine_panel
 from components.pair_registry import get_page_prefix
@@ -747,8 +748,8 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
     bh_ret = _format_ratio_pct(
         _benchmark_metric(pair_id, winner, "bh_ann_return", "oos_ann_return"), signed=True)
 
-    oos_start = (winner.get("oos_period_start") or "")[:7]
-    oos_end = (winner.get("oos_period_end") or "")[:7]
+    oos_start = _P.prefix(_P.field_text(winner, "oos_period_start") or "", 7)    # tagged in gate mode (v5.1)
+    oos_end = _P.prefix(_P.field_text(winner, "oos_period_end") or "", 7)
     oos_range_label = f"{oos_start}–{oos_end}" if oos_start and oos_end else "OOS window"
 
     # APP-PLB1 / DPS-FE2: route the headline-KPI label by evidence_status.
@@ -1004,14 +1005,11 @@ def _story_kpi_oos_years(winner: dict[str, Any]) -> str:
     """Compute a years label from winner_summary.oos_n (monthly) or
     oos_period_start/end. Falls back to the raw oos_n when the dates are
     unavailable."""
-    start = winner.get("oos_period_start")
-    end = winner.get("oos_period_end")
+    start = _P.field_text(winner, "oos_period_start")
+    end = _P.field_text(winner, "oos_period_end")
     if start and end:
         try:
-            s = pd.to_datetime(start)
-            e = pd.to_datetime(end)
-            years = (e - s).days / 365.25
-            return f"{years:.1f} yrs"
+            return f"{_P.span_years(start, end):.1f} yrs"          # tagged years(start, end) in gate mode
         except (ValueError, TypeError):
             pass
     n = winner.get("oos_n")
@@ -1562,8 +1560,8 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
         _headline_sharpe_label = _kpi_routing["headline_label"]
         # Window-labelling rule: the Strategy KPI row carries no period
         # card, so the window rides in the headline delta.
-        _oos_start = (winner.get("oos_period_start") or "")[:7]
-        _oos_end = (winner.get("oos_period_end") or "")[:7]
+        _oos_start = _P.prefix(_P.field_text(winner, "oos_period_start") or "", 7)
+        _oos_end = _P.prefix(_P.field_text(winner, "oos_period_end") or "", 7)
         _window = f"{_oos_start}–{_oos_end}" if _oos_start and _oos_end else "OOS window"
         # signed gap (as on the Story page) so a below-B&H Sharpe shows a red down arrow
         _signed, _signed_color = _sharpe_kpi_delta(winner)
@@ -2073,16 +2071,28 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
     else:
         valid_txt = _VALID_RULE_TXT
         rank_txt = "ranked by OOS Sharpe (this pair's selection objective is not a single ranking column)"
+    # v5.1: counts and the rank as tagged values of the tournament file (plain when they would not reproduce)
+    _tt = _P.csv_file(tourn_path)
+    n_tested = (tdf["signal"] != "BENCHMARK").sum() if "signal" in tdf.columns else len(tdf)
+    n_bench = int(len(tdf) - n_tested)
+    n_tested = (_P.length(_tt) - n_bench) if n_bench in (0, 1) else n_tested
+    n_valid = len(valid)
+    if "valid" in _tt.columns and int(tdf["valid"].astype(bool).sum()) == n_valid:
+        n_valid = _P.count(_tt, "valid", "==", 1)
     win_txt = ""
     if win_idx is not None:
         w_rank = int(rank_of[win_idx]) if win_idx in rank_of.index else None
+        _rc = {"is_sharpe": "is_rank", "oos_sharpe": "oos_rank"}.get(rank_col)
+        if w_rank is not None and _rc in _tt.columns and pd.notna(tdf.loc[win_idx, _rc]) \
+                and int(tdf.loc[win_idx, _rc]) == w_rank:
+            w_rank = _tt.loc[win_idx, _rc]
         # QA_VERIFY_B1: "published" was ambiguous next to a correction banner naming an earlier published rule
         win_txt = " ★ marks the winner this page reports (the rule in the headline)" + (
-            f"; it ranks #{w_rank} on this column."
+            f"; it ranks #{w_rank:.0f} on this column."
             if w_rank not in (None, 1) and objective_known else ".")
     st.caption(
-        f"**{((tdf['signal'] != 'BENCHMARK').sum() if 'signal' in tdf.columns else len(tdf)):,} combinations tested** | "
-        f"**{len(valid):,} valid** {valid_txt}; {rank_txt}."
+        f"**{n_tested:,} combinations tested** | "
+        f"**{n_valid:,} valid** {valid_txt}; {rank_txt}."
         + (" OOS Sharpe is shown for evaluation only." if _is_sel else "")
         + (" Lookback = rolling-window length in the pair's period unit (n/a = none)." if _show_lb else "")
         + win_txt
@@ -2177,6 +2187,11 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
     col_overrides: dict[str, str] = getattr(config, "TRADE_LOG_COLUMN_EXAMPLES", {}) or {}
     table_lines = ["| Column | Type | Meaning | Example |", "|---|---|---|---|"]
     _first = broker_df.iloc[0] if broker_df is not None and len(broker_df) else None
+    if _first is not None and _P.gate_on():           # example values tagged from the log's first row (v5.1)
+        try:
+            _first = _P.csv_file(broker_path, comment="#").iloc[0]
+        except Exception:                            # noqa: BLE001 - keep the plain row
+            pass
     for col_name, row in _TRADE_LOG_COLUMN_DICT_DEFAULTS.items():
         # Example values come from the pair's own trade log when it has the column (an illustrative number
         # must never be a made-up one); otherwise the config override; otherwise the default only when it
@@ -2185,7 +2200,7 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
             example_val = str(_first[col_name])
         elif col_name in col_overrides:
             example_val = col_overrides[col_name]
-        elif not re.search(r"\d", row.get("example", "")) or col_name == "trade_date":
+        elif not re.search(r"\d", row.get("example", "")):          # never a made-up example date (v5.1)
             example_val = row.get("example", "")
         else:
             example_val = "(not in this pair's log)"
@@ -2211,7 +2226,7 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
                 key=f"tl_dl_broker_{pair_id}",
             )
             st.caption(
-                f"{len(broker_df):,} executions over the full reconstructed "
+                f"{_P.length(_P.csv_file(broker_path, comment='#')):,} executions over the full reconstructed "
                 "history (since indicator inception, one row per BUY or SELL — "
                 "a round trip is two rows). The headline trade-count and "
                 "turnover figures elsewhere on this page count only the "
@@ -2241,7 +2256,7 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
                 mime="text/csv",
                 key=f"tl_dl_position_{pair_id}",
             )
-            st.caption(f"{len(pos_df):,} position-weight change rows")
+            st.caption(f"{_P.length(_P.csv_file(pos_path)):,} position-weight change rows")
         elif pos_err is not None:
             st.warning(
                 f"Position log unreadable for `{pair_id}` ({pos_err}). "
@@ -2333,8 +2348,8 @@ def render_methodology_page(pair_id: str, config: MethodologyConfig) -> None:
     # ------ 6. Sample period ------
     winner = _load_winner_summary(pair_id)
     if winner is not None:
-        start = (winner.get("oos_period_start") or "")[:7]
-        end = (winner.get("oos_period_end") or "")[:7]
+        start = _P.prefix(_P.field_text(winner, "oos_period_start") or "", 7)
+        end = _P.prefix(_P.field_text(winner, "oos_period_end") or "", 7)
         oos_n = winner.get("oos_n", "N/A")
         st.markdown("### Sample Period")
         col1, col2 = st.columns(2)

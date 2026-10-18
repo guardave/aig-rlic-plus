@@ -387,7 +387,7 @@ def test_headline_numbers_must_be_tagged_even_in_template_text():
                           g.load_pool(PAIR), g._allow_entries(), {}, "t", PAIR, None, headline=True)
     assert any(t.startswith("HEADLINE") for t in f)
     findings, stats = g.check_pair(PAIR, g.render_pages(PAIR, sections=("strategy",)))
-    assert findings == [] and stats["template_blocks"]                          # residual blocks are listed
+    assert findings == [] and stats["template_list"] == []    # v5.1: no result number is left value-matched
 
 
 def test_n4_definition_pool_takes_only_named_pipeline_parameters(tmp_path, monkeypatch):

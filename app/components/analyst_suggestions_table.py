@@ -123,6 +123,9 @@ def render_analyst_suggestions(pair_id: str) -> None:
     )
 
     n = len(suggestions)
+    if hasattr(suggestions, "src"):                       # tagged list (gate mode): a tagged count
+        from .provenance import length
+        n = length(suggestions)
     st.caption(
         f"Takeaway: {n} off-scope observation{'s' if n != 1 else ''} on "
         "file for this pair. Each includes the observed metric, the "
