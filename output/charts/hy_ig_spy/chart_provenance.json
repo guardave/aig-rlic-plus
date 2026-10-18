@@ -11,15 +11,25 @@
   }
  },
  "chance_check": {
-  "chart_sha256": "997ceb205bf5d4916b71ccb0528fc2fd9a698dc8ca25deddbf539640af960792",
+  "chart_sha256": "11c7e0643d6069f318e56f10c7393be97b5b2aed5ecad209c5a53d57d668fa80",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T00:47:45+00:00",
+  "recorded_at": "2026-10-18T01:53:58+00:00",
   "inputs": {
+   "results/cc_delinquency_spy/hindsight_lead_curve_20261017.csv": "c65abaff0c043e6b47a654f9b3d79115fb6823e80938465258cbdbf396df4250",
+   "results/cc_delinquency_spy/lead_curve_20261017.csv": "c69eed6eaf0c52fdd675a05aa60737f7b90605047b213c7bcea71e1fc5786942",
+   "results/cc_delinquency_spy/null_tournament_20261017.csv": "fc3924d25cde42993ad2058ba642f2cb00181debd7becd8826829e3b142a40e3",
+   "results/cc_delinquency_spy/track_summary.json": "022a4aab1177d8e61dad4b5314a30c1c3187b1cbc5c643d806d61d4628cbea99",
+   "results/cc_delinquency_spy/winner_summary.json": "250a89da5c379722298b0ff21949eef969c715f220b47a14e53b4ad98bfa9cff",
    "results/hy_ig_spy/lead_curve_20261017.csv": "aff55a78b9a6df346109368b12c790ac46567551a004b670d974778ef910b0c5",
    "results/hy_ig_spy/null_tournament_20261017.csv": "5ffbe5ce49132f9a8c5aab2474b18a1057120715752fc516504f1ec960d9b5a4",
    "results/hy_ig_spy/track_summary.json": "c3327393fb3de6842dc9dc52a99e69036a28c15bd021be5dd67bb339f394d712",
-   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b"
+   "results/hy_ig_spy/winner_summary.json": "68485e4babf0a6594137b65a5248d8f099480dccc9fb856e5ff676b71f64014b",
+   "results/unrate_spy/hindsight_lead_curve_20261017.csv": "2ec97d833c6a16d32357fb778e5a16b8b5ccd09912a05adaf23d1b4b7e24f8bf",
+   "results/unrate_spy/lead_curve_20261017.csv": "7b469e56b146f28daf14ce4ec6ed1aa24404920f4fb875c9867780b035350359",
+   "results/unrate_spy/null_tournament_20261017.csv": "7d5fe1f9e440e3e80368a25adc0c1bf1ed9047aeb25c30d752553316b3fff145",
+   "results/unrate_spy/track_summary.json": "ba3e6a2a289258624f110f745c13df87afff1e46575dee523524cf94c59d5f7e",
+   "results/unrate_spy/winner_summary.json": "a1f87965a1411cdf0ee665e3aa794d1be4e8c51dd96cc0ea5f385cd0d192c832"
   }
  },
  "correlation_heatmap": {
@@ -184,9 +194,19 @@
   "chart_sha256": "72a27f7a65bb3ee5d79ad77cfbd5e8d86a4bab649d113ce7599f5eabc372c151",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T00:47:42+00:00",
+  "recorded_at": "2026-10-18T01:53:52+00:00",
   "inputs": {
-   "results/hy_ig_spy/lead_curve_20261017.csv": "aff55a78b9a6df346109368b12c790ac46567551a004b670d974778ef910b0c5"
+   "results/cc_delinquency_spy/hindsight_lead_curve_20261017.csv": "c65abaff0c043e6b47a654f9b3d79115fb6823e80938465258cbdbf396df4250",
+   "results/cc_delinquency_spy/lead_curve_20261017.csv": "c69eed6eaf0c52fdd675a05aa60737f7b90605047b213c7bcea71e1fc5786942",
+   "results/cc_delinquency_spy/null_tournament_20261017.csv": "fc3924d25cde42993ad2058ba642f2cb00181debd7becd8826829e3b142a40e3",
+   "results/cc_delinquency_spy/track_summary.json": "022a4aab1177d8e61dad4b5314a30c1c3187b1cbc5c643d806d61d4628cbea99",
+   "results/cc_delinquency_spy/winner_summary.json": "250a89da5c379722298b0ff21949eef969c715f220b47a14e53b4ad98bfa9cff",
+   "results/hy_ig_spy/lead_curve_20261017.csv": "aff55a78b9a6df346109368b12c790ac46567551a004b670d974778ef910b0c5",
+   "results/unrate_spy/hindsight_lead_curve_20261017.csv": "2ec97d833c6a16d32357fb778e5a16b8b5ccd09912a05adaf23d1b4b7e24f8bf",
+   "results/unrate_spy/lead_curve_20261017.csv": "7b469e56b146f28daf14ce4ec6ed1aa24404920f4fb875c9867780b035350359",
+   "results/unrate_spy/null_tournament_20261017.csv": "7d5fe1f9e440e3e80368a25adc0c1bf1ed9047aeb25c30d752553316b3fff145",
+   "results/unrate_spy/track_summary.json": "ba3e6a2a289258624f110f745c13df87afff1e46575dee523524cf94c59d5f7e",
+   "results/unrate_spy/winner_summary.json": "a1f87965a1411cdf0ee665e3aa794d1be4e8c51dd96cc0ea5f385cd0d192c832"
   }
  },
  "lead_sharpe_distribution": {

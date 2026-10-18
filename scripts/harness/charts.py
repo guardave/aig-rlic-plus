@@ -46,7 +46,8 @@ def _save(pair: str, name: str, fig: go.Figure, caption: str, sources: list[str]
 
 def lead_plateau(pair: str, tag: str, lead_unit: str) -> str | None:
     """Score (training-period Sharpe) vs lead for the MAIN winner's rule, plateau band, winner diamond, open
-    triangle for an off-plateau maximum; the hindsight curve is a legend-toggle trace. Returns the caption."""
+    triangle for an off-plateau maximum; the hindsight (as revised today) curve is drawn dashed for comparison (a
+    legend entry for a hidden trace read as a missing line: umcsent QA P6). Returns the caption."""
     rdir = REPO / "results" / pair
     main = pd.read_csv(rdir / f"lead_curve_{tag}.csv")
     if main.empty:
@@ -76,7 +77,7 @@ def lead_plateau(pair: str, tag: str, lead_unit: str) -> str | None:
         hl = hind[[c for c in hind.columns if c.startswith("lead_")][0]].astype(int)
         fig.add_trace(go.Scatter(x=[pos.get(L, np.nan) for L in hl], y=hind["is_sharpe"], mode="lines+markers",
                                  name=LABEL["revised"], line=dict(color=C_REV, width=2, dash="dash"),
-                                 marker=dict(symbol="square", size=7), visible="legendonly",
+                                 marker=dict(symbol="square", size=7), opacity=0.75,
                                  hovertext=[f"Lead {L}<br>Score {s:.2f} (hindsight)" for L, s in zip(hl, hind["is_sharpe"])],
                                  hoverinfo="text"))
     fig.add_trace(go.Scatter(x=[pos[wl]], y=[w["is_sharpe"]], mode="markers", name=f"Winner L{wl}",
@@ -140,6 +141,9 @@ def chance_check(pair: str, tag: str) -> str | None:
     fig.update_layout(template="plotly_white", height=380, title="Chance check: real winner vs scrambled signals",
                       xaxis_title="Best score in a contest (training-period Sharpe, stable lead range)",
                       yaxis_title="Number of contests", showlegend=False)
+    # the y '0' and the first x tick met at the origin (umcsent QA P5): pad both axes' tick labels off the corner
+    fig.update_yaxes(rangemode="tozero", ticklabelstandoff=8)
+    fig.update_xaxes(ticklabelstandoff=8)
     _save(pair, "chance_check", fig, cap, [f"results/{pair}/null_tournament_{tag}.csv", f"results/{pair}/track_summary.json"])
     return cap
 
