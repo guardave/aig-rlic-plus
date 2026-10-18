@@ -269,6 +269,8 @@ def chart_history_zoom(slug: str, title: str, start: str, end: str) -> None:
     fig.update_layout(title=title, template="plotly_white", height=430, hovermode="x unified")
     fig.update_yaxes(title_text="Retail sales YoY (%)", secondary_y=False)
     fig.update_yaxes(title_text="SPY", secondary_y=True)
+    from harness.charts import zoom_dual_panel  # VIZ-V1: indicator and target in stacked panels
+    fig = zoom_dual_panel(fig)
     save(f"history_zoom_{slug}", fig, f"{title}; gray bands are NBER recessions.", ["data/rsxfs_spy_monthly_latest.parquet"])
 
 

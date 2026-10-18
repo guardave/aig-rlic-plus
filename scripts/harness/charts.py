@@ -137,3 +137,93 @@ def chance_check(pair: str, tag: str) -> str | None:
                       yaxis_title="Number of contests", showlegend=False)
     _save(pair, "chance_check", fig, cap, [f"results/{pair}/null_tournament_{tag}.csv", f"results/{pair}/track_summary.json"])
     return cap
+
+
+# ------------------------------------------------------------------------------------------- history zooms
+def _axis_key(ref: str) -> str:
+    """'x2' -> 'xaxis2', 'y' -> 'yaxis', 'x2 domain' -> 'xaxis2'."""
+    ref = ref.split(" ")[0]
+    return f"{ref[0]}axis{ref[1:]}"
+
+
+def _axis_ref(key: str) -> str:
+    """'xaxis2' -> 'x2', 'yaxis' -> 'y'."""
+    return key[0] + key[5:]
+
+
+def zoom_dual_panel(fig, gap: float = 0.07, panel_px: int = 230):
+    """VIZ-V1: a history zoom shows the indicator and the target in SEPARATE stacked panels on a shared x-axis.
+
+    Turns every overlaid secondary-y axis (``make_subplots(specs=[[{"secondary_y": True}]])``) into its own panel
+    directly below the panel it overlaid: its traces, shapes and annotations move to a new x-axis matched to the
+    first one, paper-height recession bands are drawn once per panel, only the bottom panel keeps x tick labels.
+    Data, names, colours and titles are untouched. Idempotent (a figure without overlaying axes is returned as is).
+    Accepts a plotly Figure or a figure dict; returns the same kind.
+    """
+    is_fig = isinstance(fig, go.Figure)
+    d = json.loads(fig.to_json() if is_fig else json.dumps(fig, default=str))   # plotly encodes numpy / dates
+    L = d.setdefault("layout", {})
+    ykeys = sorted((k for k in L if k.startswith("yaxis")), key=lambda k: int(k[5:] or 1))
+    over = {k: _axis_key(L[k]["overlaying"]) for k in ykeys if L[k].get("overlaying")}   # overlay -> base
+    if not over:
+        return fig
+    base = sorted((k for k in ykeys if k not in over), key=lambda k: -(L[k].get("domain") or [0, 1])[1])
+    old_dom = {k: list(L[k].get("domain") or [0, 1]) for k in base}
+    order = [x for b in base for x in [b] + [k for k in ykeys if over.get(k) == b]]      # top panel first
+    xkeys = sorted((k for k in L if k.startswith("xaxis")), key=lambda k: int(k[5:] or 1)) or ["xaxis"]
+    first_x = xkeys[0]
+    L.setdefault(first_x, {})
+    nxt = max(int(k[5:] or 1) for k in xkeys) + 1
+    x_of: dict[str, str] = {}
+    for k in order:
+        if k in over:
+            x_of[k], nxt = f"xaxis{nxt}", nxt + 1
+        else:
+            x_of[k] = _axis_key(L[k].get("anchor", "x"))
+    n = len(order)
+    h = (1 - gap * (n - 1)) / n
+    dom = {k: [max(0.0, round(1 - i * (h + gap) - h, 4)), round(1 - i * (h + gap), 4)] for i, k in enumerate(order)}
+    x_title = next((L[x].get("title") for x in xkeys if L.get(x, {}).get("title")), None)
+    shared = {f: v for f, v in L[first_x].items()
+              if f not in ("domain", "anchor", "title", "matches", "showticklabels", "overlaying")}
+    for i, k in enumerate(order):
+        for f in ("overlaying", "side", "position", "anchor"):
+            L[k].pop(f, None)
+        L[k].update(domain=dom[k], anchor=_axis_ref(x_of[k]))
+        x = L.setdefault(x_of[k], {})
+        for f, v in shared.items():                                            # same range / type / format
+            x.setdefault(f, v)
+        x.pop("title", None)
+        x.update(domain=[0.0, 1.0], anchor=_axis_ref(k), showticklabels=i == n - 1)
+        if x_of[k] != first_x:
+            x["matches"] = _axis_ref(first_x)
+        if i == n - 1 and x_title:
+            x["title"] = x_title
+    for t in d.get("data", []):
+        ya = _axis_key(t.get("yaxis", "y"))
+        if ya in x_of and ("yaxis" in t or "xaxis" in t):
+            t["xaxis"] = _axis_ref(x_of[ya])
+
+    def xref_for(k: str, old: str) -> str:
+        return _axis_ref(x_of[k]) + (" domain" if "domain" in old else "")
+
+    shapes = []
+    for s in L.get("shapes") or []:
+        yr, xr = s.get("yref", "y"), s.get("xref", "x")
+        if yr == "paper" and xr != "paper":                                    # band spanning panel heights
+            lo, hi = sorted((float(s.get("y0", 0)), float(s.get("y1", 1))))
+            hit = {b for b in base if old_dom[b][0] < hi - 1e-9 and old_dom[b][1] > lo + 1e-9}
+            shapes += [dict(s, y0=dom[k][0], y1=dom[k][1], xref=xref_for(k, xr))
+                       for k in order if k in hit or over.get(k) in hit]
+        elif yr != "paper" and _axis_key(yr) in over:
+            shapes.append(dict(s, xref=xref_for(_axis_key(yr), xr)))
+        else:
+            shapes.append(s)
+    if shapes:
+        L["shapes"] = shapes
+    for a in L.get("annotations") or []:
+        yr = a.get("yref", "y")
+        if yr != "paper" and _axis_key(yr) in over:
+            a["xref"] = xref_for(_axis_key(yr), a.get("xref", "x"))
+    L["height"] = max(int(L.get("height") or 450), 120 + panel_px * n)
+    return go.Figure(d) if is_fig else d

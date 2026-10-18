@@ -288,6 +288,8 @@ def make_history_zoom(df, slug):
         legend=dict(orientation="v", x=1.08, xanchor="left", y=1, yanchor="top"),
         showlegend=True,
     )
+    from harness.charts import zoom_dual_panel  # VIZ-V1: indicator and target in stacked panels
+    fig = zoom_dual_panel(fig)
     save_chart(fig, f"history_zoom_{slug}", palette_id="dual_panel_v1",
                rules_applied=["VIZ-DP1", "VIZ-IC1"] + (["GATE-VIZ-NBER2"] if has_nber else []),
                alignment_note=f"HZE1 episode '{slug}'. {'NBER overlay applied (recession overlap).' if has_nber else 'No NBER overlay (episode does not overlap NBER recession).'} Aligned with Story page episode narrative.")
