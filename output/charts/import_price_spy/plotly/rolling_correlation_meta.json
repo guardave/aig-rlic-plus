@@ -1,12 +1,12 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-16T18:30:30.771401+00:00",
+  "generated_at": "2026-10-18T09:04:58.311499+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
-  "caption": "Rolling correlation between import-price growth and SPY returns.",
-  "narrative_alignment_note": "Rolling correlation between import-price growth and SPY returns.",
+  "caption": "Rolling 60-month correlation between year-over-year import-price growth and SPY returns.",
+  "narrative_alignment_note": "Rolling 60-month correlation between year-over-year import-price growth and SPY returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/import_price_spy/rolling_correlation_import_price_spy.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_import_price_spy/results/import_price_spy/rolling_correlation_import_price_spy.csv"
   ]
 }

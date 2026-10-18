@@ -1,12 +1,12 @@
 {
   "chart_name": "tournament_scatter",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-16T18:30:30.742750+00:00",
+  "generated_at": "2026-10-18T09:04:55.362448+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Alias for tournament scatter slot.",
   "narrative_alignment_note": "Alias for tournament scatter slot.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/import_price_spy/tournament_results_20261016.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_import_price_spy/results/import_price_spy/tournament_results_20261018.csv"
   ]
 }

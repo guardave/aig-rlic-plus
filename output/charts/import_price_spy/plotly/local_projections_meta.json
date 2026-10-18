@@ -1,12 +1,12 @@
 {
   "chart_name": "local_projections",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-16T18:30:30.609377+00:00",
+  "generated_at": "2026-10-18T09:04:39.069772+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
-  "caption": "Estimated SPY response across horizons to a move in import-price growth, with 95% confidence whiskers (reconstructed from coef + p-value); intervals straddle zero.",
-  "narrative_alignment_note": "Estimated SPY response across horizons to a move in import-price growth, with 95% confidence whiskers (reconstructed from coef + p-value); intervals straddle zero.",
+  "caption": "Estimated forward SPY return per percentage point of year-over-year import-price growth (Newey-West errors).",
+  "narrative_alignment_note": "Estimated forward SPY return per percentage point of year-over-year import-price growth (Newey-West errors).",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/import_price_spy/core_models_20261016/local_projections.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_import_price_spy/results/import_price_spy/core_models_20261018/local_projections.csv"
   ]
 }
