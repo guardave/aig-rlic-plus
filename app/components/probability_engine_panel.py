@@ -209,17 +209,20 @@ def _validate_signal(
                 stress_hit = True
                 break
         else:
-            # For z-scores / levels: expect the magnitude to clearly exceed
-            # a reasonable stress extreme (e.g. |value| > 1).
-            if sliced.abs().max() > 1.0:
+            # Levels, changes, z-scores and bounded ranks (e.g. a 0-1 percentile rank, which can never exceed
+            # |1|): expect the signal to reach an extreme tenth of its OWN history inside a stress window.
+            # (The former |value| > 1 rule depended on the signal's units and failed every bounded rank.)
+            lo10, hi90 = float(series.quantile(0.10)), float(series.quantile(0.90))
+            if sliced.max() >= hi90 or sliced.min() <= lo10:
                 stress_hit = True
                 break
 
     if not stress_hit:
+        names = ", ".join(w.get("label", f"{w.get('start')} to {w.get('end')}") if isinstance(w, dict)
+                          else f"{w[0]} to {w[1]}" for w in stress_windows)
         return False, (
-            f"Historical plausibility check failed: signal `{column}` did not "
-            f"reach its stress threshold ({threshold:g}) during any known "
-            f"stress window {stress_windows}. Signal may be inverted or miscoded."
+            f"plausibility: the signal did not reach an extreme of its own history during the known stress "
+            f"episodes ({names})"
         )
 
     return True, "ok"
@@ -528,10 +531,8 @@ def render_probability_engine_panel(pair_id: str) -> None:
     if signals_path is None:
         msg = f"No signals_*.parquet under {pair_dir}"
         st.error(
-            f"Probability engine panel cannot render: {msg}\n\n"
-            "Plain English: the model needs a history of indicator values "
-            "to draw the time-series chart, but we can't find that file "
-            "on disk. This prevents the probability panel from rendering."
+            "The signal panel cannot render: the history of the signal's values is not available for this "
+            "pair, so the chart cannot be drawn. The strategy results on this page do not depend on it."
         )
         st.session_state[f"se1_validation_{pair_id}"] = {"ok": False, "reason": msg}
         return
@@ -541,11 +542,8 @@ def render_probability_engine_panel(pair_id: str) -> None:
     except Exception as exc:  # pragma: no cover - defensive
         msg = f"Failed to read {signals_path.name}: {exc}"
         st.error(
-            f"Probability engine panel cannot render: {msg}\n\n"
-            "Plain English: the file containing the historical indicator "
-            "series exists but could not be parsed — typically because "
-            "it was produced by a different pandas / pyarrow version "
-            "than this portal uses. Regenerate via the data pipeline."
+            "The signal panel cannot render: the stored history of the signal's values could not be read, so "
+            "the chart cannot be drawn. The strategy results on this page do not depend on it."
         )
         st.session_state[f"se1_validation_{pair_id}"] = {"ok": False, "reason": msg}
         return
@@ -572,14 +570,22 @@ def render_probability_engine_panel(pair_id: str) -> None:
     # ---- Pre-render validation ----
     ok, diagnostic = _validate_signal(signals_df, column, winner, metadata)
     if not ok:
-        st.error(
-            f"Probability engine panel cannot render: {diagnostic}\n\n"
-            "Plain English: the signal data failed one of our sanity "
-            "checks — it might be the wrong column, outside the expected "
-            "numeric range, or it never reached its stress threshold "
-            "during known historical crises. Rendering would mislead "
-            "you, so the chart is held back until the data is fixed."
-        )
+        # QA / Lead (B1): a plain, factual message; the diagnostic (column names, thresholds, window lists)
+        # stays in session state for debugging and is never shown to readers.
+        if diagnostic.startswith("plausibility:"):
+            st.warning(
+                "The signal panel cannot render: during the known stress episodes for this pair "
+                f"({diagnostic.split('episodes (', 1)[-1].rstrip(')')}) the signal never reached an extreme "
+                "of its own history, so a chart of it against those episodes would mislead. This says the "
+                "signal was quiet in those crises; the strategy results on this page are computed separately "
+                "and are unaffected."
+            )
+        else:
+            st.error(
+                "The signal panel cannot render: the signal's stored values did not pass the consistency checks "
+                "(present, numeric, within their natural range), so the chart is held back. The strategy "
+                "results on this page are computed separately and are unaffected."
+            )
         st.session_state[f"se1_validation_{pair_id}"] = {
             "ok": False,
             "reason": diagnostic,
