@@ -1,17 +1,6 @@
 #!/usr/bin/env python3
-"""Chart generation for ISM Manufacturing PMI x SPY.
-
-Presentational layer only. Every series is read from the committed
-results/ism_mfg_spy artifacts or the monthly panel; no numbers are invented.
-The ISM Manufacturing PMI is a bounded, mean-reverting diffusion index
-(level-stationary), so the level is used directly and the winning signal is its
-one-month change (diff_1m). The PMI is a LEADING indicator and the economic
-prior is PROCYCLICAL; the searched winner is COUNTERCYCLICAL at a 4-month lead
-(L4) with a rolling-median threshold -- it CONTRADICTS the simple procyclical
-prior (flagged as a caution, not a selling point) and is a search-found
-candidate, not a validated forecast. Only NBER recession shading is used (no
-second shading band).
-"""
+"""Chart generation for the ISM Manufacturing PMI x SPY (Phase B, single track: today's ISM values, no archive).
+Captions carry no typed results: every number in a caption is read from the pipeline artifacts."""
 
 from __future__ import annotations
 
@@ -27,12 +16,13 @@ from plotly.subplots import make_subplots
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
-from _nber import add_nber_shading  # noqa: E402
+import chart_provenance  # noqa: E402  (records chart inputs; imported before any data is read)
+from _nber import RECESSIONS, add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
-from _ci_band import ci95_halfwidth  # noqa: E402
+from pair_spec_ism_mfg_spy import PMI_NEUTRAL  # noqa: E402  (diffusion-index line between contraction and expansion)
 
 PAIR = "ism_mfg_spy"
-DATE_TAG = "20261016"
+DATE_TAG = "20261018"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"
@@ -43,6 +33,7 @@ C_TGT = "#0072B2"
 C_STRAT = "#009E73"
 C_BENCH = "#6C7A89"
 C_LINE = "#4D4D4D"
+C_STRESS = "#CC79A7"
 
 
 def load_monthly() -> pd.DataFrame:
@@ -51,6 +42,7 @@ def load_monthly() -> pd.DataFrame:
 
 def save(name: str, fig: go.Figure, caption: str, sources: list[str]) -> None:
     fig.write_json(OUT / f"{name}.json")
+    chart_provenance.record(PAIR, OUT / f"{name}.json", sources, "scripts/generate_charts_ism_mfg_spy.py")
     try:
         fig.write_image(OUT / f"_perceptual_check_{name}.png", width=1200, height=600, scale=1)
     except Exception as exc:  # noqa: BLE001 - PNG is a secondary perceptual-check artifact
@@ -82,198 +74,248 @@ def nber_legend(fig: go.Figure) -> None:
     )
 
 
+def contraction_legend(fig: go.Figure) -> None:
+    fig.add_trace(
+        go.Scatter(
+            x=[None],
+            y=[None],
+            mode="markers",
+            marker=dict(size=12, color="rgba(204,121,167,0.28)", symbol="square"),
+            name="PMI below 50 (contraction)",
+            hoverinfo="skip",
+        )
+    )
+
+
+def add_contraction_shading(fig: go.Figure, df: pd.DataFrame) -> None:
+    stress = df["ism"].fillna(PMI_NEUTRAL) < PMI_NEUTRAL
+    starts = stress.index[stress & ~stress.shift(1, fill_value=False)]
+    ends = stress.index[stress & ~stress.shift(-1, fill_value=False)]
+    for start, end in zip(starts, ends):
+        # add_shape with xref/yref: add_vrect silently adds nothing on make_subplots(secondary_y) figures
+        fig.add_shape(type="rect", xref="x", yref="paper", x0=start.strftime("%Y-%m-%d"), x1=end.strftime("%Y-%m-%d"), y0=0, y1=1,
+                      fillcolor="rgba(204,121,167,0.22)", line_width=0, layer="below")
+
+
 def chart_hero() -> None:
     df = load_monthly()
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     add_nber_shading(fig, x_min=df.index.min(), x_max=df.index.max())
-    fig.add_trace(
-        go.Scatter(
-            x=df.index,
-            y=df["ism"],
-            name="ISM Manufacturing PMI",
-            line=dict(color=C_IND, width=2),
-            hovertemplate="%{x|%Y-%m}<br>PMI: %{y:.1f}<extra></extra>",
-        ),
-        secondary_y=False,
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=df.index,
-            y=df["spy"],
-            name="SPY price",
-            line=dict(color=C_TGT, width=1.6),
-            hovertemplate="%{x|%Y-%m}<br>SPY: %{y:.2f}<extra></extra>",
-        ),
-        secondary_y=True,
-    )
-    fig.add_hline(
-        y=50,
-        line_dash="dot",
-        line_color=C_LINE,
-        annotation_text="PMI 50 (expansion / contraction)",
-        annotation_position="top left",
-        secondary_y=False,
-    )
+    add_contraction_shading(fig, df)
+    fig.add_trace(go.Scatter(x=df.index, y=df["ism"], name="ISM Manufacturing PMI", line=dict(color=C_IND, width=2),
+                             hovertemplate="%{x|%Y-%m}<br>PMI: %{y:.1f}<extra></extra>"), secondary_y=False)
+    fig.add_trace(go.Scatter(x=df.index, y=df["spy"], name="SPY price", line=dict(color=C_TGT, width=1.6),
+                             hovertemplate="%{x|%Y-%m}<br>SPY: %{y:.2f}<extra></extra>"), secondary_y=True)
+    fig.add_shape(type="line", xref="paper", yref="y", x0=0, x1=1, y0=PMI_NEUTRAL, y1=PMI_NEUTRAL,
+                  line=dict(color=C_LINE, dash="dot", width=1))
     nber_legend(fig)
-    fig.update_layout(
-        title="ISM Manufacturing PMI vs SPY",
-        template="plotly_white",
-        height=520,
-        hovermode="x unified",
-        legend=dict(orientation="v", x=1.05, y=1),
-        margin=dict(r=190),
-    )
+    contraction_legend(fig)
+    fig.update_layout(title="ISM Manufacturing PMI vs SPY", template="plotly_white", height=520, hovermode="x unified",
+                      legend=dict(orientation="v", x=1.05, y=1), margin=dict(r=210))
     fig.update_yaxes(title_text="ISM Manufacturing PMI (diffusion index)", secondary_y=False)
     fig.update_yaxes(title_text="SPY price", secondary_y=True)
-    save("hero", fig, "ISM Manufacturing PMI level (with the 50 line) and SPY with NBER recession bands.", ["data/ism_mfg_spy_monthly_latest.parquet"])
+    save("hero", fig, "ISM Manufacturing PMI and SPY with NBER recessions; pink bands mark months with the PMI below "
+         "50 (contraction) and the dotted line marks 50. Values as revised today (no archive of past values).",
+         [f"data/{PAIR}_monthly_latest.parquet"])
 
 
 def chart_regime_stats() -> None:
     q = pd.read_csv(RES / "regime_quartile_returns.csv")
-    labels = ["Q1<br>Weak PMI", "Q2", "Q3", "Q4<br>Strong PMI"]
+    labels = ["Q1<br>lowest", "Q2", "Q3", "Q4<br>highest"]
     fig = make_dual_panel_regime_chart(
-        labels,
-        q["sharpe"].astype(float).tolist(),
-        (q["mean_return"].astype(float) * 12 * 100).tolist(),
-        signal_label="PMI level",
-        x_axis_title="ISM Manufacturing PMI quartile",
-        axis_noun="",
-        sample_sizes=q["n"].astype(int).tolist(),
-    )
-    fig.update_layout(title="SPY Returns by ISM Manufacturing PMI Regime")
-    save("regime_stats", fig, "SPY performance across ISM Manufacturing PMI quartiles.", ["results/ism_mfg_spy/regime_quartile_returns.csv"])
+        labels, q["sharpe"].astype(float).tolist(), (q["mean_return"].astype(float) * 12 * 100).tolist(),
+        signal_label="PMI level", x_axis_title="Quartile of the ISM Manufacturing PMI level",
+        axis_noun="", sample_sizes=q["n"].astype(int).tolist())
+    fig.update_layout(title=dict(text="SPY Returns by ISM Manufacturing PMI Regime", y=0.98), margin=dict(t=150))
+    save("regime_stats", fig, "SPY performance in the same month across quartiles of the ISM Manufacturing PMI "
+         "level.", [f"results/{PAIR}/regime_quartile_returns.csv"])
 
 
 def chart_correlation_heatmap() -> None:
     corr = pd.read_csv(CORE / "correlations.csv")
     sub = corr[corr["metric"] == "pearson"].copy()
     sub["signal"] = sub["pair_name"].str.replace(r"_to_spy_fwd_\d+m", "", regex=True)
-    sub["horizon"] = sub["pair_name"].str.extract(r"fwd_(\d+)m")[0].astype(int)
-    sub = sub.sort_values("horizon")
-    sub["horizon"] = sub["horizon"].astype(str) + "m"
-    piv = sub.pivot_table(index="signal", columns="horizon", values="value", aggfunc="first")
-    order = [f"{h}m" for h in (1, 3, 6, 12) if f"{h}m" in piv.columns]
-    piv = piv[order]
-    fig = go.Figure(
-        go.Heatmap(
-            z=piv.values,
-            x=piv.columns,
-            y=piv.index,
-            colorscale="RdBu",
-            zmid=0,
-            text=np.round(piv.values, 2),
-            texttemplate="%{text}",
-            colorbar=dict(title="r"),
-        )
-    )
-    fig.update_layout(title="Correlation: ISM PMI Signals vs Forward SPY Returns", template="plotly_white", height=520)
-    save("correlation_heatmap", fig, "Pearson correlations between ISM PMI transforms and forward SPY returns.", [str(CORE / "correlations.csv")])
+    sub["h"] = sub["pair_name"].str.extract(r"fwd_(\d+)m")[0].astype(int)
+    piv = sub.pivot_table(index="signal", columns="h", values="value", aggfunc="first").sort_index(axis=1)
+    fig = go.Figure(go.Heatmap(z=piv.values, x=[f"{h}m" for h in piv.columns], y=piv.index, colorscale="RdBu",
+                               zmid=0, text=np.round(piv.values, 2), texttemplate="%{text}", colorbar=dict(title="r")))
+    fig.update_layout(title="Correlation: ISM PMI Signals vs Forward SPY Returns", template="plotly_white",
+                      height=520, xaxis_title="Forward SPY return horizon")
+    save("correlation_heatmap", fig, "Pearson correlations between ISM Manufacturing PMI signals and forward SPY returns.",
+         [str(CORE / "correlations.csv")])
 
 
 def chart_ccf() -> None:
     ccf = pd.read_csv(CORE / "ccf_prewhitened.csv")
     colors = np.where(ccf["significant"], C_IND, C_BENCH)
     fig = go.Figure(go.Bar(x=ccf["lag"], y=ccf["ccf"], marker_color=colors, name="CCF"))
-    fig.add_hline(y=ccf["upper_ci"].iloc[0], line_dash="dash", line_color=C_LINE)
-    fig.add_hline(y=ccf["lower_ci"].iloc[0], line_dash="dash", line_color=C_LINE)
-    fig.update_layout(title="Cross-Correlation: ISM PMI Change vs SPY Return", xaxis_title="Lag (months): +lead = PMI leads, -lag = SPY leads", yaxis_title="Correlation", template="plotly_white", height=430)
-    save("ccf_prewhitened", fig, "Pre-whitened cross-correlation between the ISM PMI change and SPY returns.", [str(CORE / "ccf_prewhitened.csv")])
+    for col, show in (("upper_ci", True), ("lower_ci", False)):   # 95% band per lag (n differs by lag)
+        fig.add_trace(go.Scatter(x=ccf["lag"], y=ccf[col], mode="lines", line=dict(dash="dash", color=C_LINE, shape="hvh"),
+                                 name="95% band (1.96/sqrt(n))", showlegend=show, hoverinfo="skip"))
+    fig.update_layout(title="Cross-Correlation: Monthly Change in the PMI vs SPY Return",
+                      xaxis_title="Lag (months; positive = PMI first)", yaxis_title="Correlation",
+                      template="plotly_white", height=430)
+    save("ccf_prewhitened", fig, "Cross-correlation between the monthly change in the ISM Manufacturing PMI and SPY "
+         "returns.", [str(CORE / "ccf_prewhitened.csv")])
 
 
 def chart_granger() -> None:
     gr = pd.read_csv(CORE / "granger_causality.csv")
     fig = go.Figure()
-    if not gr.empty:
-        fig.add_trace(go.Bar(x=gr["lag"], y=gr["p_value"], name="p-value", marker_color=C_IND))
-    fig.add_hline(y=0.05, line_dash="dash", line_color=C_LINE, annotation_text="p = 0.05")
-    fig.update_layout(title="Granger Causality: Does the ISM PMI Help Forecast SPY?", xaxis_title="Lag (months)", yaxis_title="p-value", template="plotly_white", height=430)
-    save("granger_f_by_lag", fig, "Granger p-values by lag for the ISM PMI change predicting SPY returns.", [str(CORE / "granger_causality.csv")])
+    fig.add_trace(go.Bar(x=gr["lag"], y=gr["p_value"], name="p-value (single lag)", marker_color=C_IND))
+    fig.add_trace(go.Scatter(x=gr["lag"], y=gr["p_value_holm"], name="Holm-adjusted p-value (all lags)",
+                             mode="markers", marker=dict(color=C_LINE, symbol="diamond", size=9)))
+    fig.add_hline(y=0.05, line_dash="dash", line_color=C_LINE, annotation_text="p = 0.05",
+                  annotation_position="top left")
+    fig.update_layout(title="Granger Causality: Does the ISM PMI Help Forecast SPY?",
+                      xaxis_title="Lag (months)", yaxis_title="p-value", template="plotly_white", height=430,
+                      legend=dict(orientation="h", y=-0.2))
+    save("granger_f_by_lag", fig, "Granger p-values by lag for the ISM Manufacturing PMI level predicting SPY "
+         "returns, with Holm-adjusted p-values across the lags tested.", [str(CORE / "granger_causality.csv")])
 
 
 def chart_local_projections() -> None:
     lp = pd.read_csv(CORE / "local_projections.csv")
-    _half = ci95_halfwidth(lp["coef"], lp["p_value"])
-    fig = go.Figure(go.Bar(x=lp["horizon"].astype(str) + "m", y=lp["coef"], marker_color=C_IND, name="Coefficient (95% CI)", error_y=dict(type="data", array=_half, visible=True, thickness=1.5, color=C_LINE)))
+    half = (1.96 * lp["se"]).tolist()
+    fig = go.Figure(go.Bar(x=lp["horizon"].astype(str) + "m", y=lp["coef"], marker_color=C_IND,
+                           name="Coefficient (95% HAC CI)",
+                           error_y=dict(type="data", array=half, visible=True, thickness=1.5, color=C_LINE)))
     fig.add_hline(y=0, line_color=C_LINE)
-    fig.update_layout(title="Local Projection: SPY Response to the ISM PMI", xaxis_title="Forward horizon", yaxis_title="Coefficient (95% CI whiskers)", template="plotly_white", height=430)
-    save("local_projections", fig, "Estimated SPY response across horizons to a move in the ISM PMI.", [str(CORE / "local_projections.csv")])
+    fig.update_layout(title="Local Projection: SPY Response to a Higher PMI", xaxis_title="Forward horizon",
+                      yaxis_title="Coefficient (95% HAC CI whiskers)", template="plotly_white", height=430)
+    save("local_projections", fig, "Estimated forward SPY return per point of the ISM Manufacturing PMI "
+         "(Newey-West errors).", [str(CORE / "local_projections.csv")])
 
 
 def chart_quantile() -> None:
     q = pd.read_csv(CORE / "quantile_regression.csv")
-    _half = ci95_halfwidth(q["coef"], q["p_value"])
-    fig = go.Figure(go.Scatter(x=q["quantile"], y=q["coef"], mode="lines+markers", name="Coefficient (95% CI)", line=dict(color=C_IND), error_y=dict(type="data", array=_half, visible=True, thickness=1.5, color=C_LINE)))
+    fig = go.Figure(go.Scatter(x=q["quantile"], y=q["coef"], mode="lines+markers", name="Coefficient (95% block-bootstrap CI)",
+                               line=dict(color=C_IND),
+                               error_y=dict(type="data", symmetric=False, array=(q["ci_high"] - q["coef"]).tolist(),
+                                            arrayminus=(q["coef"] - q["ci_low"]).tolist(), visible=True,
+                                            thickness=1.5, color=C_LINE)))
     fig.add_hline(y=0, line_color=C_LINE)
-    fig.update_layout(title="Quantile Regression Coefficient", xaxis_title="SPY return quantile", yaxis_title="ISM PMI coefficient (95% CI whiskers)", template="plotly_white", height=430)
-    save("quantile_coef", fig, "ISM PMI coefficient across SPY forward-return quantiles.", [str(CORE / "quantile_regression.csv")])
+    qt = json.loads((CORE / "quantile_equality_test.json").read_text())
+    verdict = ("slopes DIFFER across quantiles" if qt["reject_equality"] else
+               "consistent with a uniform effect across quantiles")
+    fig.add_annotation(text=f"Cross-quantile slope equality (block-bootstrap Wald): p={qt['p_value']:.3f} - {verdict}",
+                       xref="paper", yref="paper", x=0, y=1.14, showarrow=False, font=dict(size=11), align="left")
+    fig.update_layout(margin=dict(t=110), title=dict(text="Quantile Regression Coefficient", y=0.97),
+                      xaxis_title="Quantile of 3-month forward SPY return",
+                      yaxis_title="PMI level coefficient (95% CI whiskers)", template="plotly_white", height=430)
+    save("quantile_coef", fig, "ISM Manufacturing PMI level coefficient across quantiles of 3-month forward SPY "
+         "returns.", [str(CORE / "quantile_regression.csv"), str(CORE / "quantile_equality_test.json")])
 
 
 def chart_equity_drawdown() -> None:
-    strat = pd.read_csv(RES / f"strategy_returns_{DATE_TAG}.csv", parse_dates=["date"]).set_index("date")
+    full = pd.read_csv(RES / f"strategy_returns_{DATE_TAG}.csv", parse_dates=["date"]).set_index("date")
+    # from the first training month (the common in-sample start of the tournament)
+    is0 = full.index[full["sample"] == "IS"][0]
+    strat = full.loc[is0:].copy()
+    strat["strategy_equity"] = (1 + strat["strategy_return"]).cumprod()
+    strat["benchmark_equity"] = (1 + strat["benchmark_return"]).cumprod()
+    oos0 = strat.index[strat["sample"] == "OOS"][0].strftime("%Y-%m-%d")
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=strat.index, y=strat["strategy_equity"], name="Winner strategy", line=dict(color=C_STRAT, width=2)))
-    fig.add_trace(go.Scatter(x=strat.index, y=strat["benchmark_equity"], name="Buy-and-hold SPY", line=dict(color=C_BENCH, width=2, dash="dash")))
-    fig.update_layout(title="Equity Curve: ISM PMI Strategy vs SPY", yaxis_title="Growth of $1", template="plotly_white", height=460)
-    save("equity_curves", fig, "Winner strategy equity curve compared with buy-and-hold SPY.", [str(RES / f"strategy_returns_{DATE_TAG}.csv")])
+    fig.add_trace(go.Scatter(x=strat.index, y=strat["strategy_equity"], name="Winner strategy (as revised today)",
+                             line=dict(color=C_STRAT, width=2)))
+    fig.add_trace(go.Scatter(x=strat.index, y=strat["benchmark_equity"], name="Buy-and-hold SPY",
+                             line=dict(color=C_BENCH, width=2, dash="dash")))
+    fig.add_shape(type="line", xref="x", yref="paper", x0=oos0, x1=oos0, y0=0, y1=1,
+                  line=dict(dash="dot", color=C_LINE))
+    fig.add_annotation(x=oos0, y=1, yref="paper", text="test period starts", showarrow=False, xanchor="left",
+                       yanchor="bottom", font=dict(size=11))
+    fig.update_layout(title="Equity Curve: ISM PMI Strategy vs SPY", yaxis_title="Growth of $1",
+                      template="plotly_white", height=460)
+    save("equity_curves", fig, "Winner strategy (today's ISM values; no archive of past values exists) equity curve "
+         "compared with buy-and-hold SPY, both from the first training month.", [str(RES / f"strategy_returns_{DATE_TAG}.csv")])
 
     dd = pd.DataFrame(index=strat.index)
     dd["strategy"] = strat["strategy_equity"] / strat["strategy_equity"].cummax() - 1
     dd["benchmark"] = strat["benchmark_equity"] / strat["benchmark_equity"].cummax() - 1
     fig2 = go.Figure()
     fig2.add_trace(go.Scatter(x=dd.index, y=dd["strategy"] * 100, name="Winner strategy", line=dict(color=C_STRAT, width=2)))
-    fig2.add_trace(go.Scatter(x=dd.index, y=dd["benchmark"] * 100, name="Buy-and-hold SPY", line=dict(color=C_BENCH, width=2, dash="dash")))
-    fig2.update_layout(title="Drawdown Comparison", yaxis_title="Drawdown (%)", template="plotly_white", height=430)
-    save("drawdown", fig2, "Drawdown comparison for the winner strategy and SPY buy-and-hold.", [str(RES / f"strategy_returns_{DATE_TAG}.csv")])
+    fig2.add_trace(go.Scatter(x=dd.index, y=dd["benchmark"] * 100, name="Buy-and-hold SPY",
+                              line=dict(color=C_BENCH, width=2, dash="dash")))
+    fig2.update_layout(title="Drawdown Comparison (from the first training month)", yaxis_title="Drawdown (%)", template="plotly_white", height=430)
+    save("drawdown", fig2, "Drawdown comparison for the winner strategy (as revised today) and SPY buy-and-hold.",
+         [str(RES / f"strategy_returns_{DATE_TAG}.csv")])
 
 
 def chart_tournament() -> None:
     t = pd.read_csv(RES / f"tournament_results_{DATE_TAG}.csv")
     valid = t[(t["valid"]) & (t["signal"] != "BENCHMARK")]
-    fig = go.Figure(go.Box(x=valid["lead_months"].astype(str), y=valid["oos_sharpe"], name="Valid strategies", marker_color=C_IND))
-    fig.update_layout(title="Tournament Sharpe Distribution by Lead", xaxis_title="Lead (months)", yaxis_title="OOS Sharpe", template="plotly_white", height=450)
-    save("tournament_sharpe_dist", fig, "Distribution of OOS Sharpe across valid tournament strategies by lead.", [str(RES / f"tournament_results_{DATE_TAG}.csv")])
+    fig = go.Figure(go.Box(x=valid["lead_months"].astype(str), y=valid["oos_sharpe"], name="Valid strategies",
+                           marker_color=C_IND))
+    fig.update_layout(title="Tournament Sharpe Distribution by Lead", xaxis_title="Lead (months)",
+                      yaxis_title="OOS Sharpe", template="plotly_white", height=450)
+    cap = ("Distribution of OOS Sharpe across valid tournament strategies by lead (the winner is chosen on training "
+           "data, not on this OOS score).")
+    save("tournament_sharpe_dist", fig, cap, [str(RES / f"tournament_results_{DATE_TAG}.csv")])
     save("tournament_scatter", fig, "Alias for tournament scatter slot.", [str(RES / f"tournament_results_{DATE_TAG}.csv")])
 
 
 def chart_rolling_correlation() -> None:
     rc = pd.read_csv(RES / f"rolling_correlation_{PAIR}.csv", parse_dates=["date"])
-    fig = go.Figure(go.Scatter(x=rc["date"], y=rc["rolling_corr"], name="Rolling correlation", line=dict(color=C_IND)))
+    fig = go.Figure(go.Scatter(x=rc["date"], y=rc["rolling_corr"], name="60-month rolling correlation",
+                               line=dict(color=C_IND)))
     fig.add_hline(y=0, line_color=C_LINE)
-    fig.update_layout(title="Rolling Correlation: ISM PMI Change vs SPY", yaxis_title="Correlation", template="plotly_white", height=430)
-    save("rolling_correlation", fig, "Rolling correlation between the ISM PMI change and SPY returns.", [str(RES / f"rolling_correlation_{PAIR}.csv")])
+    fig.update_layout(title="Rolling Correlation: ISM PMI Level vs SPY", yaxis_title="Correlation",
+                      template="plotly_white", height=430)
+    save("rolling_correlation", fig, "Rolling 60-month correlation between the ISM Manufacturing PMI level and SPY "
+         "returns.", [str(RES / f"rolling_correlation_{PAIR}.csv")])
 
 
 def chart_structural_break() -> None:
     sb = json.loads((RES / f"structural_break_{PAIR}.json").read_text())
-    fig = go.Figure(go.Indicator(mode="number", value=sb["max_abs_z"], title={"text": "Max abs rolling-correlation z-score"}))
+    fig = go.Figure(go.Indicator(mode="number", value=sb["max_abs_z"], number=dict(valueformat=".2f"),
+                                 title={"text": "Max abs rolling-correlation z-score"}))
     fig.update_layout(title="Structural Break Proxy", template="plotly_white", height=360)
-    save("structural_break", fig, "Proxy check for large changes in the ISM PMI/SPY relationship.", [str(RES / f"structural_break_{PAIR}.json")])
+    save("structural_break", fig, "Proxy check for large changes in the ISM PMI/SPY relationship.",
+         [str(RES / f"structural_break_{PAIR}.json")])
 
 
 def chart_subperiod() -> None:
     sp = pd.read_csv(RES / "subperiod_sharpe.csv")
+    x = [f"{p}<br>({ph}, n={n})" for p, ph, n in zip(sp["period"], sp["phase"], sp["n_obs"])]
+    strat = pd.read_csv(RES / f"strategy_returns_{DATE_TAG}.csv", parse_dates=["date"]).set_index("date")
+    # no position at all: every month of the window has an undefined position (no reading)
+    nopos = pd.Series([bool(strat.loc[s:e, "position"].isna().all()) for s, e in zip(sp["start_date"], sp["end_date"])])
+    flat = (sp["strategy_return"] == 0) & (sp["strategy_sharpe"] == 0) & ~nopos   # in cash the whole window
     fig = go.Figure()
-    fig.add_trace(go.Bar(x=sp["period"], y=sp["strategy_sharpe"], name="Strategy Sharpe", marker_color=C_STRAT))
-    fig.add_trace(go.Bar(x=sp["period"], y=sp["buy_hold_sharpe"], name="SPY Sharpe", marker_color=C_BENCH))
-    fig.update_layout(title="Sharpe During Major Stress Episodes", yaxis_title="Sharpe", barmode="group", template="plotly_white", height=410)
-    save("subperiod_sharpe", fig, "Strategy and buy-and-hold SPY Sharpe during major stress episodes.", ["results/ism_mfg_spy/subperiod_sharpe.csv"])
-    save("walk_forward", fig, "Alias for the dashboard's standard walk-forward chart slot.", ["results/ism_mfg_spy/subperiod_sharpe.csv"])
+    fig.add_trace(go.Bar(x=x, y=sp["strategy_sharpe"].where(~flat & ~nopos), name="Strategy Sharpe",
+                         marker_color=C_STRAT))
+    for xi in [xv for xv, f in zip(x, flat) if f]:
+        fig.add_annotation(x=xi, y=0, text="strategy in cash<br>all window", showarrow=False, yshift=18,
+                           xshift=-28, font=dict(size=11, color=C_STRAT))
+    for xi in [xv for xv, f in zip(x, nopos) if f]:
+        fig.add_annotation(x=xi, y=0, text="no position:<br>no reading", showarrow=False, yshift=18,
+                           xshift=-28, font=dict(size=11, color=C_STRAT))
+    fig.add_trace(go.Bar(x=x, y=sp["buy_hold_sharpe"], name="SPY Sharpe", marker_color=C_BENCH))
+    fig.update_layout(title="Sharpe During Major Stress Episodes", yaxis_title="Sharpe", barmode="group",
+                      template="plotly_white", height=430, margin=dict(b=90))
+    srcs = [f"results/{PAIR}/subperiod_sharpe.csv", f"results/{PAIR}/strategy_returns_{DATE_TAG}.csv"]
+    save("subperiod_sharpe", fig, "Strategy and buy-and-hold SPY Sharpe during major stress episodes, with the sample "
+         "phase (training, test or before training) and the number of months of each window.", srcs)
+    save("walk_forward", fig, "Alias for the dashboard's standard walk-forward chart slot.", srcs)
 
 
 def chart_history_zoom(slug: str, title: str, start: str, end: str) -> None:
     df = load_monthly().loc[start:end]
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     add_nber_shading(fig, x_min=start, x_max=end)
+    add_contraction_shading(fig, df)
     fig.add_trace(go.Scatter(x=df.index, y=df["ism"], name="ISM Manufacturing PMI", line=dict(color=C_IND)), secondary_y=False)
     fig.add_trace(go.Scatter(x=df.index, y=df["spy"], name="SPY", line=dict(color=C_TGT)), secondary_y=True)
-    fig.add_hline(y=50, line_dash="dot", line_color=C_LINE, secondary_y=False)
-    nber_legend(fig)
+    if any(pd.Timestamp(a) <= pd.Timestamp(end) and pd.Timestamp(b) >= pd.Timestamp(start) for a, b in RECESSIONS):
+        nber_legend(fig)
+    contraction_legend(fig)
     fig.update_layout(title=title, template="plotly_white", height=430, hovermode="x unified")
-    fig.update_yaxes(title_text="ISM Manufacturing PMI", secondary_y=False)
+    fig.update_yaxes(title_text="PMI", secondary_y=False)
     fig.update_yaxes(title_text="SPY", secondary_y=True)
     from harness.charts import zoom_dual_panel  # VIZ-V1: indicator and target in stacked panels
     fig = zoom_dual_panel(fig)
-    save(f"history_zoom_{slug}", fig, f"{title}; gray bands are NBER recessions, dotted line is PMI 50.", ["data/ism_mfg_spy_monthly_latest.parquet"])
+    save(f"history_zoom_{slug}", fig, f"{title}; gray bands are NBER recessions and pink bands mark months with the "
+         "PMI below 50 (contraction).", [f"data/{PAIR}_monthly_latest.parquet"])
 
 
 def main() -> None:
@@ -289,10 +331,14 @@ def main() -> None:
     chart_rolling_correlation()
     chart_structural_break()
     chart_subperiod()
-    chart_history_zoom("dotcom", "Dot-Com Recession: PMI Fell Below 50 with the Capex Bust", "1999-01-31", "2003-12-31")
-    chart_history_zoom("gfc", "Global Financial Crisis: PMI Collapsed into the Low 30s", "2006-01-31", "2010-12-31")
-    chart_history_zoom("covid", "COVID Shock: PMI Plunge and Violent Rebound", "2018-01-31", "2021-12-31")
-    chart_history_zoom("inflation_2022", "2022 Rate Shock: PMI Ground Lower toward 50", "2021-01-31", "2025-10-31")
+    chart_history_zoom("dotcom", "Dot-Com Bust: The PMI Fell Below 50 in 2000 and Bottomed in Late 2001",
+                       "1999-01-31", "2003-12-31")
+    chart_history_zoom("gfc", "Global Financial Crisis: The PMI Fell to Its Cycle Low in December 2008", "2006-01-31",
+                       "2010-12-31")
+    chart_history_zoom("covid", "COVID Shock: The PMI Fell in April 2020, Then Rebounded Above 60", "2018-01-31",
+                       "2021-12-31")
+    chart_history_zoom("inflation_2022", "2022 Rate Shock: The PMI Slid From Its 2021 Peak to Below 50 in Late 2022",
+                       "2021-01-31", "2025-10-31")
     print(f"Done. Charts saved to {OUT}")
 
 

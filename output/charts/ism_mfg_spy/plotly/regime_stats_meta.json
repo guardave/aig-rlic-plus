@@ -1,10 +1,10 @@
 {
   "chart_name": "regime_stats",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-16T18:30:35.745422+00:00",
+  "generated_at": "2026-10-18T11:15:58.078294+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
-  "caption": "SPY performance across ISM Manufacturing PMI quartiles.",
-  "narrative_alignment_note": "SPY performance across ISM Manufacturing PMI quartiles.",
+  "caption": "SPY performance in the same month across quartiles of the ISM Manufacturing PMI level.",
+  "narrative_alignment_note": "SPY performance in the same month across quartiles of the ISM Manufacturing PMI level.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/ism_mfg_spy/regime_quartile_returns.csv"

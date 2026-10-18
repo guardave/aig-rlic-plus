@@ -1,12 +1,13 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-16T18:30:36.754472+00:00",
+  "generated_at": "2026-10-18T11:16:13.221464+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
-  "caption": "ISM PMI coefficient across SPY forward-return quantiles.",
-  "narrative_alignment_note": "ISM PMI coefficient across SPY forward-return quantiles.",
+  "caption": "ISM Manufacturing PMI level coefficient across quantiles of 3-month forward SPY returns.",
+  "narrative_alignment_note": "ISM Manufacturing PMI level coefficient across quantiles of 3-month forward SPY returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/ism_mfg_spy/core_models_20261016/quantile_regression.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_ism_mfg_spy/results/ism_mfg_spy/core_models_20261018/quantile_regression.csv",
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_ism_mfg_spy/results/ism_mfg_spy/core_models_20261018/quantile_equality_test.json"
   ]
 }

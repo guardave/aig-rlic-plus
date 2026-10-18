@@ -1,12 +1,12 @@
 {
   "chart_name": "granger_f_by_lag",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-16T18:30:35.872396+00:00",
+  "generated_at": "2026-10-18T11:16:07.395932+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
-  "caption": "Granger p-values by lag for the ISM PMI change predicting SPY returns.",
-  "narrative_alignment_note": "Granger p-values by lag for the ISM PMI change predicting SPY returns.",
+  "caption": "Granger p-values by lag for the ISM Manufacturing PMI level predicting SPY returns, with Holm-adjusted p-values across the lags tested.",
+  "narrative_alignment_note": "Granger p-values by lag for the ISM Manufacturing PMI level predicting SPY returns, with Holm-adjusted p-values across the lags tested.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/ism_mfg_spy/core_models_20261016/granger_causality.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_ism_mfg_spy/results/ism_mfg_spy/core_models_20261018/granger_causality.csv"
   ]
 }

@@ -1,12 +1,12 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-16T18:30:36.894542+00:00",
+  "generated_at": "2026-10-18T11:16:28.685008+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
-  "caption": "Rolling correlation between the ISM PMI change and SPY returns.",
-  "narrative_alignment_note": "Rolling correlation between the ISM PMI change and SPY returns.",
+  "caption": "Rolling 60-month correlation between the ISM Manufacturing PMI level and SPY returns.",
+  "narrative_alignment_note": "Rolling 60-month correlation between the ISM Manufacturing PMI level and SPY returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/ism_mfg_spy/rolling_correlation_ism_mfg_spy.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_ism_mfg_spy/results/ism_mfg_spy/rolling_correlation_ism_mfg_spy.csv"
   ]
 }
