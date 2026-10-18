@@ -76,7 +76,7 @@ SIGNAL_TEXT = P.definitions({
 })
 # the ISM diffusion-index convention (spec PMI_NEUTRAL), in words: the page never types the number
 PMI_TEXT = {
-    "neutral": "the line between expansion and contraction",
+    "neutral": "the boundary between expansion and contraction",
     "below": "in contraction territory (more firms reporting decline than growth)",
 }
 SIDE = {"countercyclical": "at or below", "procyclical": "at or above"}
@@ -125,7 +125,7 @@ class StoryConfig:
     PLAIN_ENGLISH = (
         "Every month the Institute for Supply Management asks purchasing managers at manufacturing firms whether new "
         "orders, output, employment, supplier deliveries and inventories rose or fell. The answers are combined into "
-        "one diffusion index, which swings around the line between expansion and contraction: a high reading means "
+        "one diffusion index, which swings around the boundary between expansion and contraction: a high reading means "
         "more firms report growth than decline. Because it comes out on the first "
         "business day of the following month, it is one of the earliest readings of the business cycle. This pair "
         "tests whether that reading can improve SPY timing by stepping aside when manufacturing weakens. "
@@ -171,7 +171,7 @@ class StoryConfig:
 
 This result uses one data track: today's ISM values, read with point-in-time release dates (a month's reading is used only after its publication on the first business day of the following month). {_NO_ARCHIVE} The sample runs from {W.is_start} to {W.oos_end}, where the ISM series in the project's data ends.
 
-The winning rule is a **{_SIG} rule** (long/cash): {_RULE}. It was selected on the training period ({W.is_start} to {W.is_end}) by {W.selection_objective} (stable lead range {W.plateau_range}), out of {W.n_valid} valid combinations ({W.n_distinct} distinct position series). In the test period ({W.oos_start} to {W.oos_end}) it records Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, with maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}. The test-period Sharpe difference is {W.sharpe_gap} (95% interval {W.ci_low} to {W.ci_high}).
+The winning rule trades on the **{_SIG}** (long/cash): {_RULE}. It was selected on the training period ({W.is_start} to {W.is_end}) by {W.selection_objective} (stable lead range {W.plateau_range}), out of {W.n_valid} valid combinations ({W.n_distinct} distinct position series). In the test period ({W.oos_start} to {W.oos_end}) it records Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold, with maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}. The test-period Sharpe difference is {W.sharpe_gap} (95% interval {W.ci_low} to {W.ci_high}).
 
 ### The Business-Cycle Hypothesis
 
@@ -488,7 +488,7 @@ class StrategyConfig:
 If-then form:
 {_IF_THEN}
 
-Test-period results on today's ISM values ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} buy-and-hold; annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; {W.oos_n_trades} switches between SPY and cash within the test period (each moves the whole position; {_EV['oos_months_position_change_gt_5pct']} months with a position move larger than {_EV['position_change_threshold_pp']} percentage points); annual turnover {W.annual_turnover}; in SPY {W.oos_exposure} of the test-period months.{_MAIN_TAIL}
+Test-period results on today's ISM values ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} buy-and-hold; annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; {W.oos_n_trades} switches between SPY and cash within the test period (each moves the whole position); annual turnover {W.annual_turnover}; in SPY {W.oos_exposure} of the test-period months.{_MAIN_TAIL}
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = f"""
@@ -501,7 +501,7 @@ OOS Sharpe means test-period (out-of-sample) risk-adjusted return. OOS Return is
 This describes the backtested rule so it can be audited; it is not a trading recommendation.
 
 1. At month end, read the ISM Manufacturing PMI as currently published.
-2. Compute {_THR} from the published series.
+2. Compute the threshold ({_THR}) from the published series.
 3. Take the PMI reading from {W.lead_word} months earlier and compare it with that threshold.
 4. Set the position as the rule says (long/cash) and hold it for the following month.
 5. Recheck monthly.

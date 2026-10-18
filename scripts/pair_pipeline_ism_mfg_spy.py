@@ -409,7 +409,7 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
         "suggestions": [{
             "signal_name": "Start an ISM vintage record", "proposed_by": "evan", "source": "Data Master",
             "observation": f"The rule selected on in-sample data uses a {winner['lead_value']}-month lead on the "
-                           f"{winner['signal_display_name'].lower()} ({winner['direction']}, {winner['threshold_code']}); "
+                           f"{winner['signal_display_name']} ({winner['direction']}, {winner['threshold_code']}); "
                            f"test-period max drawdown {winner['oos_max_drawdown']:.1%} vs buy-and-hold "
                            f"{winner['bh_max_drawdown']:.1%}.",
             "rationale": "Only today's ISM values exist; the monthly Data Master snapshots started 2026-10-16 build "
