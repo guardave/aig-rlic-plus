@@ -1930,6 +1930,10 @@ def _render_executive_confidence_summary(summary: dict) -> None:
         _badge = f"**Status: {status}**" if status else ""
         _line = f"{_badge}"
         if status_detail:
+            _sd = str(status_detail)
+            if status and _sd.lower().startswith(status.lower()):      # "Unranked — Unranked: ..." (QA nomain)
+                _sd = _sd[len(status):].lstrip(" :—-").strip()
+                status_detail = _sd[:1].upper() + _sd[1:] if _sd else status_detail
             _line = f"{_badge} — {status_detail}" if _badge else status_detail
         if _status_lower in ("reject", "rejected"):
             st.error(_line)
@@ -2260,9 +2264,16 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
     # ---- Step 3: two-file model explanation (Ray stub) ----
     st.markdown(_TRADE_LOG_TWO_FILE_MODEL_MD)
     if _P.is_phase_b(pair_id):     # QA B1 import_price F4: say which log rows the headline trade count covers
+        try:
+            _lu = json.loads((_REPO_ROOT / "results" / pair_id / "winner_summary.json").read_text())
+            _lu = _lu.get("lead_unit") or next((t.get("lead_unit") for t in (_lu.get("tracks") or {}).values()
+                                                if t and t.get("lead_unit")), None)
+        except (OSError, ValueError):
+            _lu = None
+        _per = {"quarters": "quarter", "days": "trading day"}.get(_lu, "month")     # QA EF F1: units by frequency
         st.caption("Counting rule: the headline number of position changes and the turnover count the changes "
-                   "between consecutive test-period months. A change made on the first test-period month (from "
-                   "the last training month's position) is a row of this log but is not in that count, so "
+                   f"between consecutive test-period {_per}s. A change made on the first test-period {_per} (from "
+                   f"the last training {_per}'s position) is a row of this log but is not in that count, so "
                    "counting log rows dated in the test period can give one more.")
 
     # ---- Step 4: column glossary: the columns the broker-style log actually has (QA pilot-visual M4) ----

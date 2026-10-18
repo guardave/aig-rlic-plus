@@ -14,10 +14,10 @@
   }
  },
  "chance_check": {
-  "chart_sha256": "90bb87be64fc3407802b4925e44ca6fc684cebf1eb06c515c9dd05eaaf2f3d36",
+  "chart_sha256": "a3155a823468ece39208d90e8c17b3ababbedff2707fddf4ca90c6dc306c8b65",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T13:05:53+00:00",
+  "recorded_at": "2026-10-18T15:31:36+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/permit_spy/hindsight_lead_curve_20261017.csv": "b9f47904d9106af5e17ce2f0a07ee3011d2fff62fb57b44eeb218c581cfeb276",
@@ -199,7 +199,7 @@
   "chart_sha256": "bb05596ad022a0fdf00b313bffdfba493f28999e65679b30e418761eaa567605",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T13:05:50+00:00",
+  "recorded_at": "2026-10-18T15:31:32+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/permit_spy/hindsight_lead_curve_20261017.csv": "b9f47904d9106af5e17ce2f0a07ee3011d2fff62fb57b44eeb218c581cfeb276",

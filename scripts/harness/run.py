@@ -150,8 +150,12 @@ def replay_legacy(mod, tol: float = 1e-6) -> dict:
     # previous_* report what was PUBLISHED (the immutable record, else the published table row), not the harness
     # replay: on the max_oos_valid path the IS columns are documented differences (QA B1 umcsent L1: replay IS
     # 0.3107 vs published 0.2825); the replay values are kept next to them for the record
+    unpublished = set(getattr(mod, "LEGACY_UNPUBLISHED", ()))
+
     def _published(col):
-        return published_value(p, pub, w, wrow, col)
+        # a legacy column the pair declares never published (umcsent_spy 20260912: its is_sharpe column held OOS
+        # values, the run had no training window) is reported as None, never as a previous figure
+        return None if col in unpublished else published_value(p, pub, w, wrow, col)
     rep["published"] = {"key": wrow["key"], "signal": str(wrow["signal"]), "threshold": str(wrow["threshold"]),
                         "strategy": str(wrow["strategy"]), "direction": str(wrow["direction"]), "lead": int(wrow["lead"]),
                         "is_sharpe": _published("is_sharpe"), "oos_sharpe": _published("oos_sharpe"),

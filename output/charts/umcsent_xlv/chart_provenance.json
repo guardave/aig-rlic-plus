@@ -14,10 +14,10 @@
   }
  },
  "chance_check": {
-  "chart_sha256": "7b1243243955feb01c163dd2caa803a2ed9e5e4df3f442c22cbb0107eb035460",
+  "chart_sha256": "f45aa9f817ff470a1851dea3d33db51bf2f2e43269d869b1aab8085a0df8199b",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T13:06:00+00:00",
+  "recorded_at": "2026-10-18T15:31:44+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/umcsent_xlv/hindsight_lead_curve_20261017.csv": "720244d68e8f8e2b063070380b8dd217084b3c65d7de5b73e1645c5ea53f3ab1",
@@ -190,7 +190,7 @@
   "chart_sha256": "b8c8a772c77495b74a3674ce98ecd243863ebee0eb358495fa0468a777f2f5b9",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T13:05:56+00:00",
+  "recorded_at": "2026-10-18T15:31:40+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/umcsent_xlv/hindsight_lead_curve_20261017.csv": "720244d68e8f8e2b063070380b8dd217084b3c65d7de5b73e1645c5ea53f3ab1",

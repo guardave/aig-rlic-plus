@@ -198,13 +198,10 @@ def sentences(text: str, clauses: bool = True) -> list[str]:
 
 
 def _units(text: str) -> list[tuple[str, bool]]:
-    """(clause, legacy): a legacy / raw label anywhere in a sentence covers all of that sentence's clauses (QA B1
-    consumer_sentiment: a label in one clause did not cover the next clause -> false LEAD / SHARPE findings)."""
-    out = []
-    for sent in sentences(text, clauses=False):
-        lg = bool(LEGACY_LABEL.search(sent))
-        out += [(c, lg) for c in sentences(sent)]
-    return out
+    """(clause, legacy): a legacy / raw label covers only the clause that carries it (QA EF E1: a sentence-wide
+    scope exempted a later clause claiming a stale published value for the current winner). A sentence whose
+    later clause refers back to a previous rule must repeat the cue in that clause."""
+    return [(c, bool(LEGACY_LABEL.search(c))) for c in sentences(text)]
 
 
 def check_text(text: str, f: dict, where: str) -> list[str]:
@@ -447,7 +444,11 @@ def swapped(text: str, f: dict, where: str) -> list[str]:
             scopes = {_bh_scope(k) for k in xs}
             allowed = [(k, v) for k, v in bh_items if not scopes or _bh_scope(k) in scopes]
             y_ok = bool(hits(y, allowed))
-            x_is_bh = bool(hits(x, bh_items)) and not xs
+            # field-bound reverse reading (QA EF E2): X is a buy-and-hold value and Y a strategy value of that
+            # buy-and-hold field's own scope -> the sentence reads swapped even when X also matches some other field
+            xb = hits(x, bh_items)
+            rev = {_bh_scope(k) for k in xb} & {_bh_scope(k) for k in hits(y, strat)}
+            x_is_bh = bool(xb) and (not xs or bool(rev))
             if not y_ok or (x_is_bh and abs(val(x) - val(y)) > 1e-9):
                 out.append(f"SWAPPED {where}: \"{m.group(0)}\" — strategy and buy-and-hold values do not match their "
                            "fields (same track, period and kind)")

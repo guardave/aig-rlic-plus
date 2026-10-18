@@ -70,7 +70,9 @@ def lead_plateau(pair: str, tag: str, lead_unit: str) -> str | None:
     x = [pos[L] for L in leads]
     hover = [f"Lead {L}<br>Score {s:.2f}<br>Inside stable lead range: {'yes' if p else 'no'}"
              for L, s, p in zip(leads, main["is_sharpe"], main["in_plateau"])]
-    fig.add_trace(go.Scatter(x=x, y=main["is_sharpe"], mode="lines+markers", name=LABEL.get(track, track),
+    # a single no-archive track is revised values with no archive (umcsent_spy QA), not a hindsight comparison
+    main_label = "Revised values (no archive)" if track == "revised" and hind is None else LABEL.get(track, track)
+    fig.add_trace(go.Scatter(x=x, y=main["is_sharpe"], mode="lines+markers", name=main_label,
                              line=dict(color=C_MAIN, width=2), marker=dict(symbol="circle", size=8),
                              hovertext=hover, hoverinfo="text"))
     if hind is not None and not hind.empty:
@@ -130,7 +132,7 @@ def chance_check(pair: str, tag: str) -> str | None:
     fig.add_vline(x=q95, line_color=C_TEXT, line_width=1, line_dash="dot")
     # one key line above the plot instead of labels on the lines: nothing is clipped at the edge, drawn over the bars
     # or stacked when the two lines are close (QA sloos F3)
-    fig.add_annotation(x=0, xref="paper", y=1.06, yref="paper", xanchor="left", showarrow=False,
+    fig.add_annotation(x=0, xref="paper", y=1.13, yref="paper", xanchor="left", showarrow=False,
                        font=dict(size=12, color=C_TEXT),
                        text=(f"<span style='color:{C_REV}'><b>Solid line</b></span>: real winner's plateau score (the "
                              "statistic the null compares).  <b>Dotted line</b>: 95th percentile of the scrambled "
@@ -146,7 +148,7 @@ def chance_check(pair: str, tag: str) -> str | None:
     else:
         cap = (f"The real winner's plateau score ranks at the {ordinal(round(pct * 100))} percentile of {k:,} "
                "scrambled-signal contests.")
-    fig.update_layout(template="plotly_white", height=400, margin=dict(t=95),
+    fig.update_layout(template="plotly_white", height=410, margin=dict(t=115),
                       title="Chance check: real winner vs scrambled signals",
                       xaxis_title="Best score in a contest (training-period Sharpe, stable lead range)",
                       yaxis_title="Number of contests", showlegend=False)

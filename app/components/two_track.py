@@ -34,8 +34,19 @@ STRIP = {
                           "No archive of earlier values exists for this source, so we cannot show what was known at "
                           "the time. Results may include hindsight from later revisions."),
 }
+BASIS = {          # how each data basis is named in shared text (single-track pairs never say 'as known at')
+    "both": "as known at each date", "rt_insufficient": "as known at each date",
+    "single_market": "market data, which are not revised",
+    "single_no_archive": "as revised today (no archive of earlier values; may include hindsight)",
+}
+RESULT = {"both": "as-known-at-the-time result", "rt_insufficient": "as-known-at-the-time result",
+          "single_market": "market-data result",
+          "single_no_archive": "as-revised-today result (no archive of earlier values; may include hindsight)"}
 TIPS = {
     "main": "The indicator values as they were published at each date, before later revisions.",
+    "single_market": "Market prices, which are not revised after publication.",
+    "single_no_archive": "Today's revised values: no archive of earlier values exists for this source, so results "
+                         "may include hindsight from later revisions.",
     "plateau": "The winner's lead sits in a run of three neighbouring leads that all scored well in training.",
     "chance": "Share of contests run on scrambled (time-shifted) indicator data whose best score the real winner beat.",
 }
@@ -130,8 +141,8 @@ def render_no_main_headline(pair_id: str, target: str = "SPY") -> None:
              delta=f"buy-and-hold: {b['ann_return']:.1%}"),
         dict(off, label="Hindsight max drawdown (revised data)", value=f"{w['oos_max_drawdown']:.1%}",
              delta=f"buy-and-hold: {b['max_drawdown']:.1%}"),
-        dict(off, label="Hindsight rule (revised data)", value=f"{w['signal']}",
-             delta=f"lead {P.field_text(w, 'lead')} {_lead_unit(c)}".strip()),
+        dict(off, label="Hindsight rule (revised data)", value=f"{w['signal']}",     # the full rule (QA nomain)
+             delta=f"{w['threshold']} / {w['strategy']} / lead {P.field_text(w, 'lead')} {_lead_unit(c)}".strip()),
     ])
 NO_MAIN_EXECUTE = ("There is no rule on data as known at the time, so there is nothing to execute. The hindsight rule "
                    "found on today's revised data is not an execution plan.")
@@ -188,7 +199,8 @@ def render_chips(ts: dict, winner: dict) -> None:
     with cols[0]:
         _badge(MAIN_LABEL if ts["track_state"] == "both" else
                {"single_market": "Market data (one track)", "single_no_archive": "As revised today only",
-                "rt_insufficient": "No winner as known at the time"}[ts["track_state"]], TIPS["main"])
+                "rt_insufficient": "No winner as known at the time"}[ts["track_state"]],
+               TIPS.get(ts["track_state"], TIPS["main"]))
     with cols[1]:
         leads = plat.get("leads") or []
         if leads:
@@ -362,11 +374,13 @@ def render_cross_eval_table(pair_id: str, ts: dict, ws: dict) -> None:
     rows = []
     same = bool(main and main.get("eligible") and comp and comp.get("eligible")
                 and main["winner"].get("key") == comp["winner"].get("key"))
+    main_label = {"single_no_archive": "As revised today (no archive)",
+                  "single_market": "Market data"}.get(ts["track_state"], MAIN_LABEL)   # single tracks: umcsent_spy QA
     if same:     # both tracks pick the same rule: its two own rows already show it on both data (no duplicates)
         rows = [own_row(main, MAIN_LABEL, ""), own_row(comp, REV_LABEL, "hindsight_")]
     else:
         if main and main.get("eligible"):
-            rows.append(own_row(main, MAIN_LABEL, ""))
+            rows.append(own_row(main, main_label, ""))
             if comp:
                 rows.append(cross_row(main, REV_LABEL, "main_winner_on_revised", "hindsight_"))
         if comp and comp.get("eligible"):
@@ -408,8 +422,9 @@ def render_chance_check(pair_id: str, ts: dict) -> None:
                                 "The real winner's plateau score (the statistic the scrambled contests are compared on) "
                                 f"ranks at the {_ordinal(round(nt['winner_percentile'] * 100))} percentile of "
                                 f"{nt['n_draws']:,} scrambled-signal contests")
-                               + " (the indicator, as known at each date, shifted against the returns by a fixed "
-                                 "number of periods, wrapping around once; same selection rule)."
+                               + f" (the indicator, {BASIS.get(ts.get('track_state'), BASIS['both'])}, shifted "
+                                 "against the returns by a fixed number of periods, wrapping around once; same "
+                                 "selection rule)."
                                + oos_rank_note(nt)
                                + draws_note(nt) + coarse_note(pair_id, nt) + is_window_note(pair_id)
                                + r71_note(pair_id) + comparison_chance_note(pair_id, ts)))
@@ -547,7 +562,7 @@ def r71_note(pair_id: str, track: str = "main", label: str = "Calibration check 
     out = (f" {label}: the scrambled contests' winners have a mean timing Sharpe of {m:.3f}"
            f" (dependence-aware standard error {se:.3f}) against a tolerance of {tol:.3f} in absolute value;"
            f" the check {'passes' if bool(ok) else 'does not pass'}")
-    if float(se) * 2 < float(tol):
+    if float(se) * 2 < float(tol) and bool(ok):    # QA EF F6: not appended to a failure, where it read as an excuse
         out += " (the tolerance is set by its fixed floor, not by the standard error)"
     return out + "."
 
@@ -625,10 +640,16 @@ BADGE_RULE = ("Badge rule (as-known-at-the-time result only): Candidate when the
               "is below zero.")
 
 
+def badge_rule(state: str) -> str:
+    """BADGE_RULE naming the pair's own data basis (single-track pairs: umcsent_spy QA)."""
+    return BADGE_RULE.replace("as-known-at-the-time result", RESULT.get(state, RESULT["both"]))
+
+
 def render_badge_note(ts: dict) -> None:
     """Line next to the Candidate / Watchlist / Reject badge (section 7b)."""
     if ts["track_state"] == "rt_insufficient":
-        st.caption("Unranked: there is no rule on data as known at the time, so no Candidate, Watchlist or Reject "
-                   "status.")
+        st.caption("There is no rule on data as known at the time, so this pair has no Candidate, Watchlist or "
+                   "Reject status.")
     else:
-        st.caption("Suggestion from the as-known-at-the-time result; you judge. " + BADGE_RULE)
+        st.caption(f"Suggestion from the {RESULT.get(ts['track_state'], RESULT['both'])}; you judge. "
+                   + badge_rule(ts["track_state"]))

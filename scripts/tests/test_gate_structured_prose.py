@@ -202,6 +202,21 @@ def test_swapped_compares_buy_and_hold_on_the_same_track_period_and_kind():
     assert g.swapped("Test-period Sharpe 0.95 (buy-and-hold SPY: 0.71).", f, "x")
 
 
-def test_a_legacy_label_covers_every_clause_of_its_sentence():
-    units = g._units("The previous rule (published earlier) used lead 1; it scored 0.18. Now lead 8; Sharpe 0.71.")
-    assert [lg for _c, lg in units] == [True, True, False, False]
+def test_a_legacy_label_covers_only_its_own_clause():
+    # QA EF E1: a sentence-wide legacy scope exempted a later clause claiming a stale published value as current
+    f = {"oos_sharpe": 0.385, "lead": 4, "_lead_unit": "months", "_objective": "max_is_sharpe_lead_plateau_w3",
+         "_legacy_oos_sharpe": [1.43], "_legacy_lead": []}
+    bad = g.check_text("The earlier rule was published at Sharpe 1.43; the current winner earns Sharpe 1.43.", f, "x")
+    assert any(b.startswith("SHARPE") for b in bad)
+    bad = g.check_text("Previously the winner was selected on out-of-sample Sharpe; the winner is selected on "
+                       "out-of-sample Sharpe.", f, "x")
+    assert any(b.startswith("OBJECTIVE") for b in bad)
+    assert [lg for _c, lg in g._units("The previous rule (published earlier) used lead 1; it scored 0.18.")] == \
+        [True, False]
+
+
+def test_swapped_is_field_bound_when_values_coincide():
+    # QA EF E2: X equals a buy-and-hold field AND another strategy field; Y equals that buy-and-hold field's own
+    # strategy value -> the swap is still reported
+    f = {"oos_sharpe": 0.71, "bh_oos_sharpe": 0.95, "comparison_oos_sharpe": 0.95, "comparison_bh_oos_sharpe": 0.71}
+    assert g.swapped("Sharpe 0.95 versus 0.71 for buy-and-hold.", f, "x")

@@ -523,8 +523,10 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
         if _sig is not None and not _p2_range and _sig["threshold"].notna().any():
             real_slices = _find_real_crossings(_sig["signal"] - _sig["threshold"], 0.0, window=30)
             _gap = True
-            data_source_note = ("the rule's real signal history as known at each date, shown as its distance from "
-                                "that date's threshold (the crossing level is zero)")
+            _basis = {"single_revised_no_archive": "on today's revised values (no archive of earlier values)",
+                      "single_market": "on market data"}.get(str(winner.get("track_policy")), "as known at each date")
+            data_source_note = (f"the rule's real signal history {_basis}, shown as its distance from that date's "
+                                "threshold (the crossing level is zero)")
     else:
         signals_path = _latest_signals_file(pair_dir)
     if signals_path is not None and signal_column:

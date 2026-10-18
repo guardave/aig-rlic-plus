@@ -94,3 +94,16 @@ def test_position_chart_keeps_undefined_months_as_cash(tmp_path):
                                                                          index=False)
     pos, _f = _deployed_positions(tmp_path, {})
     assert list(pos) == [100.0, 100.0, 0.0, 0.0]          # warm-up dropped, undefined tail shown at 0%
+
+
+def test_a_declared_unpublished_legacy_column_gives_no_previous_value():
+    # umcsent_spy QA: the 20260912 table's is_sharpe column held OOS Sharpes (no training window existed), so the
+    # previous rule's training Sharpe was reported as 1.43; a pair declares it LEGACY_UNPUBLISHED -> None
+    import inspect
+    from harness import run as R
+    from harness import prose
+    src = inspect.getsource(R.replay_legacy)
+    assert 'getattr(mod, "LEGACY_UNPUBLISHED", ())' in src and "None if col in unpublished" in src
+    f = prose.previous_fields({"key": "k", "signal": "s", "threshold": "t", "lead": 9, "oos_sharpe": 1.427,
+                               "is_sharpe": None, "tag": "20260912", "selection": "x"}, "months")
+    assert f["previous_is_sharpe"]["value"] is None and f["previous_is_sharpe"]["text"] == "n/a"

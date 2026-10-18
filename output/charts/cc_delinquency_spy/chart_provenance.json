@@ -14,10 +14,10 @@
   }
  },
  "chance_check": {
-  "chart_sha256": "f835d7bbeb00c3295f01a73e5e018463e37fe0b3415776c4a8bdf53dbed15810",
+  "chart_sha256": "d64126b22d8dede8b9bca62170becca75ebff13f528723de9bd2095cfbde9bda",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T13:05:41+00:00",
+  "recorded_at": "2026-10-18T15:31:20+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/cc_delinquency_spy/hindsight_lead_curve_20261017.csv": "c65abaff0c043e6b47a654f9b3d79115fb6823e80938465258cbdbf396df4250",
@@ -200,7 +200,7 @@
   "chart_sha256": "033a220029a678b323f39633d344a6a8efb7dee345da2dcb6c4de60aa6e78eb8",
   "results_tag": "20261017",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T13:05:38+00:00",
+  "recorded_at": "2026-10-18T15:31:16+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/cc_delinquency_spy/hindsight_lead_curve_20261017.csv": "c65abaff0c043e6b47a654f9b3d79115fb6823e80938465258cbdbf396df4250",

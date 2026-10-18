@@ -142,3 +142,17 @@ def test_structured_prose_knows_the_previous_rule_without_a_selection_block():
                                  "previous_lead": {"value": 6, "text": "6"}})
     f = gsp.fields_from_summary(ws)
     assert 0.7312 in f["_legacy_oos_sharpe"] and 0.8905 in f["_legacy_oos_sharpe"] and 6 in f["_legacy_lead"]
+
+
+SINGLE_NO_ARCHIVE = sorted(p.parent.name for p in (ROOT / "results").glob("*/winner_summary.json")
+                           if json.loads(p.read_text()).get("track_policy") == "single_revised_no_archive")
+
+
+@pytest.mark.parametrize("pair", SINGLE_NO_ARCHIVE or [pytest.param(None, marks=pytest.mark.skip(
+    reason="no single_revised_no_archive pair on this branch (ism_mfg / umcsent_spy / cement land with their merges)"))])
+def test_single_track_no_archive_pages_never_claim_as_known_at(pair):
+    # umcsent_spy QA HIGH: shared text said "as known at each date / at the time" on revised-only pairs
+    import re
+    txt = "\n".join(_page_text(pair).values())
+    assert not re.search(r"\bas[- ]known[- ]at", txt, re.I), re.search(r".{80}\bas[- ]known[- ]at.{80}", txt,
+                                                                       re.I | re.S)

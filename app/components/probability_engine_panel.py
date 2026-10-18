@@ -431,41 +431,81 @@ _RULE_WORDS = {"gte": "at or above", "gt": "above", "lte": "at or below", "lt": 
 
 
 def _render_deployed_signal(pair_id: str, winner: dict, sig: pd.DataFrame, p2_range: bool) -> None:
-    """Phase B Signal Monitoring chart: the winning signal as the rule used it at each rebalance date (as known
-    at the time, lagged by the lead) against the threshold the rule compared it with at that date, with the
-    test period shaded. Replaces the revised, unlagged signal of the legacy panel (QA B1 nhs F2)."""
+    """Phase B Signal Monitoring chart: the winning signal as the rule used it at each rebalance date (lagged by the
+    lead, on the track's own data basis) against the threshold it was compared with at that date; test period,
+    NBER recessions and the target's indexed price shaded / overlaid; the axis clipped (and said so) when a spike
+    would flatten the threshold (QA B1 nhs F2, QA EF F2/F3; single no-archive pairs never say 'as known at')."""
     target = winner.get("target_symbol", "SPY")
     lead, unit = winner.get("lead_value"), {"days": "trading days", "months": "months", "quarters": "quarters"}.get(
         str(winner.get("lead_unit", "")).lower(), "periods")
     rule = _RULE_WORDS.get(str(winner.get("threshold_rule", "")).lower())
-    name = str(winner.get("signal_display_name") or winner.get("signal_code") or "Signal")
+    policy = str(winner.get("track_policy", ""))
+    basis = ("as revised today, no archive" if policy == "single_revised_no_archive" else
+             "market data" if policy == "single_market" else "as known at each date")
+    short = str(winner.get("signal_code") or "Signal")
+    name = str(winner.get("signal_display_name") or short)
     s = sig["signal"].astype(float)
     first = s.first_valid_index()
     if first is None:
         st.info("The rule's signal is undefined over the whole sample, so there is nothing to plot.")
         return
     d = sig.loc[first:]
-    if p2_range:     # a range-sized rule's signal column is the reading's place in its trailing range (0-1)
+    if p2_range:     # a range-sized rule's signal column is the reading's place in its trailing range
         name = f"Place of the {name} in its trailing range (bottom to top)"
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=d.index, y=d["signal"], mode="lines", line=dict(color="#0072B2", width=1.6),
-                             name=f"{name} (as known at each date, lead {lead} {unit})"))
+                             name=f"{name} ({basis}, lead {lead} {unit})"))
     thr = d["threshold"].astype(float) if "threshold" in d else None
-    if thr is not None and thr.notna().any() and not p2_range:
+    has_thr = thr is not None and thr.notna().any() and not p2_range
+    if has_thr:
         fig.add_trace(go.Scatter(x=d.index, y=thr, mode="lines", line=dict(color="#D55E00", width=1.4, dash="dot"),
                                  name=(f"Threshold at each date: long {target} when the signal is {rule} it"
                                        if rule else "Threshold at each date")))
+    price = _load_target_price_overlay(pair_id, target)
+    if price is not None:
+        px = price.loc[(price.index >= d.index.min()) & (price.index <= d.index.max())]
+        if len(px) > 1:
+            fig.add_trace(go.Scatter(x=px.index, y=(px / px.iloc[0] * 100.0).values, mode="lines", yaxis="y2",
+                                     name=f"{target} price (indexed)", line=dict(color="#999999", width=1.0)))
+    for b0, b1 in (("2001-03-01", "2001-11-30"), ("2007-12-01", "2009-06-30"), ("2020-02-01", "2020-04-30")):
+        if pd.Timestamp(b1) >= d.index.min():
+            fig.add_vrect(x0=b0, x1=b1, fillcolor="#999999", opacity=0.18, line_width=0)
+    fig.add_trace(go.Scatter(x=[None], y=[None], mode="markers", name="NBER recession",
+                             marker=dict(size=12, color="rgba(153,153,153,0.35)", symbol="square"), hoverinfo="skip"))
     oos = pd.Timestamp(str(winner.get("oos_period_start"))[:10]) if winner.get("oos_period_start") else None
     if oos is not None:
-        fig.add_vrect(x0=oos, x1=d.index.max(), fillcolor="#999999", opacity=0.12, line_width=0,
+        fig.add_vrect(x0=oos, x1=d.index.max(), fillcolor="#56B4E9", opacity=0.08, line_width=0,
                       annotation_text="Test period", annotation_position="top left")
-    fig.update_layout(template="plotly_white", height=380, margin=dict(t=40, b=40),
-                      legend=dict(orientation="h", yanchor="top", y=-0.15, x=0),
-                      yaxis_title="Place in trailing range (bottom to top)" if p2_range else name, xaxis_title=None)
+    v = d["signal"].astype(float).dropna()
+    if has_thr:
+        v = pd.concat([v, thr.dropna()])
+    if len(v) > 20:      # a spike (unrate's 2020 Sahm reading) would flatten the threshold and every crossing
+        lo, hi = float(v.quantile(0.02)), float(v.quantile(0.98))
+        if hi > lo and (float(v.max()) - lo > 1.5 * (hi - lo) or hi - float(v.min()) > 1.5 * (hi - lo)):
+            pad = 0.08 * (hi - lo)
+            fig.update_yaxes(range=[lo - pad, hi + pad])
+            fig.add_annotation(text="Axis clipped so the threshold and crossings stay readable; the most extreme "
+                                    "readings run off the chart.", xref="paper", yref="paper", x=1, y=1.01,
+                               xanchor="right", yanchor="bottom", showarrow=False, font=dict(size=10, color="#666666"))
+    fig.update_layout(template="plotly_white", height=420, margin=dict(t=40, b=40),
+                      legend=dict(orientation="h", yanchor="top", y=-0.12, x=0),
+                      yaxis_title="Range position" if p2_range else short, xaxis_title=None,
+                      yaxis2=dict(title=f"{target} indexed price", overlaying="y", side="right", showgrid=False))
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-    st.caption("Source: the values the rule actually compared at each rebalance date (the harness's strategy "
-               "returns file for the as-known-at-the-time track), so the line is lagged by the lead and uses "
-               "each date's published reading, not today's revised series.")
+    src = ("the reading published by each date" if basis.startswith("as known") else
+           "today's revised values (no archive of earlier values exists, so this may include hindsight)"
+           if policy == "single_revised_no_archive" else "market data")
+    st.caption(f"Source: the values the rule actually compared at each rebalance date (the harness's strategy returns "
+               f"file), lagged by the lead and built from {src}.")
+    if p2_range:
+        why = (f"exposure is proportional to where the reading sits in its own trailing range; there is no "
+               "threshold to cross.")
+    elif has_thr:
+        why = (f"the rule holds {target} when the signal is {rule or 'on the long side of'} the threshold of that "
+               "date and cash otherwise; the threshold line moves when it is a rolling boundary.")
+    else:
+        why = "the signal drives the position; see the Strategy Summary for the exact rule."
+    st.caption(f"Why this matters: {why}")
 
 
 def render_probability_engine_panel(pair_id: str) -> None:
@@ -542,8 +582,11 @@ def render_probability_engine_panel(pair_id: str) -> None:
     )
     from components.provenance import is_phase_b as _is_pb
     if _is_pb(pair_id):          # the deployed-signal chart has no near-threshold zone; say what it does show
-        panel_caption = ("What this shows: the winning signal exactly as the rule used it at each date (the reading "
-                         "published by then, lagged by the lead)"
+        _src = ("today's revised value (no archive of earlier values)"
+                if winner.get("track_policy") == "single_revised_no_archive" else
+                "the market value" if winner.get("track_policy") == "single_market" else "the reading published by then")
+        panel_caption = ("What this shows: the winning signal exactly as the rule used it at each date "
+                         f"({_src}, lagged by the lead)"
                          + (", which sizes the position by its place in its trailing range (no threshold)."
                             if _p2_range_hdr else ", against the threshold it was compared with at that date."))
     st.markdown(f"### {panel_title}")
