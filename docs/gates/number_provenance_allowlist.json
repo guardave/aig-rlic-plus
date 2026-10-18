@@ -27,13 +27,23 @@
   },
   {
    "id": "rule_mechanics",
-   "regex": "\\bbetween 100% and 0%|\\b100% (?:cash|SPY|XLV|XLP|XLI)\\b|\\brun of three neighbouring leads\\b|\\bround trip is two (?:executions|rows)\\b",
-   "why": "How a P1 long/cash rule and the stable lead range work (full exposure or cash; a window of three adjacent leads): method mechanics, not a pair result."
+   "regex": "\\bbetween 100% and 0%|\\b100% (?:cash|SPY|XLV|XLP|XLI)\\b|\\brun of three neighbouring leads\\b|\\bround trip is two (?:executions|rows)\\b|\\bfrom 0% to 100%; there is no fixed threshold to cross\\b|\\bof the range it is 0% \\(cash\\)",
+   "why": "How the position rules and the stable lead range work: P1 long/cash is full exposure or cash; P2 signal-strength sizes exposure between 0% and 100% (cash at the bottom of the trailing range); a window of three adjacent leads. Method mechanics, not a pair result."
   },
   {
    "id": "cost_convention",
    "regex": "\\b5 basis points \\(0\\.05%\\)|\\babout 10 bps\\b",
    "why": "Transaction-cost convention of every backtest (5 bp per execution, two per round trip): methodology constant."
+  },
+  {
+   "id": "significance_convention",
+   "regex": "\\bIf p-values stay above 0\\.05\\b",
+   "why": "Conventional 5% significance level in the structural-break 'How to read' text (the same for every pair): a reading convention, not a result."
+  },
+  {
+   "id": "rolling_window_convention",
+   "regex": "\\bHow to read it: 24-month rolling Sharpe ratio\\b",
+   "why": "Window of the rolling-Sharpe chart: econ_cp_retro_apply / pair producers use 24 monthly periods (504 trading days on daily pairs, about 24 months); no quarterly pair has this chart. A producer parameter, not a result."
   },
   {
    "id": "threshold_rule_wording",

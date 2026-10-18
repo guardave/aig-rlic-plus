@@ -49,7 +49,7 @@ python scripts/gate_number_provenance.py unrate_spy      # one pair
    The raw numeric data arrays (`x`, `y`, `z`, `values`) are not checked. Chart *files* are covered by their provenance record instead: inputs and freshness, not the correctness of the producer's arithmetic.
 4. **Allowlisted descriptive phrases.** `number_provenance_allowlist.json` entries are matched by regex and their numbers are not tagged:
    - `portal_progress`, `grey_zone_band`, `bibliographic_citation`, `trade_log_definitions`;
-   - `page_structure`, `rule_mechanics`, `cost_convention`, `threshold_rule_wording`;
+   - `page_structure`, `rule_mechanics`, `cost_convention`, `significance_convention`, `rolling_window_convention`, `threshold_rule_wording`;
    - `signal_label`, `series_definition`, `recession_names`.
 
    Each entry states its reason. The gate prints how many tokens each pair accepts this way.
