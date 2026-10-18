@@ -281,7 +281,7 @@ def render_chance_check(pair_id: str, ts: dict) -> None:
                                 f"{nt['n_draws']:,} scrambled-signal contests")
                                + " (the indicator, as known at each date, shifted against the returns by a fixed "
                                  "number of periods, wrapping around once; same selection rule)."
-                               + draws_note(nt) + is_window_note(pair_id)))
+                               + draws_note(nt) + coarse_note(pair_id, nt) + is_window_note(pair_id)))
 
 
 def render_lead_plateau(pair_id: str, ts: dict, ws: dict) -> None:
@@ -346,6 +346,9 @@ def is_window_note(pair_id: str) -> str:
             "chance, so this comparison is not like-for-like.")
 
 
+NULL_TARGET_DRAWS = 100   # harness.null.run_null K
+
+
 def draws_note(nt: dict) -> str:
     """' N admissible, M with a winner; percentile from M.' when some contests produced no valid rule."""
     nw = nt.get("n_draws_without_winner") or 0
@@ -356,6 +359,25 @@ def draws_note(nt: dict) -> str:
     head = f"{adm:,} admissible" if adm == run else f"{run:,} run ({adm:,} admissible)"
     return (f" Contests: {head}, {nt['n_draws']:,} with a winner ({nw:,} without a valid rule, excluded);"
             f" percentile from {nt['n_draws']:,}.")
+
+
+def coarse_note(pair_id: str, nt: dict) -> str:
+    """When the span allows fewer contests than the null's target and every admissible shift was run (cc: 36), the
+    percentile is coarse; says so with the number of effectively independent contests (Bartlett effective draws of
+    the R7.1 timing-Sharpe SE, results/<pair>/winner_summary.json). '' otherwise (Lead v3.1 item 2)."""
+    adm, run = nt.get("n_admissible_offsets"), nt["n_draws"] + (nt.get("n_draws_without_winner") or 0)
+    if adm is None or run < adm or adm >= NULL_TARGET_DRAWS:
+        return ""
+    try:
+        ws = P.json_file(Path(__file__).resolve().parents[2] / "results" / pair_id / "winner_summary.json")
+        eff = ws["tracks"]["main"]["null_tournament"]["timing_sharpe_effective_draws"]
+    except (OSError, ValueError, KeyError, TypeError):
+        eff = None
+    out = f" The percentile is coarse: this span allows only {nt['n_draws']:,} contests"
+    if eff is not None:
+        out += (f", about {eff:.0f} of them effectively independent (contests at neighbouring shifts overlap"
+                " heavily)")
+    return out + "."
 
 
 def chance_fact(ts: dict) -> str | None:

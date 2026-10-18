@@ -3,7 +3,7 @@
   "track": "real_time",
   "role": "main",
   "winner_key": "sahm|T_roll_p75|P1|countercyclical|5",
-  "generated_at": "2026-10-18T03:58:15.486673+00:00",
+  "generated_at": "2026-10-18T04:26:06.911534+00:00",
   "vintage_policy": {
     "alignment": "realtime_vintage",
     "vintage_series": "UNRATE",

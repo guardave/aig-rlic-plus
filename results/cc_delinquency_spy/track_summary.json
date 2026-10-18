@@ -1,7 +1,7 @@
 {
   "pair_id": "cc_delinquency_spy",
   "schema_version": "1.0.0",
-  "generated_at": "2026-10-18T03:55:59.100366+00:00",
+  "generated_at": "2026-10-18T04:32:44.887370+00:00",
   "track_state": "both",
   "track_policy": "compute_twice",
   "main": {
@@ -175,7 +175,7 @@
         1
       ]
     },
-    "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows over each input's span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
+    "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
     "r71_pass": true,
     "edge_flag": false,
     "n_admissible_offsets": 36,

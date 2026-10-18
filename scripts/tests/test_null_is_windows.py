@@ -83,3 +83,30 @@ def test_previously_published_pilots_carry_previous_selection():
 def test_panel_caption_describes_a_constant_roll():
     src = Path(two_track.__file__).read_text()
     assert "fixed " in src and "wrapping around once" in src and "within each" not in src
+
+
+def _coarse_pair(tmp_path, monkeypatch, eff=14.1):
+    d = tmp_path / "results" / "toy_spy"
+    d.mkdir(parents=True)
+    (d / "winner_summary.json").write_text(
+        '{"tracks": {"main": {"null_tournament": {"timing_sharpe_effective_draws": %s}}}}' % eff)
+    monkeypatch.setattr(two_track, "__file__", str(tmp_path / "app" / "components" / "two_track.py"))
+    monkeypatch.setattr(P, "RESULTS", tmp_path / "results")
+
+
+def test_coarse_percentile_is_disclosed_when_the_span_caps_the_draws(tmp_path, monkeypatch):
+    # Lead v3.1 item 2: cc runs every admissible shift (36), about 14 effectively independent.
+    _coarse_pair(tmp_path, monkeypatch)
+    nt = {"n_draws": 36, "n_admissible_offsets": 36, "n_draws_without_winner": 0}
+    note = two_track.coarse_note("toy_spy", nt)
+    assert "coarse" in note and "only 36 contests" in note and "about 14 of them effectively independent" in note
+    assert two_track.coarse_note("toy_spy", {"n_draws": 100, "n_admissible_offsets": 243}) == ""
+
+
+def test_coarse_note_is_tagged_in_gate_mode(tmp_path, monkeypatch):
+    _coarse_pair(tmp_path, monkeypatch)
+    monkeypatch.setenv("AIG_PROVENANCE_GATE", "1")
+    nt = P.artifact({"n_draws": 36, "n_admissible_offsets": 36, "n_draws_without_winner": 0},
+                    tmp_path / "results" / "toy_spy" / "track_summary.json")
+    clean, _k, _p, sents, _d = g.parse_markers(two_track.coarse_note("toy_spy", nt))
+    assert len(sents) == 2 and "36" in clean and "14" in clean

@@ -6,10 +6,13 @@ The RAW indicator is shifted and the whole pipeline is rebuilt for every draw (C
   real-time track (v3 2026-10-18, Lead ruling after QA null v2 F1): the per-row point-in-time inputs are built
       ONCE exactly as in the real tournament (each row reads the vintage visible when its return window opens and
       computes the feature inside that vintage); the draw then applies ONE constant circular roll of k rows to every
-      input column (signals, rolling thresholds, regime columns) over that column's own span of defined rows (first
-      to last defined row), wrapping once. Row u gets the column's value from row u - k on every row: a constant
-      shift, the same mechanism as the market track's in-span roll. Each column keeps its first and last defined
-      rows, so the training and test windows equal the real ones. History: v1 shifted reference periods inside
+      input column (signals, rolling thresholds, regime columns) over its lead frame's ONE common span (first to last
+      row where any column is defined; v3.1), wrapping once. Row u of EVERY column reads row u - k: a constant
+      shift that keeps a candidate's signal and its thresholds paired on the same source row, the same mechanism as
+      the market track's in-span roll. No row of the span keeps its real alignment; each column keeps its number of
+      defined rows (an undefined row moves with the data), so the windows stay close to the real ones
+      (null_is_windows reports the draw vs real counts). v3 rolled each column over its own span, which let a signal
+      and its threshold read different source rows where their spans differed (QA v3 note). History: v1 shifted reference periods inside
       every vintage over the latest vintage's grid (early vintages lost readings, draw windows shrank); v2 wrapped
       inside each vintage mod its own length, which is NOT a constant shift (time-warp where a vintage is shorter
       than k, near-identity rows) and pooled two populations (QA null v2 F1).
@@ -67,32 +70,32 @@ def offsets(n: int, ppy: int, K: int, seed: int = SEED_BASE, max_offset: int | N
     return [int(x) for x in np.random.default_rng(seed).choice(adm, size=K, replace=False)]
 
 
+def frame_span(frame: pd.DataFrame) -> tuple[int, int]:
+    """[first, last + 1) rows where ANY column of a lead frame is defined (the frame's common span)."""
+    ok = frame.notna().any(axis=1).to_numpy()
+    if not ok.any():
+        return 0, 0
+    return int(np.argmax(ok)), len(ok) - int(np.argmax(ok[::-1]))
+
+
 def roll_defined(frame: pd.DataFrame, k: int) -> pd.DataFrame:
-    """Every column circularly rolled by k rows over its OWN span of defined rows [first, last] (wraps once when
-    k < span): row u gets the column's row u - k. Columns keep their first / last defined rows."""
+    """Every column of a lead frame circularly rolled by the same k rows over the frame's ONE common span (v3.1, QA
+    null v3 F1': per-column spans let a signal and its own rolling threshold read source rows up to 9 rows apart):
+    row u of every column reads row u - k, so a candidate's signal and thresholds stay paired, and every row of the
+    span is rolled (no row keeps its real alignment)."""
+    s, e = frame_span(frame)
     out = frame.copy()
-    for c in frame.columns:
-        v = frame[c].to_numpy()
-        ok = ~pd.isna(v)
-        if not ok.any():
-            continue
-        s, e = int(np.argmax(ok)), len(v) - int(np.argmax(ok[::-1]))
-        w = v.copy()
-        w[s:e] = np.roll(v[s:e], k)
-        out[c] = w
+    if e - s > 0:
+        vals = frame.to_numpy(copy=True)
+        vals[s:e] = np.roll(vals[s:e], k, axis=0)
+        out = pd.DataFrame(vals, index=frame.index, columns=frame.columns)
     return out
 
 
 def defined_span_min(lagged: dict) -> int:
-    """Shortest span of defined rows over every input column (the admissible-offset range is set on it)."""
-    n = None
-    for f in lagged.values():
-        for c in f.columns:
-            ok = ~pd.isna(f[c].to_numpy())
-            if ok.any():
-                L = len(ok) - int(np.argmax(ok[::-1])) - int(np.argmax(ok))
-                n = L if n is None else min(n, L)
-    return int(n or 0)
+    """Shortest common span over the lead frames (the admissible-offset range is set on it)."""
+    spans = [frame_span(f) for f in lagged.values()]
+    return int(min((e - s for s, e in spans if e > s), default=0))
 
 
 def roll_track_inputs(ti: TrackInputs, k: int) -> TrackInputs:
@@ -237,8 +240,8 @@ def summarize(null: pd.DataFrame, actual: dict, grid_len: int, ppy: int = 12) ->
         "n_admissible_offsets": null.attrs.get("n_admissible"), "span": null.attrs.get("span"),
         "max_usable_offset": null.attrs.get("max_offset"),
         "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period "
-        "point-in-time inputs built as in the real tournament, then one constant circular roll of k rows over each "
-        "input's span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same "
+        "point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all "
+        "inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same "
         "selection rule; distinct offsets; R7.1",
         "seed_base": SEED_BASE,
         "is_max_percentile": p_is[0], "p_is": p_is[1],

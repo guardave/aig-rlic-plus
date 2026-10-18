@@ -26,7 +26,7 @@
     ]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-10-18T03:55:40.446981+00:00",
+  "last_updated_at": "2026-10-18T04:32:28.991904+00:00",
   "indicator": "ccdelinq",
   "target": "spy",
   "expected_direction": "countercyclical",
@@ -71,6 +71,6 @@
   "data_provenance": {
     "source": "FRB via ALFRED (pinned vintages data/release_calendar/vintages/DRCCLACBN.csv.gz)",
     "series_id": "DRCCLACBN",
-    "accessed_at": "2026-10-18T03:55:40.446981+00:00"
+    "accessed_at": "2026-10-18T04:32:28.991904+00:00"
   }
 }
