@@ -136,9 +136,8 @@ _TRADE_LOG_TWO_FILE_MODEL_MD: str = (
     "matches your question. The **broker-style log** "
     "(`winner_trades_broker_style.csv`) is the default, retail-friendly "
     "view — one row per trade execution, formatted the way a brokerage "
-    "statement would look, with a fixed 10-column schema (trade date, "
-    "side, instrument, quantity, price, notional, commissions, cumulative "
-    "P&L, and the signal-based reason). The **position log** "
+    "statement would look; its columns are listed below, read from the "
+    "file itself. The **position log** "
     "(`winner_trade_log.csv`) is the researcher / debugging view — one row "
     "per position-weight change, with additional diagnostic columns such "
     "as the raw signal value, threshold comparison, and regime tag. Both "
@@ -146,29 +145,17 @@ _TRADE_LOG_TWO_FILE_MODEL_MD: str = (
     "differently."
 )
 
-_TRADE_LOG_COLUMN_GLOSSARY_MD: str = (
-    "**Key columns in the broker-style log:**\n"
-    "- `trade_date` — the calendar date the trade would have been "
-    "executed.\n"
-    "- `side` — **BUY** scales equity exposure up; **SELL** scales it "
-    "down toward cash (or short, if the strategy allows).\n"
-    "- `instrument` — the target ticker being traded (for example SPY, "
-    "XLP, or XLV).\n"
-    "- `quantity_pct` — the **resulting** target portfolio weight after "
-    "the trade, expressed as a percentage (0–100). It is the new "
-    "position, not the size of the trade itself.\n"
-    "- `trade_size_pct` (where present) — the size of the trade itself, "
-    "in percent of capital (the change in weight).\n"
-    "- `price` / `notional_usd` — the closing price of the instrument "
-    "on the trade date and the dollar value of the resulting position "
-    "(using a $10,000 notional base).\n"
-    "- `commission_bps` / `commission_usd` — the per-trade transaction "
-    "cost in basis points and the corresponding dollar charge.\n"
-    "- `cum_pnl_pct` — cumulative strategy return since inception, in "
-    "percent.\n"
-    "- `reason` — a human-readable one-liner naming the signal value "
-    "and the rule that triggered the row."
-)
+def _trade_log_glossary(broker_df) -> str:
+    """'Key columns' list of the broker-style log, built from the columns the file actually has (QA pilot-visual
+    M4: the static list named price / notional / commission / cumulative P&L columns the harness logs do not
+    have)."""
+    if broker_df is None or not len(broker_df.columns):
+        return ""
+    lines = ["**Columns in this pair's broker-style log:**"]
+    for c in broker_df.columns:
+        meaning = _TRADE_LOG_COLUMN_DICT_DEFAULTS.get(c, {}).get("meaning", "(not described)")
+        lines.append(f"- `{c}` — {meaning}")
+    return "\n".join(lines)
 
 # 10-row column dictionary defaults for the "How to read this chart" expander
 # (APP-TL1 step 7). Pair configs MAY override per-key via
@@ -187,6 +174,10 @@ _TRADE_LOG_COLUMN_DICT_DEFAULTS: dict[str, dict[str, str]] = {
     "commission_usd": {"type": "float",  "meaning": "Dollar commission charged on this trade.",                                                                 "example": "0.00"},
     "cum_pnl_pct":    {"type": "float",  "meaning": "Cumulative strategy return since inception, in percent.",                                                  "example": "52.15"},
     "reason":         {"type": "string", "meaning": "Human-readable signal value and rule that triggered the trade.",                                           "example": "HMM stress prob 1.000 crossed threshold — full risk-off"},
+    "signal_value":   {"type": "float",  "meaning": "The signal reading the rule compared on this date (blank when no reading was published).",              "example": ""},
+    "threshold_value": {"type": "float", "meaning": "The decision threshold the reading was compared with on this date.",                                       "example": ""},
+    "position_before": {"type": "float", "meaning": "Position before this trade as a fraction of capital (one = fully invested, zero = cash).",                    "example": ""},
+    "position_after": {"type": "float",  "meaning": "Position after this trade as a fraction of capital.",                                                     "example": ""},
 }
 
 
@@ -656,6 +647,8 @@ def _dd_kpi_delta(winner: dict) -> tuple[str | None, str]:
     bh = winner.get("bh_max_drawdown")
     if isinstance(dd, (int, float)) and isinstance(bh, (int, float)) and bh != 0:
         gap_pp = (dd - bh) * 100  # >0 => strategy DD shallower => better (tagged arithmetic in gate mode)
+        if round(float(gap_pp), 1) == 0:             # equal drawdowns: no green "+0.0" (QA pilot-visual L6)
+            return f"{abs(gap_pp):.1f}pp vs B&H (same)", "off"
         return f"{gap_pp:+.1f}pp vs B&H", "normal"  # 'normal' => green for positive
     bh_fmt = _format_ratio_pct(bh)
     return (f"vs {bh_fmt} B&H" if bh_fmt != "N/A" else None), "inverse"
@@ -1205,6 +1198,30 @@ def _render_cross_period_section(pair_id: str, config: Any | None = None) -> Non
         # absence must stay visible until retro-applied (GATE-CL6).
 
 
+def render_undefined_tail_note(pair_id: str) -> None:
+    """QA pilot-visual H1 / Lead ruling: when the test period ends on months with no published reading, say that
+    the rule held cash there (pre-registered undefined-means-cash rule) and give the hold-last-position Sharpe as a
+    labelled sensitivity. From winner_summary.tracks.main.undefined_tail (scripts/harness/artifacts.py); tagged."""
+    path = _REPO_ROOT / "results" / pair_id / "winner_summary.json"
+    try:
+        ws = _artifact(json.loads(path.read_text()), path)
+    except (OSError, ValueError):
+        return
+    ut = ((ws.get("tracks") or {}).get("main") or {}).get("undefined_tail")
+    if not ut:
+        return
+    unit = {"months": "months", "quarters": "quarters", "days": "trading days"}.get(
+        str(((ws.get("tracks") or {}).get("main") or {}).get("lead_unit")), "periods")
+    first, last = _P.prefix(_P.field_text(ut, "first_date"), 7), _P.prefix(_P.field_text(ut, "last_date"), 7)
+    st.info(
+        f"**Last {ut['n_periods']} test {unit} held in cash ({first} to {last}).** The signal has no published "
+        "reading for these months, so the rule's pre-registered treatment applies: an undefined signal means cash. "
+        f"Buy-and-hold returned {ut['benchmark_return_over_tail'] * 100:+.1f}% over them. Sensitivity (not the rule): "
+        f"holding the last position through these months would give a test-period Sharpe of "
+        f"{ut['oos_sharpe_hold_last_position']:.2f}, against {ut['oos_sharpe_as_published']:.2f} as published."
+    )
+
+
 def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
     """Render the canonical Evidence page for ``pair_id``.
 
@@ -1293,6 +1310,7 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
         [b.get("method_name", f"Method {i + 1}") for i, b in enumerate(level2_blocks)],
     )
 
+    render_undefined_tail_note(pair_id)
     tier1, tier2 = st.tabs(
         ["Level 1 — Basic Analysis", "Level 2 — Advanced Analysis"]
     )
@@ -1362,10 +1380,8 @@ def render_evidence_page(pair_id: str, method_blocks: dict) -> None:
     )
     st.markdown(tourn_sub)
     if tourn_path:
-        st.caption(
-            f"What this shows: tournament results at "
-            f"`results/{pair_id}/{tourn_path.name}`."
-        )
+        st.caption("What this shows: where the full tournament results are; the downloadable file is on the "
+                   "Strategy page.")
 
     # ------ Transition ------
     st.markdown("---")
@@ -1602,6 +1618,7 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
     if _ts:
         two_track.render_kpi_caption(_ts, winner)
         two_track.render_vs_buy_hold(_ts, winner)
+    render_undefined_tail_note(pair_id)
     st.markdown("---")
 
     strategy_downloads = getattr(config, "DOWNLOADS", [])
@@ -1769,10 +1786,17 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
 
         if getattr(config, "SHOW_TOURNAMENT_SCATTER", True):
             st.markdown("---")
-            st.markdown("### Tournament Scatter")
             scatter_chart = getattr(
                 config, "TOURNAMENT_SCATTER_CHART_NAME", "tournament_scatter"
             )
+            # the heading names what the chart is (QA pilot-visual L4: "Tournament Scatter" over a box plot)
+            _kinds = set()
+            try:
+                _kinds = {t.get("type") for t in json.loads(
+                    (_REPO_ROOT / "output" / "charts" / pair_id / "plotly" / f"{scatter_chart}.json").read_text())["data"]}
+            except (OSError, ValueError, KeyError, TypeError):
+                pass
+            st.markdown("### Tournament Sharpe Distribution" if _kinds == {"box"} else "### Tournament Scatter")
             load_plotly_chart(
                 scatter_chart,
                 pair_id=pair_id,
@@ -2164,8 +2188,8 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
     # ---- Step 3: two-file model explanation (Ray stub) ----
     st.markdown(_TRADE_LOG_TWO_FILE_MODEL_MD)
 
-    # ---- Step 4: column glossary (Ray stub) ----
-    st.markdown(_TRADE_LOG_COLUMN_GLOSSARY_MD)
+    # ---- Step 4: column glossary: the columns the broker-style log actually has (QA pilot-visual M4) ----
+    st.markdown(_trade_log_glossary(broker_df))
 
     # ---- Step 5: pair-specific concrete example (Ray-authored via config) ----
     example_md = getattr(config, "TRADE_LOG_EXAMPLE_MD", "") or ""
@@ -2193,7 +2217,10 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
             _first = _P.csv_file(broker_path, comment="#").iloc[0]
         except Exception:                            # noqa: BLE001 - keep the plain row
             pass
-    for col_name, row in _TRADE_LOG_COLUMN_DICT_DEFAULTS.items():
+    _cols = list(broker_df.columns) if broker_df is not None else list(_TRADE_LOG_COLUMN_DICT_DEFAULTS)
+    for col_name in _cols:                       # the file's own columns, in its order (M4)
+        row = _TRADE_LOG_COLUMN_DICT_DEFAULTS.get(col_name, {"type": "", "meaning": "(not described)",
+                                                             "example": ""})
         # Example values come from the pair's own trade log when it has the column (an illustrative number
         # must never be a made-up one); otherwise the config override; otherwise the default only when it
         # carries no number.
@@ -2279,8 +2306,7 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
             hide_index=True,
         )
         st.caption(
-            "Each row is a single scale-up or scale-down execution of the "
-            "winning strategy (simulated)."
+            "Each row is one change in the simulated position: a BUY raises exposure, a SELL lowers it."
         )
     elif pos_df is not None:
         # Degraded preview: show position log when broker-style is unavailable.
@@ -2395,7 +2421,10 @@ def render_methodology_page(pair_id: str, config: MethodologyConfig) -> None:
     if stat_path and stat_path.exists():
         try:
             stat_df = pd.read_csv(stat_path)
-            st.dataframe(_table_source(stat_df, stat_path), use_container_width=True, hide_index=True)
+            _num_cols = {c: st.column_config.NumberColumn(c, format="%.4g") for c in stat_df.columns
+                         if pd.api.types.is_float_dtype(stat_df[c])}      # QA L7: no clipped long floats
+            st.dataframe(_table_source(stat_df, stat_path), use_container_width=True, hide_index=True,
+                         column_config=_num_cols)
             st.caption(
                 "How to read it: stationarity means a series has a stable "
                 "statistical pattern over time, rather than drifting because "

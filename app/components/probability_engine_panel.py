@@ -218,6 +218,10 @@ def _render_chart(
     line (the prior fix) was the specific defect re-opened by the reviewer.
     """
     thr_lbl, threshold = threshold, float(threshold)   # tagged value for text, plain float for plotly (v5.1)
+    # near-threshold band in the signal's own scale (QA pilot-visual L5: a fixed +-0.25 was a third of a 0-1 rank
+    # and wider than a Sahm threshold of 0.3): a tenth of the signal's 5th-95th percentile range
+    _s = signals_df[column].dropna()
+    band = 0.10 * float(_s.quantile(0.95) - _s.quantile(0.05)) if len(_s) else 0.0
     series = signals_df[column].dropna()
     fig = go.Figure()
 
@@ -262,20 +266,20 @@ def _render_chart(
             )
         )
         if not is_probability and show_near_threshold_zone:
-            # Grey zone ±0.25 that TRACKS the rolling boundary (two edge traces
+            # Grey zone (+-band) that TRACKS the rolling boundary (two edge traces
             # with a fill between them), not a flat horizontal band.
             fig.add_trace(
                 go.Scatter(
-                    x=roll_series.index, y=(roll_series + 0.25).values,
+                    x=roll_series.index, y=(roll_series + band).values,
                     mode="lines", line=dict(width=0), hoverinfo="skip", showlegend=False,
                 )
             )
             fig.add_trace(
                 go.Scatter(
-                    x=roll_series.index, y=(roll_series - 0.25).values,
+                    x=roll_series.index, y=(roll_series - band).values,
                     mode="lines", line=dict(width=0), fill="tonexty",
                     fillcolor="rgba(187,187,187,0.22)",
-                    name="Grey zone: near threshold (±0.25)", hoverinfo="skip",
+                    name="Grey zone: near the threshold", hoverinfo="skip",
                 )
             )
     elif threshold_known:
@@ -298,8 +302,8 @@ def _render_chart(
         )
         if not is_probability and show_near_threshold_zone:
             fig.add_hrect(
-                y0=threshold - 0.25,
-                y1=threshold + 0.25,
+                y0=threshold - band,
+                y1=threshold + band,
                 fillcolor="#BBBBBB",
                 opacity=0.15,
                 line_width=0,
@@ -382,8 +386,20 @@ def _render_chart(
             )
         )
 
+    # a spike that would squash the series and hide the threshold (unrate's COVID reading, 9.4 against a 98th
+    # percentile of 3.7): clip the axis at the 2nd-98th percentile range (threshold always inside) and say so;
+    # nothing is dropped from the data
+    if len(_s) > 20:
+        lo, hi = float(_s.quantile(0.02)), float(_s.quantile(0.98))
+        if hi > lo and (float(_s.max()) - lo > 1.5 * (hi - lo) or hi - float(_s.min()) > 1.5 * (hi - lo)):
+            lo, hi = min(lo, threshold), max(hi, threshold)
+            pad = 0.08 * (hi - lo)
+            fig.update_yaxes(range=[lo - pad, hi + pad])
+            fig.add_annotation(text="Axis clipped so the threshold stays readable; the most extreme readings run "
+                                    "off the chart.", xref="paper", yref="paper", x=1, y=1.01, xanchor="right",
+                               yanchor="bottom", showarrow=False, font=dict(size=10, color="#666666"))
     fig.update_layout(
-        height=340,
+        height=420,
         margin=dict(l=50, r=30, t=30, b=60),
         xaxis_title="Date",
         yaxis_title=display_name,
@@ -478,8 +494,8 @@ def render_probability_engine_panel(pair_id: str) -> None:
             if not show_near_threshold_zone
             else "What this shows: how the winning signal value evolves over "
                  "time and where the decision threshold sits. The grey zone "
-                 "marks values within about ±0.25 of the decision threshold, "
-                 "where small month-to-month moves can flip the rule between "
+                 "marks values close to the decision threshold (within a tenth of the signal's usual range), "
+                 "where small period-to-period moves can flip the rule between "
                  f"long {winner.get('target_symbol', 'SPY')} and cash."
         )
     )

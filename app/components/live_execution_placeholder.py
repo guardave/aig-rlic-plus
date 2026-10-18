@@ -42,7 +42,7 @@ def render_live_execution_placeholder(pair_id: str) -> None:
                 stub = json.load(fh)
         except Exception as exc:  # pragma: no cover - defensive
             st.caption(
-                f"Caveat: could not read live_execution_stub.json: {exc}."
+                "Caveat: the live-execution status file could not be read, so no live status is shown."
             )
             stub = {}
 

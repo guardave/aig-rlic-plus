@@ -118,8 +118,14 @@ def _deployed_positions(pair_dir: Path, winner: dict) -> tuple[pd.Series | None,
         return None, None
     if "position" not in df:
         return None, None
-    pos = df["position"].astype(float).dropna() * 100.0
-    return (pos, f.name) if len(pos) else (None, None)
+    raw = df["position"].astype(float)
+    first = raw.first_valid_index()
+    if first is None:
+        return None, None
+    # after the first defined position an undefined one is CASH, as deployed (undefined-means-cash rule): plot it at
+    # 0%, never drop it (QA pilot-visual H1: unrate's last 6 test months vanished from the chart)
+    pos = raw.loc[first:].fillna(0.0) * 100.0
+    return pos, f.name
 
 
 def _render_chart(
@@ -320,5 +326,5 @@ def render_position_adjustment_panel(pair_id: str) -> None:
         st.caption("Source: no positions are recorded in this pair's artifacts, so the curve is an "
                    "approximation computed from the signal, not the rule's deployed positions.")
     else:
-        st.caption(f"Source: deployed positions in `results/{pair_id}/{pos_file}` (the series the "
-                   f"headline results are computed from).")
+        st.caption("Source: the rule's deployed positions, the same series the headline results are computed "
+                   "from (months without a published reading are shown as cash: the rule holds cash then).")

@@ -4,8 +4,9 @@ import streamlit as st
 
 
 def kpi_card(label: str, value: str, delta: str = None, delta_color: str = "normal"):
-    """Render a single KPI metric card."""
-    st.metric(label=label, value=value, delta=delta, delta_color=delta_color)
+    """Render a single KPI metric card. A neutral delta that reports no difference ('(same)') shows no arrow."""
+    arrow = "off" if delta_color == "off" and delta is not None and str(delta).endswith("(same)") else "auto"
+    st.metric(label=label, value=value, delta=delta, delta_color=delta_color, delta_arrow=arrow)
 
 
 def kpi_row(metrics: list[dict]):

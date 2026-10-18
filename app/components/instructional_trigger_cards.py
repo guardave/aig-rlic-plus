@@ -538,7 +538,7 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
 
     # Load real signal history for sparkline slices (Wave 5C S18-9 fix).
     real_slices: dict[str, pd.Series | None] = {"up": None, "down": None, "flat": None}
-    data_source_note = "stylised (no signals parquet found)"
+    data_source_note = "stylised (no signal history available)"
     signals_path = _latest_signals_file(pair_dir)
     if signals_path is not None and signal_column:
         try:
@@ -549,12 +549,11 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
                 )
                 found = sum(1 for v in real_slices.values() if v is not None)
                 data_source_note = (
-                    f"real history (`{signals_path.name}` column "
-                    f"`{signal_column}`) — {found}/3 scenarios located"
+                    f"the rule's real signal history — {found}/3 scenarios located"
                 )
         except Exception:
             # Defensive — fall back to stylised if parquet read fails.
-            data_source_note = "stylised (signals parquet read failed)"
+            data_source_note = "stylised (the signal history could not be read)"
 
     # #244 re-open: when the winner uses a rolling-quantile threshold the number
     # above is the LATEST value of a moving boundary, not a permanent cutoff. The
@@ -582,10 +581,10 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
             f"({winner.get('strategy_display_name', '')}) · "
             + ("no numeric threshold is recorded for this rule; the cards illustrate its direction at a "
                "nominal level · " if _thr_unknown else
-               f"threshold loaded from `winner_summary.json` = {_thr_note} · "
+               f"threshold recorded with the winning rule = {_thr_note} · "
                if _th["source"] != "derived" else
-               f"`winner_summary.json` records no numeric threshold; recomputed from the signals file "
-               f"using the documented rolling definition = {_thr_note} · ")
+               f"no numeric threshold is recorded with the rule; its latest value recomputed from the signal "
+               f"history using the documented rolling definition = {_thr_note} · ")
             +
             f"direction: {direction.replace('_', ' ')}."
         )
