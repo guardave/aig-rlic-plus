@@ -257,3 +257,27 @@ def test_trigger_card_diagnostic_has_no_computed_count():
     src = (g.APP / "components" / "instructional_trigger_cards.py").read_text()
     assert "/3 scenarios located" not in src
     assert not [x for x in g._allow_entries() if x["id"] == "trigger_scenarios"]
+
+
+def test_rolling_sharpe_allowlist_matches_every_producer_window():
+    # Lead (d319c206): the 'rolling_window_convention' entry hard-codes '24-month'; every producer of the
+    # rolling-Sharpe series (column rolling_sharpe_24m) must use 24 monthly periods or 504 trading days, so a
+    # producer change fails here instead of the allowlist quietly blessing stale text
+    import re
+    root = Path(__file__).resolve().parents[1]
+    assert any(x["id"] == "rolling_window_convention" and "24-month" in x["regex"] for x in g._allow_entries())
+    writers = {}
+    for f in sorted(root.glob("*.py")) + sorted((root / "harness").glob("*.py")):
+        lines = f.read_text().splitlines()
+        for i, ln in enumerate(lines):
+            if re.search(r'"rolling_sharpe_24m"\s*:|columns\s*=\s*\[[^\]]*"rolling_sharpe_24m"', ln):
+                ctx = "\n".join(lines[max(0, i - 25):i + 1])
+                wins = {int(w) for w in re.findall(r"\.rolling\((\d+)", ctx)}
+                wins |= {int(w) for m in re.findall(r"\bwindow\s*=\s*([^\n#]+)", ctx) for w in re.findall(r"\d+", m)
+                         if int(w) > 4}
+                writers[f"{f.name}:{i + 1}"] = (wins, ctx)
+    assert len(writers) >= 3, writers.keys()
+    for where, (wins, ctx) in writers.items():
+        assert wins and wins <= {24, 504}, (where, wins)
+        if 504 in wins:
+            assert re.search(r"daily|252|ANN", ctx), (where, "504 must be the daily window")
