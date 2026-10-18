@@ -123,7 +123,7 @@ def build_panel() -> pd.DataFrame:
          "Known Quirks": "Trending nominal level, so the signals are growth rates; first printed in the advance "
                          "durable-goods report about 26 days after month-end and revised in the full M3 report; "
                          "extreme 2020-21 swings",
-         "Display Note": "Nominal, not inflation-adjusted. Not total manufacturing new orders (AMTMNO).",
+         "Display Note": "Nominal, not inflation-adjusted. Core capital goods only, not total manufacturing new orders.",
          "Refresh Freq.": "Monthly", "Refresh Source": "data/release_calendar/vintages/NEWORDER.csv.gz"},
         {"Column Name": "spy", "Display Name": "SPY adjusted close", "Description": "SPDR S&P 500 ETF adjusted close",
          "Source": "Yahoo Finance (pinned)", "Series ID": "SPY", "Unit": "USD",
