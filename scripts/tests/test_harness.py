@@ -403,3 +403,24 @@ def test_max_usable_offset_binary_search_and_restricted_draws(monkeypatch):
     assert len(offs) == len(set(offs)) == 150 - 120 + 1 and max(offs) == 150      # all usable ones (< K)
     monkeypatch.setattr(null, "any_eligible", lambda sp, k: False)
     assert null.max_usable_offset(spec, lambda k: k, 600) is None
+
+
+def test_revised_series_ending_before_the_index_still_reads_published_lags():
+    # QA B1 nhs F1: the level grid ended one period before the rebalance index, so the last row was undefined
+    # although its lagged reading was published long before (1-period comparison undefined tails)
+    from harness import data as D
+    from harness import run as R
+    mod = R.load_pair("unrate_spy")
+    spec, idx = mod.SPEC, mod.rebalance_index()
+    ret, lv = mod.target_return(idx), mod.revised_levels()
+    lv = lv.loc[:idx[-1]]
+    short = lv.iloc[:-1]                                           # series ends one period before the index
+    full = D.revised_inputs(spec, lv, idx, ret)
+    cut = D.revised_inputs(spec, short, idx, ret)
+    for L in spec.leads:
+        a, b = full.lagged[L], cut.lagged[L]
+        pd.testing.assert_frame_equal(a.iloc[:-1], b.iloc[:-1])    # earlier rows bit-identical
+        if L >= 3:                                                 # the last row's reading is old: defined
+            assert b.iloc[-1].notna().any(), L
+            pd.testing.assert_series_equal(a.iloc[-1], b.iloc[-1], check_names=False)
+    assert D._extend_to(lv, idx[:5], spec.freq) is lv               # nothing to extend: unchanged

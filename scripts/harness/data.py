@@ -46,10 +46,26 @@ def target_returns(prices: pd.Series, index: pd.DatetimeIndex) -> np.ndarray:
     return p.pct_change().to_numpy(float)
 
 
+def _extend_to(levels: pd.DataFrame, index: pd.DatetimeIndex, freq: str) -> pd.DataFrame:
+    """`levels` with empty rows appended up to index[-1] on its own period grid (monthly / quarterly) or the
+    index's trading days (daily). Earlier rows are untouched."""
+    if not len(index) or not len(levels) or levels.index.max() >= index[-1]:
+        return levels
+    if freq in ("M", "Q"):
+        ext = period_grid(levels.index.max(), index[-1], freq)
+    else:
+        ext = index[index > levels.index.max()]
+    return levels.reindex(levels.index.union(ext))
+
+
 def revised_inputs(spec: PairSpec, levels: pd.DataFrame, index: pd.DatetimeIndex, ret: np.ndarray,
                    name: str = "revised", harsh: bool = False) -> TrackInputs:
     """Revised (or unrevised market) values, point-in-time timing: the reading frame is built on the level
-    grid and as-of shifted there with the series' availability dates, then read on the rebalance index."""
+    grid and as-of shifted there with the series' availability dates, then read on the rebalance index. The level
+    grid is first extended to the end of the rebalance index (empty readings): a series that ends before the last
+    rebalance period (HSN1F 2026-08 vs SPY 2026-09) otherwise left that period undefined although its lagged
+    reading was published long before (QA B1 nhs F1; the 1-period comparison undefined tails)."""
+    levels = _extend_to(levels, index, spec.freq)
     frame = reading_frame(spec, levels)
     rel = align.release_for(spec.release_series, frame.index, harsh=harsh)
     lagged = {L: align.lag_asof(frame, L, rel, spec.position_shift).reindex(index) for L in spec.leads}
