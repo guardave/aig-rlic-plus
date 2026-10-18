@@ -380,8 +380,9 @@ def render_cross_eval_table(pair_id: str, ts: dict, ws: dict) -> None:
     if same:
         st.caption("Both data tracks select the same rule, so the rows show that rule on each track's data.")
     elif comp and not (main and main.get("eligible")):
-        st.caption("Only the as-revised-today (hindsight) track has a winner. Row 2 shows how that rule fares on "
-                   "data as known at the time, over the test period only (that track has no training window).")
+        st.caption("Only the as-revised-today (hindsight) track has a winner. The row labelled as known at the time "
+                   "shows how that rule fares on that data, over the test period only (that track has no training "
+                   "window).")
     elif comp:
         st.caption("Each data track picks its own winner. Rows 2 and 4 show how each winner fares on the other data.")
 
