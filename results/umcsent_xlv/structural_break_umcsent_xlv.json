@@ -1,9 +1,15 @@
 {
-  "test": "rolling_r2_qlr_proxy",
-  "breakpoint_date": "2007-04-30",
-  "max_f_stat": 0.197545,
-  "p_value": 0.138699,
-  "conclusion": "Rolling R\u00b2 jump of 0.1975 detected near 2007-04-30; potential structural break \u2014 verify with Chow test",
+  "pair_id": "umcsent_xlv",
+  "test": "quandt_andrews_sup_f",
+  "model": "xlv_ret_t ~ umcsent_yoy_{t-1}",
   "trim_pct": 0.15,
-  "n_obs": 307
+  "n_obs": 331,
+  "sup_f": 3.0318,
+  "breakpoint_date": "2009-03-31",
+  "p_value": 0.382,
+  "p_value_method": "residual bootstrap under the no-break null, 499 draws, seed 42",
+  "sample": [
+    "1999-02-28",
+    "2026-08-31"
+  ]
 }

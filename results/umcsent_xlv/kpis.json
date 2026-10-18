@@ -1,0 +1,7 @@
+{
+  "pair_id": "umcsent_xlv",
+  "winner_oos_sharpe": 0.58112,
+  "benchmark_oos_sharpe": 0.737193,
+  "oos_max_drawdown": -0.129452,
+  "bh_max_drawdown": -0.156182
+}

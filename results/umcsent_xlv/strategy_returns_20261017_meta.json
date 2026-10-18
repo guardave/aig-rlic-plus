@@ -1,0 +1,15 @@
+{
+  "pair_id": "umcsent_xlv",
+  "track": "real_time",
+  "role": "main",
+  "winner_key": "S4_zscore|-|P2|procyclical|3",
+  "generated_at": "2026-10-17T23:09:12.279473+00:00",
+  "vintage_policy": {
+    "alignment": "realtime_vintage",
+    "vintage_series": "UMCSENT",
+    "after_close": false,
+    "first_vintage": "1998-07-31"
+  },
+  "calendar_sha256": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
+  "vintage_file_sha256": "8c1e1c6afe1bb6674a17275bf6195568b0bf7ea5bb9601bb55d31e8c28a15775"
+}

@@ -1,0 +1,8 @@
+quantile,intercept,coef_umcsent_yoy,se,p_value,ci_lower,ci_upper,p_value_iid,inference
+0.05,-0.09311,0.000651,0.000894,0.2883,-0.000602,0.002552,0.4259,"moving-block bootstrap, block 6, 999 draws, seed 42"
+0.1,-0.06352,0.000402,0.000741,0.3544,-0.000317,0.002298,0.4332,"moving-block bootstrap, block 6, 999 draws, seed 42"
+0.25,-0.020634,0.000995,0.000493,0.03,0.000114,0.001967,0.0216,"moving-block bootstrap, block 6, 999 draws, seed 42"
+0.5,0.027621,0.000409,0.000366,0.1702,-0.000371,0.001155,0.2504,"moving-block bootstrap, block 6, 999 draws, seed 42"
+0.75,0.07114,0.000301,0.000422,0.4705,-0.000758,0.001073,0.3299,"moving-block bootstrap, block 6, 999 draws, seed 42"
+0.9,0.105861,-0.000522,0.000362,0.2382,-0.000949,0.000426,0.1146,"moving-block bootstrap, block 6, 999 draws, seed 42"
+0.95,0.122066,-0.00057,0.000375,0.1902,-0.001145,0.00032,0.0867,"moving-block bootstrap, block 6, 999 draws, seed 42"

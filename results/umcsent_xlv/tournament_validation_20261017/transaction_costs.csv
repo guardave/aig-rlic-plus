@@ -1,0 +1,2 @@
+signal,threshold,strategy,tx_cost_bps,gross_sharpe,net_sharpe
+S4_zscore,-,P2_signal_strength,5,0.58112,0.574137

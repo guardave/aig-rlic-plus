@@ -1,160 +1,64 @@
 #!/usr/bin/env python3
-"""
-Full Analysis Pipeline: University of Michigan Consumer Sentiment (UMCSENT) × XLV
-=====================================================================
-Priority pair: sentiment indicator vs defensive health care ETF.
+"""Pair pipeline: University of Michigan Consumer Sentiment (UMCSENT) x XLV (Phase B harness).
 
-Expected direction: procyclical — high or improving consumer sentiment should
-support stronger XLV returns, while weak or falling sentiment should reduce
-XLV exposure.
+The tournament runs on scripts/harness (spec: scripts/pair_spec_umcsent_xlv.py) on two tracks:
+  * MAIN, "As known at the time": real-time UMCSENT vintages (ALFRED); each rebalance uses the vintage visible
+    when its return window opens, and signals and rolling thresholds are computed inside that vintage.
+  * COMPARISON, "As revised today (hindsight)": today's revised values with point-in-time release timing.
+Each track selects its own winner on in-sample data by the D9 lead-plateau rule over the registry grid L1..L13
+(position.shift(1): effective lag >= 2 months); null tournament K=100, paired block bootstrap vs buy-and-hold XLV,
+leak tests. The published 20261008 pipeline (max OOS Sharpe selection) is replayed by the harness (LEGACY_SPEC).
 
-Stages:
-  1. Data sourcing (FRED + Yahoo) + calendar alignment
-  2. Derived series computation
-  3. Stationarity tests + quality reports
-  4. Exploratory analysis (correlations, CCF, regime stats)
-  5. Core econometric models (9 categories)
-  6. Tournament backtest (5D combinatorial)
-  7. Tournament validation (walk-forward, bootstrap, stress tests)
-
-Author: Econ Evan (Econometrics Agent)
-Date: 2026-04-20
-Pair ID: umcsent_xlv
+This file keeps the pair's evidence stages (stationarity, exploratory, core models, stress tests), computed on the
+revised panel and descriptive only, plus metadata and the narrative-provenance record.
 """
 
+from __future__ import annotations
+
+import json
 import os
 import sys
-import json
-import warnings
 import time
-from datetime import datetime
+import warnings
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from scipy import stats
-from dotenv import load_dotenv
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-# ---------------------------------------------------------------------------
-# Configuration
-# ---------------------------------------------------------------------------
+REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "scripts"))
+import pair_spec_umcsent_xlv as spec_mod  # noqa: E402
+from harness.artifacts import trade_log, winner_series  # noqa: E402
+from harness.data import load_pinned  # noqa: E402
+from harness.evidence import write_evidence_facts  # noqa: E402
+from harness.run import run_pair  # noqa: E402
+
 PAIR_ID = "umcsent_xlv"
 INDICATOR_NAME = "University of Michigan Consumer Sentiment"
 TARGET_NAME = "Health Care Select Sector (XLV)"
-START_DATE = "1998-01-01"
-END_DATE = "2025-12-31"
-DATE_TAG = "20261008"  # GH#13 full L0-12 grid (free selection per Lead-Grid Frequency Standard 2026-07-14; retired the interim Option-C L0-6 cap). Immutable tournament re-used; winner unchanged (L6=1.1586). Prior L0-6 run: 20260420.
+DATE_TAG = "20261017"  # Phase B B1: harness, two tracks, D9 plateau, registry grid L1..L13, null K=100, bootstrap
+TARGET_SYMBOL = "XLV"
+COST_BPS = 5
 EXPECTED_DIRECTION = "procyclical"
 
-BASE_DIR = str(Path(__file__).resolve().parents[1])
-DATA_DIR = os.path.join(BASE_DIR, "data")
-RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
-EXPLORE_DIR = os.path.join(RESULTS_DIR, f"exploratory_{DATE_TAG}")
-MODELS_DIR = os.path.join(RESULTS_DIR, f"core_models_{DATE_TAG}")
-VALID_DIR = os.path.join(RESULTS_DIR, f"tournament_validation_{DATE_TAG}")
+DATA_DIR = str(REPO / "data")
+RES = REPO / "results" / PAIR_ID
+RESULTS_DIR = str(RES)
+EXPLORE_DIR = str(RES / f"exploratory_{DATE_TAG}")
+MODELS_DIR = str(RES / f"core_models_{DATE_TAG}")
+VALID_DIR = str(RES / f"tournament_validation_{DATE_TAG}")
+NOW_ISO = datetime.now(timezone.utc).isoformat()
+SIGNALS = spec_mod.SIGNALS
+OOS_START = pd.Timestamp(spec_mod.SPEC.oos_start)
+POSITION_CHANGE_THRESHOLD_PP = 5      # a test-period month counts as a position change above this size
+ROLLING_GRANGER_LAGS = 3              # rolling Granger: lags 1..3, p-value Bonferroni-adjusted for the 3 lags
 
-for d in [DATA_DIR, RESULTS_DIR, EXPLORE_DIR, MODELS_DIR, VALID_DIR]:
-    os.makedirs(d, exist_ok=True)
-
-# OOS split: computed dynamically after data load (ECON-OOS2)
-# OOS window = min(max(36, round(N*0.25)), 120) months from end
-IS_END = None   # set in stage 2
-OOS_START = None  # set in stage 2
-
-STAGE_TIMES = {}
-
-SIGNAL_COLUMN_MAP = {
-    "S1_level": "umcsent",
-    "S2_yoy": "umcsent_yoy",
-    "S3_mom": "umcsent_mom",
-    "S4_zscore": "umcsent_zscore",
-    "S5_3m_ma": "umcsent_3m_ma",
-    "S6_direction": "umcsent_direction",
-    "S7_dev_ma": "umcsent_dev_ma",
-}
-
-
-def bullish_condition(signal, threshold):
-    """Return the XLV-bullish condition implied by EXPECTED_DIRECTION."""
-    if EXPECTED_DIRECTION == "procyclical":
-        return signal > threshold
-    if EXPECTED_DIRECTION in {"countercyclical", "counter_cyclical"}:
-        return signal < threshold
-    raise ValueError(f"Unsupported EXPECTED_DIRECTION: {EXPECTED_DIRECTION}")
-
-
-def signal_strength_position(signal):
-    """Scale signal to [0, 1] with direction-aware exposure."""
-    sig_min = signal.rolling(60, min_periods=36).min()
-    sig_max = signal.rolling(60, min_periods=36).max()
-    sig_range = (sig_max - sig_min).replace(0, np.nan)
-    scaled = ((signal - sig_min) / sig_range).clip(0, 1)
-    if EXPECTED_DIRECTION == "procyclical":
-        return scaled
-    return 1 - scaled
-
-
-def build_threshold(signal, work, sig_col, is_mask, threshold_name):
-    """Return the threshold object used by the tournament winner."""
-    note = threshold_name
-    if "T1_fixed" in threshold_name:
-        pct = int(threshold_name.split("p")[1])
-        threshold = work.loc[is_mask, sig_col].quantile(pct / 100)
-        value = float(threshold)
-        note = f"fixed in-sample p{pct}"
-    elif "T2_roll" in threshold_name:
-        pct = int(threshold_name.split("p")[1])
-        threshold = signal.rolling(60, min_periods=36).quantile(pct / 100)
-        value = float(threshold.dropna().iloc[-1]) if threshold.dropna().shape[0] else None
-        note = f"threshold is rolling (60-month p{pct}); threshold_value is the latest rolling value"
-    elif "T3_zscore_neg" in threshold_name:
-        k = float(threshold_name.split("_")[-1])
-        threshold = signal.rolling(60, min_periods=36).mean() - k * signal.rolling(60, min_periods=36).std()
-        value = float(threshold.dropna().iloc[-1]) if threshold.dropna().shape[0] else None
-        note = f"threshold is rolling (60-month mean minus {k:g} standard deviation); threshold_value is the latest rolling value"
-    elif "T3_zscore" in threshold_name:
-        k = float(threshold_name.split("_")[-1])
-        threshold = signal.rolling(60, min_periods=36).mean() + k * signal.rolling(60, min_periods=36).std()
-        value = float(threshold.dropna().iloc[-1]) if threshold.dropna().shape[0] else None
-        note = f"threshold is rolling (60-month mean plus {k:g} standard deviation); threshold_value is the latest rolling value"
-    else:
-        threshold = 0.0
-        value = 0.0
-        note = "zero threshold"
-    return threshold, value, note
-
-
-def derive_winner_series(work, winner):
-    """Derive the exact position and return series used for the tournament winner."""
-    signal_column = SIGNAL_COLUMN_MAP.get(winner["signal"])
-    if signal_column is None or signal_column not in work.columns:
-        raise KeyError(f"Unknown winner signal column for {winner['signal']}")
-
-    lead = int(winner["lead_months"])
-    raw_signal = work[signal_column].copy()
-    signal_for_rule = raw_signal.shift(lead) if lead > 0 else raw_signal
-    threshold, threshold_value, threshold_note = build_threshold(
-        signal_for_rule,
-        work,
-        signal_column,
-        work.index <= IS_END,
-        str(winner["threshold"]),
-    )
-
-    if winner["strategy"] == "P1_long_cash":
-        position = bullish_condition(signal_for_rule, threshold).astype(float)
-    elif winner["strategy"] == "P2_signal_strength":
-        position = signal_strength_position(signal_for_rule)
-    elif winner["strategy"] == "P3_long_short":
-        position = bullish_condition(signal_for_rule, threshold).astype(float) * 2 - 1
-    else:
-        raise ValueError(f"Unsupported strategy: {winner['strategy']}")
-
-    strategy_return = position.shift(1) * work["xlv_ret"]
-    return position, strategy_return, signal_for_rule, threshold, threshold_value, threshold_note
+STAGE_TIMES: dict[str, float] = {}
 
 
 def log_stage(name):
@@ -162,243 +66,97 @@ def log_stage(name):
     def decorator(func):
         def wrapper(*args, **kwargs):
             t0 = time.time()
-            print(f"\n{'='*70}")
-            print(f"  STAGE: {name}")
-            print(f"{'='*70}")
+            print(f"\n{'=' * 70}\n  STAGE: {name}\n{'=' * 70}")
             result = func(*args, **kwargs)
-            elapsed = time.time() - t0
-            STAGE_TIMES[name] = elapsed
-            print(f"\n  [{name}] completed in {elapsed:.1f}s")
+            STAGE_TIMES[name] = time.time() - t0
+            print(f"\n  [{name}] completed in {STAGE_TIMES[name]:.1f}s")
             return result
         return wrapper
     return decorator
 
 
-# ===================================================================
-# STAGE 1: DATA SOURCING
-# ===================================================================
+def sharpe(r: pd.Series) -> float:
+    r = r.dropna()
+    return float(r.mean() / r.std() * np.sqrt(12)) if len(r) > 1 and r.std() > 0 else 0.0
 
-@log_stage("1_data_sourcing")
-def stage_data_sourcing():
-    """Source UMCSENT (monthly) + XLV (daily) + controls from FRED and Yahoo."""
 
-    # --- FRED series ---
-    fred_series = {
-        "UMCSENT": "umcsent",   # Michigan Consumer Sentiment (Monthly)
-        "UNRATE":  "unrate",    # Unemployment Rate (Monthly)
-        "DGS10":   "dgs10",     # 10Y Treasury Yield (Daily)
-    }
 
-    load_dotenv()  # repo-root .env; hardcoded fallback removed (key rotated after leak)
-    api_key = os.environ.get("FRED_API_KEY")
-    if not api_key:
-        raise SystemExit("FRED_API_KEY not set — copy .env.example to .env, or run setup.sh.")
-    fred_data = {}
+def _hac_corr_p(x: pd.Series, y: pd.Series, h: int) -> float:
+    """p-value of a correlation robust to overlapping h-month returns: slope of standardized y on standardized x
+    with HAC (Newey-West) errors, maxlags >= h-1."""
+    import statsmodels.api as sm
+    zx, zy = (x - x.mean()) / x.std(), (y - y.mean()) / y.std()
+    lags = max(int(0.75 * len(x) ** (1 / 3)), h - 1)
+    fit = sm.OLS(zy.to_numpy(), sm.add_constant(zx.to_numpy())).fit(cov_type="HAC", cov_kwds={"maxlags": lags})
+    return float(fit.pvalues[1])
 
-    import urllib.request
 
-    def _fetch_fred_csv(series_id, col_name):
-        """Fallback: fetch FRED series via direct CSV download."""
-        url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}&cosd={START_DATE}&coed={END_DATE}"
-        local_path = f"/tmp/fred_{series_id}.csv"
-        urllib.request.urlretrieve(url, local_path)
-        s = pd.read_csv(local_path, index_col=0, parse_dates=True).iloc[:, 0]
-        s = pd.to_numeric(s, errors="coerce")
-        s.name = col_name
-        return s
-
-    for series_id, col_name in fred_series.items():
-        fetched = False
+def _qr_block_bootstrap(data: pd.DataFrame, tau: float, block: int = 6, draws: int = 999, seed: int = 42):
+    """Moving-block bootstrap of the quantile-regression slope (overlapping forward returns): standard error,
+    95% percentile interval and a two-sided p-value of slope = 0."""
+    import statsmodels.formula.api as smf
+    rng = np.random.default_rng(seed)
+    n = len(data)
+    nb = int(np.ceil(n / block))
+    out = []
+    for _ in range(draws):
+        starts = rng.integers(0, n - block + 1, size=nb)
+        idx = np.concatenate([np.arange(s0, s0 + block) for s0 in starts])[:n]
         try:
-            from fredapi import Fred
-            fred_client = Fred(api_key=api_key)
-            s = fred_client.get_series(series_id, observation_start=START_DATE, observation_end=END_DATE)
-            s.name = col_name
-            s.index = pd.to_datetime(s.index)
-            fred_data[col_name] = s.astype(float)
-            print(f"  [FRED] {series_id} -> {col_name}: {len(s)} obs, {s.index.min().date()} to {s.index.max().date()}")
-            fetched = True
-        except Exception as e:
-            print(f"  [FRED] {series_id} -> {col_name}: fredapi failed ({e}), trying CSV...")
-
-        if not fetched:
-            try:
-                s = _fetch_fred_csv(series_id, col_name)
-                fred_data[col_name] = s
-                print(f"  [CSV]  {series_id} -> {col_name}: {len(s)} obs")
-            except Exception as e2:
-                print(f"  [CSV]  {series_id} -> {col_name}: FAILED ({e2})")
-
-    # --- Yahoo Finance series ---
-    import yfinance as yf
-    yahoo_tickers = {
-        "XLV":   "xlv",
-        "SPY":   "spy",
-        "^VIX":  "vix",
-    }
-
-    yahoo_data = {}
-    for ticker, col_name in yahoo_tickers.items():
-        try:
-            df = yf.download(ticker, start=START_DATE, end=END_DATE, progress=False, auto_adjust=True)
-            if isinstance(df.columns, pd.MultiIndex):
-                df.columns = df.columns.get_level_values(0)
-            s = df["Close"].copy()
-            s.name = col_name
-            s.index = pd.to_datetime(s.index)
-            if s.index.tz is not None:
-                s.index = s.index.tz_localize(None)
-            yahoo_data[col_name] = s.astype(float)
-            print(f"  [YF]   {ticker} -> {col_name}: {len(s)} obs, {s.index.min().date()} to {s.index.max().date()}")
-        except Exception as e:
-            print(f"  [YF]   {ticker} -> {col_name}: FAILED ({e})")
-
-    all_series = {**fred_data, **yahoo_data}
-    print(f"\n  Total series sourced: {len(all_series)}/{len(fred_series) + len(yahoo_tickers)}")
-    return all_series
+            out.append(float(smf.quantreg("xlv_fwd_3m ~ umcsent_yoy", data=data.iloc[idx]).fit(q=tau)
+                             .params["umcsent_yoy"]))
+        except Exception:
+            continue
+    b = np.array(out)
+    p = min(1.0, 2 * min((b <= 0).mean(), (b >= 0).mean()))
+    return float(b.std(ddof=1)), float(np.quantile(b, 0.025)), float(np.quantile(b, 0.975)), float(p), len(b)
 
 
-# ===================================================================
-# STAGE 2: CALENDAR ALIGNMENT + DERIVED SERIES
-# ===================================================================
+@log_stage("1_2_panel")
+def build_panel() -> pd.DataFrame:
+    """Revised UMCSENT (latest pinned ALFRED vintage) and pinned XLV month-end closes on the full monthly grid,
+    plus the published run's regression controls (VIX, DGS10, UNRATE month-end values through 2025-12, pinned
+    in the legacy panel) and SPY for reference."""
+    idx = spec_mod.rebalance_index()
+    df = spec_mod.revised_levels().reindex(idx)
+    df.index.name = "date"
+    feats = spec_mod.features(spec_mod.revised_levels())
+    for col in SIGNALS.values():
+        if col != "umcsent":
+            df[col] = feats[col].reindex(idx)
+    df["xlv"] = spec_mod.target_prices().reindex(idx)
+    df["xlv_ret"] = df["xlv"].pct_change()
+    x = df["xlv"]
+    for h in (1, 3, 6, 12):
+        df[f"xlv_fwd_{h}m"] = x.shift(-h) / x - 1
+    df["xlv_vol_12m"] = df["xlv_ret"].rolling(12, min_periods=10).std() * np.sqrt(12)
+    ctrl = load_pinned("umcsent_xlv_monthly_legacy_20261008.csv")[["spy", "vix", "dgs10", "unrate"]]
+    for c in ctrl.columns:
+        df[c] = ctrl[c].reindex(idx)
+    df["spy_ret"] = df["spy"].pct_change()
+    df.to_parquet(Path(DATA_DIR) / "umcsent_xlv_monthly_latest.parquet")
+    pd.DataFrame([
+        {"Column Name": "umcsent", "Display Name": "University of Michigan Consumer Sentiment",
+         "Description": "Index of consumer sentiment (1966:Q1 = 100)", "Source": "FRED / ALFRED (pinned vintages)",
+         "Series ID": "UMCSENT", "Unit": "Index", "Transformation": "Monthly level", "Seasonal Adj.": "Not seasonally adjusted",
+         "Direction Convention": "Higher = more optimistic households",
+         "Effective Start": str(df["umcsent"].first_valid_index().date()),
+         "Known Quirks": "Preliminary mid-month and final reading at month end; the final reading revises the preliminary one",
+         "Display Note": "A survey of household confidence, published within the survey month.",
+         "Refresh Freq.": "Monthly", "Refresh Source": "data/release_calendar/vintages/UMCSENT.csv.gz"},
+        {"Column Name": "xlv", "Display Name": "XLV adjusted close", "Description": "Health Care Select Sector SPDR Fund adjusted close",
+         "Source": "Yahoo Finance (pinned)", "Series ID": "XLV", "Unit": "USD", "Transformation": "Month-end adjusted close",
+         "Seasonal Adj.": "N/A", "Direction Convention": "Higher = higher health-care equity price",
+         "Effective Start": str(df["xlv"].first_valid_index().date()), "Known Quirks": "ETF history begins in December 1998",
+         "Display Note": "Used as the target and the buy-and-hold benchmark.", "Refresh Freq.": "Daily",
+         "Refresh Source": "data/phaseB_inputs/xlv_month_end_20261017.csv"},
+    ]).to_csv(Path(DATA_DIR) / f"data_dictionary_{PAIR_ID}_{DATE_TAG}.csv", index=False)
+    print(f"  Panel rows: {len(df)}, {df.index.min().date()} to {df.index.max().date()}")
+    return df
 
-@log_stage("2_alignment_and_derived")
-def stage_alignment_and_derived(all_series):
-    """
-    Build two datasets:
-      1. Monthly dataset (UMCSENT native frequency) for econometric models
-      2. Daily dataset (XLV native frequency) for tournament backtest
-    """
-    global IS_END, OOS_START
-
-    monthly_cols = {"umcsent", "unrate"}
-    daily_cols = {"xlv", "spy", "vix", "dgs10"}
-
-    monthly_idx = pd.date_range(START_DATE, END_DATE, freq="ME")
-    df_monthly = pd.DataFrame(index=monthly_idx)
-    df_monthly.index.name = "date"
-
-    for col in monthly_cols:
-        if col in all_series:
-            s = all_series[col]
-            s_monthly = s.resample("ME").last()
-            df_monthly[col] = s_monthly.reindex(monthly_idx)
-
-    for col in daily_cols:
-        if col in all_series:
-            s = all_series[col]
-            s_monthly = s.resample("ME").last()
-            df_monthly[col] = s_monthly.reindex(monthly_idx)
-
-    # Forward fill gaps (max 2 months)
-    df_monthly = df_monthly.ffill(limit=2)
-
-    # Drop before XLV data starts
-    df_monthly = df_monthly.dropna(subset=["xlv"], how="all")
-
-    # --- ECON-OOS2: dynamic IS/OOS split ---
-    N = len(df_monthly.dropna(subset=["umcsent"]))
-    oos_months = min(max(36, round(N * 0.25)), 120)
-    is_months = N - oos_months
-    all_dates = df_monthly.dropna(subset=["umcsent"]).index
-    IS_END = all_dates[is_months - 1]
-    OOS_START = all_dates[is_months]
-    print(f"  ECON-OOS2 split: N={N}, OOS={oos_months}m, IS ends {IS_END.date()}, OOS starts {OOS_START.date()}")
-
-    # --- Derived series: UMCSENT ---
-    u = df_monthly["umcsent"]
-
-    # D1: YoY % change
-    df_monthly["umcsent_yoy"] = (u / u.shift(12) - 1) * 100
-
-    # D2: MoM % change
-    df_monthly["umcsent_mom"] = (u / u.shift(1) - 1) * 100
-
-    # D3: Rolling 36M z-score
-    rm36 = u.rolling(36, min_periods=24)
-    df_monthly["umcsent_zscore"] = (u - rm36.mean()) / rm36.std()
-
-    # D4: 3-month moving average
-    df_monthly["umcsent_3m_ma"] = u.rolling(3, min_periods=2).mean()
-
-    # D5: Direction (sign of MoM)
-    df_monthly["umcsent_direction"] = np.sign(df_monthly["umcsent_mom"])
-
-    # D6: Deviation from 3M MA
-    df_monthly["umcsent_dev_ma"] = u - df_monthly["umcsent_3m_ma"]
-
-    # --- Derived series: XLV ---
-    x = df_monthly["xlv"]
-    df_monthly["xlv_ret"] = x.pct_change()
-
-    # Rolling returns
-    df_monthly["xlv_ret_3m"] = x.shift(-3) / x - 1  # forward 3M
-    df_monthly["xlv_ret_12m"] = x.shift(-12) / x - 1  # forward 12M
-
-    # Backward rolling vol (annualized)
-    df_monthly["xlv_vol_12m"] = df_monthly["xlv_ret"].rolling(12, min_periods=10).std() * np.sqrt(12)
-
-    # Forward XLV returns (for regression targets)
-    df_monthly["xlv_fwd_1m"] = x.shift(-1) / x - 1
-    df_monthly["xlv_fwd_3m"] = x.shift(-3) / x - 1
-    df_monthly["xlv_fwd_6m"] = x.shift(-6) / x - 1
-    df_monthly["xlv_fwd_12m"] = x.shift(-12) / x - 1
-
-    # SPY forward returns for comparison
-    if "spy" in df_monthly.columns:
-        s = df_monthly["spy"]
-        df_monthly["spy_ret"] = s.pct_change()
-        df_monthly["spy_fwd_1m"] = s.shift(-1) / s - 1
-
-    # --- Daily dataset (for tournament) ---
-    bdays = pd.bdate_range(START_DATE, END_DATE)
-    df_daily = pd.DataFrame(index=bdays)
-    df_daily.index.name = "date"
-
-    for col in daily_cols:
-        if col in all_series:
-            s = all_series[col].reindex(bdays).ffill(limit=5)
-            df_daily[col] = s
-
-    # Forward-fill monthly UMCSENT signals to daily
-    for col in monthly_cols:
-        if col in all_series:
-            s = all_series[col]
-            df_daily[col] = s.reindex(bdays).ffill()
-
-    # Recompute UMCSENT derived series at daily frequency
-    if "umcsent" in df_daily.columns:
-        u_d = df_daily["umcsent"]
-        df_daily["umcsent_yoy"] = (u_d / u_d.shift(252) - 1) * 100
-        df_daily["umcsent_mom"] = (u_d / u_d.shift(21) - 1) * 100
-        rm = u_d.rolling(252 * 3, min_periods=252 * 2)
-        df_daily["umcsent_zscore"] = (u_d - rm.mean()) / rm.std()
-        df_daily["umcsent_direction"] = np.sign(df_daily["umcsent_mom"])
-
-    # XLV daily forward returns
-    if "xlv" in df_daily.columns:
-        x_d = df_daily["xlv"]
-        df_daily["xlv_fwd_1d"] = x_d.pct_change(1).shift(-1)
-        df_daily["xlv_fwd_5d"] = x_d.shift(-5) / x_d - 1
-        df_daily["xlv_fwd_21d"] = x_d.shift(-21) / x_d - 1
-        df_daily["xlv_fwd_63d"] = x_d.shift(-63) / x_d - 1
-
-    # Drop before UMCSENT/XLV data starts
-    df_monthly = df_monthly.dropna(subset=["umcsent", "xlv"], how="all")
-
-    print(f"  Monthly dataset: {df_monthly.shape} ({df_monthly.index.min().date()} to {df_monthly.index.max().date()})")
-    print(f"  Daily dataset: {df_daily.shape} ({df_daily.index.min().date()} to {df_daily.index.max().date()})")
-    print(f"  Monthly columns: {list(df_monthly.columns)}")
-
-    return df_monthly, df_daily
-
-
-# ===================================================================
-# STAGE 3: STATIONARITY TESTS + QUALITY REPORTS
-# ===================================================================
 
 @log_stage("3_stationarity_and_quality")
-def stage_stationarity_and_quality(df_monthly, df_daily):
+def stage_stationarity_and_quality(df_monthly):
     """Run ADF/KPSS tests and generate quality reports."""
     from arch.unitroot import ADF, KPSS
 
@@ -408,8 +166,6 @@ def stage_stationarity_and_quality(df_monthly, df_daily):
     results = []
     for col in test_cols:
         s = df_monthly[col].dropna() if col in df_monthly.columns else pd.Series(dtype=float)
-        if len(s) < 50 and col in df_daily.columns:
-            s = df_daily[col].dropna()
         if len(s) < 50:
             results.append({"variable": col, "test": "ADF", "statistic": np.nan,
                            "p_value": np.nan, "conclusion": f"Insufficient data ({len(s)} obs)"})
@@ -480,9 +236,6 @@ def stage_stationarity_and_quality(df_monthly, df_daily):
     return stat_df
 
 
-# ===================================================================
-# STAGE 4: EXPLORATORY ANALYSIS
-# ===================================================================
 
 @log_stage("4_exploratory")
 def stage_exploratory(df_monthly):
@@ -506,15 +259,16 @@ def stage_exploratory(df_monthly):
 
             x, y = valid[sig], valid[fwd]
 
+            h = int(fwd.split("_")[-1].rstrip("m"))       # overlapping h-month forward returns
             r_p, p_p = stats.pearsonr(x, y)
             corr_results.append({"signal": sig, "horizon": fwd, "method": "Pearson",
-                                 "correlation": round(r_p, 4), "p_value": round(p_p, 4),
-                                 "n": len(valid)})
+                                 "correlation": round(r_p, 4), "p_value_iid": round(p_p, 4),
+                                 "p_value": round(_hac_corr_p(x, y, h), 4), "n": len(valid)})
 
             r_s, p_s = stats.spearmanr(x, y)
             corr_results.append({"signal": sig, "horizon": fwd, "method": "Spearman",
-                                 "correlation": round(r_s, 4), "p_value": round(p_s, 4),
-                                 "n": len(valid)})
+                                 "correlation": round(r_s, 4), "p_value_iid": round(p_s, 4),
+                                 "p_value": round(_hac_corr_p(x.rank(), y.rank(), h), 4), "n": len(valid)})
 
     corr_df = pd.DataFrame(corr_results)
     corr_path = os.path.join(EXPLORE_DIR, "correlations.csv")
@@ -611,9 +365,6 @@ def stage_exploratory(df_monthly):
     return corr_df, ccf_df, regime_df
 
 
-# ===================================================================
-# STAGE 5: CORE ECONOMETRIC MODELS
-# ===================================================================
 
 @log_stage("5_core_models")
 def stage_core_models(df_monthly):
@@ -675,7 +426,9 @@ def stage_core_models(df_monthly):
             y = valid[horizon]
 
             try:
-                model = sm.OLS(y, X).fit(cov_type="HC3")
+                h = int(horizon.split("_")[-1].rstrip("m"))     # overlapping h-month returns: HAC, maxlags >= h-1
+                lags = max(int(0.75 * len(valid) ** (1 / 3)), h - 1)
+                model = sm.OLS(y, X).fit(cov_type="HAC", cov_kwds={"maxlags": lags})
                 reg_results.append({
                     "signal": signal, "horizon": horizon,
                     "coef": round(model.params.iloc[1], 6),
@@ -716,7 +469,7 @@ def stage_core_models(df_monthly):
             X = sm.add_constant(valid[X_cols])
             y = valid[horizon_col]
 
-            nw_lags = int(0.75 * len(valid) ** (1 / 3))
+            nw_lags = max(int(0.75 * len(valid) ** (1 / 3)), h - 1)  # overlapping h-month returns
             model = sm.OLS(y, X).fit(cov_type="HAC", cov_kwds={"maxlags": nw_lags})
 
             lp_results.append({
@@ -730,6 +483,8 @@ def stage_core_models(df_monthly):
                 "r_squared": round(model.rsquared, 4),
                 "n": int(model.nobs),
                 "nw_lags": nw_lags,
+                "sample_start": valid.index.min().strftime("%Y-%m-%d"),
+                "sample_end": valid.index.max().strftime("%Y-%m-%d"),
             })
         except Exception as e:
             print(f"    LP at h={h} failed: {e}")
@@ -758,7 +513,7 @@ def stage_core_models(df_monthly):
                 X = sm.add_constant(valid[["umcsent_yoy", "umcsent_low", "interact"]])
                 y = valid[horizon_col]
 
-                nw_lags = int(0.75 * len(valid) ** (1 / 3))
+                nw_lags = max(int(0.75 * len(valid) ** (1 / 3)), h - 1)  # overlapping h-month returns
                 model = sm.OLS(y, X).fit(cov_type="HAC", cov_kwds={"maxlags": nw_lags})
 
                 regime_lp_results.append({
@@ -820,14 +575,19 @@ def stage_core_models(df_monthly):
             try:
                 qr_model = smf.quantreg("xlv_fwd_3m ~ umcsent_yoy", data=valid_qr)
                 qr_fit = qr_model.fit(q=tau)
+                # overlapping 3-month returns: inference from a moving-block bootstrap (block 6, 999 draws);
+                # the default (iid) QuantReg p-value is kept as p_value_iid for reference
+                se_b, lo_b, hi_b, p_b, nb = _qr_block_bootstrap(valid_qr, tau)
                 qr_results.append({
                     "quantile": tau,
                     "intercept": round(qr_fit.params["Intercept"], 6),
                     "coef_umcsent_yoy": round(qr_fit.params["umcsent_yoy"], 6),
-                    "se": round(qr_fit.bse["umcsent_yoy"], 6),
-                    "p_value": round(qr_fit.pvalues["umcsent_yoy"], 4),
-                    "ci_lower": round(qr_fit.conf_int().loc["umcsent_yoy", 0], 6),
-                    "ci_upper": round(qr_fit.conf_int().loc["umcsent_yoy", 1], 6),
+                    "se": round(se_b, 6),
+                    "p_value": round(p_b, 4),
+                    "ci_lower": round(lo_b, 6),
+                    "ci_upper": round(hi_b, 6),
+                    "p_value_iid": round(qr_fit.pvalues["umcsent_yoy"], 4),
+                    "inference": f"moving-block bootstrap, block 6, {nb} draws, seed 42",
                 })
             except Exception as e:
                 print(f"    QR at tau={tau} failed: {e}")
@@ -1003,664 +763,336 @@ def stage_core_models(df_monthly):
     model_results["diagnostics"] = diag_df
     print(f"    {len(diag_df)} diagnostic tests saved")
 
-    # --- Observed direction from regression results ---
-    observed_direction = "unknown"
-    direction_consistent = False
-    key_finding = "UMCSENT YoY change predicts XLV forward returns"
-
-    if len(reg_df) > 0:
-        best_reg = reg_df.loc[reg_df["p_value"].idxmin()]
-        key_finding = (
-            f"UMCSENT {best_reg['signal']} predicts {best_reg['horizon']} "
-            f"(coef={best_reg['coef']:.4f}, t={best_reg['t_stat']:.2f}, "
-            f"p={best_reg['p_value']:.4f}, R²={best_reg['r_squared']:.3f})"
-        )
-        observed_direction = "procyclical" if best_reg["coef"] > 0 else "countercyclical"
-        direction_consistent = observed_direction == EXPECTED_DIRECTION
-
-    # Save interpretation metadata
-    interpretation = {
-        "schema_version": "1.0.0",
-        "pair_id": PAIR_ID,
-        "indicator": "umcsent",
-        "target": "xlv",
-        "indicator_nature": "leading",
-        "indicator_type": "sentiment",
-        "strategy_objective": "min_mdd",
-        "expected_direction": EXPECTED_DIRECTION,
-        "observed_direction": observed_direction,
-        "direction_consistent": direction_consistent,
-        "key_finding": key_finding,
-        "owner_writes": {
-            "dana": ["indicator", "target"],
-            "evan": ["indicator_nature", "indicator_type", "strategy_objective"],
-            "ray": ["key_finding"]
-        },
-        "last_updated_by": "evan",
-        "last_updated_at": "2026-04-20T00:00:00Z",
-    }
-
-    interp_path = os.path.join(RESULTS_DIR, "interpretation_metadata.json")
-    with open(interp_path, "w") as f:
-        json.dump(interpretation, f, indent=2)
-    print(f"\n  Interpretation metadata -> {interp_path}")
-
     return model_results
 
 
+
 # ===================================================================
-# STAGE 6: TOURNAMENT BACKTEST
+# ROLLING STABILITY (descriptive, revised panel)
 # ===================================================================
 
-@log_stage("6_tournament")
-def stage_tournament(df_monthly, df_daily):
-    """5D combinatorial tournament backtest."""
-
-    work = df_monthly.copy()
-    work = work.dropna(subset=["umcsent"])
-
-    is_mask = work.index <= IS_END
-    oos_mask = work.index >= OOS_START
-
-    # Signal columns (UMCSENT derivatives only — ECON-SD)
-    signal_cols = {
-        "S1_level":      "umcsent",
-        "S2_yoy":        "umcsent_yoy",
-        "S3_mom":        "umcsent_mom",
-        "S4_zscore":     "umcsent_zscore",
-        "S5_3m_ma":      "umcsent_3m_ma",
-        "S6_direction":  "umcsent_direction",
-        "S7_dev_ma":     "umcsent_dev_ma",
-    }
-
-    available_signals = {k: v for k, v in signal_cols.items()
-                        if v in work.columns and work[v].notna().sum() > 50}
-    print(f"  Available signals: {len(available_signals)}")
-
-    # XLV monthly return for backtest
-    if "xlv_ret" not in work.columns:
-        if "xlv" in work.columns:
-            work["xlv_ret"] = work["xlv"].pct_change()
-        else:
-            print("  ERROR: No XLV data for tournament")
-            return pd.DataFrame()
-
-    # Full anchored monthly grid L0-12 per the Lead-Grid Frequency Standard
-    # (docs/lead-grid-frequency-standard.md, adopted 2026-07-14). The math selects
-    # the winner over the FULL grid with NO economic-window cap; the 2-5-month
-    # cross-correlation window is REFERENCE context only (Step 5), never a selection
-    # constraint. This retires the interim Option-C L0-6 capped-selection pattern:
-    # a long-lead derivative (e.g. umcsent_direction, significant at L10 in the
-    # per-transform lead-correlation table) is TESTED and, if it wins, ADJUDICATED
-    # (Step 4 / ECON-T5) — not pre-excluded.
-    lead_times = list(range(1, 14))  # #255 floor L1 shifted grid [1..13] (months)
-    strategies = ["P1_long_cash", "P2_signal_strength", "P3_long_short"]
-
-    results = []
-    combo_count = 0
-
-    for sig_name, sig_col in available_signals.items():
-        signal = work[sig_col].copy()
-        if signal.dropna().shape[0] < 50:
+@log_stage("5b_rolling_stability")
+def stage_rolling_stability(df: pd.DataFrame) -> None:
+    """24-month rolling correlation and rolling Granger F of the year-over-year change in UMCSENT and the XLV
+    monthly return, and a Quandt-Andrews sup-F test (15% trimming) for a break in xlv_ret_t = a + b *
+    umcsent_yoy_{t-1}, with a residual-bootstrap p-value under the no-break null (499 draws, seed 42).
+    Replaces the fleet retro-apply files of the published run (legacy panel, old winner's lead)."""
+    import statsmodels.api as sm
+    from statsmodels.tsa.stattools import grangercausalitytests
+    d = df[["umcsent_yoy", "xlv_ret"]].dropna()
+    rc = d["umcsent_yoy"].rolling(24, min_periods=12).corr(d["xlv_ret"]).dropna()
+    pd.DataFrame({"date": rc.index.strftime("%Y-%m-%d"), "rolling_corr_24m": rc.values}).to_csv(
+        RES / f"rolling_correlation_{PAIR_ID}.csv", index=False)
+    rows = []
+    for i in range(24, len(d) + 1):
+        sub = d.iloc[i - 24:i]
+        try:
+            lags = range(1, ROLLING_GRANGER_LAGS + 1)
+            g = grangercausalitytests(sub[["xlv_ret", "umcsent_yoy"]], maxlag=ROLLING_GRANGER_LAGS, verbose=False)
+            f = [g[k][0]["ssr_ftest"][0] for k in lags]
+            pv = [g[k][0]["ssr_ftest"][1] for k in lags]
+            j = int(np.argmin(pv))
+            rows.append({"date": sub.index[-1].strftime("%Y-%m-%d"), "granger_f_24m": f[j],
+                         # smallest p over the lags, Bonferroni-adjusted for the number of lags tried
+                         "p_value_24m": min(1.0, ROLLING_GRANGER_LAGS * pv[j]),
+                         "p_value_24m_unadjusted": pv[j], "best_lag": j + 1})
+        except Exception:
             continue
+    pd.DataFrame(rows).to_csv(RES / f"rolling_granger_{PAIR_ID}.csv", index=False)
 
-        for lead in lead_times:
-            signal_lagged = signal.shift(lead) if lead > 0 else signal
+    z = pd.concat([d["xlv_ret"].rename("y"), d["umcsent_yoy"].shift(1).rename("x")], axis=1).dropna()
+    y, X = z["y"].to_numpy(), sm.add_constant(z["x"].to_numpy())
+    n, k = len(y), X.shape[1]
+    lo, hi = int(0.15 * n), int(0.85 * n)
 
-            thresholds = {}
+    def sup_f(yv):
+        ssr0 = float(((yv - X @ np.linalg.lstsq(X, yv, rcond=None)[0]) ** 2).sum())
+        best, at = -np.inf, lo
+        for t in range(lo, hi):
+            s = 0.0
+            for a, b in ((0, t), (t, n)):
+                beta = np.linalg.lstsq(X[a:b], yv[a:b], rcond=None)[0]
+                s += float(((yv[a:b] - X[a:b] @ beta) ** 2).sum())
+            fs = ((ssr0 - s) / k) / (s / (n - 2 * k))
+            if fs > best:
+                best, at = fs, t
+        return best, at
 
-            is_signal = signal_lagged[is_mask].dropna()
-            if len(is_signal) > 20:
-                for pct in [25, 50, 75]:
-                    thresholds[f"T1_fixed_p{pct}"] = is_signal.quantile(pct / 100)
-
-            for pct in [25, 50, 75]:
-                thresholds[f"T2_roll_p{pct}"] = signal_lagged.rolling(60, min_periods=36).quantile(pct / 100)
-
-            roll_mean = signal_lagged.rolling(60, min_periods=36).mean()
-            roll_std = signal_lagged.rolling(60, min_periods=36).std()
-            for k in [1.0, 1.5, 2.0]:
-                thresholds[f"T3_zscore_{k}"] = roll_mean + k * roll_std
-                thresholds[f"T3_zscore_neg_{k}"] = roll_mean - k * roll_std
-
-            if sig_name in ["S2_yoy", "S3_mom", "S7_dev_ma"]:
-                thresholds["T4_zero"] = 0
-
-            for thresh_name, thresh_val in thresholds.items():
-                for strat in strategies:
-                    combo_count += 1
-
-                    try:
-                        bullish = bullish_condition(signal_lagged, thresh_val)
-
-                        if strat == "P1_long_cash":
-                            position = bullish.astype(float)
-                        elif strat == "P2_signal_strength":
-                            position = signal_strength_position(signal_lagged)
-                        elif strat == "P3_long_short":
-                            position = bullish.astype(float) * 2 - 1
-                        else:
-                            continue
-
-                        strat_ret = position.shift(1) * work["xlv_ret"]
-
-                        # ECON-T4 deployable-series scoring (GH#13): score OOS on the DEPLOYABLE
-                        # series — an undefined in-window position deploys as CASH (0), not dropped.
-                        # OOS opens ~15yr past every combo's warmup, so any in-window NaN is a
-                        # degenerate-signal month (e.g. P2 signal-strength on the ternary S6_direction
-                        # flag). Cash-fill == the deployable series the winner_summary/charts use.
-                        # IS stays dropna (reported only; its window spans warmup).
-                        is_ret = strat_ret[is_mask].dropna()
-                        oos_ret = strat_ret[oos_mask].fillna(0.0)
-
-                        if len(is_ret) < 24 or len(oos_ret) < 12:
-                            continue
-
-                        is_sharpe = (is_ret.mean() / is_ret.std()) * np.sqrt(12) if is_ret.std() > 0 else 0
-
-                        oos_ann_vol = oos_ret.std() * np.sqrt(12) if oos_ret.std() > 0 else 999
-                        oos_sharpe = (oos_ret.mean() / oos_ret.std()) * np.sqrt(12) if oos_ret.std() > 0 else 0
-
-                        oos_downside = oos_ret[oos_ret < 0].std() * np.sqrt(12) if len(oos_ret[oos_ret < 0]) > 1 else 999
-                        oos_sortino = (oos_ret.mean() * 12) / oos_downside if oos_downside > 0 else 0
-
-                        cum_ret = (1 + oos_ret).cumprod()
-                        rolling_max = cum_ret.cummax()
-                        drawdown = (cum_ret - rolling_max) / rolling_max
-                        max_dd = drawdown.min()
-
-                        oos_calmar = (oos_ret.mean() * 12) / abs(max_dd) if abs(max_dd) > 0 else 0
-
-                        pos_changes = position.diff().abs().sum()
-                        years = len(position.dropna()) / 12
-                        annual_turnover = pos_changes / years if years > 0 else 999
-
-                        win_rate = (oos_ret > 0).mean()
-                        valid_flag = (oos_sharpe > 0 and annual_turnover < 24 and len(oos_ret) >= 12)
-
-                        results.append({
-                            "signal": sig_name,
-                            "threshold": thresh_name,
-                            "strategy": strat,
-                            "lead_months": lead,
-                            "is_sharpe": round(is_sharpe, 4),
-                            "oos_sharpe": round(oos_sharpe, 4),
-                            "oos_sortino": round(oos_sortino, 4),
-                            "oos_calmar": round(oos_calmar, 4),
-                            "oos_ann_return": round(oos_ret.mean() * 12, 6),  # ratio form (META-UC)
-                            "oos_ann_vol": round(oos_ann_vol, 6),
-                            "max_drawdown": round(max_dd, 6),  # ratio form (META-UC)
-                            "win_rate": round(win_rate, 4),
-                            "annual_turnover": round(annual_turnover, 2),
-                            "is_n": len(is_ret),
-                            "oos_n": len(oos_ret),
-                            "valid": valid_flag,
-                        })
-                    except Exception:
-                        continue
-
-    # Add benchmark (buy-and-hold XLV)
-    bh_ret = work["xlv_ret"]
-    bh_oos = bh_ret[oos_mask].dropna()
-    if len(bh_oos) > 0:
-        bh_sharpe = (bh_oos.mean() / bh_oos.std()) * np.sqrt(12) if bh_oos.std() > 0 else 0
-        bh_cum = (1 + bh_oos).cumprod()
-        bh_dd = ((bh_cum - bh_cum.cummax()) / bh_cum.cummax()).min()
-
-        bh_is = bh_ret[is_mask].dropna()
-        bh_is_sharpe = (bh_is.mean() / bh_is.std()) * np.sqrt(12) if bh_is.std() > 0 else 0
-
-        results.append({
-            "signal": "BENCHMARK", "threshold": "BUY_HOLD", "strategy": "BUY_HOLD",
-            "lead_months": 0,
-            "is_sharpe": round(bh_is_sharpe, 4),
-            "oos_sharpe": round(bh_sharpe, 4),
-            "oos_sortino": round((bh_oos.mean() * 12) / (bh_oos[bh_oos < 0].std() * np.sqrt(12)) if len(bh_oos[bh_oos < 0]) > 1 else 0, 4),
-            "oos_calmar": round((bh_oos.mean() * 12) / abs(bh_dd) if abs(bh_dd) > 0 else 0, 4),
-            "oos_ann_return": round(bh_oos.mean() * 12, 6),
-            "oos_ann_vol": round(bh_oos.std() * np.sqrt(12), 6),
-            "max_drawdown": round(bh_dd, 6),
-            "win_rate": round((bh_oos > 0).mean(), 4),
-            "annual_turnover": 0,
-            "is_n": len(bh_is),
-            "oos_n": len(bh_oos),
-            "valid": False,
-        })
-
-    results_df = pd.DataFrame(results)
-    results_path = os.path.join(RESULTS_DIR, f"tournament_results_{DATE_TAG}.csv")
-    results_df.to_csv(results_path, index=False)
-
-    valid_count = results_df["valid"].sum() if len(results_df) > 0 else 0
-    print(f"\n  Tournament Summary:")
-    print(f"    Combinations tested: {combo_count}")
-    print(f"    Results saved: {len(results_df)}")
-    print(f"    Valid strategies: {valid_count}")
-
-    if len(results_df) > 0:
-        valid_strats = results_df[results_df["valid"] & (results_df["signal"] != "BENCHMARK")]
-        if len(valid_strats) > 0:
-            top5 = valid_strats.nlargest(5, "oos_sharpe")
-            print(f"\n    Top 5 strategies:")
-            for _, row in top5.iterrows():
-                print(f"      {row['signal']} / {row['threshold']} / {row['strategy']} / L{row['lead_months']}: "
-                      f"Sharpe={row['oos_sharpe']:.2f}, DD={row['max_drawdown']*100:.1f}%, Turnover={row['annual_turnover']:.1f}")
-
-        bh = results_df[results_df["signal"] == "BENCHMARK"]
-        if len(bh) > 0:
-            print(f"\n    Buy-and-hold XLV benchmark: Sharpe={bh.iloc[0]['oos_sharpe']:.2f}, DD={bh.iloc[0]['max_drawdown']*100:.1f}%")
-
-    return results_df
+    f_obs, t_obs = sup_f(y)
+    beta0 = np.linalg.lstsq(X, y, rcond=None)[0]
+    resid = y - X @ beta0
+    rng = np.random.default_rng(42)
+    draws = [sup_f(X @ beta0 + rng.choice(resid, size=n, replace=True))[0] for _ in range(499)]
+    p = float((1 + sum(f >= f_obs for f in draws)) / (1 + len(draws)))
+    out = {"pair_id": PAIR_ID, "test": "quandt_andrews_sup_f", "model": "xlv_ret_t ~ umcsent_yoy_{t-1}",
+           "trim_pct": 0.15, "n_obs": int(n), "sup_f": round(float(f_obs), 4),
+           "breakpoint_date": z.index[t_obs].strftime("%Y-%m-%d"), "p_value": round(p, 4),
+           "p_value_method": "residual bootstrap under the no-break null, 499 draws, seed 42",
+           "sample": [z.index[0].strftime("%Y-%m-%d"), z.index[-1].strftime("%Y-%m-%d")]}
+    (RES / f"structural_break_{PAIR_ID}.json").write_text(json.dumps(out, indent=2) + "\n")
+    print(f"  sup-F {f_obs:.2f} at {out['breakpoint_date']}, bootstrap p {p:.3f}")
 
 
 # ===================================================================
-# STAGE 7: TOURNAMENT VALIDATION
+# TOURNAMENT (harness)
 # ===================================================================
+
+@log_stage("6_tournament_harness")
+def run_tournament() -> tuple[pd.DataFrame, dict, dict]:
+    out = run_pair(PAIR_ID, DATE_TAG, K=100, extra={
+        "target_symbol": TARGET_SYMBOL, "cost_bps": COST_BPS,
+        "lookback": "LB60 where rolling thresholds apply",
+        "strategy_description": "Position in XLV set by the lagged consumer-sentiment signal relative to its "
+                                "threshold (long/cash, signal-strength sizing or long/short, per the rule).",
+        "notes": "UMCSENT is a monthly household survey; read the rule as sentiment-regime context for a defensive "
+                 "sector, not a forecast. Headline = as known at the time (real-time vintages); still a "
+                 "search-selected rule."})
+    winner = json.loads((RES / "winner_summary.json").read_text())
+    tourn = pd.read_csv(RES / f"tournament_results_{DATE_TAG}.csv")
+    tourn["valid"] = tourn["valid"].astype(bool)
+    res = out["results"]["main"]
+    if res.selection is not None:
+        ws = winner_series(res, res.selection["winner"])
+        reason = (f"{winner['signal_code']} signal-strength resize (position in its trailing 60-month range)"
+                  if str(winner["strategy_family"]).startswith("P2") else
+                  f"{winner['signal_code']} {winner['direction']} rule crossed {winner['threshold_code']}")
+        log = trade_log(ws, TARGET_SYMBOL, COST_BPS, reason)
+        log.to_csv(RES / "winner_trade_log.csv", index=False)
+        log.to_csv(RES / "winner_trades_broker_style.csv", index=False)
+    return tourn, winner, out
+
+
+# ===================================================================
+# VALIDATION (winner-specific, from the harness strategy returns)
+# ===================================================================
+
+STRESS_PERIODS = [
+    ("Dot-Com Crash", "2000-03-01", "2002-10-31"),
+    ("GFC", "2007-12-01", "2009-06-30"),
+    ("COVID", "2020-02-01", "2020-12-31"),
+    ("2022 Rates Shock", "2022-01-01", "2022-12-31"),
+]
+
 
 @log_stage("7_validation")
-def stage_validation(df_monthly, tournament_df):
-    """Validate top 5 tournament winners."""
-
-    if len(tournament_df) == 0:
-        print("  No tournament results to validate")
-        return
-
-    valid_strats = tournament_df[tournament_df["valid"] & (tournament_df["signal"] != "BENCHMARK")]
-    if len(valid_strats) == 0:
-        print("  No valid strategies to validate")
-        return
-
-    top5 = valid_strats.nlargest(5, "oos_sharpe")
-
-    # --- 7.1 Bootstrap ---
-    print("\n  [7.1] Bootstrap significance test...")
-    bootstrap_results = []
-
-    work = df_monthly.copy()
-    oos_mask = work.index >= OOS_START
-    xlv_oos = work.loc[oos_mask, "xlv_ret"].dropna()
-
-    if len(xlv_oos) > 12:
-        n_bootstrap = 5000
-        bootstrap_sharpes = np.zeros(n_bootstrap)
-
-        for b in range(n_bootstrap):
-            sample = np.random.choice(xlv_oos.values, size=len(xlv_oos), replace=True)
-            if np.std(sample) > 0:
-                bootstrap_sharpes[b] = (np.mean(sample) / np.std(sample)) * np.sqrt(12)
-
-        for _, row in top5.iterrows():
-            p_value = (bootstrap_sharpes >= row["oos_sharpe"]).mean()
-            bootstrap_results.append({
-                "signal": row["signal"],
-                "threshold": row["threshold"],
-                "strategy": row["strategy"],
-                "oos_sharpe": row["oos_sharpe"],
-                "bootstrap_p_value": round(p_value, 4),
-                "significant_at_5pct": p_value < 0.05,
-            })
-
-    boot_df = pd.DataFrame(bootstrap_results)
-    boot_df.to_csv(os.path.join(VALID_DIR, "bootstrap.csv"), index=False)
-    print(f"    {len(boot_df)} strategies tested")
-
-    # --- 7.2 Stress tests ---
-    print("\n  [7.2] Stress tests...")
-    stress_periods = {
-        "Dot_Com_Bust": ("2000-03-01", "2002-09-30"),
-        "GFC": ("2008-01-01", "2009-06-30"),
-        "COVID": ("2020-01-01", "2020-06-30"),
-        "Rate_Hike_2022": ("2022-01-01", "2023-06-30"),
-    }
-
-    stress_results = []
-    for period_name, (start, end) in stress_periods.items():
-        stress_mask = (work.index >= start) & (work.index <= end)
-        stress_ret = work.loc[stress_mask, "xlv_ret"].dropna()
-
-        if len(stress_ret) > 3:
-            bh_sharpe = (stress_ret.mean() / stress_ret.std()) * np.sqrt(12) if stress_ret.std() > 0 else 0
-            stress_results.append({
-                "period": period_name,
-                "start": start,
-                "end": end,
-                "n_months": len(stress_ret),
-                "buy_hold_sharpe": round(bh_sharpe, 4),
-                "buy_hold_return_pct": round(stress_ret.sum() * 100, 2),
-            })
-
-    stress_df = pd.DataFrame(stress_results)
-    stress_df.to_csv(os.path.join(VALID_DIR, "stress_tests.csv"), index=False)
-    print(f"    {len(stress_df)} stress periods analyzed")
-
-    # --- 7.3 Transaction cost sensitivity ---
-    print("\n  [7.3] Transaction cost sensitivity...")
-    tx_results = []
-
-    for _, row in top5.iterrows():
-        for tx_bps in [0, 5, 10, 25, 50]:
-            annual_cost = row["annual_turnover"] * (tx_bps / 10000) * 12
-            net_sharpe = row["oos_sharpe"] - (annual_cost * np.sqrt(12) if row.get("oos_ann_vol", 0) > 0 else 0)
-
-            tx_results.append({
-                "signal": row["signal"],
-                "threshold": row["threshold"],
-                "strategy": row["strategy"],
-                "tx_cost_bps": tx_bps,
-                "gross_sharpe": row["oos_sharpe"],
-                "net_sharpe_approx": round(net_sharpe, 4),
-            })
-
-    tx_df = pd.DataFrame(tx_results)
-    tx_df.to_csv(os.path.join(VALID_DIR, "transaction_costs.csv"), index=False)
-    print(f"    {len(tx_df)} cost scenarios tested")
-
-    return boot_df
+def stage_validation(winner: dict) -> None:
+    strat = pd.read_csv(RES / f"strategy_returns_{DATE_TAG}.csv", parse_dates=["date"]).set_index("date")
+    rows = []
+    for name, start, end in STRESS_PERIODS + [("Full OOS", winner["oos_period_start"], winner["oos_period_end"])]:
+        seg = strat.loc[start:end]
+        r, b = seg["strategy_return"], seg["benchmark_return"]
+        eq = (1 + r).cumprod()
+        cnt = seg["sample"].value_counts()
+        n_pre, n_is, n_oos = int(cnt.get("pre_IS", 0)), int(cnt.get("IS", 0)), int(cnt.get("OOS", 0))
+        phase = ("test" if n_oos == len(seg) else "training" if n_is == len(seg) else
+                 "before training" if n_pre == len(seg) else
+                 "mostly before training" if n_pre > max(n_is, n_oos) else "mixed")
+        rows.append({"period_name": name, "start_date": start, "end_date": end,
+                     "is_oos": bool(n_oos == len(seg)), "phase": phase,
+                     "n_pre_is": n_pre, "n_is": n_is, "n_oos": n_oos,
+                     "ann_return": float(r.mean() * 12), "ann_vol": float(r.std() * np.sqrt(12)),
+                     "sharpe": sharpe(r), "buy_hold_sharpe": sharpe(b), "n_obs": int(len(r)),
+                     "max_drawdown": float((eq / eq.cummax() - 1).min()),
+                     "strategy_return": float((1 + r).prod() - 1), "buy_hold_return": float((1 + b).prod() - 1)})
+    pd.DataFrame(rows).to_csv(RES / "subperiod_sharpe.csv", index=False)
+    pd.DataFrame([{k: r[k] for k in ("period_name", "start_date", "end_date", "n_obs", "buy_hold_sharpe",
+                                     "buy_hold_return", "sharpe", "strategy_return")} for r in rows[:-1]]
+                 ).to_csv(Path(VALID_DIR) / "stress_tests.csv", index=False)
+    roll = strat["strategy_return"].where(strat["sample"] != "pre_IS").rolling(24, min_periods=16)
+    pd.DataFrame({"date": strat.index, "rolling_sharpe_24m": roll.mean() / roll.std() * np.sqrt(12)}
+                 ).dropna().to_csv(RES / f"rolling_sharpe_{PAIR_ID}.csv", index=False)
+    bs = winner["selection"]["inference"]["oos_sharpe_diff_vs_bh_bootstrap"]
+    pd.DataFrame([{"signal": winner["signal_code"], "threshold": winner["threshold_code"],
+                   "strategy": winner["strategy_family"], "track": "as known at the time",
+                   "oos_sharpe": winner["oos_sharpe"], "sharpe_diff_vs_bh": bs["observed"],
+                   "ci_95_low": bs["ci_95"][0], "ci_95_high": bs["ci_95"][1], "p_diff_le_0": bs["p_diff_le_0"],
+                   "method": bs["method"], "block_length": bs["block_length"], "draws": bs["draws"],
+                   "seed": bs["seed"]}]).to_csv(Path(VALID_DIR) / "bootstrap.csv", index=False)
+    pd.DataFrame([{"signal": winner["signal_code"], "threshold": winner["threshold_code"],
+                   "strategy": winner["strategy_family"], "tx_cost_bps": COST_BPS,
+                   "gross_sharpe": winner["oos_sharpe"],
+                   "net_sharpe": (winner["tracks"]["main"]["winner"] or {}).get("oos_sharpe_net_5bp")}]
+                 ).to_csv(Path(VALID_DIR) / "transaction_costs.csv", index=False)
 
 
 # ===================================================================
-# MAIN PIPELINE
+# METADATA
 # ===================================================================
 
-def main():
-    pipeline_start = time.time()
-
-    print("=" * 70)
-    print(f"  PAIR PIPELINE: {INDICATOR_NAME} → {TARGET_NAME}")
-    print(f"  Pair ID: {PAIR_ID}")
-    print(f"  Date: {DATE_TAG}")
-    print(f"  Sample: {START_DATE} to {END_DATE}")
-    print("=" * 70)
-
-    # Stage 1
-    all_series = stage_data_sourcing()
-
-    # Stage 2
-    df_monthly, df_daily = stage_alignment_and_derived(all_series)
-
-    # Save datasets
-    monthly_path = os.path.join(DATA_DIR, f"umcsent_xlv_monthly_{START_DATE.replace('-','')}_{END_DATE.replace('-','')}.parquet")
-    df_monthly.to_parquet(monthly_path, engine="pyarrow")
-    print(f"\n  Monthly dataset saved: {monthly_path}")
-
-    # Stage 3
-    stat_df = stage_stationarity_and_quality(df_monthly, df_daily)
-
-    # Stage 4
-    corr_df, ccf_df, regime_df = stage_exploratory(df_monthly)
-
-    # Stage 5
-    model_results = stage_core_models(df_monthly)
-
-    # Stage 6
-    tournament_df = stage_tournament(df_monthly, df_daily)
-
-    # Stage 7
-    stage_validation(df_monthly, tournament_df)
-
-    # --- Winner summary ---
-    winner_summary = {}
-    if len(tournament_df) > 0:
-        valid_strats = tournament_df[tournament_df["valid"] & (tournament_df["signal"] != "BENCHMARK")]
-        bh = tournament_df[tournament_df["signal"] == "BENCHMARK"]
-
-        if len(valid_strats) > 0:
-            # FREE full-grid selection per the Lead-Grid Frequency Standard
-            # (docs/lead-grid-frequency-standard.md, 2026-07-14): NO economic-window
-            # cap. The published winner is the global max valid OOS-Sharpe combo over
-            # the full L0-12 grid; the 2-5-month window is REFERENCE only. (This retires
-            # the interim Option-C L0-6 cap. Verified winner-unchanged: L6 is already the
-            # full-grid global max at 1.1586 vs best L7-12 = 1.033.) A surprising long
-            # lead, if it won, would be ADJUDICATED (Step 4 / ECON-T5), not pre-excluded.
-            best = valid_strats.loc[valid_strats["oos_sharpe"].idxmax()]
-            work_for_summary = df_monthly.dropna(subset=["umcsent"])
-            oos_mask_summary = work_for_summary.index >= OOS_START
-            signal_column = SIGNAL_COLUMN_MAP.get(best["signal"])
-            oos_period_start = OOS_START.strftime("%Y-%m-%d")
-            oos_period_end = work_for_summary.loc[oos_mask_summary].index.max().strftime("%Y-%m-%d")
-
-            position, strategy_return, signal_for_rule, threshold_obj, threshold_value, threshold_note = derive_winner_series(
-                work_for_summary,
-                best,
-            )
-            oos_position = position.loc[oos_mask_summary].dropna()
-            oos_n_trades = int(oos_position.diff().abs().fillna(0).gt(0).sum())
-            threshold_is_rolling = isinstance(threshold_obj, pd.Series)
-            threshold_note_contract = (
-                f"{threshold_note} - see winner_trade_log.csv for the full threshold path"
-                if threshold_is_rolling else threshold_note
-            )
-            threshold_rule = "gt" if EXPECTED_DIRECTION == "procyclical" else "lt"
-            strategy_display = {
-                "P1_long_cash": "Long/Cash",
-                "P2_signal_strength": "Signal-strength sizing",
-                "P3_long_short": "Long/Short",
-            }.get(best["strategy"], str(best["strategy"]))
-
-            winner_summary = {
-                "pair_id": PAIR_ID,
-                "generated_at": datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
-                "signal_column": signal_column,
-                "signal_code": best["signal"],
-                "signal_display_name": "UMCSENT 1-month momentum" if best["signal"] == "S3_mom" else best["signal"],
-                "target_symbol": "XLV",
-                "threshold_code": best["threshold"],
-                "threshold_value": round(float(threshold_value), 6) if threshold_value is not None else None,
-                "threshold_rule": threshold_rule,
-                "threshold_note": threshold_note_contract,
-                "strategy_family": best["strategy"],
-                "strategy_code": str(best["strategy"]).split("_")[0],
-                "strategy_display_name": strategy_display,
-                "strategy_description": (
-                    f"Long XLV when the {int(best['lead_months'])}-month-lagged UMCSENT 1-month momentum "
-                    f"is {threshold_rule} its rolling threshold; otherwise cash."
-                ),
-                "direction": EXPECTED_DIRECTION,
-                "signal": best["signal"],
-                "threshold": best["threshold"],
-                "strategy": best["strategy"],
-                "lead_months": int(best["lead_months"]),
-                "lead_value": int(best["lead_months"]),
-                "lead_unit": "months",
-                "lead_description": f"Signal lead = {int(best['lead_months'])} month(s) before the rule is applied",
-                "oos_sharpe": round(float(best["oos_sharpe"]), 4),
-                "oos_ann_return": round(float(best["oos_ann_return"]), 6),  # ratio form (META-UC)
-                "oos_ann_vol": round(float(best["oos_ann_vol"]), 6),
-                "oos_sortino": round(float(best["oos_sortino"]), 4),
-                "oos_calmar": round(float(best["oos_calmar"]), 4),
-                "oos_max_drawdown": round(float(best["max_drawdown"]), 6),  # ratio form (META-UC)
-                "oos_n_trades": oos_n_trades,
-                "oos_period_start": oos_period_start,
-                "oos_period_end": oos_period_end,
-                "max_drawdown": round(float(best["max_drawdown"]), 6),  # ratio form (META-UC)
-                "win_rate": round(float(best["win_rate"]), 4),
-                "annual_turnover": round(float(best["annual_turnover"]), 2),
-                "cost_assumption_bps": 5,
-                "is_n": int(best["is_n"]),
-                "oos_n": int(best["oos_n"]),
-                "bh_oos_sharpe": round(float(bh.iloc[0]["oos_sharpe"]), 4) if len(bh) > 0 else None,
-                "bh_sharpe": round(float(bh.iloc[0]["oos_sharpe"]), 4) if len(bh) > 0 else None,
-                "bh_ann_return": round(float(bh.iloc[0]["oos_ann_return"]), 6) if len(bh) > 0 else None,
-                "bh_max_drawdown": round(float(bh.iloc[0]["max_drawdown"]), 6) if len(bh) > 0 else None,
-                "oos_start": OOS_START.strftime("%Y-%m-%d"),
-                "is_end": IS_END.strftime("%Y-%m-%d"),
-                "schema_version": "1.1.0",
-                "notes": (
-                    f"Expected relationship is {EXPECTED_DIRECTION}. "
-                    f"Winning threshold uses {threshold_note_contract}. "
-                    f"Signal is lagged by {int(best['lead_months'])} months before the rule is applied."
-                ),
-            }
-
-            # --- ECON-T5 selection provenance (FREE full-grid L0-12 selection; no cap) ---
-            # Lead-Grid Frequency Standard (2026-07-14): the winner is the global max valid
-            # combo over the full grid. The 2-5-month window is REFERENCE only (Step 5); the
-            # full-grid math CONFIRMED it (nothing at L7-12 beats L6).
-            _sel_pool = valid_strats
-            _ranked = _sel_pool.sort_values("oos_sharpe", ascending=False)
-            _runner = _ranked.iloc[1] if len(_ranked) > 1 else None
-            _l712 = valid_strats[valid_strats["lead_months"] >= 7]
-            _l712_max = round(float(_l712["oos_sharpe"].max()), 4) if len(_l712) else None
-            _s6 = _l712[_l712["signal"] == "S6_direction"]
-            _s6_max = round(float(_s6["oos_sharpe"].max()), 4) if len(_s6) else None
-            winner_summary["schema_version"] = "1.2.0"
-            winner_summary["selection"] = {
-                "objective": "max_oos_sharpe",
-                "objective_formula": "oos_ret.mean()/oos_ret.std()*sqrt(ann), ann=12",
-                "grid_scanned": {
-                    "leads": list(range(0, 13)),
-                    "n_signals": int(_sel_pool["signal"].nunique()),
-                    "n_thresholds": int(_sel_pool["threshold"].nunique()),
-                    "n_strategies": int(_sel_pool["strategy"].nunique()),
-                    "n_valid_combos": int(len(_sel_pool)),
-                    "median_valid_objective": round(float(_sel_pool["oos_sharpe"].median()), 4),
-                },
-                "tie_break_step": 0,
-                "raw_winner_row": {
-                    "signal": str(best["signal"]),
-                    "threshold": str(best["threshold"]),
-                    "strategy": str(best["strategy"]),
-                    "lead_column": "lead_months",
-                    "lead_value": int(best["lead_months"]),
-                    "source_tournament_file": f"tournament_results_{DATE_TAG}.csv",
-                    "source_row_index": int(best.name),
-                    "display_alias": f"signal_code={winner_summary['signal_code']}; strategy={best['strategy']}",
-                },
-                "runner_up": ({
-                    "signal": str(_runner["signal"]), "threshold": str(_runner["threshold"]),
-                    "strategy": str(_runner["strategy"]), "lead_value": int(_runner["lead_months"]),
-                    "objective_value": round(float(_runner["oos_sharpe"]), 4),
-                } if _runner is not None else None),
-                "rationale": (
-                    f"FREE full-grid selection (Lead-Grid Frequency Standard, 2026-07-14): no "
-                    f"economic-window cap — the winner is the global max valid OOS Sharpe over the "
-                    f"FULL L0-12 grid ({len(_sel_pool)} valid combos, median "
-                    f"{float(_sel_pool['oos_sharpe'].median()):.4f}): {best['signal']}/{best['threshold']}/"
-                    f"{best['strategy']}/L{int(best['lead_months'])} = {float(best['oos_sharpe']):.4f}. "
-                    f"The economically-motivated 2-5-month cross-correlation window is REFERENCE context "
-                    f"the full-grid math CONFIRMED: the best L7-12 combo scores only {_l712_max} (< winner), "
-                    f"and S6_direction — the transform with a significant L10 lead-correlation (r=0.113*) — "
-                    f"scores at most {_s6_max} across L7-12, so the long-lead direction signal is "
-                    f"multiple-testing noise, not a tradable edge. This retires the interim Option-C L0-6 "
-                    f"cap; the winner is UNCHANGED (L6 was already the full-grid global max). Low-confidence "
-                    f"framing stands: isolated L6 spike on a nearly-flat envelope, backward-Granger caveat, "
-                    f"L7-12 = noise. Published winner == full-grid raw max-OOS-Sharpe valid row -> divergence null."
-                ),
-                "objective_runner_up_divergence": None,
-            }
-
-            sr = pd.DataFrame({
-                "date": work_for_summary.index.strftime("%Y-%m-%d"),
-                "signal_value": signal_for_rule.reindex(work_for_summary.index).values,
-                "threshold_value": (
-                    threshold_obj.reindex(work_for_summary.index).values
-                    if isinstance(threshold_obj, pd.Series)
-                    else np.repeat(float(threshold_obj), len(work_for_summary.index))
-                ),
-                "position": position.reindex(work_for_summary.index).fillna(0.0).values,
-                "strategy_return": strategy_return.reindex(work_for_summary.index).fillna(0.0).values,
-                "bh_return": work_for_summary["xlv_ret"].values,
-            })
-            sr_path = os.path.join(RESULTS_DIR, f"strategy_returns_{DATE_TAG}.csv")
-            sr.to_csv(sr_path, index=False)
-            print(f"  Strategy returns -> {sr_path}")
-
-        winner_path = os.path.join(RESULTS_DIR, "winner_summary.json")
-        with open(winner_path, "w") as f:
-            json.dump(winner_summary, f, indent=2)
-        print(f"\n  Winner summary -> {winner_path}")
-
-    # --- Generate winner trade log ---
-    if winner_summary and "signal" in winner_summary:
-        try:
-            work = df_monthly.dropna(subset=["umcsent"])
-            oos_mask = work.index >= OOS_START
-
-            position, strategy_return, signal_for_rule, threshold_obj, _, _ = derive_winner_series(
-                work,
-                {
-                    "signal": winner_summary["signal"],
-                    "threshold": winner_summary["threshold"],
-                    "strategy": winner_summary["strategy"],
-                    "lead_months": winner_summary["lead_months"],
-                },
-            )
-            oos_data = work[oos_mask].copy()
-            oos_data["signal_value"] = signal_for_rule[oos_mask]
-            oos_data["threshold"] = (
-                threshold_obj[oos_mask]
-                if isinstance(threshold_obj, pd.Series)
-                else float(threshold_obj)
-            )
-            oos_data["position"] = position[oos_mask].fillna(0.0)
-            oos_data["strat_ret"] = strategy_return[oos_mask].fillna(0.0)
-            oos_data["strategy_return"] = oos_data["strat_ret"]
-            oos_data["xlv_return"] = oos_data["xlv_ret"]
-            oos_data["cum_return"] = (1 + oos_data["strat_ret"]).cumprod()
-            oos_data["cumulative_return"] = oos_data["cum_return"] - 1
-
-            trade_log = oos_data[
-                [
-                    "signal_value",
-                    "threshold",
-                    "position",
-                    "xlv_return",
-                    "strat_ret",
-                    "strategy_return",
-                    "cum_return",
-                    "cumulative_return",
-                    "xlv",
-                ]
-            ].copy()
-            trade_log.index.name = "date"
-            trade_log_path = os.path.join(RESULTS_DIR, "winner_trade_log.csv")
-            trade_log.to_csv(trade_log_path)
-            print(f"  Winner trade log -> {trade_log_path}")
-        except Exception as e:
-            print(f"  Trade log generation failed: {e}")
-
-    # --- Pipeline Summary ---
-    pipeline_elapsed = time.time() - pipeline_start
-
-    print("\n" + "=" * 70)
-    print("  PIPELINE COMPLETE")
-    print("=" * 70)
-    print(f"\n  Total wall-clock time: {pipeline_elapsed:.1f}s ({pipeline_elapsed/60:.1f} min)")
-    print(f"\n  IS/OOS Split: IS ends {IS_END.date()}, OOS starts {OOS_START.date()}")
-    print(f"\n  Stage timings:")
-    for stage, elapsed in STAGE_TIMES.items():
-        print(f"    {stage:<35s} {elapsed:8.1f}s")
-
-    if len(tournament_df) > 0:
-        valid_count = tournament_df["valid"].sum()
-        print(f"\n  Tournament:")
-        print(f"    Total combinations: {len(tournament_df)}")
-        print(f"    Valid strategies:   {valid_count}")
-
-        if winner_summary:
-            print(f"    Best OOS Sharpe:   {winner_summary.get('oos_sharpe', 'N/A')}")
-            print(f"    Best signal:       {winner_summary.get('signal', 'N/A')}/{winner_summary.get('threshold', 'N/A')}")
-
-    # Timing
-    timing = {
-        "pair_id": PAIR_ID,
-        "indicator": INDICATOR_NAME,
-        "target": TARGET_NAME,
-        "date": DATE_TAG,
-        "pipeline_seconds": round(pipeline_elapsed, 1),
-        "stage_times": {k: round(v, 1) for k, v in STAGE_TIMES.items()},
-        "monthly_rows": df_monthly.shape[0],
-        "monthly_cols": df_monthly.shape[1],
-        "tournament_combos": len(tournament_df),
-        "valid_strategies": int(tournament_df["valid"].sum()) if len(tournament_df) > 0 else 0,
+def write_metadata(model_results: dict, winner: dict, elapsed: float) -> None:
+    reg_df = model_results.get("regressions", pd.DataFrame())
+    observed = winner["direction"]
+    key_finding = (f"As known at the time (real-time UMCSENT vintages), the rule selected on in-sample data uses "
+                   f"{winner['signal_code']} / {winner['threshold_code']} / {winner['strategy_code']} at "
+                   f"L{winner['lead_value']} (IS Sharpe {winner['is_sharpe']:.2f}); held-out OOS Sharpe "
+                   f"{winner['oos_sharpe']:.2f} versus buy-and-hold XLV {winner['bh_sharpe']:.2f}.")
+    if len(reg_df):
+        best = reg_df.loc[reg_df["p_value"].idxmin()]
+        key_finding += (f" Strongest predictive regression: {best['signal']} -> {best['horizon']} "
+                        f"(t={best['t_stat']:.2f}, p={best['p_value']:.3f}).")
+    interp = {
+        "schema_version": "1.0.0", "pair_id": PAIR_ID, "indicator": "umcsent", "target": "xlv",
+        "indicator_nature": "leading", "indicator_type": "sentiment", "strategy_objective": "min_mdd",
+        "expected_direction": EXPECTED_DIRECTION, "observed_direction": observed,
+        "direction_consistent": observed == EXPECTED_DIRECTION, "key_finding": key_finding,
+        "owner_writes": {"dana": ["indicator", "target"],
+                         "evan": ["indicator_nature", "indicator_type", "strategy_objective"],
+                         "ray": ["key_finding"]},
+        "last_updated_by": "evan", "last_updated_at": NOW_ISO,
     }
+    (RES / "interpretation_metadata.json").write_text(json.dumps(interp, indent=2) + "\n")
 
-    timing_path = os.path.join(RESULTS_DIR, f"pipeline_timing_{DATE_TAG}.json")
-    with open(timing_path, "w") as f:
-        json.dump(timing, f, indent=2)
-    print(f"\n  Timing saved -> {timing_path}")
+    def der(name, definition, formula, role, charts, notes=""):
+        return {"name": name, "definition": definition, "formula": formula, "role": role,
+                "appears_in_charts": charts, "notes": notes}
+    code = {v: k for k, v in SIGNALS.items()}
+    sig_note = lambda col: f"Tournament signal {code[col]}."  # noqa: E731
+    scope = {
+        "pair_id": PAIR_ID, "schema_version": "1.0.0", "owner": "evan", "last_updated_by": "evan",
+        "last_updated_at": NOW_ISO,
+        "indicator_axis": {
+            "canonical_column": "umcsent", "display_name": "University of Michigan Consumer Sentiment",
+            "derivatives": [
+                der("umcsent", "The University of Michigan index of consumer sentiment (monthly survey).",
+                    "raw column (ALFRED/FRED UMCSENT; real-time vintages on the headline track)", "raw",
+                    ["hero", "history_zoom_dotcom", "history_zoom_gfc", "history_zoom_covid",
+                     "history_zoom_inflation_2022"], sig_note("umcsent")),
+                der("umcsent_yoy", "Year-over-year percent change in consumer sentiment.",
+                    "(umcsent / umcsent.shift(12) - 1) * 100", "derivative",
+                    ["hero", "correlation_scatter", "correlations", "regime_stats", "ccf", "signal_dist",
+                     "local_projections", "quantile_coef", "rolling_correlation", "rolling_granger",
+                     "structural_break"], sig_note("umcsent_yoy")),
+                der("umcsent_mom", "Month-over-month percent change in consumer sentiment.",
+                    "(umcsent / umcsent.shift(1) - 1) * 100", "derivative", ["correlations"],
+                    sig_note("umcsent_mom")),
+                der("umcsent_zscore", "Consumer sentiment relative to its trailing 36-month mean, in standard deviations.",
+                    "(umcsent - rolling_mean_36(umcsent)) / rolling_std_36(umcsent), min 24 readings", "derivative",
+                    ["correlations", "equity_curves", "drawdown", "lead_plateau"], sig_note("umcsent_zscore")),
+                der("umcsent_3m_ma", "Three-month moving average of consumer sentiment.",
+                    "umcsent.rolling(3, min_periods=2).mean()", "derivative", ["correlations"],
+                    sig_note("umcsent_3m_ma")),
+                der("umcsent_direction", "Direction of the monthly change: +1 rising, -1 falling, 0 unchanged.",
+                    "sign(umcsent_mom)", "derivative", ["correlations", "signal_dist"],
+                    sig_note("umcsent_direction") + " Long/cash only (P2/P3 excluded on this flag)."),
+                der("umcsent_dev_ma", "Consumer sentiment minus its three-month moving average.",
+                    "umcsent - umcsent_3m_ma", "derivative", ["correlations"], sig_note("umcsent_dev_ma")),
+            ],
+        },
+        "target_axis": {
+            "canonical_column": "xlv", "display_name": "Health Care Select Sector (XLV)",
+            "derivatives": [
+                der("xlv", "XLV adjusted month-end close (dividends and splits).",
+                    "pinned: data/phaseB_inputs/xlv_month_end_20261017.csv", "raw",
+                    ["hero", "history_zoom_dotcom", "history_zoom_gfc", "history_zoom_covid",
+                     "history_zoom_inflation_2022"]),
+                der("xlv_ret", "XLV monthly return.", "xlv.pct_change()", "derivative",
+                    ["equity_curves", "drawdown", "rolling_sharpe", "walk_forward", "subperiod_sharpe", "ccf",
+                     "regime_stats", "rolling_correlation", "rolling_granger", "structural_break"]),
+                der("xlv_fwd_1m", "XLV return over the next month.", "xlv.shift(-1) / xlv - 1", "derivative",
+                    ["correlations"]),
+                der("xlv_fwd_3m", "XLV return over the next three months.", "xlv.shift(-3) / xlv - 1", "derivative",
+                    ["correlations", "signal_dist", "quantile_coef", "local_projections"]),
+                der("xlv_fwd_6m", "XLV return over the next six months.", "xlv.shift(-6) / xlv - 1", "derivative",
+                    ["correlations", "correlation_scatter", "local_projections"]),
+                der("xlv_fwd_12m", "XLV return over the next twelve months.", "xlv.shift(-12) / xlv - 1",
+                    "derivative", ["correlations", "local_projections"]),
+            ],
+        },
+        "notes": ("Seven UMCSENT transforms are the tournament signals (pair spec SIGNALS). VIX, DGS10 and UNRATE "
+                  "are regression controls only (local projections, random forest), not signals."),
+    }
+    (RES / "signal_scope.json").write_text(json.dumps(scope, indent=2) + "\n")
 
-    return df_monthly, df_daily, tournament_df
+    (RES / "kpis.json").write_text(json.dumps({
+        "pair_id": PAIR_ID, "winner_oos_sharpe": winner["oos_sharpe"], "benchmark_oos_sharpe": winner["bh_sharpe"],
+        "oos_max_drawdown": winner["oos_max_drawdown"], "bh_max_drawdown": winner["bh_max_drawdown"]}, indent=2) + "\n")
+    (RES / "evidence_status.json").write_text(json.dumps({
+        "pair_id": PAIR_ID, "schema_version": "1.2.0", "status": "found_in_search", "updated_at": NOW_ISO,
+        "plain_english": "A winning rule was found in the search grid, but it has not passed a fresh final exam.",
+        "technical_note": (f"Winner selected on in-sample data by the lead-plateau rule (D9) from the {DATE_TAG} "
+                           "tournament on real-time UMCSENT vintages and reported on the test window (seen by earlier runs, so "
+                           "not a frozen hold-out); "
+                           "formal lead-lag (Granger) evidence is weak."),
+        "next_step": "Freeze the selected rule and run a confirmation test on future data or a reserved holdout window.",
+        "owner": "evan"}, indent=2) + "\n")
+    (RES / f"pipeline_timing_{DATE_TAG}.json").write_text(json.dumps({
+        "pair_id": PAIR_ID, "elapsed_seconds": elapsed, "stage_times": {k: round(v, 1) for k, v in STAGE_TIMES.items()},
+        "generated_at": NOW_ISO}, indent=2) + "\n")
+
+
+NARRATIVE_SOURCES = [
+    f"exploratory_{DATE_TAG}/regime_descriptive_stats.csv",
+    f"exploratory_{DATE_TAG}/ccf.csv",
+    f"exploratory_{DATE_TAG}/correlations.csv",
+    f"core_models_{DATE_TAG}/granger_causality.csv",
+    f"core_models_{DATE_TAG}/predictive_regressions.csv",
+    f"core_models_{DATE_TAG}/quantile_regression.csv",
+    f"core_models_{DATE_TAG}/local_projections.csv",
+    "subperiod_sharpe.csv",
+]
+
+
+def write_narrative_provenance(df: pd.DataFrame) -> None:
+    """evidence_facts_<tag>.json: the evidence tables the page prose cites (scripts/gate_number_provenance.py),
+    plus facts computed here from the panel (sample sizes the prose states)."""
+    xlv_first = df["xlv"].first_valid_index()
+    derived = {
+        "xlv_first_month": xlv_first.strftime("%Y-%m"),
+        "panel_months": int(df["xlv_ret"].notna().sum()),
+        "granger_min_p_umcsent_to_xlv": None,
+        "granger_min_p_xlv_to_umcsent": None,
+    }
+    # numbers the page templates print from result files: trade-log row counts and the winner's rank by
+    # training Sharpe among the valid combinations (the tournament table caption)
+    derived["trade_log_rows"] = int(len(pd.read_csv(RES / "winner_trades_broker_style.csv")))
+    derived["position_log_rows"] = int(len(pd.read_csv(RES / "winner_trade_log.csv")))
+    t = pd.read_csv(RES / f"tournament_results_{DATE_TAG}.csv")
+    v = t[t["valid"].astype(bool)].dropna(subset=["is_sharpe"])
+    rk = v["is_sharpe"].rank(ascending=False, method="min")
+    sel = v.index[v["selected"].astype(bool)]
+    derived["winner_is_rank_among_valid"] = int(rk.loc[sel[0]]) if len(sel) else None
+    # test-period position changes of the MAIN winner (winner_summary oos_n_trades is the harness abs_sum count:
+    # int(sum |position change|), i.e. full XLV units traded); the P2 rule resizes most months
+    sr = pd.read_csv(RES / f"strategy_returns_{DATE_TAG}.csv")
+    # counted from the broker-style trade log itself, so page and log agree: every log row dated in the test
+    # period, INCLUDING the move into the first test month from the last training-period position
+    blog = pd.read_csv(RES / "winner_trades_broker_style.csv", parse_dates=["trade_date"])
+    oos_first = pd.Timestamp(sr.loc[sr["sample"] == "OOS", "date"].iloc[0])
+    tlo = blog[blog["trade_date"] >= oos_first]
+    size = tlo["trade_size_pct"].astype(float) / 100
+    derived["position_change_threshold_pp"] = POSITION_CHANGE_THRESHOLD_PP
+    derived["oos_months_position_change_gt_5pct"] = int((size > POSITION_CHANGE_THRESHOLD_PP / 100).sum())
+    derived["oos_sum_abs_position_change"] = round(float(size.sum()), 4)
+    derived["n_oos_trade_log_rows"] = int(len(tlo))
+    # XLV pin splice (legacy closes through 2025-11, Yahoo from 2025-12): adjusted-close basis check
+    sc = json.loads((Path(DATA_DIR) / "phaseB_inputs" / "xlv_splice_check_20261017.json").read_text())
+    derived["xlv_splice_close_ratio_max_abs_dev"] = max(abs(sc["close_ratio_yahoo_over_legacy_min"] - 1),
+                                                         abs(sc["close_ratio_max"] - 1))
+    derived["xlv_splice_overlap_return_max_abs_diff"] = sc["monthly_return_max_abs_diff_overlap"]
+    derived["xlv_splice_join_month_return_abs_diff"] = sc["join_month_abs_diff"]
+    gc = pd.read_csv(Path(MODELS_DIR) / "granger_causality.csv")
+    if len(gc):
+        for d, k in (("UMCSENT->XLV", "granger_min_p_umcsent_to_xlv"), ("XLV->UMCSENT", "granger_min_p_xlv_to_umcsent")):
+            sub = gc[gc["direction"] == d]
+            derived[k] = float(sub["p_value"].min()) if len(sub) else None
+    write_evidence_facts(PAIR_ID, DATE_TAG, sources=NARRATIVE_SOURCES, derived=derived)
+
+
+def main() -> None:
+    t0 = time.time()
+    for d in (RESULTS_DIR, EXPLORE_DIR, MODELS_DIR, VALID_DIR):
+        os.makedirs(d, exist_ok=True)
+    df = build_panel()
+    df[[c for c in SIGNALS.values()]].to_parquet(RES / f"signals_{DATE_TAG}.parquet")
+    stage_stationarity_and_quality(df)
+    stage_exploratory(df)
+    model_results = stage_core_models(df)
+    stage_rolling_stability(df)
+    _tourn, winner, _out = run_tournament()
+    stage_validation(winner)
+    write_metadata(model_results, winner, time.time() - t0)
+    write_narrative_provenance(df)
+    print(f"Done. Results saved to {RES}")
 
 
 if __name__ == "__main__":

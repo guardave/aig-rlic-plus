@@ -1,0 +1,2 @@
+role,signal,threshold,strategy,direction,lead_months,is_sharpe,oos_sharpe,is_n,oos_n,oos_start,selection,source_tournament_file,source_row_index,published_winner_summary_generated_at
+published_oos_selected,S3_mom,T3_zscore_1.0,P1,procyclical,6,0.2825,1.1586,243,81,2019-04-30,"max OOS Sharpe among valid rows (OOS Sharpe > 0, annual turnover < 24)",tournament_results_20261008.csv,1188,2026-10-08T23:53:16Z

@@ -1,0 +1,30 @@
+{
+  "pair_id": "umcsent_xlv",
+  "date_tag": "20261017",
+  "sources": [
+    "core_models_20261017/granger_causality.csv",
+    "core_models_20261017/local_projections.csv",
+    "core_models_20261017/predictive_regressions.csv",
+    "core_models_20261017/quantile_regression.csv",
+    "exploratory_20261017/ccf.csv",
+    "exploratory_20261017/correlations.csv",
+    "exploratory_20261017/regime_descriptive_stats.csv",
+    "subperiod_sharpe.csv"
+  ],
+  "derived": {
+    "xlv_first_month": "1998-12",
+    "panel_months": 333,
+    "granger_min_p_umcsent_to_xlv": 0.349,
+    "granger_min_p_xlv_to_umcsent": 0.001,
+    "trade_log_rows": 327,
+    "position_log_rows": 327,
+    "winner_is_rank_among_valid": 34,
+    "xlv_splice_close_ratio_max_abs_dev": 7.680112559249608e-07,
+    "xlv_splice_overlap_return_max_abs_diff": 1.1349560729012609e-06,
+    "xlv_splice_join_month_return_abs_diff": 0.0,
+    "position_change_threshold_pp": 5,
+    "oos_months_position_change_gt_5pct": 55,
+    "oos_sum_abs_position_change": 8.5904,
+    "n_oos_trade_log_rows": 89
+  }
+}

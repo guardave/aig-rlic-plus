@@ -1,188 +1,245 @@
-"""UMCSENT × XLV pair configuration (Rule APP-PT1).
+"""UMCSENT x XLV pair configuration (Rule APP-PT1).
 
-Wave 10I.A narrative port (Ray): prose fields authored from legacy
-app/pages/10_umcsent_xlv_*.py (pre-migration, commit 24e2f16~1),
-cross-checked against results/umcsent_xlv/winner_summary.json.
-
-APP-TL1 note: `results/umcsent_xlv/winner_trades_broker_style.csv` is
-present (shipped Wave 10H.2, commit 2c11046). `TRADE_LOG_EXAMPLE_MD`
-is authored directly from that file.
-
-Pair ID: umcsent_xlv  (richest hand-written pair — 1,563 legacy lines)
-Winner (winner_summary.json, authoritative): UMCSENT 1-month momentum /
-rolling z-score > +1.0 / P1_long_cash / 6-month lead — OOS Sharpe 1.16,
-OOS return +7.95%, Max DD -0.7%, Calmar 11.3, win rate 16%.
+Phase B: every result number is rendered from the structured winner fields (results/umcsent_xlv/winner_summary.json
+`winner_fields`, via components.winner_fields), the track summary, or the evidence tables declared in
+evidence_facts_<tag>.json; none is typed here (scripts/gate_structured_prose.py, scripts/gate_number_provenance.py).
+MAIN = as known at the time (real-time UMCSENT vintages); COMPARISON = as revised today (hindsight).
 """
 
 from __future__ import annotations
 
+from pathlib import Path
+
+from components import provenance as P
 from components.page_templates import MethodologyConfig
+from components.winner_fields import load
+
+PAIR = "umcsent_xlv"
+W = load(PAIR)
+_RES = Path(__file__).resolve().parents[2] / "results" / PAIR
+_WS = P.json_file(_RES / "winner_summary.json")
+_TAG = _WS["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
+_EF = P.json_file(_RES / f"evidence_facts_{_TAG}.json")
+_D = _EF.get("derived", {})
+_EXP = _RES / f"exploratory_{_TAG}"
+_CORE = _RES / f"core_models_{_TAG}"
+_Q = P.col_dict(P.csv_file(_EXP / "regime_descriptive_stats.csv"), "regime", "sharpe")
+_CORR = P.csv_file(_EXP / "correlations.csv")
+_CCF = P.csv_file(_EXP / "ccf.csv")
+_TS = P.json_file(_RES / "track_summary.json")
+_NT = _TS.get("null_tournament") or {}
+_MAN = P.json_file(_RES / f"candidates_manifest_{_TAG}.json")
+_GRID = P.lead_grid(PAIR)
+_GRID_RANGE = f"L{_GRID[0]}-L{_GRID[-1]}"
+
+_R_YOY6 = _CORR[(_CORR["signal"] == "umcsent_yoy") & (_CORR["horizon"] == "xlv_fwd_6m") & (_CORR["method"] == "Pearson")]
+_R_YOY6 = _R_YOY6["correlation"].iloc[0] if len(_R_YOY6) else float("nan")
+_LEAD_CCF = _CCF[_CCF["lag"].astype(float) > 0]
+_CCF_PEAK = _LEAD_CCF.loc[_LEAD_CCF["ccf"].astype(float).idxmax()] if len(_LEAD_CCF) else None
+_CCF_SIG_LAGS = list(_LEAD_CCF.loc[_LEAD_CCF["significant"].astype(bool), "lag"])
+_LAG_CCF = _CCF[_CCF["lag"].astype(float) < 0]
+_CCF_SIG_REV = [abs(x) for x in _LAG_CCF.loc[_LAG_CCF["significant"].astype(bool), "lag"]]
+_G_FWD = _D.get("granger_min_p_umcsent_to_xlv")
+_G_REV = _D.get("granger_min_p_xlv_to_umcsent")
 
 
-# =========================================================================
-# STORY PAGE CONFIG
-# =========================================================================
+def _p(x) -> str:
+    return "n/a" if x is None else f"{x:.3f}"
+
+
+def _r71_caveat() -> str:
+    """Chance-check calibration disclosure (R7.1), rendered from the null diagnosis in track_summary.json."""
+    fails = [(lbl, d) for lbl, ok, d in (("as known at the time", _NT.get("r71_pass"), _NT.get("r71_diagnosis")),
+                                         ("as revised today", _NT.get("revised_r71_pass"), _NT.get("revised_r71_diagnosis")))
+             if ok is False]
+    if not fails:
+        return ""
+    body = " ".join(f"On data {lbl}: {d['reading']}" if d else f"On data {lbl}: no diagnosis recorded."
+                    for lbl, d in fails)
+    return ("6. **Chance-check calibration.** The scrambled contests should show no timing skill on average "
+            "(the R7.1 check); here they do not meet it. " + body + " Where the check is not met, that track's "
+            "chance-check percentile compares its winner against a null that carries the same effect.\n")
+
+
+_R71_CAVEAT = _r71_caveat()
+
+THRESHOLD_TEXT = P.definitions({
+    "T1_fixed_p25": "its training-period 25th percentile", "T1_fixed_p50": "its training-period median",
+    "T1_fixed_p75": "its training-period 75th percentile",
+    "T2_roll_p25": "its rolling 60-month 25th percentile", "T2_roll_p50": "its rolling 60-month median",
+    "T2_roll_p75": "its rolling 60-month 75th percentile",
+    "T3_zscore_1.0": "its rolling 60-month mean plus 1.0 standard deviation",
+    "T3_zscore_1.5": "its rolling 60-month mean plus 1.5 standard deviations",
+    "T3_zscore_2.0": "its rolling 60-month mean plus 2.0 standard deviations",
+    "T3_zscore_neg_1.0": "its rolling 60-month mean minus 1.0 standard deviation",
+    "T3_zscore_neg_1.5": "its rolling 60-month mean minus 1.5 standard deviations",
+    "T3_zscore_neg_2.0": "its rolling 60-month mean minus 2.0 standard deviations",
+    "T4_zero": "zero", "-": "its trailing 60-month range",
+})
+SIDE = {"procyclical": "above", "countercyclical": "below"}
+SIGNAL_TEXT = P.definitions({
+    "S1_level": "consumer sentiment level", "S2_yoy": "year-over-year % change in consumer sentiment",
+    "S3_mom": "month-over-month % change in consumer sentiment", "S4_zscore": "36-month consumer sentiment z-score",
+    "S5_3m_ma": "3-month average of consumer sentiment", "S6_direction": "direction of the monthly sentiment change",
+    "S7_dev_ma": "consumer sentiment minus its 3-month average",
+})
+
+
+def _sig(prefix: str = "") -> str:
+    return SIGNAL_TEXT.get(W.value(prefix + "signal_code"), W.text(prefix + "signal_code"))
+
+
+def _low(text: str) -> str:
+    return text[:1].lower() + text[1:]
+
+
+def _rule(prefix: str = "") -> str:
+    """Plain-English rule of a track's winner, from its structured fields."""
+    g = lambda n: W.text(prefix + n)  # noqa: E731
+    fam = str(W.value(prefix + "strategy_family") or "")[:2]
+    sig = f"the {_sig(prefix)} from {g('lead_word')} months earlier"
+    thr = THRESHOLD_TEXT.get(g("threshold_code"), g("threshold_code"))
+    side = SIDE.get(W.value(prefix + "direction"), g("direction"))
+    if fam == "P2":
+        return (f"size the XLV position by where {sig} sits within {thr}: fully invested at the top of the range, "
+                "in cash at the bottom, in proportion in between; the rest is held in cash")
+    if fam == "P3":
+        return f"hold XLV long when {sig} is {side} {thr}; otherwise hold XLV short"
+    return f"hold XLV when {sig} is {side} {thr}; otherwise hold cash"
+
+
+_RULE = _rule()
+_RULE_REVISED = _rule("comparison_")
+_SAME_RULE = all(W.value(k) == W.value("comparison_" + k) for k in ("signal_code", "threshold_code", "lead",
+                                                                    "strategy_family"))
+
+
 class StoryConfig:
     PAGE_TITLE = "The Story: University of Michigan Consumer Sentiment and the Healthcare Sector"
     PAGE_SUBTITLE = (
-        "Does University of Michigan consumer sentiment predict returns in "
-        "the defensive Health Care Select Sector SPDR Fund (XLV)?"
+        "Does University of Michigan consumer sentiment help time exposure to the defensive Health Care Select "
+        "Sector SPDR Fund (XLV)?"
     )
 
     HEADLINE_H2 = (
-        "## University of Michigan Consumer Sentiment as a directional signal "
-        "for Health Care Select Sector SPDR Fund (XLV)"
+        f"## Test-period Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold XLV, "
+        "using consumer-sentiment data as known at the time"
     )
 
     PLAIN_ENGLISH = (
-        "The UMCSENT survey asks roughly "
-        "900-1,000 respondents under its newer web-interview process how "
-        "confident they feel about the economy. This page "
-        "asks whether those survey results — a number published monthly "
-        "and free to download — can help time exposure to the Health Care "
-        "Select Sector SPDR Fund (XLV). Health care is a defensive sector: "
-        "people visit doctors whether the economy is booming or not. The "
-        "working hypothesis is straightforward: higher or improving "
-        "UMCSENT should coincide with better XLV performance, and XLV "
-        "should hold up better than the broad market when sentiment is weak."
+        "The University of Michigan survey (UMCSENT) asks households how confident they feel about their finances "
+        "and the economy. This page asks whether that monthly reading can help time exposure to the Health Care "
+        "Select Sector SPDR Fund (XLV). Health care is a defensive sector: people need care in good and bad times. "
+        "The working hypothesis is procyclical: higher or improving sentiment should coincide with better XLV "
+        "returns. The headline uses the survey values as they were published at each date, not today's revised "
+        "values."
     )
 
-    WHERE_THIS_FITS = ""
+    WHERE_THIS_FITS = (
+        "This is a household-sentiment signal for a defensive equity sector. It belongs in the portal as regime "
+        "context and a possible exposure filter, not as a standalone forecast."
+    )
 
     ONE_SENTENCE_THESIS = (
-        "*When UMCSENT 1-month momentum improves enough to clear a rolling "
-        "z-score > +1.0 trigger, with a 6-month lead, Health Care Select "
-        "Sector SPDR Fund (XLV) has historically performed better. The "
-        "hypothesis is that improving household confidence and risk appetite "
-        "can support XLV over the next several months, even though health "
-        "care is partly defensive.*"
+        f"On data as known at the time, the rule selected on the training period is to {_RULE}; in the test "
+        f"period it scored Sharpe {W.oos_sharpe} against {W.bh_oos_sharpe} for buy-and-hold XLV."
     )
 
     KPI_CAPTION = (
-        "The winning rule uses UMCSENT 1-month momentum with a 6-month "
-        "lead and a rolling z-score > +1.0 trigger. When the 6-month-lagged "
-        "momentum clears that threshold, the strategy holds XLV; otherwise, "
-        "it moves to cash. Out-of-sample (OOS) Sharpe is 1.16 vs 0.72 for "
-        "buy-and-hold XLV, with max drawdown reduced from -15.6% to -0.7% "
-        "and Calmar rising to 11.3."
+        f"Winner selected on training data ({W.is_start} to {W.is_end}) by {W.selection_objective}: "
+        f"{_sig()}, {W.threshold_code}, {W.strategy_family}, lead {W.lead_text}. Test-period Sharpe "
+        f"{W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold XLV ({W.oos_start} to {W.oos_end})."
     )
 
     HERO_TITLE = "UMCSENT Year-over-Year Change vs. Health Care Select Sector SPDR Fund (XLV)"
     HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
-        "UMCSENT YoY Change (%) is the red line on the left axis; XLV "
-        "adjusted price is the blue line on the right axis. The shaded bands "
-        "mark months when UMCSENT was falling year-over-year. The important "
-        "timing lesson is that UMCSENT can lag XLV price action in fast "
-        "market moves: prices often react first, while household sentiment "
-        "updates more slowly through monthly surveys."
+        "How to read it: the year-over-year change in UMCSENT is on the left axis and the XLV adjusted price on "
+        "the right axis. Shaded bands mark months with a negative year-over-year change. Prices often react "
+        "first, while household sentiment updates through a monthly survey."
     )
 
     REGIME_TITLE = "What History Shows: XLV Returns by Consumer-Sentiment Regime"
     REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
-        "XLV performance by quartile of UMCSENT year-over-year change — "
-        "annualised Sharpe (left panel) and annualised return (right panel). "
-        "Quartile 1 = lowest (most negative) year-over-year change; "
-        "Quartile 4 = highest (most positive). The non-monotonic pattern "
-        "(Quartile 2 ~1.09 / 13.8% > Quartile 4 ~0.93 / 10.6% > Quartile 3 "
-        "~0.56 / 7.7% > Quartile 1 ~0.23 / 4.2%) is identical in both panels "
-        "and confirms the procyclical direction — falling sentiment "
-        "coincides with the worst XLV regime — while suggesting that the "
-        "peak of optimism is itself a late-cycle warning sign."
+        "What this shows: months are sorted into quartiles of the year-over-year change in UMCSENT, from Q1 "
+        f"(largest declines) to Q4 (largest gains). XLV Sharpe in the same months: Q1 {_Q['Q1_low']:.2f}, "
+        f"Q2 {_Q['Q2']:.2f}, Q3 {_Q['Q3']:.2f}, Q4 {_Q['Q4_high']:.2f}."
     )
 
-    NARRATIVE_SECTION_1 = (
-        "### Why University of Michigan Consumer Sentiment and Health Care?\n\n"
-        "The UMCSENT index has been "
-        "published monthly since 1978. The current survey reaches roughly "
-        "900-1,000 respondents under the newer web-interview process. "
-        "Participants are asked about their financial situation, their outlook for the "
-        "broader economy in the next 12 months, and their views on "
-        "conditions five years out. The index is one of the most watched "
-        "leading indicators in the world — central banks, equity analysts, "
-        "and economists all track it because it has historically turned "
-        "before consumer spending does.\n\n"
-        "### The Defensive-Healthcare Hypothesis\n\n"
-        "UMCSENT indicator shows consumer sentiment in different periods, "
-        "and this sentiment can serve as a leading indicator for the Health "
-        "Care sector. When confidence is high, households are more willing "
-        "to spend on discretionary health services and wellness products, "
-        "driving stronger sector performance. In contrast, during low "
-        "sentiment phases, reduced consumer optimism limits spending and "
-        "growth opportunities, resulting in sector losses. Despite health "
-        "care's defensive nature, the forward-looking aspect of UMCSENT "
-        "provides valuable predictive insight, with high sentiment "
-        "consistently signaling stronger returns compared to periods of low "
-        "sentiment."
-    )
+    NARRATIVE_SECTION_1 = f"""
+### Headline Findings
 
-    NARRATIVE_SECTION_2 = (
-        "### Key Findings\n\n"
-        "Two facts about this pair deserve special emphasis:\n\n"
-        "**The corrected winner uses 1-month momentum, not the sentiment "
-        "level or year-over-year change.** Raw sentiment levels are "
-        "non-stationary and reflect long secular trends. The winning "
-        "signal asks whether sentiment has improved enough over the prior "
-        "month to clear a rolling z-score > +1.0 trigger.\n\n"
-        "**The trading rule uses a 6-month lead, but the lead-lag evidence "
-        "is mixed.** The tournament winner uses 6-month-lagged UMCSENT "
-        "1-month momentum. The cross-correlation evidence is strongest "
-        "at 2-4 months, with statistically significant UMCSENT-leading "
-        "correlations from 1-5 months only. Formal Granger causality does not "
-        "confirm UMCSENT as a statistically significant predictor at lags "
-        "1-5; in fact, the reverse direction from XLV to UMCSENT is stronger "
-        "in that test. Treat the lead time as a strategy-selection result, "
-        "not as proof that sentiment mechanically leads prices by 6 months.\n\n"
-        "The main limits are sample length (XLV starts 1998-12, so the "
-        "full sample is 325 monthly observations and the out-of-sample "
-        "window is only about 6 years) and the sector-specific nature of "
-        "the target (Affordable Care Act policy, drug-pricing policy, "
-        "COVID, and demographics all affect "
-        "XLV independently of consumer sentiment)."
-    )
+This result uses data as known at the time, covering {W.is_start} to {W.oos_end}: every month the rule reads consumer sentiment as it was published then, not today's revised values.
+
+The winning rule is a **{_sig()} rule**: {_RULE}. It was selected on the training period ({W.is_start} to {W.is_end}) by {W.selection_objective} (stable lead range {W.plateau_range}), out of {W.n_valid} valid combinations. In the test period ({W.oos_start} to {W.oos_end}) it records Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold XLV, with maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}. The test-period Sharpe difference is {W.sharpe_gap} (95% interval {W.ci_low} to {W.ci_high}).
+
+On today's revised data (hindsight, for comparison only) the selected rule is to {_RULE_REVISED}; its test-period Sharpe is {W.comparison_oos_sharpe}.
+
+### Why Consumer Sentiment and Health Care?
+
+The Michigan index is one of the most watched household surveys: respondents describe their own finances, the economy over the next year and conditions further out. Because it is published within the survey month, it is available to an investor almost immediately and is rarely revised afterwards.
+
+### The Defensive-Healthcare Hypothesis
+
+When households feel confident they spend more freely, including on discretionary health services, and risk appetite tends to be higher. When confidence falls, spending is cut back. Health care is partly defensive, so the sentiment effect on XLV may be weaker than on cyclical sectors; that is exactly what this pair tests.
+"""
+
+    NARRATIVE_SECTION_2 = f"""
+### What History Shows
+
+The quartile chart sorts months by the year-over-year change in sentiment. XLV's Sharpe in the lowest quartile is {_Q['Q1_low']:.2f} and in the highest {_Q['Q4_high']:.2f}; the middle quartiles are {_Q['Q2']:.2f} and {_Q['Q3']:.2f}. The relationship is descriptive and concurrent: it is not the lagged trading rule.
+
+The main limits are sample length (XLV starts in {_D.get('xlv_first_month', '[missing: xlv_first_month]')}) and the sector-specific forces on XLV (health-care policy, drug pricing, demographics, the COVID-19 pandemic) that move the sector independently of household sentiment.
+"""
 
     SCOPE_NOTE = (
-        "*Scope discipline.* Only University of Michigan Consumer "
-        "Sentiment and XLV derivatives are in-scope primary signals. "
-        "The unemployment rate, 10-year Treasury yield, and CBOE Volatility "
-        "Index (VIX) are used only as regression controls, not as trading "
-        "signals. S&P 500 ETF Trust (SPY) appears as a benchmark comparison, "
-        "not as a tradable target "
-        "for this pair."
+        "*Scope discipline.* Only University of Michigan Consumer Sentiment transforms are trading signals. The "
+        "unemployment rate, the Treasury yield (DGS10) and the CBOE Volatility Index (VIX) are used only as "
+        "regression controls."
     )
 
     TRANSITION_TEXT = (
-        "The direction surprise is the central finding of this analysis. "
-        "The Evidence page shows the full battery of statistical tests "
-        "that confirm this is a robust result, not an artefact of data "
-        "selection or time period."
+        "The Evidence page tests whether this sentiment story survives correlation, lead-lag, regime and "
+        "distribution checks."
     )
 
     HISTORY_ZOOM_EPISODES = [
         {
-            "slug": "dot_com",
-            "title": "Dot-Com Bust (2000–2002)",
-            "narrative": "Consumer sentiment deteriorated sharply through 2001 as the economy contracted and unemployment rose. XLV, as a defensive health care holding, held up relatively well. This is useful context for a sentiment-momentum timing rule: monthly confidence data can flag deteriorating conditions, but the corrected winner should be read through its 1-month momentum and rolling z-score trigger.",
-            "caption": "2001 sentiment decline: UMCSENT deteriorated while XLV held up defensively. NBER recession shading marks the official recession window.",
+            "slug": "dotcom",
+            "title": "Dot-Com Bust (2000-2002)",
+            "narrative": (
+                "Consumer sentiment deteriorated through 2001 as the economy contracted and unemployment rose, while "
+                "XLV, a defensive holding, held up comparatively well."
+            ),
+            "caption": "2001 sentiment decline alongside a defensive XLV. NBER recession shading marks the official recession window.",
         },
         {
             "slug": "gfc",
-            "title": "Global Financial Crisis (2007–2009)",
-            "narrative": "Sentiment collapsed through 2008-2009 as unemployment surged and household wealth evaporated. XLV declined meaningfully, though less than S&P 500 Index (SPX). A long-lead sentiment rule is economically plausible in this setting because household confidence deteriorated before the equity trough, but the corrected winner remains the 1-month momentum / rolling z-score rule.",
-            "caption": "Global Financial Crisis: UMCSENT weakened sharply while XLV declined less than SPX. NBER recession shading marks the official recession window.",
+            "title": "Global Financial Crisis (2007-2009)",
+            "narrative": (
+                "Sentiment collapsed through 2008-2009 as unemployment surged and household wealth fell. XLV declined "
+                "as well, though less than the broad market."
+            ),
+            "caption": "Global Financial Crisis: sentiment and XLV both fell. NBER recession shading marks the official recession window.",
         },
         {
             "slug": "covid",
             "title": "COVID Crash (2020)",
-            "narrative": "Sentiment plunged to near-record lows in April 2020. XLV experienced a moderate drawdown before recovering sharply — health care stocks benefited from vaccine and treatment demand. This is the clearest example of the rule's practical limitation: monthly sentiment data can lag fast market recoveries, especially with a 6-month lead.",
-            "caption": "COVID: UMCSENT collapsed April 2020; XLV recovered fast on health care demand. NBER recession shading marks the official recession window.",
+            "narrative": (
+                "Sentiment plunged in April 2020. XLV had a short drawdown and then recovered quickly on health-care "
+                "demand, an example of a monthly survey lagging a fast market recovery."
+            ),
+            "caption": "COVID: sentiment collapsed in April 2020; XLV recovered quickly. NBER recession shading marks the official recession window.",
         },
         {
-            "slug": "rates_2022",
+            "slug": "inflation_2022",
             "title": "Fed Hiking Cycle (2022)",
-            "narrative": "Consumer sentiment hit multi-decade lows in June 2022 (University of Michigan index at 50) driven by inflation and rising rates. XLV outperformed S&P 500 Index (SPX) during this period — a partial vindication of the defensive thesis. This is a caveat for any sentiment-momentum timing rule: a bearish sentiment backdrop can coexist with defensive-sector relative strength.",
-            "caption": "June 2022 sentiment hit 50-year low while XLV outperformed S&P 500 Index (SPX) defensively.",
+            "narrative": (
+                "Sentiment reached multi-decade lows in mid-2022 on inflation and rising rates, while XLV held up "
+                "better than the broad market: weak sentiment can coexist with defensive-sector strength."
+            ),
+            "caption": "2022: record-low sentiment while XLV held up defensively.",
         },
     ]
 
@@ -190,661 +247,391 @@ class StoryConfig:
 STORY_CONFIG = StoryConfig()
 
 
-# =========================================================================
-# EVIDENCE PAGE — 4 method blocks
-# =========================================================================
 CORRELATION_BLOCK = dict(
     chart_status="ready",
     method_name="Sector Correlation Analysis",
     method_theory=(
-        "This test asks whether the indicator and target move together in a "
-        "roughly straight-line way. The indicator is UMCSENT, transformed "
-        "into year-over-year change. The target is future XLV return. "
-        "Pearson correlation is appropriate when the point cloud is broadly "
-        "linear; Spearman rank correlation is a backup when the relationship "
-        "is monotonic but curved or affected by extreme observations."
+        "This test asks whether the indicator and target move together in a roughly straight-line way. Pearson "
+        "correlation fits a broadly linear cloud; Spearman rank correlation is the backup when the relationship is "
+        "monotonic but curved or affected by extreme observations."
     ),
-    question=(
-        "Does higher UMCSENT year-over-year change line up with stronger "
-        "future XLV returns, and does the scatter plot look linear enough "
-        "for Pearson correlation to be useful?"
-    ),
+    question="Does a higher year-over-year change in UMCSENT line up with stronger future XLV returns?",
     how_to_read=(
-        "Each point is one month. The x-axis is UMCSENT year-over-year "
-        "change; the y-axis is XLV's 6-month forward return. If the points "
-        "form a tilted straight-line cloud, linear correlation can summarize "
-        "the relationship. If the cloud is curved or split into clusters, "
-        "non-linear or regime methods are more appropriate."
+        "Each point is a monthly observation. The x-axis is the year-over-year change in UMCSENT; the y-axis is XLV's 6-month "
+        "forward return. A tilted straight-line cloud means linear correlation summarizes the relationship well."
     ),
     chart_name="correlation_scatter",
     chart_caption=(
-        "Scatter cloud for UMCSENT year-over-year change versus XLV "
-        "6-month forward return, with a fitted linear trend line."
+        f"What this shows: the Pearson correlation between the year-over-year change in UMCSENT and XLV's 6-month "
+        f"forward return is {_R_YOY6:.2f} on the revised data."
     ),
     observation=(
-        "The point cloud is upward sloping but wide. That means the "
-        "relationship is positive on average, but UMCSENT is not a precise "
-        "month-by-month forecast. The strongest simple correlation in the "
-        "existing correlation table is for UMCSENT z-score versus XLV "
-        "6-month forward return, with p = 0.005. The winning year-over-year "
-        "signal is directionally consistent but weaker as a pure linear "
-        "forecast."
+        f"The point cloud has a Pearson correlation of {_R_YOY6:.2f}, with wide scatter around the fit line: the "
+        "relationship is not a precise month-by-month forecast."
     ),
     interpretation=(
-        "Linear correlation can be used as a first diagnostic, but it should "
-        "not be the only test. The scatter is too noisy for a single straight "
-        "line to explain the whole relationship. That is why the Evidence "
-        "page also uses quartile regimes, distribution analysis, and "
-        "lead-lag tests."
+        "Linear correlation is a first diagnostic only; the Evidence page also uses quartile regimes, distribution "
+        "analysis and lead-lag tests."
     ),
-    key_message=(
-        "UMCSENT has a positive but noisy relationship with future XLV "
-        "returns. Linear correlation is useful as a summary, but regime and "
-        "distribution checks are needed because the relationship is not a "
-        "tight straight line."
-    ),
+    key_message="UMCSENT's linear relationship with future XLV returns is noisy; regime and distribution checks are needed.",
 )
-
 
 GRANGER_BLOCK = dict(
     chart_status="ready",
-    method_name="Granger Causality",
+    method_name="Granger Causality and Cross-Correlation",
     method_theory=(
-        "Granger causality asks whether past UMCSENT values improve "
-        "forecasts of future XLV returns beyond what XLV's own recent "
-        "history already provides. We test both directions (consumer "
-        "sentiment to XLV and XLV to consumer sentiment) at lags 1-5 months "
-        "using F-tests on augmented vector autoregression regressions with "
-        "HC3 robust standard errors."
+        "Granger causality asks whether past UMCSENT values improve forecasts of XLV returns beyond XLV's own recent "
+        "history. Both directions are tested at lags 1-6 months. The cross-correlation chart shows the "
+        "lead-lag pattern of the standardized series."
     ),
     question=(
-        "Does consumer sentiment carry information about future health care "
-        "equity returns that is not already priced into XLV itself?"
+        "Does consumer sentiment carry information about future health-care equity returns that is not already "
+        "priced into XLV itself?"
     ),
     how_to_read=(
-        "The cross-correlation chart below shows the lead-lag pattern. "
-        "Negative lags mean UMCSENT moved before XLV returns. Bars outside "
-        "the dashed 95% confidence band are statistically notable. Formal "
-        "Granger p-values are read separately: p-values below 0.05 indicate "
-        "stronger evidence of predictive content."
+        "Positive lags on the chart mean UMCSENT moved before XLV returns. Bars outside the dashed 95% band are "
+        "statistically notable. Granger p-values are read separately; p < 0.05 indicates predictive content."
     ),
     chart_name="ccf",
     chart_caption=(
-        "Cross-correlation function between UMCSENT year-over-year change "
-        "and XLV monthly return at lags −12 to +12 months. Red bars are "
-        "statistically significant at 95% confidence."
+        "Cross-correlation between the year-over-year change in UMCSENT and the XLV monthly return at lags -12 to "
+        "+12 months. Highlighted bars are significant at 95% confidence."
     ),
     observation=(
-        "The cross-correlation result is strongest when UMCSENT leads XLV "
-        "by 2 months, with significant positive correlations from 1 to 5 "
-        "months. However, the formal Granger table is more conservative: "
-        "UMCSENT does not Granger-cause XLV at lags 1-5 because all p-values "
-        "are above 0.05. The reverse direction is stronger in that formal "
-        "test: XLV Granger-causes UMCSENT at lags 1-5."
+        (f"Among the lags where UMCSENT leads, the cross-correlation peaks at lag {_CCF_PEAK['lag']} "
+         f"({_CCF_PEAK['ccf']:.2f}); significant leading lags: "
+         f"{', '.join(str(x) for x in _CCF_SIG_LAGS) if _CCF_SIG_LAGS else 'none'}. " if _CCF_PEAK is not None else "")
+        + ("Significant lags where XLV returns move first (months): "
+           f"{', '.join(str(x) for x in _CCF_SIG_REV) if _CCF_SIG_REV else 'none'}. ")
+        + f"The smallest Granger p-value from UMCSENT to XLV is {_p(_G_FWD)}; from XLV to UMCSENT it is "
+        f"{_p(_G_REV)}."
     ),
     interpretation=(
-        "This means the lead-lag story should be stated carefully. "
-        "Cross-correlation says UMCSENT often moves before XLV returns over "
-        "a 1-5 month window. Granger causality says XLV price information "
-        "also helps explain later sentiment, which is intuitive: market and "
-        "economic conditions affect household confidence. The strategy can "
-        "still work, but the evidence is not a clean one-way causal proof."
+        "Market and economic conditions also shape household confidence, so price information can explain later "
+        "sentiment. The lead-lag evidence is not a clean one-way causal story; the strategy is a searched allocation "
+        "overlay."
     ),
-    key_message=(
-        "The timing evidence is mixed: cross-correlation points to a 1-5 "
-        "month UMCSENT lead, strongest around 2-4 months, while formal "
-        "Granger causality does not confirm a clean UMCSENT-to-XLV lead."
-    ),
+    key_message=f"Formal Granger evidence from UMCSENT to XLV is weak (smallest p-value {_p(_G_FWD)}).",
 )
-
 
 REGIME_BLOCK = dict(
     chart_status="ready",
     method_name="Regime Analysis (Quartile Descriptive Statistics)",
     method_theory=(
-        "We sort all monthly observations into four quartiles based on "
-        "UMCSENT year-over-year change and compute full return statistics "
-        "for XLV in each quartile. This is the simplest possible regime "
-        "test: does XLV performance differ systematically across sentiment "
-        "regimes, without any model-imposed structure?"
+        "Months are sorted into four quartiles of the year-over-year change in UMCSENT and XLV return statistics "
+        "are computed in each: the simplest regime test, with no model structure."
     ),
-    question=(
-        "If we had done nothing more sophisticated than 'hold XLV when "
-        "sentiment is rising year-over-year and move to cash when it is "
-        "falling', how would that strategy have performed historically?"
-    ),
+    question="Does XLV performance differ systematically across sentiment regimes?",
     how_to_read=(
-        "Left panel: annualised Sharpe ratio in each UMCSENT "
-        "year-over-year quartile. Right panel: annualised "
-        "return. Quartile 1 = lowest (most negative) year-over-year "
-        "change; Quartile 4 = highest (most positive). Look for a monotonic "
-        "pattern to confirm the regime-return relationship."
+        "Left panel: annualized Sharpe ratio in each quartile. Right panel: annualized return. Q1 holds the largest "
+        "declines in sentiment, Q4 the largest gains."
     ),
     chart_name="regime_stats",
     chart_caption=(
-        "Annualised XLV Sharpe ratio and return by quartile of University "
-        "of University of Michigan Consumer Sentiment year-over-year change. Quartile 1 "
-        "= most negative sentiment trend; Quartile 4 = most positive. "
-        "The gradient reveals the procyclical "
-        "relationship."
+        f"What this shows: XLV Sharpe by sentiment quartile, Q1 {_Q['Q1_low']:.2f}, Q2 {_Q['Q2']:.2f}, "
+        f"Q3 {_Q['Q3']:.2f}, Q4 {_Q['Q4_high']:.2f} (concurrent months, revised data)."
     ),
     observation=(
-        "The pattern is directional but non-monotonic. Quartile 1 (lowest "
-        "year-over-year change): Sharpe 0.23. Quartile 2: 1.09. Quartile "
-        "3: 0.56. Quartile 4 (highest year-over-year change): 0.93. The "
-        "highest Sharpe is in Quartile 2, not Quartile 4 — suggesting that *moderate* "
-        "positive sentiment momentum is the strongest XLV regime, not "
-        "extreme optimism. Quartile 1 (most negative) is the worst regime."
+        f"Sharpe in the lowest-change quartile is {_Q['Q1_low']:.2f}; in the other quartiles {_Q['Q2']:.2f}, "
+        f"{_Q['Q3']:.2f} and {_Q['Q4_high']:.2f}."
     ),
     interpretation=(
-        "The Quartile 2 > Quartile 4 pattern is consistent with a well-documented "
-        "phenomenon: extreme optimism can itself become a warning signal. "
-        "When sentiment is at its most positive extreme (Quartile 4), it may be "
-        "capturing late-cycle euphoria that historically precedes "
-        "corrections. The highest predictive content is in the **direction "
-        "of change** — positive but not extreme — which is consistent with "
-        "the corrected winner's emphasis on sentiment momentum."
+        "The regime pattern is concurrent, not lagged; it describes the sentiment backdrop rather than a trading "
+        "rule. Whether extreme optimism is itself a late-cycle sign cannot be settled from four buckets."
     ),
-    key_message=(
-        "Falling UMCSENT (Quartile 1) is the worst regime for XLV returns. "
-        "Quartile 2 is the best regime and Quartile 4 is the second best, "
-        "so rising sentiment helps, but extreme optimism is not necessarily "
-        "the strongest setup."
-    ),
+    key_message="XLV returns differ across sentiment regimes; read the pattern as context, not a forecast.",
 )
-
 
 SIGNAL_DIST_BLOCK = dict(
     chart_status="ready",
     method_name="Signal Distribution Analysis",
     method_theory=(
-        "We examine how XLV 3-month forward returns are distributed when "
-        "the UMCSENT direction signal is "
-        "rising (+1) vs. falling (-1). "
-        "This reveals whether the sentiment effect is concentrated in the "
-        "tails (extreme outcomes) or is a shift in the median return — "
-        "information that guides strategy design."
+        "XLV 3-month forward returns are compared between months when sentiment rose and months when it fell, to "
+        "see whether the effect shifts the whole distribution or mainly the tails."
     ),
-    question=(
-        "When sentiment is rising, does the entire XLV return distribution "
-        "shift upward, or is the effect concentrated in avoiding the left "
-        "tail (worst outcomes) or boosting the right tail (best outcomes)?"
-    ),
+    question="When sentiment is rising, does the whole XLV return distribution shift, or only its tails?",
     how_to_read=(
-        "Left panel: histogram of the University of Michigan Consumer "
-        "Sentiment year-over-year-change distribution "
-        "(how often sentiment improves vs. worsens). Right panel: box "
-        "plots of XLV 3-month forward returns split by whether sentiment "
-        "is rising or falling. Points beyond the whiskers are extreme "
-        "observations under the box-plot rule; they are not treated as "
-        "data errors unless a separate data-quality check identifies them "
-        "as invalid."
+        "Left panel: histogram of the year-over-year change in UMCSENT. Right panel: box plots of XLV 3-month "
+        "forward returns when sentiment rose or fell over the month. Points beyond the whiskers are extreme "
+        "observations, not data errors."
     ),
     chart_name="signal_dist",
     chart_caption=(
-        "Left: distribution of UMCSENT "
-        "year-over-year changes (roughly symmetric, "
-        "centred near zero). Right: XLV 3-month forward returns when "
-        "sentiment is rising vs. falling. The box plots reveal whether "
-        "the effect is median-shifting or tail-driven."
+        "Left: distribution of the year-over-year change in UMCSENT. Right: XLV 3-month forward returns when "
+        "sentiment rose or fell."
     ),
     observation=(
-        "The year-over-year change distribution is roughly bell-shaped and "
-        "close to a normal distribution, with slightly more months in "
-        "negative territory. The return box plots show "
-        "that XLV forward returns are slightly higher when sentiment is "
-        "rising (median ~+3% vs +2% over 3 months), but the distributions "
-        "substantially overlap — confirming a weak average effect rather "
-        "than a sharp categorical separator. The left tail is notably "
-        "worse during falling-sentiment periods, which is where the risk-"
-        "management value of the strategy resides."
+        "The return distributions of rising and falling months overlap substantially; compare their medians and lower whiskers on the chart."
     ),
     interpretation=(
-        "This statistic is about distribution shape, not trade win rate. "
-        "The main finding is that rising-sentiment months have a slightly "
-        "better center of return distribution, while falling-sentiment "
-        "months have a worse left tail. That supports using the signal as "
-        "a risk filter rather than as a precise return forecast."
+        "This describes distribution shape, not trade win rate. A large overlap points to a weak average effect, "
+        "which fits using the signal as a risk filter rather than a return forecast."
     ),
-    key_message=(
-        "UMCSENT year-over-year changes are approximately bell-shaped. "
-        "This diagnostic supports sentiment-improvement intuition, while "
-        "the corrected strategy rule uses 1-month momentum above a rolling "
-        "z-score > +1.0 threshold."
-    ),
+    key_message="Rising and falling sentiment months have overlapping XLV return distributions.",
 )
 
 
-CORRELATION_LEAD_VIEW_BLOCK = dict(
+_LP = P.col_dict(P.csv_file(_CORE / "local_projections.csv"), "horizon_months", "coef_umcsent_yoy")
+_LPP = P.col_dict(P.csv_file(_CORE / "local_projections.csv"), "horizon_months", "p_value")
+_LPDF = P.csv_file(_CORE / "local_projections.csv")
+_LP_END = _LPDF["sample_end"].iloc[0]
+_QRC = P.col_dict(P.csv_file(_CORE / "quantile_regression.csv"), "quantile", "coef_umcsent_yoy")
+_QRP = P.col_dict(P.csv_file(_CORE / "quantile_regression.csv"), "quantile", "p_value")
+
+LOCAL_PROJECTIONS_BLOCK = dict(
     chart_status="ready",
-    method_name="Lead Analysis",
+    method_name="Local Projections",
     method_theory=(
-        "For a monthly-rebalanced strategy the decision is: how stale should "
-        "the signal be allowed to get before we trade on it? This block "
-        "computes Pearson correlations between the UMCSENT momentum signal "
-        "lagged L = 0…12 months and the XLV 1-month forward return, then reads "
-        "off which lead maximises predictive content — and checks it against "
-        "the tournament's traded 6-month lead."
+        "Local projections regress XLV forward returns at several horizons on the year-over-year change in UMCSENT, "
+        "with VIX and the Treasury yield (DGS10) as controls and HAC standard errors that allow for overlapping "
+        "returns."
     ),
-    question=(
-        "Which lead carries the most predictive content for the UMCSENT "
-        "momentum signal — and does it line up with the traded 6-month lead?"
-    ),
+    question="How do XLV returns over the following months line up with the year-over-year change in sentiment?",
     how_to_read=(
-        "Rows are UMCSENT signal variants; columns are signal lead in MONTHS "
-        "(L0 = contemporaneous, L12 = 12 months ago). Forward horizon fixed at "
-        "1 month. Cell shading is Pearson r (linear co-movement, -1 to +1) "
-        "against `xlv_fwd_1m`. Stars: `*` p<0.05, `**` p<0.01."
+        "Each bar is the change in the XLV forward return, in percentage points, per point of year-over-year "
+        "change in UMCSENT; whiskers are 95% intervals. Whiskers that cross zero mean no clear effect. "
+        f"The control series were pinned with the published run, so this regression sample ends in {_LP_END}."
     ),
-    chart_name="correlations_lead_view",
-    chart_caption=(
-        "Pearson correlations between **signal lagged L months** and **XLV "
-        "1-month forward return**. The traded signal `umcsent_mom` peaks at "
-        "**L5 (r=+0.133, p<0.05)** — the only significant cell in its row, and "
-        "one month short of the traded 6-month lead. A near-corroboration: the "
-        "correlation diagnostic endorses a lead adjacent to the tournament's "
-        "choice."
-    ),
+    chart_name="local_projections",
+    chart_caption="What this shows: the descriptive response of XLV forward returns across horizons, not the lagged trading rule.",
     observation=(
-        "Reading the row directly: the traded signal `umcsent_mom` is weak at "
-        "most leads (L0 −0.015, L3 −0.045, L6 +0.023) and reaches its single "
-        "significant cell at **L5 (r=+0.133, p<0.05)**. That peak sits one "
-        "month short of the tournament's traded L6, so the linear diagnostic "
-        "and the tournament land on adjacent leads rather than the same one. "
-        "The procyclical sign (positive correlation: rising sentiment momentum "
-        "→ stronger forward XLV) matches the direction-surprise finding on the "
-        "Story page."
+        "Slope p-values by horizon: " + "; ".join(f"{pv:.2f} at the {h}-month horizon" for h, pv in _LPP.items()) + "."
     ),
     interpretation=(
-        "A **near-corroboration**: the lead-correlation peak (L5, significant) "
-        "is one month off the traded lead (L6), which is close enough to treat "
-        "the two as agreeing on the same broad region rather than diverging. "
-        "**In plain English:** consumer-sentiment momentum from about five to "
-        "six months earlier carries the cleanest next-month signal for health-"
-        "care stocks, and the trading rule reads from within that window. The "
-        "one-month offset is minor — not the clean exact match of the "
-        "strongest pairs, but well short of a divergence."
+        "The slopes are small relative to their uncertainty, so the sentiment trend explains little of XLV's "
+        "forward return variation."
     ),
-    key_message=(
-        "The traded signal `umcsent_mom` peaks at **L5 (r=+0.133, p<0.05)**, "
-        "one month short of the traded L6 — a near-corroboration. The "
-        "correlation diagnostic and the tournament agree on the same broad "
-        "5–6 month region, with a minor one-month offset."
-    ),
+    key_message="XLV's forward-return response to the sentiment trend is imprecisely estimated.",
 )
 
-LEAD_TOURNAMENT_BLOCK = dict(
+QUANTILE_BLOCK = dict(
     chart_status="ready",
-    method_name="Lead Tournament",
+    method_name="Quantile Regression",
     method_theory=(
-        "This chart is a projection of the pair's ONE native tournament (GH #13 "
-        "single-source): the orange line is the **published winner's own** OOS "
-        "Sharpe at each lead; the grey bars are the best-of-any-signal envelope "
-        "on the SAME grid; the dashed line is XLV buy-and-hold (Sharpe 0.72). "
-        "**Selection note (Lead-Grid Frequency Standard, 2026-07-14):** this "
-        "pair selects FREELY over the full monthly L0–12 grid — no economic-"
-        "window cap. The published winner is the global max valid combo; the "
-        "2–5-month cross-correlation window (plus release lag) is REFERENCE "
-        "context only, which the full-grid math CONFIRMED — nothing at L7–12 "
-        "beats the L6 winner. This retired the interim Option-C L0–6 cap; the "
-        "winner is UNCHANGED, because L6 was already the full-grid global max."
+        "Quantile regression checks whether the sentiment trend relates differently to weak, typical and strong "
+        "XLV 3-month forward returns."
     ),
-    question=(
-        "Is the traded L6 a robust ridge or an isolated spike — and does the "
-        "full L0–12 grid reveal any real long-lead edge, or just multiple-"
-        "testing noise?"
-    ),
+    question="Does the year-over-year change in UMCSENT matter more in the tails of XLV returns?",
     how_to_read=(
-        "Orange line + green star: the deployed winner's Sharpe by lead, peaking "
-        "at its traded L6. A broad plateau around the traded lead is robust; a "
-        "tall isolated point that collapses one lead either side is fragile. "
-        "Grey bars: the best any signal achieves at each lead (envelope ≥ the "
-        "winner curve by construction). The full L0–12 grid is the selection "
-        "universe; the 2–5-month window is only interpretive reference."
+        "Compare the slope across return quantiles; whiskers are 95% intervals from a moving-block bootstrap, "
+        "because the overlapping 3-month returns make the default errors too small. A slope that changes sign or size "
+        "across quantiles points to state-dependence, but only if the intervals separate."
     ),
-    chart_name="lead_sharpe_distribution",
-    chart_caption=(
-        "The winner's own curve is a **sharp isolated spike at its traded L6 "
-        "(OOS Sharpe 1.1586)** that collapses to ~0.37 at L5 and ~0.20 at L7 — "
-        "NOT the 'rising L6–L8 ridge' an earlier exploratory sweep suggested "
-        "(on the native grid the best-of-any-signal at L7 and L8 is only ~0.72, "
-        "i.e. buy-and-hold). L6 tops the cross-signal envelope, but that "
-        "envelope is **nearly flat** (L6 1.16 edges L5 1.12 by 0.04). Across the "
-        "diagnostic L7–12 nothing beats the winner (best 1.03 at L10), and "
-        "`umcsent_direction` — significant at L10 in the correlation table — "
-        "scores only ~0.72–0.97: long-lead noise, not a tradable edge."
-    ),
+    chart_name="quantile_coef",
+    chart_caption="What this shows: the slope of the XLV 3-month forward return on the sentiment trend at each return quantile.",
     observation=(
-        "On the native tournament grid the published winner (`umcsent_mom / "
-        "T3_zscore_1.0 / P1_long_cash / L6`, OOS Sharpe **1.1586**) tops the "
-        "lead profile at its traded L6 — but its own curve is a **single "
-        "isolated spike**: 1.16 at L6, collapsing to ~0.37 at L5 and ~0.20 at "
-        "L7, and below ~0.7 at almost every other lead. The cross-signal "
-        "envelope is **nearly flat** (L6 1.16 vs L5 1.12, margin 0.04), and the "
-        "best-of-any-signal at L7 and L8 falls to ~0.72 (buy-and-hold). The "
-        "correlation diagnostic (left tab) peaks at L5 (r=+0.133), one lead "
-        "before the winner — a modest adjacent corroboration.\n\n"
-        "(An earlier version of this block read an exploratory *comparator* "
-        "sweep on a different grid and claimed a 'rising L6–L8 ridge, peak L7 "
-        "1.18' — that was a grid artefact; on the native tournament L7/L8 are "
-        "~0.72.) **Full-grid verdict:** free selection over L0–12 surfaces NO "
-        "robust long-lead edge — the best L7–12 combo is only 1.03 (< the L6 "
-        "winner), and `umcsent_direction`, the transform whose per-lag "
-        "correlation is significant at L10 (r=0.113*), scores at most 0.97 "
-        "across L7–12. So there was never a hidden long-lead edge to shield; "
-        "the L10 correlation is multiple-testing noise (≈78 lead×transform "
-        "tests, no plausible mechanism for consumer sentiment → defensive-"
-        "healthcare at a 10-month lead)."
+        "Slope p-values by return quantile: " + "; ".join(f"{pv:.2f} at the {q:.2f} quantile" for q, pv in _QRP.items())
+        + ". No cross-quantile equality test was run."
     ),
     interpretation=(
-        "The honest summary: **the traded L6 is a sharp single-lead spike on a "
-        "flat envelope, not a ridge** — the old 'rising L6–L8 ridge' was an "
-        "exploratory-sweep artefact the native grid refutes (L7/L8 ≈ 0.72). The "
-        "one modest positive is the adjacent L5 correlation peak (r=+0.133). "
-        "The full L0–12 grid confirms there is no hidden long-lead "
-        "edge — the direction signal's L10 correlation does not survive the "
-        "tournament and reads as noise. Combined with the backward-causality "
-        "finding (XLV Granger-predicts UMCSENT at every lag; UMCSENT→XLV n.s.), "
-        "read the OOS Sharpe as a searched, low-confidence drawdown-control "
-        "result, not evidence that sentiment leads health care."
+        "Read the per-quantile slopes as a description, not as evidence of tail asymmetry."
     ),
-    key_message=(
-        "On the native grid the winner's L6 (OOS Sharpe 1.1586) is a **sharp "
-        "single-lead spike** (collapsing to ~0.37/0.20 at L5/L7) on a nearly "
-        "flat envelope — not the 'L6–L8 ridge' the old exploratory sweep "
-        "claimed (native L7/L8 ≈ 0.72). The full L0–12 grid finds NO "
-        "long-lead edge (best L7–12 = 1.03; `umcsent_direction`'s L10 "
-        "correlation is multiple-testing noise). With backward causality, a "
-        "searched low-confidence drawdown-control result."
-    ),
+    key_message=("The quantile slopes are imprecise: an interval that excludes zero is isolated rather than a pattern, "
+                 "and slope equality across quantiles was not tested."),
 )
 
 
 EVIDENCE_METHOD_BLOCKS = {
-    "title": "The Evidence: What the Data Shows",
+    "title": "The Evidence: Consumer Sentiment and XLV",
     "overview": (
-        "We subjected 27 years of monthly data to four complementary "
-        "statistical methods. Each is designed to test a different aspect "
-        "of the sentiment-health care relationship. All four converge on "
-        "the same direction: procyclical, not countercyclical — the "
-        "direction surprise flagged on the Story page."
+        "The tests below describe a sentiment overlay for a defensive sector, not a forecast. The selected rule's "
+        f"test-period Sharpe is {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold XLV on data as known at "
+        "the time."
     ),
-    "downloads": [
-        {"label": "Granger causality (12 lag-direction rows)",
-         "path": "results/umcsent_xlv/core_models_20261008/granger_causality.csv"},
-        {"label": "Predictive regressions (12 signal-horizon rows)",
-         "path": "results/umcsent_xlv/core_models_20261008/predictive_regressions.csv"},
-        {"label": "Quantile regression (7 quantiles of forward XLV)",
-         "path": "results/umcsent_xlv/core_models_20261008/quantile_regression.csv"},
-        {"label": "Local projections (4 horizons)",
-         "path": "results/umcsent_xlv/core_models_20261008/local_projections.csv"},
-        {"label": "Diagnostics summary (Jarque-Bera, Durbin-Watson; 4 rows)",
-         "path": "results/umcsent_xlv/core_models_20261008/diagnostics_summary.csv"},
-        {"label": "Cointegration tests (Engle-Granger + Johansen; 2 rows)",
-         "path": "results/umcsent_xlv/core_models_20261008/cointegration.csv"},
-        {"label": "Markov-switching 2-state parameters (10 rows)",
-         "path": "results/umcsent_xlv/core_models_20261008/markov_switching_2state.csv"},
-    ],
     "plain_english": (
-        "Four methods all point to the same direction: when sentiment "
-        "trends upward year-over-year, XLV tends to do better over the "
-        "following months. The surprise — and the honest finding — is "
-        "that this is the *procyclical* direction, not the defensive/"
-        "countercyclical pattern that standard economic theory predicts."
+        "This page asks whether household sentiment helps with XLV timing, and how strong and stable that "
+        "relationship is."
     ),
-    "level1": [CORRELATION_BLOCK, CORRELATION_LEAD_VIEW_BLOCK, LEAD_TOURNAMENT_BLOCK, GRANGER_BLOCK],
-    "level1_labels": ["Correlation", "Lead Analysis", "Lead Tournament", "Granger Causality"],
-    "level2": [REGIME_BLOCK, SIGNAL_DIST_BLOCK],
-    "level2_labels": ["Regime Analysis", "Signal Distribution"],
+    "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, REGIME_BLOCK, SIGNAL_DIST_BLOCK],
+    "level1_labels": ["Correlation", "Granger / CCF", "Regimes", "Distribution"],
+    "level2": [LOCAL_PROJECTIONS_BLOCK, QUANTILE_BLOCK],
+    "level2_labels": ["Local Projections", "Quantile Regression"],
     "tournament_intro": (
-        "With the econometric case established, we swept a 5-dimensional "
-        "tournament over 7 signal transforms, 7 threshold methods, 3 "
-        "strategy families, and 5 lead times — 1,305 raw combinations "
-        "pruned to 1,195 valid. The corrected winner posts OOS Sharpe 1.16 — the "
-        "**best of those 1,195 valid combinations**: the maximum of the "
-        "search, not a typical result. The median valid combination "
-        "scored 0.63. The top 5 strategies were validated with "
-        "bootstrap significance testing and transaction-cost sensitivity. "
-        "The winning specification is on the Strategy page."
+        f"The tournament tested {W.n_candidates} strategy combinations ({W.n_valid} valid on the training period) "
+        f"across {P.length(_MAN['signals'])} UMCSENT transforms, fixed and rolling thresholds, long/cash, signal-strength "
+        f"and long/short positions and the lead grid {_GRID_RANGE} months, on data as known at the time. The "
+        f"selected winner is `{W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}`, chosen on the "
+        f"training period by {W.selection_objective}."
     ),
     "transition": (
-        "Four statistical methods converge on the same conclusion: "
-        "UMCSENT 1-month momentum is a useful but noisy "
-        "indicator for XLV health care returns. Now: what does "
-        "the winning strategy actually do, and how has it performed?"
+        "**Transition:** the evidence is useful but not causal. The Strategy page shows the exact rule, its "
+        "threshold and the deployment caveats."
     ),
 }
 
 
-# =========================================================================
-# STRATEGY PAGE CONFIG
-# =========================================================================
 class StrategyConfig:
     PAGE_TITLE = "The Strategy: Translating UMCSENT Signals into XLV Positioning"
     PAGE_SUBTITLE = (
-        "We tested over 1,300 strategy combinations to find the most robust "
-        "way to time Health Care Select Sector SPDR Fund (XLV) exposure "
-        "using consumer sentiment."
+        f"A searched XLV allocation rule: {_sig()}, {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)}, "
+        f"lead {W.lead_text}, on consumer-sentiment data as known at the time."
     )
 
-    PLAIN_ENGLISH = (
-        "We tested over 1,300 combinations of rules for using consumer "
-        "sentiment to time XLV exposure. The corrected winner is specific: "
-        "hold XLV when 6-month-lagged UMCSENT 1-month momentum is above "
-        "its rolling z-score +1.0 threshold, and move to cash otherwise. "
-        "This rule out-performed buy-and-hold on drawdown control and "
-        "risk-adjusted return over the 2019-04-30 to 2025-12-31 "
-        "out-of-sample window."
+    STATISTICAL_FRAMING_BANNER = (
+        f"Correction (2026-10-17). This page previously reported the rule {W.previous_rule} (test-period Sharpe "
+        f"{W.previous_oos_sharpe}, published {W.previous_tag}), which was selected on its out-of-sample Sharpe "
+        "(legacy method), on the data as downloaded for that run, with fixed lags. It now reports the rule selected on the "
+        "training period only, on data as known at the time, with point-in-time release dates and the "
+        "stable-lead-range rule; today's revised data are shown for comparison only."
     )
 
-    SIGNAL_RULE_MD = (
-        "**Tournament winner:** Signal University of Michigan Consumer "
-        "Sentiment (UMCSENT) 1-month momentum (`S3_mom` / `umcsent_mom`) / "
-        "Threshold rolling z-score > +1.0 / Strategy P1 Long/Cash / Lead "
-        "6 months.\n\n"
-        "Each month, compute UMCSENT 1-month momentum and compare the "
-        "6-month-lagged value with its rolling z-score +1.0 threshold. If "
-        "the lagged momentum is above the threshold, hold XLV fully. "
-        "Otherwise, move to cash. No leverage, no shorting."
+    PLAIN_ENGLISH = f"The rule is to {_RULE}. It is a lagged sentiment rule, not a real-time forecast."
+
+    # Status and badge rule come from track_summary.json (components.two_track.badge_status); this text states
+    # facts only.
+    EXECUTIVE_CONFIDENCE_SUMMARY = dict(
+        status="",
+        status_detail=(
+            "Selected on the training period from consumer-sentiment data as known at the time; it has not faced a "
+            "frozen-rule hold-out test."
+        ),
+        strengths=[
+            f"Point-in-time sentiment values give a training period of {W.is_n} months ({W.is_start} to "
+            f"{W.is_end}).",
+            f"The chosen lead sits in a stable lead range ({W.plateau_range}).",
+        ],
+        risks=[
+            f"Formal lead-lag evidence is weak: smallest UMCSENT-to-XLV Granger p-value {_p(_G_FWD)}.",
+            f"Test-period Sharpe difference versus buy-and-hold {W.sharpe_gap}, 95% interval {W.ci_low} to "
+            f"{W.ci_high}.",
+            f"The rule selected on revised data {'is the same' if _SAME_RULE else 'differs'} (hindsight test-period "
+            f"Sharpe {W.comparison_oos_sharpe}).",
+        ],
+        conclusion=(
+            f"Rule {W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}: test-period Sharpe "
+            f"{W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold XLV ({W.oos_start} to {W.oos_end}), maximum "
+            f"drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}, on consumer-sentiment data as known at "
+            "the time."
+        ),
     )
 
-    HOW_SIGNAL_IS_GENERATED_MD = (
-        "The winning strategy uses **University of Michigan Consumer "
-        "Sentiment (UMCSENT) 1-month momentum** with a **rolling z-score "
-        "> +1.0 trigger** and a **6-month lead**:\n\n"
-        "1. Each month, compute the percentage change in UMCSENT over the prior "
-        "month.\n"
-        "2. Check what this 1-month momentum value was **6 months ago** "
-        "(the lead).\n"
-        "3. Compare that lagged momentum with its rolling threshold: the "
-        "recent rolling mean plus one standard deviation.\n"
-        "4. If the 6-month-lagged momentum is **above** that threshold: "
-        "hold XLV (Long/Cash position = 1).\n"
-        "5. If it is **at or below** that threshold: move to cash "
-        "(Long/Cash position = 0).\n"
-        "6. Update the position at the start of each month.\n\n"
-        "When the signal hovers near its rolling threshold, it is close to the decision line. "
-        "That does not mean the signal is broken; it means the economy is "
-        "near the boundary between improving and deteriorating sentiment. "
-        "Small monthly changes can flip the strategy from long XLV to cash "
-        "or back again.\n\n"
-        "The 6-month lead means you are acting on information that is 6 "
-        "months stale — and the strategy still works. This confirms that "
-        "sentiment anticipates sector dynamics well in advance.\n\n"
-        "**Metric definitions.** Out-of-sample (OOS) Sharpe measures return "
-        "per unit of volatility in the test period that was not used to "
-        "select the rule. OOS Return is the annualised return in that test "
-        "period. Max Drawdown is the worst peak-to-trough loss. Turnover "
-        "shows how often the strategy changes position each year. Win Rate "
-        "is the share of tested periods or trades with a positive return."
-    )
+    DOWNLOADS = [
+        {"label": "Granger causality", "path": f"results/{PAIR}/core_models_{_TAG}/granger_causality.csv"},
+        {"label": "Regime quartile statistics", "path": f"results/{PAIR}/exploratory_{_TAG}/regime_descriptive_stats.csv"},
+        {"label": "Tournament results (as known at the time)", "path": f"results/{PAIR}/tournament_results_{_TAG}.csv"},
+        {"label": "Tournament results (as revised today, hindsight)",
+         "path": f"results/{PAIR}/hindsight_tournament_results_{_TAG}.csv"},
+        {"label": "Stationarity tests", "path": f"results/{PAIR}/stationarity_tests_{_TAG}.csv"},
+    ]
 
-    MANUAL_USE_MD = (
-        "You do not need software to implement this signal:\n\n"
-        "**1. Retrieve the University of Michigan Consumer Sentiment "
-        "(UMCSENT) reading.** Federal Reserve Economic Data (FRED) series: "
-        "`UMCSENT`. Published mid-month for the current month. Free at "
-        "fred.stlouisfed.org.\n\n"
-        "**2. Compute 1-month momentum.** Compare today's reading with the "
-        "reading one month earlier to measure whether sentiment is "
-        "improving quickly.\n\n"
-        "**3. Build the rolling z-score threshold.** For each month, compare "
-        "the 6-month-lagged 1-month momentum value with its rolling mean "
-        "plus one standard deviation.\n\n"
-        "**4. Apply the rule.** If that 6-month-lagged momentum is above "
-        "the rolling z-score +1.0 threshold, hold XLV. If not, hold cash "
-        "or short-duration bonds.\n\n"
-        "**5. Rebalance monthly.** The signal changes once a month at "
-        "most. Annual turnover is 3.29 under the corrected winner — modest, "
-        "but still relevant for implementation costs."
-    )
+    SIGNAL_RULE_MD = f"""
+**Rule in plain English:** {_RULE}.
+
+Test-period results on data as known at the time ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} buy-and-hold; annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; position changes over the test period summing to {_D['oos_sum_abs_position_change']} full XLV units, with {_D['oos_months_position_change_gt_5pct']} months in which the position moved by more than {_D['position_change_threshold_pp']} percentage points (counted from the trade log's {_D['n_oos_trade_log_rows']} test-period rows, including the move into the first test month); annual turnover {W.annual_turnover}.
+"""
+
+    HOW_SIGNAL_IS_GENERATED_MD = f"""
+First, at each month end the process takes UMCSENT as it was published on that date (the vintage visible when the next month's return window opens). Second, inside that vintage it computes the {_sig()} and its threshold. Third, it uses the reading from {W.lead_word} months earlier. Finally, the reading is set against {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)} and the position is held through the following month.
+
+OOS Sharpe means test-period (out-of-sample) risk-adjusted return. OOS Return is the annualized test-period return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of test-period months with positive strategy return.
+"""
+
+    MANUAL_USE_MD = f"""
+This describes the backtested rule so it can be audited; it is not a trading recommendation.
+
+1. At month end, read UMCSENT as currently published.
+2. Compute the {_sig()} from that published series.
+3. Take its value from {W.lead_word} months earlier and read it against {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)}.
+4. Set the position as the rule says: {_RULE}.
+5. Recheck monthly.
+"""
 
     EQUITY_CHART_NAME = "equity_curves"
     DRAWDOWN_CHART_NAME = "drawdown"
-    # umcsent_xlv uses `wf_sharpe` rather than canonical `walk_forward`.
-    WALK_FORWARD_CHART_NAME = "wf_sharpe"
+    WALK_FORWARD_TITLE = "Calendar-Year Sharpe"
+    WALK_FORWARD_CHART_NAME = "walk_forward"
+    WALK_FORWARD_CAPTION = (
+        "What this shows: test-period Sharpe of the rule by full calendar year against buy-and-hold XLV. It is not "
+        "designed to make every year profitable."
+    )
+    CROSS_PERIOD_CAPTIONS = {
+        "rolling_granger": (
+            "How to read it: in each 24-month window the test asks whether lags of the year-over-year change in "
+            "UMCSENT improve forecasts of the XLV return. Several lags are tried (the chart title names them), so the "
+            "plotted p-value is the smallest lag p-value multiplied by the number of lags tried (Bonferroni). "
+            "Periods below p = 0.05 indicate evidence in "
+            "that window; the F statistic (at the lag with the smallest p-value) is supporting context."
+        ),
+    }
+    SHOW_TOURNAMENT_SCATTER = True
     TOURNAMENT_SCATTER_CHART_NAME = "tournament_scatter"
-
-    CAVEATS_MD = (
-        "1. **Direction was a surprise.** The textbook countercyclical "
-        "story was wrong for this pair. Do not assume economic theory "
-        "determines the signal direction — validate empirically.\n\n"
-        "2. **6-month lag limits responsiveness.** The strategy cannot "
-        "avoid fast crashes (COVID, flash crashes). It works best for "
-        "slow-moving sentiment cycles.\n\n"
-        "3. **Out-of-sample period covers only ~6 years.** Shorter than "
-        "the 8-year out-of-sample period for the high-yield minus "
-        "investment-grade credit spread pair or the industrial production "
-        "pair. Short out-of-sample windows "
-        "can produce inflated Sharpe estimates.\n\n"
-        "4. **Health care sector dynamics change.** The Affordable Care "
-        "Act (ACA), drug-pricing "
-        "regulation, COVID policy, and demographic shifts all affect "
-        "XLV. The historical sentiment-XLV relationship may shift if "
-        "sector fundamentals change structurally.\n\n"
-        "5. **This is not return maximization.** The corrected winner's "
-        "+7.95% OOS annual return trails XLV buy-and-hold, but it reduces "
-        "OOS max drawdown from -15.6% to -0.7%. This is mainly a "
-        "drawdown-control story, with Calmar 11.3."
+    TOURNAMENT_SCATTER_CAPTION = (
+        "What this shows: training versus test-period Sharpe across searched combinations (data as known at the "
+        "time). The winner is chosen on the training period, not on its test-period score."
     )
 
+    CAVEATS_MD = f"""
+**Main caveats:**
+
+1. Household sentiment and XLV influence each other; the Granger evidence from UMCSENT to XLV is weak (smallest p-value {_p(_G_FWD)}), so this is not a proven causal forecast.
+2. XLV history begins in {_D.get('xlv_first_month', '[missing: xlv_first_month]')}, which limits the training and test periods.
+3. The result is marked `found_in_search`; it still needs a frozen-rule hold-out confirmation.
+4. The headline uses consumer-sentiment data as known at the time. On today's revised data the selected rule {'is the same' if _SAME_RULE else 'is different'} (test-period Sharpe {W.comparison_oos_sharpe}, hindsight); UMCSENT is rarely revised after publication.
+5. Health-care policy, drug pricing and demographics move XLV independently of household sentiment.
+{_R71_CAVEAT}
+"""
+
     TRADE_LOG_EXAMPLE_MD = (
-        "**Crisis anchor — February 2020 COVID entry.** From "
-        "`results/umcsent_xlv/winner_trades_broker_style.csv` (the "
-        "canonical APP-TL1 artefact shipped Wave 10H.2):\n\n"
-        "- **2020-03-31 — BUY XLV, 100% long, price $80.45.** The trade "
-        "log records a full-exposure entry into XLV on 31-Mar-2020. The "
-        "signal rationale: 6-month-lagged UMCSENT 1-month momentum = "
-        "**+3.786** — lagged sentiment momentum was above the rolling "
-        "z-score trigger, so the rule moved back into XLV.\n"
-        "- **Cumulative profit and loss (P&L) at entry: +2.27%.** The "
-        "book had been in cash immediately before the entry, so the "
-        "March 2020 buy restarted XLV exposure after the initial COVID "
-        "shock.\n"
-        "- **Economic narrative.** This is the case study that defines "
-        "the rule's limits. The 6-month lag is a feature against "
-        "short-term noise, but it makes the rule slow by design. The "
-        "corrected winner reduced XLV OOS drawdown from -15.6% "
-        "(buy-and-hold) to -0.7% over the 2019-04-30 to 2025-12-31 "
-        "out-of-sample window, but it should still be read as a "
-        "monthly-frequency regime filter rather than fast crash "
-        "protection.\n"
-        "- **Honest caveat.** Users who need crash protection should "
-        "pair this rule with a faster signal (the CBOE Volatility Index "
-        "divided by the 3-month CBOE Volatility Index pair in this portal). "
-        "UMCSENT × XLV is a medium-frequency regime filter, "
-        "not a crash hedge."
+        "**A concrete example from this pair:** the broker-style log records a trade each time the rule changes "
+        f"the XLV position: {_RULE}."
     )
 
 
 STRATEGY_CONFIG = StrategyConfig()
 
 
-# =========================================================================
-# METHODOLOGY PAGE CONFIG
-# =========================================================================
-_DATA_SOURCES_MD = """
+_DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
-|:---------|:-------|:-------|:----------|
-| **University of Michigan Consumer Sentiment** | Federal Reserve Economic Data (FRED) | UMCSENT | Monthly |
-| **Health Care Select Sector SPDR Fund** | Yahoo Finance | XLV | Daily → Monthly |
-| **S&P 500 ETF Trust benchmark** | Yahoo Finance | SPY | Daily → Monthly |
-| **National Bureau of Economic Research (NBER) Recession Dates** | Federal Reserve Economic Data / NBER | USREC | Monthly |
-| **Fed Funds Rate** | FRED | DFF | Daily → Monthly |
-| **Unemployment** | FRED | UNRATE | Monthly |
-
-*Scope discipline.* Only University of Michigan Consumer Sentiment
-(UMCSENT) and Health Care Select Sector SPDR Fund (XLV) are in-scope primary
-signals.
-"""
+|---|---|---|---|
+| Indicator (as known at the time) | ALFRED (FRED vintages, pinned in data/release_calendar/vintages/UMCSENT.csv.gz) | `UMCSENT`, University of Michigan consumer sentiment, every published vintage | Monthly |
+| Indicator (as revised today) | FRED (latest vintage of the same file) | `UMCSENT` | Monthly |
+| Release dates | data/release_calendar/release_calendar.csv | first publication date per month | Monthly |
+| Target | Yahoo Finance (pinned: data/phaseB_inputs/xlv_month_end_20261017.csv) | XLV adjusted month-end close | Monthly |
+| Regression controls | FRED / Yahoo Finance (pinned in data/phaseB_inputs/umcsent_xlv_monthly_legacy_20261008.csv) | `UNRATE`, `DGS10`, VIX | Monthly |
+""")
 
 _INDICATOR_CONSTRUCTION_MD = (
-    "**University of Michigan Consumer Sentiment (UMCSENT).** Federal Reserve Economic "
-    "Data (FRED) series: monthly index "
-    "of consumer confidence published by the University of Michigan Survey "
-    "of Consumers. Index baseline = 100 (November 1966). Released mid-month "
-    "for the current survey month. The newer web-interview process reaches "
-    "roughly 900-1,000 respondents per month. "
-    "Not seasonally adjusted (the survey methodology removes most "
-    "seasonality at source).\n\n"
-    "Derived signals entered into the tournament:\n\n"
-    "| Signal | Formula | Stationarity |\n"
-    "|:-------|:--------|:-------------|\n"
-    "| `umcsent` | raw level | non-stationary (use transformed) |\n"
-    "| `umcsent_yoy` | (umcsent / umcsent.shift(12) − 1) × 100 | approximately stationary |\n"
-    "| `umcsent_mom` | 1-month momentum | **winner** — approximately stationary |\n"
-    "| `umcsent_zscore` | 36M rolling z-score | stationary by construction |\n"
-    "| `umcsent_3m_ma` | 3-month moving average | non-stationary (regime indicator) |\n"
-    "| `umcsent_direction` | sign(umcsent_mom) | stationary by construction |\n"
-    "| `umcsent_dev_ma` | level − 3M MA | approximately stationary |\n\n"
-    "**Health Care Select Sector SPDR Fund (XLV) target.** Daily adjusted closing prices (Yahoo Finance, "
-    "`auto_adjust=True`) resampled to monthly last close. Forward return "
-    "series computed as `xlv.shift(-h) / xlv - 1` for h = 1, 3, 6, 12 "
-    "months."
+    "The raw indicator is the University of Michigan index of consumer sentiment. The pipeline constructs the "
+    "year-over-year percent change, the month-over-month percent change, a 36-month rolling z-score, the 3-month "
+    "average, the direction of the monthly change and the deviation from the 3-month average. On the "
+    "as-known-at-the-time track every signal and rolling threshold is recomputed inside the vintage published when "
+    f"each month's return window opens. The winning signal is `{W.signal_code}` ({_sig()}), used "
+    f"with a lead of {W.lead_text} and {THRESHOLD_TEXT.get(W.threshold_code, W.threshold_code)} as threshold."
 )
 
-_METHODS_TABLE_MD = """
+_METHODS_TABLE_MD = P.definition_text("""
 | Method | Question It Answers | Why We Chose It |
-|:-------|:--------------------|:----------------|
-| Pearson / Rolling Correlation | Linear co-movement at multiple horizons | Baseline UMCSENT-XLV test |
-| Granger Causality | One-directional predictive content | Tests sentiment → XLV asymmetry |
-| Regime Quartile Returns | Model-free gradient across sentiment distribution | Assumption-light regime check |
-| Signal Distribution Analysis | Full empirical distribution of the signal | Diagnostic for threshold choice |
-"""
+|---|---|---|
+| Correlation analysis | Does UMCSENT move linearly with future XLV returns? | Simple baseline before richer tests |
+| Regime quartiles | Do sentiment regimes behave differently? | Makes the sentiment story interpretable |
+| Cross-correlation | Where is the lead-lag relationship strongest? | Lead-lag pattern of the standardized series |
+| Granger causality | Does past UMCSENT information improve XLV forecasts, and the reverse? | Formal lead-lag check in both directions |
+| Predictive and local-projection regressions | How do XLV forward returns respond across horizons? | Horizon-specific effects with robust errors |
+| Quantile regression | Is the effect different in weak or strong return states? | Tail sensitivity |
+| Lead-plateau selection (D9) | Is the chosen lead part of a stable range rather than an isolated peak? | Guards against picking a lucky single lead |
+| Chance check (null tournament) | How does the winner compare with contests run on scrambled signals? | Measures how much selection alone can produce |
+| Paired block bootstrap | How uncertain is the Sharpe difference versus buy-and-hold? | Interval for the headline comparison |
+""")
 
-_TOURNAMENT_DESIGN_MD = """
-| Dimension | Values |
-|:----------|:-------|
-| **Signals (7)** | umcsent (level), umcsent_yoy, umcsent_mom, umcsent_zscore, umcsent_3m_ma, umcsent_direction, umcsent_dev_ma |
-| **Thresholds** | T1 fixed IS percentile (p25/p50/p75), T2 rolling percentile (60M), T3 rolling z-score bands (±1.0, ±1.5, ±2.0), T4 zero-crossing (for change signals) |
-| **Strategies (3)** | P1 Long/Cash (binary toggle), P2 Signal Strength (proportional scaling), P3 Long/Short (±1 position) |
-| **Lead times in current published results (5)** | 0, 1, 2, 3, 6 months |
-| **Lead times queued for next rerun** | 4 and 5 months added to `scripts/pair_pipeline_umcsent_xlv.py` so the tournament covers 0-6 months continuously |
-| **Direction** | Procyclical applied (empirically observed direction) |
+_TOURNAMENT_DESIGN_MD = f"""
+Grid: UMCSENT transforms x fixed, rolling and zero thresholds x long/cash, signal-strength and long/short positions x the procyclical orientation x leads {_GRID_RANGE} months ({W.n_candidates} combinations, {W.n_distinct} distinct position series). Each data track selects its own winner on the training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it.
 
-Ranked by out-of-sample Sharpe. **1,305 total combinations tested; 1,195
-valid** in the current published run (out-of-sample Sharpe > 0, turnover ≤ 24/year, out-of-sample n ≥ 12; the
-buy-and-hold benchmark row is a reference, not a combination). Winner (per
-`results/umcsent_xlv/winner_summary.json`, authoritative): **umcsent_mom /
-rolling z-score > +1.0 / P1_long_cash / Lead 6 months → out-of-sample
-Sharpe 1.1586, out-of-sample annualised return +7.9494%, max drawdown
-−0.7007%, out-of-sample volatility 6.8615%, Sortino 1.6121, Calmar 11.3449,
-25 out-of-sample trades, win rate 16.05%, annual turnover 3.29. Buy-and-hold
-XLV benchmark: Sharpe 0.7164, max drawdown −15.6%.**
-
-**Important limitation.** The current published tournament results do not yet
-include 4-month or 5-month lead times, so the dashboard must not claim those
-lead times have been run. The pipeline has been updated to test them on the
-next full rerun, but this checkout does not include the raw monthly source
-parquet needed to recompute and publish the optimized result.
+- As known at the time (headline): `{W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe}, test-period Sharpe {W.oos_sharpe}. The single highest training Sharpe on this track ({W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}, shown for reference and not the selection rule.
+- As revised today (hindsight): `{W.comparison_signal_code} / {W.comparison_threshold_code} / {W.comparison_strategy_family} / L{W.comparison_lead}`, training Sharpe {W.comparison_is_sharpe}, test-period Sharpe {W.comparison_oos_sharpe}.
+- Cross-evaluation: the headline rule scored on revised data has test-period Sharpe {W.ce_main_on_revised_oos_sharpe}; the hindsight rule scored on data as known at the time has {W.ce_revised_on_main_oos_sharpe}.
+- Chance check: across {W.null_draws} contests run on circularly shifted sentiment data, the real winner's stable-range score ranks at the {W.null_percentile} point of the scrambled scores.
+- Previously published rule: {W.previous_rule} (published {W.previous_tag}), selected on its out-of-sample Sharpe (legacy method).
 """
 
 _REFERENCES_MD = """
-- Curtin, R. T. (2007). Consumer sentiment surveys: Worldwide review and assessment. *Journal of Business Cycle Measurement and Analysis*, 2007(1), 7–42.
-- Ludvigson, S. C. (2004). Consumer confidence and consumer spending. *Journal of Economic Perspectives*, 18(2), 29–50.
-- Baker, M., & Wurgler, J. (2006). Investor sentiment and the cross-section of stock returns. *Journal of Finance*, 61(4), 1645–1680.
-- Lemmon, M., & Portniaguina, E. (2006). Consumer confidence and asset prices: Some empirical evidence. *Review of Financial Studies*, 19(4), 1499–1529.
-- Jordà, Ò. (2005). Estimation and inference of impulse responses by local projections. *American Economic Review*, 95(1), 161–182.
+1. Federal Reserve Bank of St. Louis, ALFRED / FRED `UMCSENT`, University of Michigan: Consumer Sentiment (all vintages).
+2. Surveys of Consumers, University of Michigan.
+3. Yahoo Finance, XLV adjusted price history.
+4. Granger, C. W. J. (1969). "Investigating Causal Relations by Econometric Models and Cross-spectral Methods."
+5. Jorda, O. (2005). "Estimation and Inference of Impulse Responses by Local Projections."
+6. Politis, D. N., and Romano, J. P. (1992). "A Circular Block-Resampling Procedure for Stationary Data."
+7. Andrews, D. W. K. (1993). "Tests for Parameter Instability and Structural Change with Unknown Change Point."
+8. Newey, W. K., and West, K. D. (1987). "A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix."
 """
 
 METHODOLOGY_CONFIG = MethodologyConfig(
@@ -854,21 +641,12 @@ METHODOLOGY_CONFIG = MethodologyConfig(
     tournament_design_md=_TOURNAMENT_DESIGN_MD,
     references_md=_REFERENCES_MD,
     sample_period_note=(
-        "Full sample: 1998-12 to 2025-12 (325 monthly observations). "
-        "The in-sample/out-of-sample cut is computed dynamically using "
-        "ECON-OOS2: OOS_months = min(max(36, round(N × 0.25)), 120). "
-        "With N = 325, out-of-sample = 81 months. In-sample: 1998-12 "
-        "to 2019-03 (~243 observations). "
-        "Out-of-sample: 2019-04-30 to 2025-12 (~81 observations, ~6.75 years). "
-        "XLV data starts 1998-12 (the exchange-traded fund's inception); "
-        "UMCSENT is available from 1978 "
-        "but is aligned to the XLV sample for this pair."
+        f"Monthly sample; training period {W.is_start} to {W.is_end} and test period {W.oos_start} to "
+        f"{W.oos_end} on data as known at the time. XLV history limits the usable sample even though UMCSENT "
+        "begins earlier."
     ),
     plain_english=(
-        "This section explains exactly how we did the analysis: which "
-        "data we used, how we constructed each signal, which statistical "
-        "tests we ran, and what could go wrong. Normal readers can skip "
-        "it. Expert readers can use it to reproduce or criticise our "
-        "work."
+        "This page documents how UMCSENT was turned into testable signals, how the econometric checks were run, "
+        "and how the tournament selected the final XLV allocation rule on each data track."
     ),
 )

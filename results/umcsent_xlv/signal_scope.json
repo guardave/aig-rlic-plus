@@ -3,61 +3,98 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-04-20T00:00:00Z",
+  "last_updated_at": "2026-10-18T05:51:35.592094+00:00",
   "indicator_axis": {
     "canonical_column": "umcsent",
     "display_name": "University of Michigan Consumer Sentiment",
     "derivatives": [
       {
         "name": "umcsent",
-        "definition": "The raw University of Michigan Consumer Sentiment index — a monthly survey of US consumer confidence about personal finances and the economy.",
-        "formula": "raw column (FRED: UMCSENT, monthly frequency)",
+        "definition": "The University of Michigan index of consumer sentiment (monthly survey).",
+        "formula": "raw column (ALFRED/FRED UMCSENT; real-time vintages on the headline track)",
         "role": "raw",
         "appears_in_charts": [
           "hero",
-          "spread_history_annotated"
+          "history_zoom_dotcom",
+          "history_zoom_gfc",
+          "history_zoom_covid",
+          "history_zoom_inflation_2022"
         ],
-        "notes": "Non-stationary in levels. Use derived transforms for regression and tournament signals."
+        "notes": "Tournament signal S1_level."
       },
       {
         "name": "umcsent_yoy",
-        "definition": "The year-over-year percentage change in consumer sentiment — how much sentiment has risen or fallen compared with the same month last year.",
+        "definition": "Year-over-year percent change in consumer sentiment.",
         "formula": "(umcsent / umcsent.shift(12) - 1) * 100",
-        "role": "threshold_input",
+        "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "hero",
+          "correlation_scatter",
+          "correlations",
+          "regime_stats",
+          "ccf",
+          "signal_dist",
+          "local_projections",
+          "quantile_coef",
+          "rolling_correlation",
+          "rolling_granger",
+          "structural_break"
         ],
-        "notes": "WINNER signal (tournament code S2_yoy). Zero-crossing threshold (T4_zero). Approximately stationary."
+        "notes": "Tournament signal S2_yoy."
       },
       {
         "name": "umcsent_mom",
-        "definition": "The month-over-month percentage change in consumer sentiment — how much sentiment moved compared with the prior month.",
+        "definition": "Month-over-month percent change in consumer sentiment.",
         "formula": "(umcsent / umcsent.shift(1) - 1) * 100",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "correlations"
         ],
-        "notes": "Tournament signal code S3_mom. Approximately stationary."
+        "notes": "Tournament signal S3_mom."
       },
       {
         "name": "umcsent_zscore",
-        "definition": "The 36-month rolling z-score of consumer sentiment — how many standard deviations the current reading is from its recent average, with memory of the last 3 years.",
-        "formula": "(umcsent - rolling_mean_36m(umcsent)) / rolling_std_36m(umcsent)",
+        "definition": "Consumer sentiment relative to its trailing 36-month mean, in standard deviations.",
+        "formula": "(umcsent - rolling_mean_36(umcsent)) / rolling_std_36(umcsent), min 24 readings",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "correlations",
+          "equity_curves",
+          "drawdown",
+          "lead_plateau"
         ],
-        "notes": "Tournament signal code S4_zscore. Stationary by construction. Key finding: countercyclical signal at extremes per interpretation_metadata."
+        "notes": "Tournament signal S4_zscore."
       },
       {
         "name": "umcsent_3m_ma",
-        "definition": "The 3-month moving average of consumer sentiment — a smoothed version that reduces month-to-month noise.",
+        "definition": "Three-month moving average of consumer sentiment.",
         "formula": "umcsent.rolling(3, min_periods=2).mean()",
         "role": "derivative",
         "appears_in_charts": [
-          "hero"
+          "correlations"
         ],
-        "notes": "Tournament signal code S5_3m_ma. Non-stationary in levels; used as a regime indicator."
+        "notes": "Tournament signal S5_3m_ma."
+      },
+      {
+        "name": "umcsent_direction",
+        "definition": "Direction of the monthly change: +1 rising, -1 falling, 0 unchanged.",
+        "formula": "sign(umcsent_mom)",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlations",
+          "signal_dist"
+        ],
+        "notes": "Tournament signal S6_direction. Long/cash only (P2/P3 excluded on this flag)."
+      },
+      {
+        "name": "umcsent_dev_ma",
+        "definition": "Consumer sentiment minus its three-month moving average.",
+        "formula": "umcsent - umcsent_3m_ma",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlations"
+        ],
+        "notes": "Tournament signal S7_dev_ma."
       }
     ]
   },
@@ -67,55 +104,84 @@
     "derivatives": [
       {
         "name": "xlv",
-        "definition": "The raw adjusted close price of the XLV ETF (Health Care Select Sector SPDR). All target-axis derivatives are computed from this single series.",
-        "formula": "raw column (Yahoo Finance, auto_adjust=True, monthly last close)",
+        "definition": "XLV adjusted month-end close (dividends and splits).",
+        "formula": "pinned: data/phaseB_inputs/xlv_month_end_20261017.csv",
         "role": "raw",
         "appears_in_charts": [
           "hero",
-          "equity_curves"
+          "history_zoom_dotcom",
+          "history_zoom_gfc",
+          "history_zoom_covid",
+          "history_zoom_inflation_2022"
         ],
-        "notes": "Adjusted for dividends and splits."
+        "notes": ""
       },
       {
-        "name": "xlv_ret_1m",
-        "definition": "The 1-month simple return of XLV — how much the ETF gained or lost in the current month.",
+        "name": "xlv_ret",
+        "definition": "XLV monthly return.",
         "formula": "xlv.pct_change()",
         "role": "derivative",
         "appears_in_charts": [
           "equity_curves",
-          "drawdown"
+          "drawdown",
+          "rolling_sharpe",
+          "walk_forward",
+          "subperiod_sharpe",
+          "ccf",
+          "regime_stats",
+          "rolling_correlation",
+          "rolling_granger",
+          "structural_break"
         ],
-        "notes": "Base return used in tournament performance calculations."
+        "notes": ""
       },
       {
-        "name": "xlv_ret_3m",
-        "definition": "The 3-month total return of XLV — cumulative price change over a quarter.",
-        "formula": "xlv / xlv.shift(3) - 1",
+        "name": "xlv_fwd_1m",
+        "definition": "XLV return over the next month.",
+        "formula": "xlv.shift(-1) / xlv - 1",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "correlations"
         ],
-        "notes": "Medium-horizon return diagnostic."
+        "notes": ""
       },
       {
-        "name": "xlv_ret_12m",
-        "definition": "The 12-month total return of XLV — one year of cumulative price appreciation, a long-horizon trend measure.",
-        "formula": "xlv / xlv.shift(12) - 1",
+        "name": "xlv_fwd_3m",
+        "definition": "XLV return over the next three months.",
+        "formula": "xlv.shift(-3) / xlv - 1",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "correlations",
+          "signal_dist",
+          "quantile_coef",
+          "local_projections"
         ],
-        "notes": "Annual return diagnostic."
+        "notes": ""
       },
       {
-        "name": "xlv_vol_12m",
-        "definition": "The 12-month rolling realized volatility of XLV monthly returns, annualized — how volatile the ETF has been over the past year.",
-        "formula": "xlv_ret_1m.rolling(12).std() * sqrt(12)",
-        "role": "diagnostic",
-        "appears_in_charts": [],
-        "notes": "Risk metric for regime characterization. Decimal output (0.15 = 15% annualized)."
+        "name": "xlv_fwd_6m",
+        "definition": "XLV return over the next six months.",
+        "formula": "xlv.shift(-6) / xlv - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlations",
+          "correlation_scatter",
+          "local_projections"
+        ],
+        "notes": ""
+      },
+      {
+        "name": "xlv_fwd_12m",
+        "definition": "XLV return over the next twelve months.",
+        "formula": "xlv.shift(-12) / xlv - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlations",
+          "local_projections"
+        ],
+        "notes": ""
       }
     ]
   },
-  "notes": "Wave 10B retro-apply: migrated from flat-array structure to schema-compliant axis_block format per QA-CL BLOCK. Controls (UNRATE, DGS10, VIX) remain out of scope per ECON-SD and are documented in interpretation_metadata.json."
+  "notes": "Seven UMCSENT transforms are the tournament signals (pair spec SIGNALS). VIX, DGS10 and UNRATE are regression controls only (local projections, random forest), not signals."
 }
