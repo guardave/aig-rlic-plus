@@ -53,6 +53,9 @@ def _r71_caveat() -> str:
 
 
 _R71_CAVEAT = _r71_caveat()
+_CHANCE_TEXT = (f"the real winner's stable-range score is above the winners of all {W.null_draws} scrambled contests"
+                if W.value("null_percentile") == 1 else
+                f"the real winner's stable-range score ranks at the {W.null_percentile} point of the scrambled scores")
 
 THRESHOLD_TEXT = P.definitions({
     "T1_p25": "the 25th percentile of its earlier training-period readings",
@@ -606,7 +609,7 @@ Grid: permit transforms x training-percentile, rolling-percentile and zero thres
 - As known at the time (headline): `{_RID}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe}, test-period Sharpe {W.oos_sharpe}. The single highest training Sharpe on this track ({W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}; it is shown for reference and is not the selection rule.
 - As revised today (hindsight): `{_RID_REVISED}`, training Sharpe {W.comparison_is_sharpe}, test-period Sharpe {W.comparison_oos_sharpe}.
 - Cross-evaluation: the headline rule scored on revised data has test-period Sharpe {W.ce_main_on_revised_oos_sharpe}; the hindsight rule scored on data as known at the time has {W.ce_revised_on_main_oos_sharpe}.
-- Chance check: across {W.null_draws} contests run on circularly shifted permit data, the real winner's stable-range score ranks at the {W.null_percentile} point of the scrambled scores.
+- Chance check: across {W.null_draws} contests run on circularly shifted permit data, {_CHANCE_TEXT}.
 - Previously published rule: `{W.previous_rule}` ({W.previous_selection}), test-period Sharpe {W.previous_oos_sharpe}; reproduced from the legacy code, not replayable on the new framework.
 """
 
