@@ -109,10 +109,13 @@ def chart_correlation_heatmap() -> None:
     sub["signal"] = sub["pair_name"].str.replace(r"_to_spy_fwd_\d+m", "", regex=True)
     sub["h"] = sub["pair_name"].str.extract(r"fwd_(\d+)m")[0].astype(int)
     piv = sub.pivot_table(index="signal", columns="h", values="value", aggfunc="first").sort_index(axis=1)
-    fig = go.Figure(go.Heatmap(z=piv.values, x=[f"{h}m" for h in piv.columns], y=piv.index, colorscale="RdBu",
+    names = {"invsales_level": "Ratio level", "invsales_diff_1m": "1-month change", "invsales_chg_12m": "12-month change",
+             "invsales_zscore_60m": "60-month z-score"}
+    fig = go.Figure(go.Heatmap(z=piv.values, x=[f"{h}m" for h in piv.columns], y=[names.get(i, i) for i in piv.index],
+                               colorscale="RdBu",
                                zmid=0, text=np.round(piv.values, 2), texttemplate="%{text}", colorbar=dict(title="r")))
     fig.update_layout(title="Correlation: Inventories-to-Sales Signals vs Forward SPY Returns", template="plotly_white",
-                      height=520, xaxis_title="Forward SPY return horizon")
+                      height=520, xaxis_title="Forward SPY return horizon", margin=dict(l=150))
     save("correlation_heatmap", fig, "Pearson correlations between inventories-to-sales transforms and forward SPY "
          "returns.", [str(CORE / "correlations.csv")])
 
@@ -123,8 +126,9 @@ def chart_granger() -> None:
     fig.add_trace(go.Bar(x=gr["lag"], y=gr["p_value"], name="p-value (single lag)", marker_color=C_IND))
     fig.add_trace(go.Scatter(x=gr["lag"], y=gr["p_value_holm"], name="Holm-adjusted p-value (all lags)",
                              mode="markers", marker=dict(color=C_LINE, symbol="diamond", size=9)))
-    fig.add_hline(y=0.05, line_dash="dash", line_color=C_LINE, annotation_text="p = 0.05",
-                  annotation_position="top left")
+    # the 0.05 line is labelled in the legend: an in-plot label collides with the first bar
+    fig.add_trace(go.Scatter(x=[gr["lag"].min() - 0.5, gr["lag"].max() + 0.5], y=[0.05, 0.05], mode="lines",
+                             line=dict(dash="dash", color=C_LINE), name="p = 0.05", hoverinfo="skip"))
     fig.update_layout(title="Granger Causality: Does the Inventories-to-Sales Change Help Forecast SPY?",
                       xaxis_title="Lag (months)", yaxis_title="p-value", template="plotly_white", height=430,
                       legend=dict(orientation="h", y=-0.2))

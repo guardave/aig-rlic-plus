@@ -1,7 +1,7 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-10-18T09:59:55.330285+00:00",
+  "generated_at": "2026-10-18T13:49:15.889724+00:00",
   "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
   "caption": "Coefficient of the 12-month change in the inventories-to-sales ratio across quantiles of 3-month forward SPY returns.",
   "narrative_alignment_note": "Coefficient of the 12-month change in the inventories-to-sales ratio across quantiles of 3-month forward SPY returns.",

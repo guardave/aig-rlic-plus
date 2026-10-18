@@ -26,7 +26,7 @@
     ]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-10-18T07:56:59.194980+00:00",
+  "last_updated_at": "2026-10-18T13:37:35.993811+00:00",
   "indicator": "invsales",
   "target": "spy",
   "expected_direction": "countercyclical",
@@ -34,7 +34,7 @@
   "direction_consistent": false,
   "mechanism": "The retail inventories-to-sales ratio rises when stock accumulates faster than sales, a sign of softening demand that can precede order and production cuts; the prior is countercyclical (reduce SPY when the ratio is high).",
   "confidence": "low",
-  "key_finding": "As known at the time (real-time RETAILIRSA vintages) there is no winner: the archive starts 2013-07-31 and leaves 47 training months, fewer than the 60 required. On today's revised data (hindsight) the rule selected on in-sample data uses level at L6 (procyclical) with test-period Sharpe 0.82 versus buy-and-hold 0.96.",
+  "key_finding": "As known at the time (real-time RETAILIRSA vintages) there is no winner: the archive starts 2013-07-31 and leaves 47 training months, fewer than the 60 required. On today's revised data (hindsight) the rule selected on in-sample data uses level at L6 (procyclical) with test-period Sharpe 0.81 versus buy-and-hold 0.96.",
   "caveats": [
     "There is no result on data as known at the time: the vintage archive is too short for the training window. The as-revised-today result uses today's corrected values and is hindsight.",
     "The hindsight rule is procyclical, opposite to the countercyclical prior.",
@@ -70,6 +70,6 @@
   "data_provenance": {
     "source": "FRED / ALFRED",
     "series_id": "RETAILIRSA",
-    "accessed_at": "2026-10-18T07:56:59.194980+00:00"
+    "accessed_at": "2026-10-18T13:37:35.993811+00:00"
   }
 }

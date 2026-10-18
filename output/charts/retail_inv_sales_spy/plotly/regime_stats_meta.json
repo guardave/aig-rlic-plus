@@ -1,7 +1,7 @@
 {
   "chart_name": "regime_stats",
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-10-18T09:59:42.316162+00:00",
+  "generated_at": "2026-10-18T13:48:42.919149+00:00",
   "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
   "caption": "SPY performance in the same month across quartiles of the 12-month change in the retail inventories-to-sales ratio.",
   "narrative_alignment_note": "SPY performance in the same month across quartiles of the 12-month change in the retail inventories-to-sales ratio.",

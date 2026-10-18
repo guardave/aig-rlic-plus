@@ -1,7 +1,7 @@
 {
   "chart_name": "subperiod_sharpe",
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-10-18T10:00:25.571194+00:00",
+  "generated_at": "2026-10-18T13:50:17.942198+00:00",
   "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
   "caption": "Sharpe of the rule selected on today's revised data (hindsight) and of buy-and-hold SPY during major stress episodes, with the sample phase (training, test or before training) of each window.",
   "narrative_alignment_note": "Sharpe of the rule selected on today's revised data (hindsight) and of buy-and-hold SPY during major stress episodes, with the sample phase (training, test or before training) of each window.",

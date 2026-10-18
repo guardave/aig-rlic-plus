@@ -1,7 +1,8 @@
 {
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-10-18T07:57:18.667426+00:00",
+  "generated_at": "2026-10-18T13:38:42.190758+00:00",
   "schema_version": "1.3.0",
+  "run_tag": "20261018",
   "target_symbol": "SPY",
   "track_policy": "compute_twice",
   "main_eligible": false,
@@ -57,25 +58,25 @@
         "signal_column": "invsales_level",
         "signal_display": "Retail inventories-to-sales ratio (level)",
         "threshold": "T_roll_p50",
-        "threshold_value": 1.33,
+        "threshold_value": 1.34,
         "threshold_rule": "gte",
         "direction": "procyclical",
         "strategy": "P1",
         "strategy_family": "P1_long_cash",
         "lead": 6,
         "is_sharpe": 0.855325,
-        "oos_sharpe": 0.81762,
-        "oos_sortino": 0.873384,
-        "oos_calmar": 0.607332,
-        "oos_ann_return": 0.091749,
-        "oos_ann_vol": 0.115861,
+        "oos_sharpe": 0.814369,
+        "oos_sortino": 0.869172,
+        "oos_calmar": 0.604778,
+        "oos_ann_return": 0.091363,
+        "oos_ann_vol": 0.11589,
         "oos_max_drawdown": -0.151069,
         "oos_win_rate": 0.428571,
         "oos_n_trades": 16,
-        "annual_turnover": 1.72973,
-        "oos_exposure": 0.621622,
+        "annual_turnover": 1.714286,
+        "oos_exposure": 0.625,
         "source_row_index": 39,
-        "oos_sharpe_net_5bp": 0.809106
+        "oos_sharpe_net_5bp": 0.806349
       },
       "bh_is": {
         "sharpe": 0.57982,
@@ -135,7 +136,7 @@
         "direction": "procyclical",
         "lead": 6,
         "is_sharpe": 0.855325,
-        "oos_sharpe": 0.81762,
+        "oos_sharpe": 0.814369,
         "note": "highest single in-sample Sharpe in the grid; reference only, not the selection rule"
       },
       "runner_up": {
@@ -151,28 +152,28 @@
           9
         ],
         "is_sharpe": 0.698192,
-        "oos_sharpe": 1.086464
+        "oos_sharpe": 1.083742
       },
-      "spearman_is_oos": 0.2643,
+      "spearman_is_oos": 0.2637,
       "vs_buy_hold": {
-        "observed": -0.1465,
-        "mean": -0.1478,
+        "observed": -0.1498,
+        "mean": -0.1512,
         "ci_95": [
-          -0.7268,
-          0.4406
+          -0.7287,
+          0.4389
         ],
-        "p_diff_le_0": 0.6918,
+        "p_diff_le_0": 0.6968,
         "block_length": 6,
         "draws": 5000,
         "seed": 42,
         "method": "paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H)",
-        "sharpe_diff": -0.1465,
+        "sharpe_diff": -0.1498,
         "ann_return": {
-          "strat": 0.091749,
+          "strat": 0.091363,
           "bh": 0.149177
         },
         "ann_vol": {
-          "strat": 0.115861,
+          "strat": 0.11589,
           "bh": 0.157902
         },
         "max_dd": {
@@ -182,28 +183,19 @@
       },
       "hac": {
         "oos_strategy_mean": {
-          "t": 2.7343,
-          "p_value": 0.0063,
+          "t": 2.7243,
+          "p_value": 0.0064,
           "nw_lag": 4,
           "n": 112
         },
         "oos_excess_mean": {
-          "t": -1.5684,
-          "p_value": 0.1168,
+          "t": -1.5788,
+          "p_value": 0.1144,
           "nw_lag": 4,
           "n": 112
         }
       },
-      "undefined_tail": {
-        "n_periods": 1,
-        "first_date": "2026-09-30",
-        "last_date": "2026-09-30",
-        "last_defined_position": 1.0,
-        "benchmark_return_over_tail": -0.003293,
-        "oos_sharpe_as_published": 0.81762,
-        "oos_sharpe_hold_last_position": 0.814369,
-        "rule": "undefined signal = cash (pre-registered fleet rule); the hold-last figure is a sensitivity"
-      },
+      "undefined_tail": null,
       "null_tournament": {
         "n_draws": 100,
         "n_unique_offsets": 100,
@@ -217,25 +209,25 @@
         "p_is": 0.69,
         "selection_stat_percentile": 0.06,
         "p_selection_stat": 0.94,
-        "winner_oos_percentile": 0.61,
-        "p_oos": 0.39,
+        "winner_oos_percentile": 0.59,
+        "p_oos": 0.41,
         "null_is_max_p5_p50_p95": [
           0.7471,
           0.8965,
           1.1796
         ],
-        "null_winner_oos_median": 0.7797,
+        "null_winner_oos_median": 0.7764,
         "edge_share": 0.16,
         "edge_share_uniform": 0.1667,
         "edge_share_bound": 0.2785,
         "edge_flag": false,
-        "timing_sharpe_mean": -0.0726,
-        "timing_sharpe_sd": 0.2911,
-        "timing_sharpe_se_dependent": 0.0557,
+        "timing_sharpe_mean": -0.0909,
+        "timing_sharpe_sd": 0.2949,
+        "timing_sharpe_se_dependent": 0.0567,
         "timing_sharpe_se_bandwidth": 6,
-        "timing_sharpe_effective_draws": 27.4,
-        "r71_tolerance": 0.1113,
-        "timing_sharpe_mean_all_valid_candidates": 0.0267,
+        "timing_sharpe_effective_draws": 27.1,
+        "r71_tolerance": 0.1134,
+        "timing_sharpe_mean_all_valid_candidates": -0.0,
         "r71_pass": true,
         "null_scores_hist": {
           "bins": [
@@ -290,7 +282,7 @@
   "cross_eval": {
     "main_winner_on_revised": null,
     "revised_winner_on_main": {
-      "is_sharpe": 0.0,
+      "is_sharpe": null,
       "oos_sharpe": 1.1111696726806182,
       "valid": false,
       "is_eligible": false,
@@ -339,8 +331,8 @@
       "text": "T_roll_p50"
     },
     "comparison_threshold_value": {
-      "value": 1.33,
-      "text": "1.33"
+      "value": 1.34,
+      "text": "1.34"
     },
     "comparison_direction": {
       "value": "procyclical",
@@ -367,15 +359,15 @@
       "text": "0.86"
     },
     "comparison_oos_sharpe": {
-      "value": 0.81762,
-      "text": "0.82"
+      "value": 0.814369,
+      "text": "0.81"
     },
     "comparison_oos_ann_return": {
-      "value": 0.091749,
-      "text": "9.2%"
+      "value": 0.091363,
+      "text": "9.1%"
     },
     "comparison_oos_sharpe_net_5bp": {
-      "value": 0.809106,
+      "value": 0.806349,
       "text": "0.81"
     },
     "comparison_oos_max_drawdown": {
@@ -403,7 +395,7 @@
       "text": "-23.9%"
     },
     "comparison_sharpe_gap": {
-      "value": -0.14654,
+      "value": -0.149791,
       "text": "-0.15"
     },
     "comparison_is_start": {
@@ -467,11 +459,11 @@
       "text": "L4-L6"
     },
     "comparison_annual_turnover": {
-      "value": 1.72973,
-      "text": "1.73"
+      "value": 1.714286,
+      "text": "1.71"
     },
     "comparison_oos_exposure": {
-      "value": 0.621622,
+      "value": 0.625,
       "text": "62%"
     },
     "comparison_raw_argmax_lead": {
@@ -495,36 +487,16 @@
       "text": "the same rule as the winner"
     },
     "comparison_ci_low": {
-      "value": -0.7268,
+      "value": -0.7287,
       "text": "-0.73"
     },
     "comparison_ci_high": {
-      "value": 0.4406,
+      "value": 0.4389,
       "text": "0.44"
     },
     "comparison_p_diff_le_0": {
-      "value": 0.6918,
-      "text": "0.69"
-    },
-    "comparison_tail_n_periods": {
-      "value": 1,
-      "text": "1"
-    },
-    "comparison_tail_first_date": {
-      "value": "2026-09-30",
-      "text": "2026-09-30"
-    },
-    "comparison_tail_last_date": {
-      "value": "2026-09-30",
-      "text": "2026-09-30"
-    },
-    "comparison_tail_bh_return": {
-      "value": -0.003293,
-      "text": "-0.3%"
-    },
-    "comparison_tail_hold_last_sharpe": {
-      "value": 0.814369,
-      "text": "0.81"
+      "value": 0.6968,
+      "text": "0.70"
     },
     "comparison_null_percentile": {
       "value": 0.06,
@@ -539,8 +511,8 @@
       "text": "100"
     },
     "ce_revised_on_main_is_sharpe": {
-      "value": 0.0,
-      "text": "0.00"
+      "value": null,
+      "text": "n/a"
     },
     "ce_revised_on_main_oos_sharpe": {
       "value": 1.1111696726806182,

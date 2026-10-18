@@ -10,7 +10,7 @@
     "subperiod_sharpe.csv"
   ],
   "derived": {
-    "n_trade_log_rows": 40,
+    "n_trade_log_rows": 39,
     "position_change_threshold_pp": 5,
     "comparison_oos_months_position_change_gt_5pct": 16,
     "comparison_oos_sum_abs_position_change": 16.0,

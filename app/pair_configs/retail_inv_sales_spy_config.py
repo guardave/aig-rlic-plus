@@ -167,7 +167,6 @@ class StoryConfig:
     )
 
     KPI_CAPTION = (
-        "There is no headline result: the cards above stay empty because no rule exists on data as known at the time. "
         f"Hindsight comparison: the rule selected on the revised training period ({W.comparison_is_start} to "
         f"{W.comparison_is_end}) is `{_RID_H}`, test-period Sharpe {W.comparison_oos_sharpe} versus "
         f"{W.comparison_bh_oos_sharpe} for buy-and-hold ({W.comparison_oos_start} to {W.comparison_oos_end})."
@@ -194,7 +193,7 @@ class StoryConfig:
 
 **No ranked result.** {_WHY_UNRANKED}
 
-**Hindsight comparison (today's revised data).** On today's revised data (hindsight), with each month's reading dated by its first release, the rule selected on the training period ({W.comparison_is_start} to {W.comparison_is_end}) by {W.comparison_selection_objective} (stable lead range {W.comparison_plateau_range}) is to {_RULE_H}. In the test period ({W.comparison_oos_start} to {W.comparison_oos_end}) it records Sharpe {W.comparison_oos_sharpe} versus {W.comparison_bh_oos_sharpe} for buy-and-hold, with maximum drawdown {W.comparison_oos_max_drawdown} versus {W.comparison_bh_oos_max_drawdown}. The test-period Sharpe difference is {W.comparison_sharpe_gap} (95% interval {W.comparison_ci_low} to {W.comparison_ci_high}). {_CE_TEXT}
+**Hindsight comparison (today's revised data).** On today's revised data (hindsight), with each month's reading dated by its first release, the rule selected on the training period ({W.comparison_is_start} to {W.comparison_is_end}) by {W.comparison_selection_objective} (stable lead range {W.comparison_plateau_range}) is to {_RULE_H}. In the test period ({W.comparison_oos_start} to {W.comparison_oos_end}) it records Sharpe {W.comparison_oos_sharpe} versus {W.comparison_bh_oos_sharpe} for buy-and-hold, with maximum drawdown {W.comparison_oos_max_drawdown} versus {W.comparison_bh_oos_max_drawdown}. The test-period Sharpe difference is {W.comparison_sharpe_gap} (95% interval {W.comparison_ci_low} to {W.comparison_ci_high}).
 
 {"The hindsight rule is procyclical: it holds SPY when the ratio is high, the opposite of the countercyclical prior." if _AGAINST_PRIOR else "The hindsight rule is countercyclical, in line with the prior."}
 
@@ -442,12 +441,14 @@ class StrategyConfig:
     )
 
     STATISTICAL_FRAMING_BANNER = (
-        f"Correction (2026-10-18). This page previously reported a ranked rule: {W.previous_rule} (run of "
-        f"{W.previous_tag}), chosen as the single highest training Sharpe on revised "
-        "data with fixed release lags; an earlier version reported a rule picked on its test-period score. The page "
-        "now ranks only results on data as known at the time. For this pair that archive is too short, so there is "
-        "no ranked rule; the revised-data result is shown as hindsight"
-        + (", and it is the same rule as the previous one." if _SAME_AS_PREV else ".")
+        "Correction (2026-10-18). An earlier version of this page on the main site showed a ranked rule, picked on its "
+        "test-period score. "
+        "The page now ranks only results on data as known at the time; for this pair that archive is too short, so "
+        "there is no ranked rule and the revised-data result is shown as hindsight. "
+        f"Earlier research run (strict-lead-floor research branch, run of {W.previous_tag}, not shown on the main "
+        f"site): {W.previous_rule}, chosen as the single highest training Sharpe on revised data with fixed release "
+        "lags"
+        + ("; the hindsight rule here is the same rule." if _SAME_AS_PREV else ".")
     )
 
     WINNER_HEADING = "No winner on data as known at the time"
@@ -507,7 +508,7 @@ Hindsight test-period results ({W.comparison_oos_start} to {W.comparison_oos_end
     HOW_SIGNAL_IS_GENERATED_MD = f"""
 On data as known at the time, the process would take the ratio (`RETAILIRSA`) as published on each month end and compute the signals inside that vintage; that archive starts {_FIRST_VINTAGE}, too late for a training window. The hindsight rule instead uses today's revised series: at each month end it takes the reading from {W.comparison_lead_word} months earlier (dated by its first release), computes the {_SIG_H} and compares it with {_THR_H}.
 
-The cards above are empty because there is no result as known at the time. In the hindsight figures, test-period Sharpe means risk-adjusted return outside the training period; maximum drawdown is the largest peak-to-trough loss; turnover is how often the rule changes exposure each year.
+In the hindsight figures, test-period Sharpe means risk-adjusted return outside the training period; maximum drawdown is the largest peak-to-trough loss; turnover is how often the rule changes exposure each year.
 """
 
     MANUAL_USE_MD = f"""
@@ -551,7 +552,7 @@ This describes the hindsight rule so it can be audited; it is not a trading reco
 
 - No result exists on data as known at the time, so the pair is unranked. Everything below the headline is hindsight on today's revised figures.
 - The hindsight result is marked `found_in_search`; it would need a frozen-rule test on data released after this run.
-- The previous rule of this page ({W.previous_rule}, run of {W.previous_tag}) was the single highest training Sharpe on revised data with fixed lags; the new framework replays that run exactly.
+- The earlier research run's rule ({W.previous_rule}, strict-lead-floor research branch, run of {W.previous_tag}) was the single highest training Sharpe on revised data with fixed lags; the new framework replays that run exactly.
 - {"The hindsight rule is procyclical (long when the ratio is high), opposite to the countercyclical prior." if _AGAINST_PRIOR else "The hindsight rule is countercyclical, in line with the prior."}
 {_R71_CAVEAT}
 """
@@ -615,7 +616,7 @@ Grid: inventories-to-sales transforms x zero, z-score and rolling-percentile thr
 - As revised today (hindsight): `{_RID_H}`, stable lead range {W.comparison_plateau_range}, training Sharpe {W.comparison_is_sharpe}, test-period Sharpe {W.comparison_oos_sharpe}. The raw argmax, the single highest training Sharpe on the hindsight track ({W.comparison_raw_argmax_rule} at L{W.comparison_raw_argmax_lead}, Sharpe {W.comparison_raw_argmax_is_sharpe}) is {W.comparison_raw_argmax_is_winner}, {W.comparison_raw_argmax_position}.{_COMP_TAIL}
 - Cross-evaluation: {_CE_TEXT}
 - Chance check (hindsight track): {_CHANCE_TEXT}
-- Previous rule of this page: `{W.previous_rule}` ({W.previous_selection}; run of {W.previous_tag}). The new framework replays that run exactly (same rows, same winner, same returns).
+- Earlier research run (strict-lead-floor research branch, not shown on the main site): `{W.previous_rule}` ({W.previous_selection}; run of {W.previous_tag}). The new framework replays that run exactly (same rows, same winner, same returns).
 """
 
 _REFERENCES_MD = """
