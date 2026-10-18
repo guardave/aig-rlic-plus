@@ -54,9 +54,25 @@ def test_integrity_check_rejects_a_constant_series_and_claims_nothing_about_cris
     ok, diag = pe._validate_signal(df, "x", {"threshold_value": 0.5}, {})
     assert not ok and "constant" in diag
     src = Path(pe.__file__).read_text()
-    assert "quiet in those crises" not in src and "statement about how the signal behaved in crises" in src
+    assert "quiet in those crises" not in src and "signal behaved in crises" in src
 
 
 def test_no_result_number_is_value_matched_on_the_unrate_pilot():
     findings, stats = g.check_pair("unrate_spy")
     assert findings == [] and stats["template_list"] == [], stats["template_list"][:5]
+
+
+def test_integrity_accepts_a_valid_signal_with_no_stress_extreme_and_names_real_defects():
+    # QA pilot-visual M2: a full-history, varying, monotone series was rejected as "constant, truncated or mostly
+    # missing"; the check is now a genuine degeneracy test and its message says what failed
+    from components import probability_engine_panel as pe
+    import numpy as np
+    idx = pd.date_range("2000-01-31", periods=300, freq="ME")
+    ok, why = pe._validate_signal(pd.DataFrame({"x": np.arange(300.0)}, index=idx), "x", {"threshold_value": 0.5}, {})
+    assert ok, why
+    gappy = pd.DataFrame({"x": [v if i % 3 == 0 else np.nan for i, v in enumerate(np.arange(300.0))]}, index=idx)
+    ok, why = pe._validate_signal(gappy, "x", {"threshold_value": 0.5}, {})
+    assert not ok and "mostly missing" in why
+    cut = pd.DataFrame({"x": list(np.arange(200.0)) + [np.nan] * 100}, index=idx)
+    ok, why = pe._validate_signal(cut, "x", {"threshold_value": 0.5}, {})
+    assert not ok and "truncated" in why

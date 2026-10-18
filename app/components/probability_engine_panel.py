@@ -162,70 +162,27 @@ def _validate_signal(
                     f"min={lo:.4f}, max={hi:.4f} — expected z-score in ~±5 range."
                 )
 
-    # Data integrity (Lead ruling 2026-10-18 on SE1): the series must not be degenerate - constant, truncated or
-    # mostly missing where it matters. A placebo study showed that "reaches its own extreme in a stress window"
-    # is passed by 64-100% of random same-length windows, so this check makes NO claim that the signal responded
-    # to a crisis; whether it did is an evidence question (placebo-tested), not a render gate. Default windows
-    # cover GFC and COVID; a pair may override via interpretation_metadata.known_stress_episodes.
-    stress_windows = metadata.get("known_stress_episodes") or [
-        ("2008-09-01", "2009-06-30"),
-        ("2020-02-15", "2020-04-30"),
-    ]
-    # winner["threshold_value"] may be JSON null (None) — coerce safely.
-    _tv = winner.get("threshold_value")
-    threshold = float(_tv) if _tv is not None else 0.5
-
-    # Normalise stress_windows: each element may be a (start, end) tuple/list
-    # OR a dict with "start"/"end" keys (as produced by Evan's
-    # interpretation_metadata.json). Both forms are supported.
-    def _to_window(w):
-        if isinstance(w, dict):
-            return w["start"], w["end"]
-        return w[0], w[1]
-
-    _plausibility_level = threshold if 0.0 <= threshold < 1.0 else 0.5
-    _is_binary_flag = bool(series.isin([0, 1]).all())
-    stress_hit = False
-    for _w in stress_windows:
-        win_start, win_end = _to_window(_w)
-        try:
-            sliced = series.loc[win_start:win_end]
-        except Exception:
-            continue
-        if sliced.empty:
-            continue
-        if is_probability:
-            # A probability can never exceed 1, so a winner threshold >= 1 (e.g. eci_total_comp_spy's
-            # rolling mean+1sd boundary, latest value 1.0) can never be "exceeded". For the
-            # plausibility check only, fall back to the majority-regime level 0.5 in that case.
-            # When the fallback level is used (threshold >= 1) the series must also leave the
-            # high regime somewhere, otherwise a saturated probability would pass.
-            _saturated = threshold >= 1.0 and not (float(series.min()) < _plausibility_level)
-            if sliced.max() > _plausibility_level and not _saturated:
-                stress_hit = True
-                break
-        elif _is_binary_flag:
-            # A 0/1 indicator flag (e.g. hst_yoy_contraction_flag) cannot have |value| > 1; its
-            # "stress extreme" is simply being switched on (== 1) inside the stress window.
-            if sliced.max() >= 1.0:
-                stress_hit = True
-                break
-        else:
-            # Levels, changes, z-scores and bounded ranks (e.g. a 0-1 percentile rank, which can never exceed
-            # |1|): expect the signal to reach an extreme tenth of its OWN history inside a stress window.
-            # (The former |value| > 1 rule depended on the signal's units and failed every bounded rank.)
-            lo10, hi90 = float(series.quantile(0.10)), float(series.quantile(0.90))
-            if sliced.max() >= hi90 or sliced.min() <= lo10:
-                stress_hit = True
-                break
-
-    if not stress_hit:
-        names = ", ".join(w.get("label", f"{w.get('start')} to {w.get('end')}") if isinstance(w, dict)
-                          else f"{w[0]} to {w[1]}" for w in stress_windows)
-        return False, (
-            f"integrity: the signal shows no reading in the extreme tenth of its own history during the stress "
-            f"episodes ({names})"
-        )
+    # Data integrity (Lead ruling 2026-10-18 on SE1; QA pilot-visual M2): a GENUINE degeneracy test. The series
+    # must not be constant (checked above), mostly missing, truncated well before the panel ends, or - for a regime
+    # probability - stuck in one regime. Nothing here asks how the signal behaved in a crisis: the earlier
+    # stress-window test was passed by 64-100% of random windows (no information) and could reject a valid series.
+    first = series.index.min()
+    span = signals_df.loc[first:, column]
+    missing = float(span.isna().mean()) if len(span) else 1.0
+    if missing > 0.5:
+        return False, (f"integrity: mostly missing ({missing:.0%} of the rows since the first reading "
+                       f"{pd.Timestamp(first):%Y-%m} have no value)")
+    rows_after = int((signals_df.index > series.index.max()).sum())
+    if rows_after > max(12, int(0.10 * len(span))):
+        return False, (f"integrity: truncated (the last reading is {pd.Timestamp(series.index.max()):%Y-%m}, "
+                       f"{rows_after} rows before the end of the data)")
+    if is_probability:
+        # a probability that never leaves one regime carries no regime information (a winner threshold >= 1 can
+        # never be exceeded, so the majority-regime level 0.5 is used then)
+        _tv = winner.get("threshold_value")
+        level = float(_tv) if _tv is not None and 0.0 <= float(_tv) < 1.0 else 0.5
+        if not (float(series.min()) < level < float(series.max()) or float(series.max()) == level):
+            return False, f"integrity: the probability never changes regime (always on one side of {level:g})"
 
     return True, "ok"
 
@@ -574,11 +531,10 @@ def render_probability_engine_panel(pair_id: str) -> None:
         # stays in session state for debugging and is never shown to readers.
         if diagnostic.startswith("integrity:"):
             st.warning(
-                "The signal panel cannot render: the stored signal history did not pass the data-integrity check "
-                "(a usable series varies, and somewhere in the stress episodes reaches the extremes of its own "
-                "range; this one looks constant, truncated or mostly missing there). This is a data check, not a "
-                "statement about how the signal behaved in crises. The strategy results on this page are computed "
-                "separately and are unaffected."
+                "The signal panel cannot render: the stored signal history failed the data-integrity check: "
+                f"{diagnostic.removeprefix('integrity: ')}. This is a data check, not a statement about how the "
+                "signal behaved in crises. The strategy results on this page are computed separately and are "
+                "unaffected."
             )
         else:
             st.error(
