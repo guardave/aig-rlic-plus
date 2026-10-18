@@ -536,7 +536,7 @@ No formulas, three steps:
 
 1. **Short history as known at the time.** Published (real-time) delinquency figures are archived from {_VIN0}, so the training period is {W.is_n} quarters ({W.is_start} to {W.is_end}) and the test period {W.oos_n} quarters.
 2. **No forecasting lead.** Delinquency to SPY Granger p-values by lag are {_G_P}; the rule reads a *state*, it does not forecast.
-3. **Search selection.** The winner is one of {W.n_valid} valid combinations; across {W.null_draws} contests run on circularly shifted data, the winner's stable-range score ranks at the {W.null_percentile} point.
+3. **Search selection.** The winner is one of {W.n_valid} valid combinations; across {W.null_draws} contests run on circularly shifted data (each archived release shifted within itself, wrapping at its own end, so every contest trains on the real winner's window), the winner's stable-range score ranks at the {W.null_percentile} point.
 4. **Two data views disagree.** On today's revised data the selected rule is to {_RULE_REVISED} (hindsight).
 5. **Data character.** QUARTERLY, revised, LAGGING and not seasonally adjusted. The raw level's ADF p-value is {_ST[('ccdelinq_level', 'ADF')]:.2f} (unit root not rejected); the 4-quarter change's is {_ST[('ccdelinq_chg_4q', 'ADF')]:.2f}.
 
