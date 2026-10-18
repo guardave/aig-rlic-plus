@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>組合研究第一批</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1d2330; --muted: #5b6474; --line: #d9dde4; --accent: #1f5c99; --soft: #f3f6fa;
+  --warn: #8a4b00; --warn-bg: #fff6e8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14181f; --fg: #e6e9ef; --muted: #a3abb9; --line: #2f3643; --accent: #7fb2e5; --soft: #1c222c;
+    --warn: #f0b867; --warn-bg: #2a2216;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14181f; --fg: #e6e9ef; --muted: #a3abb9; --line: #2f3643; --accent: #7fb2e5; --soft: #1c222c;
+  --warn: #f0b867; --warn-bg: #2a2216;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: "Noto Sans CJK TC", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "WenQuanYi Zen Hei", sans-serif;
+  font-size: 15px; line-height: 1.75;
+}
+main { max-width: 860px; margin: 0 auto; padding: 32px 16px 48px; }
+h1 { font-size: 25px; margin: 0 0 4px; }
+.sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+h2 { font-size: 19px; margin: 28px 0 10px; padding-bottom: 4px; border-bottom: 2px solid var(--accent); color: var(--accent); }
+h3 { font-size: 16px; margin: 16px 0 6px; }
+p { margin: 8px 0; }
+.box { background: var(--soft); border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; margin: 12px 0; }
+.warn { background: var(--warn-bg); border-left: 4px solid var(--warn); padding: 10px 14px; margin: 12px 0; }
+table { width: 100%; border-collapse: collapse; margin: 10px 0 14px; font-size: 14px; }
+th, td { border: 1px solid var(--line); padding: 6px 8px; vertical-align: top; text-align: left; }
+th { background: var(--soft); font-weight: 600; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td:nth-child(2) { white-space: nowrap; }
+ol, ul { padding-left: 22px; margin: 6px 0; }
+li { margin: 3px 0; }
+code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; }
+dl { margin: 6px 0; }
+dt { font-weight: 600; margin-top: 6px; }
+dd { margin: 0 0 4px 18px; }
+.foot { color: var(--muted); font-size: 12px; margin-top: 28px; border-top: 1px solid var(--line); padding-top: 10px; }
+@media print { main { padding-top: 0; } h2, h3 { break-after: avoid; } tr { break-inside: avoid; } }
+</style>
+
+</head>
+<body>
+<main>
+
+<h1>指標組合研究：第二階段第一批結果（探索性）</h1>
+<div class="sub">研究分支 <code>research261017_indicator_combos</code>　2026 年 10 月 18 日　撰寫：Research Ray<br>
+<strong>性質：探索性。</strong>以下為以「只用當時數據」的歷史數據所作的分析，並非已凍結登記檢定的前瞻期或封存數據評估。只列數字，不作結論性判斷。</div>
+
+<div class="box"><strong>重點摘要</strong>
+<ul>
+<li><strong>D2-09（樣本及檢定力預算）。</strong>76 項已登記檢定之中：
+  <ul>
+  <li>25 項因數據缺口而無法進行（24 項欠行業總回報數據，1 項欠芝加哥聯儲指數歷史版本）；</li>
+  <li>23 項檢定力不足；</li>
+  <li>沒有一項的可偵測最小幅度低於或等於其登記門檻。</li>
+  </ul></li>
+<li><strong>D1-27（即時衰退機率模型比較）。</strong>主要結果用全期數據：
+  <ul>
+  <li>四項指標模型（H3）的 Brier 技能分數，對比同期只用孳息曲線的模型為 +0.30，但 Holm 校正後 p = 0.78；</li>
+  <li>它比「固定平均機率」差（−0.06），也比簡單等權綜合差（−0.11）。</li>
+  </ul></li>
+<li><strong>關鍵事實。</strong>「SPY 低於 10 個月平均線」這個簡單趨勢訊號，在所有有數據的期間，Brier 分數都低於每一個估算出來的宏觀衰退模型。唯一例外是 2006–2025 年 H3 四個指標的簡單等權綜合（0.145 對 0.148）。</li>
+</ul></div>
+
+<h2>一、數據</h2>
+<ul>
+<li>全部輸入均只用當時已公佈的數據，詳見 <code>phase2/data/DATA_DICTIONARY.md</code>。</li>
+<li>唯一新取得的數據（缺口 G8，Lead 已批准）：FRED 每日 <code>T10Y3M</code>（十年減三個月國債息差）。
+  <ul>
+  <li>2026-10-17 17:46 UTC 下載；</li>
+  <li>1982-01-04 至 2026-10-16，共 11,685 個觀察值；</li>
+  <li>SHA-256：<code>7bf269c5…dd36dc</code>。</li>
+  </ul></li>
+<li>G5、G13、G15、G16、G17 均未取得。</li>
+</ul>
+
+<h2>二、D2-09：樣本及檢定力預算（描述性）</h2>
+<table>
+<thead><tr><th>標籤</th><th>檢定數目</th></tr></thead>
+<tbody>
+<tr><td>因數據缺口無法進行（G17 行業總回報）</td><td class="num">24</td></tr>
+<tr><td>因數據缺口無法進行（G15 芝加哥聯儲指數歷史版本）</td><td class="num">1</td></tr>
+<tr><td>檢定力不足（可偵測幅度大於門檻兩倍）</td><td class="num">23</td></tr>
+<tr><td>可偵測幅度不超過門檻兩倍（但仍高於門檻）</td><td class="num">13</td></tr>
+<tr><td>未有計算方法（衰退、重新入市、對數分數類）</td><td class="num">15</td></tr>
+</tbody></table>
+<ul>
+<li><strong>最接近門檻的是 SPY 避險類檢定。</strong>其尾部損失（CVaR）須降 22.5% 至 32.5% 才偵測得到，而門檻只是 10% 至 15%。</li>
+<li><strong>交互作用類檢定差距更大。</strong>可偵測幅度為每月 0.8 至 7.3 個百分點，而門檻只是 0.1 至 1.5。</li>
+<li><strong>衰退類問題的事件很少。</strong>可用期間只有 2 至 4 次美國衰退，而且全部包括已被反覆查看的 2020 年。</li>
+</ul>
+
+<h2>三、D1-27：即時衰退機率模型比較（探索性）</h2>
+<p><strong>設計。</strong></p>
+<ul>
+<li>每年一月以擴展窗口重新估算 probit 模型，預測未來 12 個月內是否出現衰退。</li>
+<li>預測因子全部按月底收市時已知的數據計算。</li>
+<li>衰退標籤要待 12 個月加 24 個月之後才用作訓練，以照顧 NBER 公佈衰退日期的時差。</li>
+</ul>
+<p><strong>主要量度及檢定。</strong></p>
+<ul>
+<li>主要量度是 Brier 技能分數：與同一批數據訓練、只用孳息曲線的模型比較。</li>
+<li>檢定方法為區塊重抽樣（區塊長 24 個月，抽 2,000 次）。</li>
+<li>家族共有 7 項登記檢定，以 Holm 方法校正。</li>
+<li>巧合檢驗把新增的預測因子整體平移，共做 500 次。</li>
+</ul>
+
+<h3>主要結果（全期）</h3>
+<table>
+<thead><tr><th>項目</th><th>H1 曲線＋信貸</th><th>H2 曲線＋Sahm</th><th>H3 四項指標</th></tr></thead>
+<tbody>
+<tr><td>期間</td><td>2006-01 至 2025-09</td><td>1988-01 至 2025-09</td><td>2006-01 至 2025-09</td></tr>
+<tr><td>涵蓋衰退</td><td>2 次（2008、2020）</td><td>4 次（1990、2001、2008、2020）</td><td>2 次（2008、2020）</td></tr>
+<tr><td>技能分數：對比同期只用曲線（主要）</td><td class="num">+0.085</td><td class="num">−0.165</td><td class="num">+0.300</td></tr>
+<tr><td>Holm 校正 p 值（7 項）</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">0.78</td></tr>
+<tr><td>巧合檢驗百分位</td><td class="num">90.4</td><td class="num">39.6</td><td class="num">100.0</td></tr>
+<tr><td>對比全期歷史的只用曲線模型</td><td class="num">−0.167</td><td class="num">−0.165</td><td class="num">+0.108</td></tr>
+<tr><td>對比固定平均機率（基準一）</td><td class="num">−0.388</td><td class="num">−0.271</td><td class="num">−0.062</td></tr>
+<tr><td>對比最佳單一指標（基準二）</td><td class="num">+0.050</td><td class="num">−0.069</td><td class="num">+0.123</td></tr>
+<tr><td>對比簡單等權綜合（基準三）</td><td class="num">−0.012</td><td class="num">−0.137</td><td class="num">−0.110</td></tr>
+<tr><td>校準斜率（1 為理想）</td><td class="num">0.15</td><td class="num">0.13</td><td class="num">0.23</td></tr>
+<tr><td>逐次衰退的對數分數差</td><td>2008：−35.9；2020：+0.3</td><td>1990：−27.4；2001：−0.6；2008：+15.5；2020：+1.3</td><td>2008：+32.2；2020：−65.0</td></tr>
+</tbody></table>
+<p>表內技能分數為正，表示該模型比對照模型好；為負，表示比對照模型差。三個模型的校準斜率都遠低於 1，即所給的機率過於極端。</p>
+
+<h3>SPY 十個月趨勢訊號（基準四）</h3>
+<p>在同一批月份比較所有模型的 Brier 分數（愈低愈好）：</p>
+<table>
+<thead><tr><th>期間</th><th>趨勢訊號 Brier</th><th>在 7 個模型中的排名</th></tr></thead>
+<tbody>
+<tr><td>2006-01 至 2025-09（H1 期間）</td><td class="num">0.148</td><td class="num">1</td></tr>
+<tr><td>2004-01 至 2025-09（H2 期間）</td><td class="num">0.129</td><td class="num">1</td></tr>
+<tr><td>2006-01 至 2025-09（H3 期間）</td><td class="num">0.148</td><td>2（第一為簡單等權綜合，0.145）</td></tr>
+</tbody></table>
+<p>這個趨勢訊號在所有期間都勝過每一個估算出來的宏觀 probit 模型，也勝過固定平均機率。</p>
+
+<h3>事後敏感度分析（並非預先登記）</h3>
+<p>凍結的登記檔並沒有為 D1-27 定義「剔除 2020 年」的分析，所以以下數字屬事後分析，只供了解各次衰退的影響。</p>
+<ul>
+<li>只用 2019 年 2 月或以前的月份時，H3 對比同期曲線模型的技能分數為 +0.749（未校正 p = 0.003）。</li>
+<li>差異全部來自 2020 年：H3 在 2020 年的對數分數比曲線模型低 65.0，在 2008 年則高 32.2。</li>
+<li>剔除 2020 年後只剩一次衰退。</li>
+</ul>
+
+<h2>附：術語</h2>
+<dl>
+<dt>Brier 分數／技能分數</dt><dd>機率預測與實際結果的平方誤差，愈低愈好；技能分數表示比對照模型改善了多少，負數即較差。</dd>
+<dt>Holm 校正</dt><dd>多重檢定校正：把 p 值由小至大排列，逐步收緊門檻。</dd>
+<dt>巧合檢驗百分位</dt><dd>實際結果在 500 次「打亂時間對應」的模擬結果中排第幾個百分位。</dd>
+<dt>校準斜率</dt><dd>預測機率與實際頻率是否一致；1 為一致，低於 1 表示預測過於極端。</dd>
+<dt>可偵測最小幅度</dt><dd>在 80% 檢定力下，檢驗能夠可靠分辨出來的最小效果。</dd>
+</dl>
+<div class="foot">英文詳細報告：<code>docs/indicator_combos/phase2/BATCH1_REPORT.md</code>；數據及程式：<code>phase2/d2_09/</code>、<code>phase2/d1_27/</code>、<code>phase2/scripts/</code>。</div>
+
+</main>
+</body>
+</html>
