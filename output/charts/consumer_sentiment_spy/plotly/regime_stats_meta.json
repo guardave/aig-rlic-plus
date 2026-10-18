@@ -1,10 +1,10 @@
 {
   "chart_name": "regime_stats",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-15T18:05:06.774555+00:00",
+  "generated_at": "2026-10-18T08:09:21.487948+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
-  "caption": "SPY performance across consumer-sentiment level quartiles.",
-  "narrative_alignment_note": "SPY performance across consumer-sentiment level quartiles.",
+  "caption": "Same-month SPY performance across quartiles of the 12-month change in consumer sentiment.",
+  "narrative_alignment_note": "Same-month SPY performance across quartiles of the 12-month change in consumer sentiment.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/consumer_sentiment_spy/regime_quartile_returns.csv"

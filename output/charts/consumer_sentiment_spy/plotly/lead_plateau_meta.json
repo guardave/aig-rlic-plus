@@ -1,0 +1,13 @@
+{
+  "chart_name": "lead_plateau",
+  "pair_id": "consumer_sentiment_spy",
+  "generated_at": "2026-10-18T08:07:28.206750+00:00",
+  "generated_by": "scripts/harness/charts.py",
+  "caption": "The winner L8 sits in a stable range L6-L8.",
+  "narrative_alignment_note": "The winner L8 sits in a stable range L6-L8.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/consumer_sentiment_spy/lead_curve_20261018.csv",
+    "results/consumer_sentiment_spy/hindsight_lead_curve_20261018.csv"
+  ]
+}

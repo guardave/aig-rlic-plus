@@ -1,12 +1,13 @@
 {
   "chart_name": "granger_f_by_lag",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-15T18:05:06.965542+00:00",
+  "generated_at": "2026-10-18T08:09:29.781469+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
-  "caption": "Granger p-values by lag for consumer sentiment predicting SPY returns.",
-  "narrative_alignment_note": "Granger p-values by lag for consumer sentiment predicting SPY returns.",
+  "caption": "Granger p-values by lag for the 12-month change in consumer sentiment predicting SPY returns, with the significance line and the Bonferroni line for the number of lags tried.",
+  "narrative_alignment_note": "Granger p-values by lag for the 12-month change in consumer sentiment predicting SPY returns, with the significance line and the Bonferroni line for the number of lags tried.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/consumer_sentiment_spy/core_models_20261015/granger_causality.csv"
+    "results/consumer_sentiment_spy/core_models_20261018/granger_causality.csv",
+    "results/consumer_sentiment_spy/evidence_facts_20261018.json"
   ]
 }

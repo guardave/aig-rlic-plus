@@ -1,7 +1,7 @@
 {
   "pair_id": "consumer_sentiment_spy",
-  "winner_oos_sharpe": 0.184184,
-  "benchmark_oos_sharpe": 0.953759,
-  "oos_max_drawdown": -0.261544,
+  "winner_oos_sharpe": 0.711528,
+  "benchmark_oos_sharpe": 0.946184,
+  "oos_max_drawdown": -0.156996,
   "bh_max_drawdown": -0.239272
 }

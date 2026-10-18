@@ -1,12 +1,12 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-15T18:05:08.268229+00:00",
+  "generated_at": "2026-10-18T08:09:49.093891+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
-  "caption": "Rolling correlation between consumer sentiment and SPY returns.",
-  "narrative_alignment_note": "Rolling correlation between consumer sentiment and SPY returns.",
+  "caption": "Rolling 60-month correlation between the 12-month change in consumer sentiment and SPY monthly returns.",
+  "narrative_alignment_note": "Rolling 60-month correlation between the 12-month change in consumer sentiment and SPY monthly returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/consumer_sentiment_spy/rolling_correlation_consumer_sentiment_spy.csv"
+    "results/consumer_sentiment_spy/rolling_correlation_consumer_sentiment_spy.csv"
   ]
 }

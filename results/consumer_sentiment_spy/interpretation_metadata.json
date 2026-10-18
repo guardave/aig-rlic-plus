@@ -3,7 +3,7 @@
   "schema_version": "1.1.0",
   "indicator_nature": "leading",
   "indicator_type": "sentiment",
-  "strategy_objective": "procyclical_capture",
+  "strategy_objective": "max_sharpe",
   "owner_writes": {
     "dana": [
       "indicator_nature",
@@ -25,23 +25,22 @@
       "caveats"
     ]
   },
-  "last_updated_by": "ray",
-  "last_updated_at": "2026-10-15T18:04:45.422049+00:00",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-10-18T08:05:54.183953+00:00",
   "indicator": "umcsent",
   "target": "spy",
   "expected_direction": "procyclical",
   "observed_direction": "procyclical",
   "direction_consistent": true,
-  "mechanism": "The University of Michigan Index of Consumer Sentiment (headline UMCSENT) is a survey measure of household economic optimism. Rising sentiment precedes stronger spending and risk-on equity conditions; falling sentiment precedes retrenchment. The strategy holds SPY when sentiment is favorable.",
+  "mechanism": "The University of Michigan Index of Consumer Sentiment (headline UMCSENT) is a survey of household economic optimism. Rising sentiment tends to precede stronger spending and risk-on equity conditions; falling sentiment precedes retrenchment.",
   "confidence": "low",
-  "key_finding": "In-sample-selected rule uses level at L1; held-out OOS Sharpe 0.18 versus buy-and-hold 0.95.",
+  "key_finding": "As known at the time (real-time UMCSENT vintages), the rule selected on in-sample data uses zscore_60m / T_roll_p50 at L8 (IS Sharpe 0.76); held-out OOS Sharpe 0.71 versus buy-and-hold SPY 0.95.",
   "caveats": [
-    "Winner is search-selected on a single monthly sample and needs holdout validation.",
-    "Lead grid is floored to L1 (#255 publication-lag discipline); the searched grid is the contiguous shifted grid [1..13].",
-    "Level/change thresholds are rolling-percentile based; regime pivots can drift across decades.",
-    "Lead estimates rest on a limited number of cycles in the sample."
+    "The strategy is search-selected and needs a frozen-rule holdout confirmation.",
+    "UMCSENT is rarely revised after its final monthly reading, so the as-known-at-the-time and revised tracks differ mainly through release timing and the shorter vintage archive.",
+    "The test window was seen by the previously published run, so it is not a frozen hold-out."
   ],
-  "narrative_summary": "U. Michigan headline consumer sentiment is tested as a procyclical sentiment overlay for SPY. NEW pair; compare with umcsent_xlv (same series vs XLV) and umcsent_spy (expected-business-conditions diffusion vs SPY).",
+  "narrative_summary": "Headline U. Michigan consumer sentiment is tested as a procyclical sentiment overlay for SPY. Compare with umcsent_xlv (same series vs XLV) and umcsent_spy (the expected-business-conditions diffusion vs SPY).",
   "known_stress_episodes": [
     {
       "label": "Dot-Com recession",
@@ -69,8 +68,8 @@
     }
   ],
   "data_provenance": {
-    "source": "FRED (University of Michigan Surveys of Consumers)",
+    "source": "FRED / ALFRED (University of Michigan Surveys of Consumers)",
     "series_id": "UMCSENT",
-    "accessed_at": "2026-10-15T18:04:45.422049+00:00"
+    "accessed_at": "2026-10-18T08:05:54.183953+00:00"
   }
 }

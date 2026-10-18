@@ -1,10 +1,10 @@
 {
   "chart_name": "history_zoom_dotcom",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-15T18:05:08.385120+00:00",
+  "generated_at": "2026-10-18T08:10:02.822227+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
-  "caption": "Dot-Com Recession: Sentiment Sagged into the 2001 Downturn; gray bands are NBER recessions.",
-  "narrative_alignment_note": "Dot-Com Recession: Sentiment Sagged into the 2001 Downturn; gray bands are NBER recessions.",
+  "caption": "Dot-Com Bust: Sentiment Stayed High Into the Equity Decline; gray bands are NBER recessions and pink bands mark months when sentiment was below its year-earlier level.",
+  "narrative_alignment_note": "Dot-Com Bust: Sentiment Stayed High Into the Equity Decline; gray bands are NBER recessions and pink bands mark months when sentiment was below its year-earlier level.",
   "disposition": "consumed",
   "source_artifacts": [
     "data/consumer_sentiment_spy_monthly_latest.parquet"

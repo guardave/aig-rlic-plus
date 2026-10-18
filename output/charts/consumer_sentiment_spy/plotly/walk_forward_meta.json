@@ -1,10 +1,10 @@
 {
   "chart_name": "walk_forward",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-15T18:05:08.339187+00:00",
+  "generated_at": "2026-10-18T08:09:59.381472+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
-  "caption": "Alias for the dashboard's standard walk-forward chart slot.",
-  "narrative_alignment_note": "Alias for the dashboard's standard walk-forward chart slot.",
+  "caption": "Strategy and buy-and-hold SPY Sharpe during major stress episodes; n is the number of monthly returns.",
+  "narrative_alignment_note": "Strategy and buy-and-hold SPY Sharpe during major stress episodes; n is the number of monthly returns.",
   "disposition": "consumed",
   "source_artifacts": [
     "results/consumer_sentiment_spy/subperiod_sharpe.csv"

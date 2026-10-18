@@ -1,0 +1,417 @@
+{
+ "ccf_prewhitened": {
+  "chart_sha256": "6f2a8aeceef1cc56c3cbb2a9aafa374bb95425f9fb80f9ecabff4813bb219e7f",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:09:24+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/core_models_20261018/ccf_prewhitened.csv": "10ad30675209707c1267d409083fdeaf036b004186a60766e0530f6e60a4a5dd",
+   "results/consumer_sentiment_spy/core_models_20261018/correlations.csv": "dbc540e61bd163a1a6da05c2398ac11be727ffa56fa009d9a39f1ea3ca78ce1b",
+   "results/consumer_sentiment_spy/evidence_facts_20261018.json": "caf28d0c73f4f6b78999595bfa1b5db03d5a817ca3d01f91f7f778210951a71b",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "chance_check": {
+  "chart_sha256": "cb928fdbf138044f85093e7a785152bb9a02e13f22fa10673ad18ae7317d15ed",
+  "results_tag": "20261018",
+  "producer": "scripts/harness/charts.py",
+  "recorded_at": "2026-10-18T08:07:31+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/phaseB_inputs/consumer_sentiment_spy_monthly_legacy_20261015.csv": "17cd42f3aa061f009c98f6c3a31b03691d41a9ba77ce059e52165570127e5ed9",
+   "data/phaseB_inputs/spy_month_end_20261017.csv": "dba97c9aaa1cf16c8727e8e6300c053c3a3f718290001ad368bd80dfb51f1be5",
+   "data/release_calendar/release_calendar.csv": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
+   "data/release_calendar/release_calendar_meta.json": "9c8ab4d3258bf7938b38557a99f8266b638943d34e95fbed963d581484dd3e96",
+   "data/release_calendar/vintages/UMCSENT.csv.gz": "8c1e1c6afe1bb6674a17275bf6195568b0bf7ea5bb9601bb55d31e8c28a15775",
+   "results/consumer_sentiment_spy/hindsight_lead_curve_20261018.csv": "95ea598f864edfdc255f81a2f368a78c8f227748e8cfc93e6f5560d96fab662e",
+   "results/consumer_sentiment_spy/lead_curve_20261018.csv": "2ec5bafb80ed11a73fc2cce855db3d1133944d6053e5a555b696ac3687e57cba",
+   "results/consumer_sentiment_spy/legacy_oos_selection_20261015.csv": "50bb641d36e65a31c5a95dfaf3226e0503b841c16f3e5801b1a41b5e15ee32e5",
+   "results/consumer_sentiment_spy/null_tournament_20261018.csv": "990ccdbf94777784b9223b8d2494cb8d5d46ff6de6d769e14f16fb29dc1ae9b7",
+   "results/consumer_sentiment_spy/strategy_returns_20261015.csv": "ad4fbb7136963af1eec34172a0c3f15d9dece8f6b8c61d7cb4ad03d41d6f2fb2",
+   "results/consumer_sentiment_spy/tournament_results_20261015.csv": "d9b23b946e97c702725fe3e1aa62388204100fb0c786ae721368a9a151daa725",
+   "results/consumer_sentiment_spy/track_summary.json": "28f3435dfb15bf3d72d6afd8fa29c684ed3ce3b12bf1edad4499e47f556bf1e4",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "correlation_heatmap": {
+  "chart_sha256": "1852cd1440cd96e37118cd304a7434e65f32bd5d87286e132c3dee032488299b",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:09:21+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/core_models_20261018/correlations.csv": "dbc540e61bd163a1a6da05c2398ac11be727ffa56fa009d9a39f1ea3ca78ce1b",
+   "results/consumer_sentiment_spy/evidence_facts_20261018.json": "caf28d0c73f4f6b78999595bfa1b5db03d5a817ca3d01f91f7f778210951a71b",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "drawdown": {
+  "chart_sha256": "ec7b3b1b530face541c2457ef2c8d4810434128dc25dca6ada15847ffa24da5c",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:09:38+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/core_models_20261018/ccf_prewhitened.csv": "10ad30675209707c1267d409083fdeaf036b004186a60766e0530f6e60a4a5dd",
+   "results/consumer_sentiment_spy/core_models_20261018/correlations.csv": "dbc540e61bd163a1a6da05c2398ac11be727ffa56fa009d9a39f1ea3ca78ce1b",
+   "results/consumer_sentiment_spy/core_models_20261018/granger_causality.csv": "782ff7126faecc0193042300fcfeea7262b95acb4c71ee260c3bbcf755cb1374",
+   "results/consumer_sentiment_spy/core_models_20261018/local_projections.csv": "2e90111692d941102d63492d46807af80e02cefffb4713afd2de184783faf7eb",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_equality_test.json": "bf30d9ed68a5c4826cf28789809cb2c4c56fb49964d8e1d321966821b836ebb1",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_regression.csv": "862c3004e14c1e21bd9f2fbe809161027cf8faa305d53354cc4587bf769245d7",
+   "results/consumer_sentiment_spy/evidence_facts_20261018.json": "caf28d0c73f4f6b78999595bfa1b5db03d5a817ca3d01f91f7f778210951a71b",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/strategy_returns_20261018.csv": "5885b57031137527d933a151f37bb6134fffdafb1299bca33fb0ea7ad3414b5f",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "equity_curves": {
+  "chart_sha256": "67ecbc26691954b90fafcf975b3173863d354a802ac90b1039fcbb96c1fc4be3",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:09:35+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/core_models_20261018/ccf_prewhitened.csv": "10ad30675209707c1267d409083fdeaf036b004186a60766e0530f6e60a4a5dd",
+   "results/consumer_sentiment_spy/core_models_20261018/correlations.csv": "dbc540e61bd163a1a6da05c2398ac11be727ffa56fa009d9a39f1ea3ca78ce1b",
+   "results/consumer_sentiment_spy/core_models_20261018/granger_causality.csv": "782ff7126faecc0193042300fcfeea7262b95acb4c71ee260c3bbcf755cb1374",
+   "results/consumer_sentiment_spy/core_models_20261018/local_projections.csv": "2e90111692d941102d63492d46807af80e02cefffb4713afd2de184783faf7eb",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_equality_test.json": "bf30d9ed68a5c4826cf28789809cb2c4c56fb49964d8e1d321966821b836ebb1",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_regression.csv": "862c3004e14c1e21bd9f2fbe809161027cf8faa305d53354cc4587bf769245d7",
+   "results/consumer_sentiment_spy/evidence_facts_20261018.json": "caf28d0c73f4f6b78999595bfa1b5db03d5a817ca3d01f91f7f778210951a71b",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/strategy_returns_20261018.csv": "5885b57031137527d933a151f37bb6134fffdafb1299bca33fb0ea7ad3414b5f",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "granger_f_by_lag": {
+  "chart_sha256": "53a806875ce6ae14878e52a839b0d20efbab506f2e346d3cd05c6e82fbd88b2e",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:09:27+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/core_models_20261018/ccf_prewhitened.csv": "10ad30675209707c1267d409083fdeaf036b004186a60766e0530f6e60a4a5dd",
+   "results/consumer_sentiment_spy/core_models_20261018/correlations.csv": "dbc540e61bd163a1a6da05c2398ac11be727ffa56fa009d9a39f1ea3ca78ce1b",
+   "results/consumer_sentiment_spy/core_models_20261018/granger_causality.csv": "782ff7126faecc0193042300fcfeea7262b95acb4c71ee260c3bbcf755cb1374",
+   "results/consumer_sentiment_spy/evidence_facts_20261018.json": "caf28d0c73f4f6b78999595bfa1b5db03d5a817ca3d01f91f7f778210951a71b",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "hero": {
+  "chart_sha256": "29705013888b16a9a4c98a00fa7969ac2174d088893fcfd21974704aa49f04ef",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:09:15+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9"
+  }
+ },
+ "history_zoom_covid": {
+  "chart_sha256": "6a10fea54dbf30c434b84ff1541eb92de8143471607a5cdb13b65d2d92552b2d",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:10:06+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/core_models_20261018/ccf_prewhitened.csv": "10ad30675209707c1267d409083fdeaf036b004186a60766e0530f6e60a4a5dd",
+   "results/consumer_sentiment_spy/core_models_20261018/correlations.csv": "dbc540e61bd163a1a6da05c2398ac11be727ffa56fa009d9a39f1ea3ca78ce1b",
+   "results/consumer_sentiment_spy/core_models_20261018/granger_causality.csv": "782ff7126faecc0193042300fcfeea7262b95acb4c71ee260c3bbcf755cb1374",
+   "results/consumer_sentiment_spy/core_models_20261018/local_projections.csv": "2e90111692d941102d63492d46807af80e02cefffb4713afd2de184783faf7eb",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_equality_test.json": "bf30d9ed68a5c4826cf28789809cb2c4c56fb49964d8e1d321966821b836ebb1",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_regression.csv": "862c3004e14c1e21bd9f2fbe809161027cf8faa305d53354cc4587bf769245d7",
+   "results/consumer_sentiment_spy/evidence_facts_20261018.json": "caf28d0c73f4f6b78999595bfa1b5db03d5a817ca3d01f91f7f778210951a71b",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/rolling_correlation_consumer_sentiment_spy.csv": "869e06656c9d51e3a1da046167ebc5e167fc47280563d09f63e8d487d0cc27cb",
+   "results/consumer_sentiment_spy/strategy_returns_20261018.csv": "5885b57031137527d933a151f37bb6134fffdafb1299bca33fb0ea7ad3414b5f",
+   "results/consumer_sentiment_spy/structural_break_consumer_sentiment_spy.json": "53957bbf6f89eb0f0bdf89a4ab15890c2b738522ef2d49636ef0970f863c4e0d",
+   "results/consumer_sentiment_spy/subperiod_sharpe.csv": "97deee779161e8b5b0967e43f43c8b56d91bcc6cad06b2c932540bffa9e42b4a",
+   "results/consumer_sentiment_spy/tournament_results_20261018.csv": "c1b1b692d10a693562002cf04807af2f7a610f3b8878782193015651dbb81bee",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "history_zoom_dotcom": {
+  "chart_sha256": "543ebd34f76e7625b2f4c582c714d5855d3e2c15bcb7950c737b48dcfd2a25a9",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:09:59+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/core_models_20261018/ccf_prewhitened.csv": "10ad30675209707c1267d409083fdeaf036b004186a60766e0530f6e60a4a5dd",
+   "results/consumer_sentiment_spy/core_models_20261018/correlations.csv": "dbc540e61bd163a1a6da05c2398ac11be727ffa56fa009d9a39f1ea3ca78ce1b",
+   "results/consumer_sentiment_spy/core_models_20261018/granger_causality.csv": "782ff7126faecc0193042300fcfeea7262b95acb4c71ee260c3bbcf755cb1374",
+   "results/consumer_sentiment_spy/core_models_20261018/local_projections.csv": "2e90111692d941102d63492d46807af80e02cefffb4713afd2de184783faf7eb",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_equality_test.json": "bf30d9ed68a5c4826cf28789809cb2c4c56fb49964d8e1d321966821b836ebb1",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_regression.csv": "862c3004e14c1e21bd9f2fbe809161027cf8faa305d53354cc4587bf769245d7",
+   "results/consumer_sentiment_spy/evidence_facts_20261018.json": "caf28d0c73f4f6b78999595bfa1b5db03d5a817ca3d01f91f7f778210951a71b",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/rolling_correlation_consumer_sentiment_spy.csv": "869e06656c9d51e3a1da046167ebc5e167fc47280563d09f63e8d487d0cc27cb",
+   "results/consumer_sentiment_spy/strategy_returns_20261018.csv": "5885b57031137527d933a151f37bb6134fffdafb1299bca33fb0ea7ad3414b5f",
+   "results/consumer_sentiment_spy/structural_break_consumer_sentiment_spy.json": "53957bbf6f89eb0f0bdf89a4ab15890c2b738522ef2d49636ef0970f863c4e0d",
+   "results/consumer_sentiment_spy/subperiod_sharpe.csv": "97deee779161e8b5b0967e43f43c8b56d91bcc6cad06b2c932540bffa9e42b4a",
+   "results/consumer_sentiment_spy/tournament_results_20261018.csv": "c1b1b692d10a693562002cf04807af2f7a610f3b8878782193015651dbb81bee",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "history_zoom_gfc": {
+  "chart_sha256": "f2a1edfe79363f9254126b18e808c04cbf8230f2c1812adf5e67a64fe91fcfb3",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:10:02+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/core_models_20261018/ccf_prewhitened.csv": "10ad30675209707c1267d409083fdeaf036b004186a60766e0530f6e60a4a5dd",
+   "results/consumer_sentiment_spy/core_models_20261018/correlations.csv": "dbc540e61bd163a1a6da05c2398ac11be727ffa56fa009d9a39f1ea3ca78ce1b",
+   "results/consumer_sentiment_spy/core_models_20261018/granger_causality.csv": "782ff7126faecc0193042300fcfeea7262b95acb4c71ee260c3bbcf755cb1374",
+   "results/consumer_sentiment_spy/core_models_20261018/local_projections.csv": "2e90111692d941102d63492d46807af80e02cefffb4713afd2de184783faf7eb",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_equality_test.json": "bf30d9ed68a5c4826cf28789809cb2c4c56fb49964d8e1d321966821b836ebb1",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_regression.csv": "862c3004e14c1e21bd9f2fbe809161027cf8faa305d53354cc4587bf769245d7",
+   "results/consumer_sentiment_spy/evidence_facts_20261018.json": "caf28d0c73f4f6b78999595bfa1b5db03d5a817ca3d01f91f7f778210951a71b",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/rolling_correlation_consumer_sentiment_spy.csv": "869e06656c9d51e3a1da046167ebc5e167fc47280563d09f63e8d487d0cc27cb",
+   "results/consumer_sentiment_spy/strategy_returns_20261018.csv": "5885b57031137527d933a151f37bb6134fffdafb1299bca33fb0ea7ad3414b5f",
+   "results/consumer_sentiment_spy/structural_break_consumer_sentiment_spy.json": "53957bbf6f89eb0f0bdf89a4ab15890c2b738522ef2d49636ef0970f863c4e0d",
+   "results/consumer_sentiment_spy/subperiod_sharpe.csv": "97deee779161e8b5b0967e43f43c8b56d91bcc6cad06b2c932540bffa9e42b4a",
+   "results/consumer_sentiment_spy/tournament_results_20261018.csv": "c1b1b692d10a693562002cf04807af2f7a610f3b8878782193015651dbb81bee",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "history_zoom_inflation_2022": {
+  "chart_sha256": "620b9c0de49d853ac081c7d451eeb4a02f2701fa2c01730fe1f6e6bcf7611a57",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:10:09+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/core_models_20261018/ccf_prewhitened.csv": "10ad30675209707c1267d409083fdeaf036b004186a60766e0530f6e60a4a5dd",
+   "results/consumer_sentiment_spy/core_models_20261018/correlations.csv": "dbc540e61bd163a1a6da05c2398ac11be727ffa56fa009d9a39f1ea3ca78ce1b",
+   "results/consumer_sentiment_spy/core_models_20261018/granger_causality.csv": "782ff7126faecc0193042300fcfeea7262b95acb4c71ee260c3bbcf755cb1374",
+   "results/consumer_sentiment_spy/core_models_20261018/local_projections.csv": "2e90111692d941102d63492d46807af80e02cefffb4713afd2de184783faf7eb",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_equality_test.json": "bf30d9ed68a5c4826cf28789809cb2c4c56fb49964d8e1d321966821b836ebb1",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_regression.csv": "862c3004e14c1e21bd9f2fbe809161027cf8faa305d53354cc4587bf769245d7",
+   "results/consumer_sentiment_spy/evidence_facts_20261018.json": "caf28d0c73f4f6b78999595bfa1b5db03d5a817ca3d01f91f7f778210951a71b",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/rolling_correlation_consumer_sentiment_spy.csv": "869e06656c9d51e3a1da046167ebc5e167fc47280563d09f63e8d487d0cc27cb",
+   "results/consumer_sentiment_spy/strategy_returns_20261018.csv": "5885b57031137527d933a151f37bb6134fffdafb1299bca33fb0ea7ad3414b5f",
+   "results/consumer_sentiment_spy/structural_break_consumer_sentiment_spy.json": "53957bbf6f89eb0f0bdf89a4ab15890c2b738522ef2d49636ef0970f863c4e0d",
+   "results/consumer_sentiment_spy/subperiod_sharpe.csv": "97deee779161e8b5b0967e43f43c8b56d91bcc6cad06b2c932540bffa9e42b4a",
+   "results/consumer_sentiment_spy/tournament_results_20261018.csv": "c1b1b692d10a693562002cf04807af2f7a610f3b8878782193015651dbb81bee",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "lead_plateau": {
+  "chart_sha256": "5829770283067e205354f8a187d86711d1158849f158b23becb1bbba4814d89e",
+  "results_tag": "20261018",
+  "producer": "scripts/harness/charts.py",
+  "recorded_at": "2026-10-18T08:07:28+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/phaseB_inputs/consumer_sentiment_spy_monthly_legacy_20261015.csv": "17cd42f3aa061f009c98f6c3a31b03691d41a9ba77ce059e52165570127e5ed9",
+   "data/phaseB_inputs/spy_month_end_20261017.csv": "dba97c9aaa1cf16c8727e8e6300c053c3a3f718290001ad368bd80dfb51f1be5",
+   "data/release_calendar/release_calendar.csv": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
+   "data/release_calendar/release_calendar_meta.json": "9c8ab4d3258bf7938b38557a99f8266b638943d34e95fbed963d581484dd3e96",
+   "data/release_calendar/vintages/UMCSENT.csv.gz": "8c1e1c6afe1bb6674a17275bf6195568b0bf7ea5bb9601bb55d31e8c28a15775",
+   "results/consumer_sentiment_spy/hindsight_lead_curve_20261018.csv": "95ea598f864edfdc255f81a2f368a78c8f227748e8cfc93e6f5560d96fab662e",
+   "results/consumer_sentiment_spy/lead_curve_20261018.csv": "2ec5bafb80ed11a73fc2cce855db3d1133944d6053e5a555b696ac3687e57cba",
+   "results/consumer_sentiment_spy/legacy_oos_selection_20261015.csv": "50bb641d36e65a31c5a95dfaf3226e0503b841c16f3e5801b1a41b5e15ee32e5",
+   "results/consumer_sentiment_spy/strategy_returns_20261015.csv": "ad4fbb7136963af1eec34172a0c3f15d9dece8f6b8c61d7cb4ad03d41d6f2fb2",
+   "results/consumer_sentiment_spy/tournament_results_20261015.csv": "d9b23b946e97c702725fe3e1aa62388204100fb0c786ae721368a9a151daa725"
+  }
+ },
+ "local_projections": {
+  "chart_sha256": "b523ee6afa08f7d4247070b885fbff9e58c049976fa826cc90c1bbbc10a8275a",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:09:29+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/core_models_20261018/ccf_prewhitened.csv": "10ad30675209707c1267d409083fdeaf036b004186a60766e0530f6e60a4a5dd",
+   "results/consumer_sentiment_spy/core_models_20261018/correlations.csv": "dbc540e61bd163a1a6da05c2398ac11be727ffa56fa009d9a39f1ea3ca78ce1b",
+   "results/consumer_sentiment_spy/core_models_20261018/granger_causality.csv": "782ff7126faecc0193042300fcfeea7262b95acb4c71ee260c3bbcf755cb1374",
+   "results/consumer_sentiment_spy/core_models_20261018/local_projections.csv": "2e90111692d941102d63492d46807af80e02cefffb4713afd2de184783faf7eb",
+   "results/consumer_sentiment_spy/evidence_facts_20261018.json": "caf28d0c73f4f6b78999595bfa1b5db03d5a817ca3d01f91f7f778210951a71b",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "quantile_coef": {
+  "chart_sha256": "c5cac7281214b867ce9f3af13869f64b170cf51948d8d093383abab3da374e96",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:09:32+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/core_models_20261018/ccf_prewhitened.csv": "10ad30675209707c1267d409083fdeaf036b004186a60766e0530f6e60a4a5dd",
+   "results/consumer_sentiment_spy/core_models_20261018/correlations.csv": "dbc540e61bd163a1a6da05c2398ac11be727ffa56fa009d9a39f1ea3ca78ce1b",
+   "results/consumer_sentiment_spy/core_models_20261018/granger_causality.csv": "782ff7126faecc0193042300fcfeea7262b95acb4c71ee260c3bbcf755cb1374",
+   "results/consumer_sentiment_spy/core_models_20261018/local_projections.csv": "2e90111692d941102d63492d46807af80e02cefffb4713afd2de184783faf7eb",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_equality_test.json": "bf30d9ed68a5c4826cf28789809cb2c4c56fb49964d8e1d321966821b836ebb1",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_regression.csv": "862c3004e14c1e21bd9f2fbe809161027cf8faa305d53354cc4587bf769245d7",
+   "results/consumer_sentiment_spy/evidence_facts_20261018.json": "caf28d0c73f4f6b78999595bfa1b5db03d5a817ca3d01f91f7f778210951a71b",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "regime_stats": {
+  "chart_sha256": "35c4cb2c483807c3a36af024b21b4f0600923ccf3fa8e585520a5b04992b2dbf",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:09:18+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "rolling_correlation": {
+  "chart_sha256": "67fef0c94a790009c4aa950264b34370eaf5b52e09fc0b65e4d2352c11432081",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:09:46+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/core_models_20261018/ccf_prewhitened.csv": "10ad30675209707c1267d409083fdeaf036b004186a60766e0530f6e60a4a5dd",
+   "results/consumer_sentiment_spy/core_models_20261018/correlations.csv": "dbc540e61bd163a1a6da05c2398ac11be727ffa56fa009d9a39f1ea3ca78ce1b",
+   "results/consumer_sentiment_spy/core_models_20261018/granger_causality.csv": "782ff7126faecc0193042300fcfeea7262b95acb4c71ee260c3bbcf755cb1374",
+   "results/consumer_sentiment_spy/core_models_20261018/local_projections.csv": "2e90111692d941102d63492d46807af80e02cefffb4713afd2de184783faf7eb",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_equality_test.json": "bf30d9ed68a5c4826cf28789809cb2c4c56fb49964d8e1d321966821b836ebb1",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_regression.csv": "862c3004e14c1e21bd9f2fbe809161027cf8faa305d53354cc4587bf769245d7",
+   "results/consumer_sentiment_spy/evidence_facts_20261018.json": "caf28d0c73f4f6b78999595bfa1b5db03d5a817ca3d01f91f7f778210951a71b",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/rolling_correlation_consumer_sentiment_spy.csv": "869e06656c9d51e3a1da046167ebc5e167fc47280563d09f63e8d487d0cc27cb",
+   "results/consumer_sentiment_spy/strategy_returns_20261018.csv": "5885b57031137527d933a151f37bb6134fffdafb1299bca33fb0ea7ad3414b5f",
+   "results/consumer_sentiment_spy/tournament_results_20261018.csv": "c1b1b692d10a693562002cf04807af2f7a610f3b8878782193015651dbb81bee",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "structural_break": {
+  "chart_sha256": "5de2c60acc74dad3260d8597a028b5f433fb65ea47848f3e9e9ad74f4634ecb2",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:09:49+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/core_models_20261018/ccf_prewhitened.csv": "10ad30675209707c1267d409083fdeaf036b004186a60766e0530f6e60a4a5dd",
+   "results/consumer_sentiment_spy/core_models_20261018/correlations.csv": "dbc540e61bd163a1a6da05c2398ac11be727ffa56fa009d9a39f1ea3ca78ce1b",
+   "results/consumer_sentiment_spy/core_models_20261018/granger_causality.csv": "782ff7126faecc0193042300fcfeea7262b95acb4c71ee260c3bbcf755cb1374",
+   "results/consumer_sentiment_spy/core_models_20261018/local_projections.csv": "2e90111692d941102d63492d46807af80e02cefffb4713afd2de184783faf7eb",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_equality_test.json": "bf30d9ed68a5c4826cf28789809cb2c4c56fb49964d8e1d321966821b836ebb1",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_regression.csv": "862c3004e14c1e21bd9f2fbe809161027cf8faa305d53354cc4587bf769245d7",
+   "results/consumer_sentiment_spy/evidence_facts_20261018.json": "caf28d0c73f4f6b78999595bfa1b5db03d5a817ca3d01f91f7f778210951a71b",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/rolling_correlation_consumer_sentiment_spy.csv": "869e06656c9d51e3a1da046167ebc5e167fc47280563d09f63e8d487d0cc27cb",
+   "results/consumer_sentiment_spy/strategy_returns_20261018.csv": "5885b57031137527d933a151f37bb6134fffdafb1299bca33fb0ea7ad3414b5f",
+   "results/consumer_sentiment_spy/structural_break_consumer_sentiment_spy.json": "53957bbf6f89eb0f0bdf89a4ab15890c2b738522ef2d49636ef0970f863c4e0d",
+   "results/consumer_sentiment_spy/tournament_results_20261018.csv": "c1b1b692d10a693562002cf04807af2f7a610f3b8878782193015651dbb81bee",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "subperiod_sharpe": {
+  "chart_sha256": "db63408410f9abaac6d9abb81f395eaf36555affddf107e963d54fbe263c4814",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:09:52+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/core_models_20261018/ccf_prewhitened.csv": "10ad30675209707c1267d409083fdeaf036b004186a60766e0530f6e60a4a5dd",
+   "results/consumer_sentiment_spy/core_models_20261018/correlations.csv": "dbc540e61bd163a1a6da05c2398ac11be727ffa56fa009d9a39f1ea3ca78ce1b",
+   "results/consumer_sentiment_spy/core_models_20261018/granger_causality.csv": "782ff7126faecc0193042300fcfeea7262b95acb4c71ee260c3bbcf755cb1374",
+   "results/consumer_sentiment_spy/core_models_20261018/local_projections.csv": "2e90111692d941102d63492d46807af80e02cefffb4713afd2de184783faf7eb",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_equality_test.json": "bf30d9ed68a5c4826cf28789809cb2c4c56fb49964d8e1d321966821b836ebb1",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_regression.csv": "862c3004e14c1e21bd9f2fbe809161027cf8faa305d53354cc4587bf769245d7",
+   "results/consumer_sentiment_spy/evidence_facts_20261018.json": "caf28d0c73f4f6b78999595bfa1b5db03d5a817ca3d01f91f7f778210951a71b",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/rolling_correlation_consumer_sentiment_spy.csv": "869e06656c9d51e3a1da046167ebc5e167fc47280563d09f63e8d487d0cc27cb",
+   "results/consumer_sentiment_spy/strategy_returns_20261018.csv": "5885b57031137527d933a151f37bb6134fffdafb1299bca33fb0ea7ad3414b5f",
+   "results/consumer_sentiment_spy/structural_break_consumer_sentiment_spy.json": "53957bbf6f89eb0f0bdf89a4ab15890c2b738522ef2d49636ef0970f863c4e0d",
+   "results/consumer_sentiment_spy/subperiod_sharpe.csv": "97deee779161e8b5b0967e43f43c8b56d91bcc6cad06b2c932540bffa9e42b4a",
+   "results/consumer_sentiment_spy/tournament_results_20261018.csv": "c1b1b692d10a693562002cf04807af2f7a610f3b8878782193015651dbb81bee",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "tournament_scatter": {
+  "chart_sha256": "297a4ac39144613ee882a6c6382a31eba1dc67ed28a9d556419e4dde0de70361",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:09:43+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/core_models_20261018/ccf_prewhitened.csv": "10ad30675209707c1267d409083fdeaf036b004186a60766e0530f6e60a4a5dd",
+   "results/consumer_sentiment_spy/core_models_20261018/correlations.csv": "dbc540e61bd163a1a6da05c2398ac11be727ffa56fa009d9a39f1ea3ca78ce1b",
+   "results/consumer_sentiment_spy/core_models_20261018/granger_causality.csv": "782ff7126faecc0193042300fcfeea7262b95acb4c71ee260c3bbcf755cb1374",
+   "results/consumer_sentiment_spy/core_models_20261018/local_projections.csv": "2e90111692d941102d63492d46807af80e02cefffb4713afd2de184783faf7eb",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_equality_test.json": "bf30d9ed68a5c4826cf28789809cb2c4c56fb49964d8e1d321966821b836ebb1",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_regression.csv": "862c3004e14c1e21bd9f2fbe809161027cf8faa305d53354cc4587bf769245d7",
+   "results/consumer_sentiment_spy/evidence_facts_20261018.json": "caf28d0c73f4f6b78999595bfa1b5db03d5a817ca3d01f91f7f778210951a71b",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/strategy_returns_20261018.csv": "5885b57031137527d933a151f37bb6134fffdafb1299bca33fb0ea7ad3414b5f",
+   "results/consumer_sentiment_spy/tournament_results_20261018.csv": "c1b1b692d10a693562002cf04807af2f7a610f3b8878782193015651dbb81bee",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "tournament_sharpe_dist": {
+  "chart_sha256": "297a4ac39144613ee882a6c6382a31eba1dc67ed28a9d556419e4dde0de70361",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:09:40+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/core_models_20261018/ccf_prewhitened.csv": "10ad30675209707c1267d409083fdeaf036b004186a60766e0530f6e60a4a5dd",
+   "results/consumer_sentiment_spy/core_models_20261018/correlations.csv": "dbc540e61bd163a1a6da05c2398ac11be727ffa56fa009d9a39f1ea3ca78ce1b",
+   "results/consumer_sentiment_spy/core_models_20261018/granger_causality.csv": "782ff7126faecc0193042300fcfeea7262b95acb4c71ee260c3bbcf755cb1374",
+   "results/consumer_sentiment_spy/core_models_20261018/local_projections.csv": "2e90111692d941102d63492d46807af80e02cefffb4713afd2de184783faf7eb",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_equality_test.json": "bf30d9ed68a5c4826cf28789809cb2c4c56fb49964d8e1d321966821b836ebb1",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_regression.csv": "862c3004e14c1e21bd9f2fbe809161027cf8faa305d53354cc4587bf769245d7",
+   "results/consumer_sentiment_spy/evidence_facts_20261018.json": "caf28d0c73f4f6b78999595bfa1b5db03d5a817ca3d01f91f7f778210951a71b",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/strategy_returns_20261018.csv": "5885b57031137527d933a151f37bb6134fffdafb1299bca33fb0ea7ad3414b5f",
+   "results/consumer_sentiment_spy/tournament_results_20261018.csv": "c1b1b692d10a693562002cf04807af2f7a610f3b8878782193015651dbb81bee",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ },
+ "walk_forward": {
+  "chart_sha256": "db63408410f9abaac6d9abb81f395eaf36555affddf107e963d54fbe263c4814",
+  "results_tag": "20261018",
+  "producer": "scripts/generate_charts_consumer_sentiment_spy.py",
+  "recorded_at": "2026-10-18T08:09:55+00:00",
+  "recorder": "entry-point:scripts/_cp_boot.py",
+  "inputs": {
+   "data/consumer_sentiment_spy_monthly_latest.parquet": "aa5b78f1404bfdf3e657f0c08956a8fd92d86783feb2c5ad65e62f8eea3314a9",
+   "results/consumer_sentiment_spy/core_models_20261018/ccf_prewhitened.csv": "10ad30675209707c1267d409083fdeaf036b004186a60766e0530f6e60a4a5dd",
+   "results/consumer_sentiment_spy/core_models_20261018/correlations.csv": "dbc540e61bd163a1a6da05c2398ac11be727ffa56fa009d9a39f1ea3ca78ce1b",
+   "results/consumer_sentiment_spy/core_models_20261018/granger_causality.csv": "782ff7126faecc0193042300fcfeea7262b95acb4c71ee260c3bbcf755cb1374",
+   "results/consumer_sentiment_spy/core_models_20261018/local_projections.csv": "2e90111692d941102d63492d46807af80e02cefffb4713afd2de184783faf7eb",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_equality_test.json": "bf30d9ed68a5c4826cf28789809cb2c4c56fb49964d8e1d321966821b836ebb1",
+   "results/consumer_sentiment_spy/core_models_20261018/quantile_regression.csv": "862c3004e14c1e21bd9f2fbe809161027cf8faa305d53354cc4587bf769245d7",
+   "results/consumer_sentiment_spy/evidence_facts_20261018.json": "caf28d0c73f4f6b78999595bfa1b5db03d5a817ca3d01f91f7f778210951a71b",
+   "results/consumer_sentiment_spy/regime_quartile_returns.csv": "56baaa1608ca948e740cd18fe37979694cd9e9a7030f532df3b5072d90614ef9",
+   "results/consumer_sentiment_spy/rolling_correlation_consumer_sentiment_spy.csv": "869e06656c9d51e3a1da046167ebc5e167fc47280563d09f63e8d487d0cc27cb",
+   "results/consumer_sentiment_spy/strategy_returns_20261018.csv": "5885b57031137527d933a151f37bb6134fffdafb1299bca33fb0ea7ad3414b5f",
+   "results/consumer_sentiment_spy/structural_break_consumer_sentiment_spy.json": "53957bbf6f89eb0f0bdf89a4ab15890c2b738522ef2d49636ef0970f863c4e0d",
+   "results/consumer_sentiment_spy/subperiod_sharpe.csv": "97deee779161e8b5b0967e43f43c8b56d91bcc6cad06b2c932540bffa9e42b4a",
+   "results/consumer_sentiment_spy/tournament_results_20261018.csv": "c1b1b692d10a693562002cf04807af2f7a610f3b8878782193015651dbb81bee",
+   "results/consumer_sentiment_spy/winner_summary.json": "2fdacd222d134bb07b99b9003a270ec0ffaea8954ac0296a178662a1775d9331"
+  }
+ }
+}

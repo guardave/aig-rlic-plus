@@ -1,10 +1,10 @@
 {
   "chart_name": "history_zoom_gfc",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-15T18:05:08.425912+00:00",
+  "generated_at": "2026-10-18T08:10:06.305627+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
-  "caption": "Global Financial Crisis: Consumer Sentiment Collapsed 2008-09; gray bands are NBER recessions.",
-  "narrative_alignment_note": "Global Financial Crisis: Consumer Sentiment Collapsed 2008-09; gray bands are NBER recessions.",
+  "caption": "Global Financial Crisis: Sentiment Low in Late 2008, SPY Low in Early 2009; gray bands are NBER recessions and pink bands mark months when sentiment was below its year-earlier level.",
+  "narrative_alignment_note": "Global Financial Crisis: Sentiment Low in Late 2008, SPY Low in Early 2009; gray bands are NBER recessions and pink bands mark months when sentiment was below its year-earlier level.",
   "disposition": "consumed",
   "source_artifacts": [
     "data/consumer_sentiment_spy_monthly_latest.parquet"

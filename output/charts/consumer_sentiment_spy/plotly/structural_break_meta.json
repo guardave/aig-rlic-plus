@@ -1,12 +1,12 @@
 {
   "chart_name": "structural_break",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-15T18:05:08.297466+00:00",
+  "generated_at": "2026-10-18T08:09:52.214903+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
-  "caption": "Proxy check for large changes in the consumer-sentiment/SPY relationship.",
-  "narrative_alignment_note": "Proxy check for large changes in the consumer-sentiment/SPY relationship.",
+  "caption": "Proxy check for large swings in the consumer sentiment-SPY correlation.",
+  "narrative_alignment_note": "Proxy check for large swings in the consumer sentiment-SPY correlation.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/consumer_sentiment_spy/structural_break_consumer_sentiment_spy.json"
+    "results/consumer_sentiment_spy/structural_break_consumer_sentiment_spy.json"
   ]
 }
