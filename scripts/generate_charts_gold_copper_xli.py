@@ -261,7 +261,7 @@ def make_history_zoom(df, slug):
     # (per winner_summary.signal_column). KS-109 fix (2026-06-03): was 252d.
     fig.add_trace(go.Scatter(x=sub.index, y=sub["gold_copper_zscore_126d"],
                              name="126d Z-Score", xaxis="x", yaxis="y3",
-                             line=dict(color="#7f4a2e", width=1.2)))
+                             line=dict(color="#009E73", width=1.2)))   # distinct from the ratio (QA L8)
     fig.add_hline(y=0, line=dict(color="#888", width=0.8, dash="dot"), xref="x2", yref="y3")
 
     # NBER shading per GATE-VIZ-NBER2: only on recession-overlapping episodes
