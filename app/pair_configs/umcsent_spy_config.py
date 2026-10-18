@@ -205,8 +205,8 @@ Equity prices anticipate the cycle too, and they often turn before survey expect
             "slug": "gfc",
             "title": "Global Financial Crisis",
             "narrative": (
-                "The index stayed low until late 2008 and then rose through 2009, while the recession was still "
-                "under way. SPY reached its low in early 2009, and both recovered through 2009."
+                "The index stayed low until late 2008, then rose while the recession was still under way and kept "
+                "rising through 2009. SPY reached its low in early 2009 and recovered through the rest of the year."
             ),
             "caption": "GFC: the index stayed low until late 2008, then rose through 2009.",
         },
@@ -215,8 +215,8 @@ Equity prices anticipate the cycle too, and they often turn before survey expect
             "title": "COVID Shock",
             "narrative": (
                 "The index jumped to its highest reading in the project's data in April 2020, in the middle of the "
-                "crash: households expected business conditions to recover from a sudden collapse. A rule that reads "
-                "a high value as good news would have been invested through the shock."
+                "crash: households expected business conditions to recover from a sudden collapse, so the jump marked "
+                "expected recovery, not good conditions."
             ),
             "caption": "COVID: the index jumped to its highest reading in April 2020.",
         },
