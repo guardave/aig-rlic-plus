@@ -1,0 +1,12 @@
+{
+  "chart_name": "history_zoom_dotcom",
+  "pair_id": "permit_spy",
+  "generated_at": "2026-10-18T06:14:36.325170+00:00",
+  "generated_by": "scripts/generate_charts_permit_spy.py",
+  "caption": "Dot-Com Bust: Housing Held Up While Equities Fell; gray bands are NBER recessions and pink bands mark permits below their year-earlier level.",
+  "narrative_alignment_note": "Dot-Com Bust: Housing Held Up While Equities Fell; gray bands are NBER recessions and pink bands mark permits below their year-earlier level.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "data/permit_spy_monthly_latest.parquet"
+  ]
+}

@@ -1,0 +1,282 @@
+{
+  "pair_id": "permit_spy",
+  "signals": {
+    "S1_level": "permit",
+    "S2_yoy": "permit_yoy",
+    "S3_mom": "permit_mom",
+    "S4_dev": "permit_dev_trend",
+    "S5_z": "permit_zscore_60m",
+    "S6_mom3m": "permit_mom_3m",
+    "S7_mom6m": "permit_mom_6m",
+    "S8_accel": "permit_accel",
+    "S9_contr": "permit_contraction"
+  },
+  "rules": {
+    "S1_level": {
+      "T1_p25": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.25)"
+      },
+      "T1_p50": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.5)"
+      },
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T2_rp25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "S2_yoy": {
+      "T1_p25": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.25)"
+      },
+      "T1_p50": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.5)"
+      },
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T2_rp25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T4_zero": {
+        "variable": "raw",
+        "threshold": 0.0
+      }
+    },
+    "S3_mom": {
+      "T1_p25": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.25)"
+      },
+      "T1_p50": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.5)"
+      },
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T2_rp25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T4_zero": {
+        "variable": "raw",
+        "threshold": 0.0
+      }
+    },
+    "S4_dev": {
+      "T1_p25": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.25)"
+      },
+      "T1_p50": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.5)"
+      },
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T2_rp25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "S5_z": {
+      "T1_p25": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.25)"
+      },
+      "T1_p50": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.5)"
+      },
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T2_rp25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "S6_mom3m": {
+      "T1_p25": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.25)"
+      },
+      "T1_p50": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.5)"
+      },
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T2_rp25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "S7_mom6m": {
+      "T1_p25": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.25)"
+      },
+      "T1_p50": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.5)"
+      },
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T2_rp25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "S8_accel": {
+      "T1_p25": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.25)"
+      },
+      "T1_p50": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.5)"
+      },
+      "T1_p75": {
+        "variable": "raw",
+        "threshold": "is_quantile(0.75)"
+      },
+      "T2_rp25": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T2_rp75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T4_zero": {
+        "variable": "raw",
+        "threshold": 0.0
+      }
+    },
+    "S9_contr": {
+      "T_flag": {
+        "variable": "raw",
+        "threshold": 0.5
+      }
+    }
+  },
+  "strategies": [
+    "P1",
+    "P2",
+    "P3"
+  ],
+  "directions": [
+    "countercyclical",
+    "procyclical"
+  ],
+  "leads": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "lead_unit": "months",
+  "binary_signals": [
+    "S9_contr"
+  ],
+  "min_is_n": 60,
+  "ppy": 12,
+  "oos_start": "2018-01-31",
+  "exposure_bounds": [
+    0.05,
+    0.95
+  ],
+  "max_is_turnover": null,
+  "min_is_trades": null,
+  "position_shift": 1,
+  "n_candidates": 2886,
+  "candidates_sha256": "76f361f29f9e20438be9e6913b4175fdcd583d9c3571f107404e996484ed70d7"
+}

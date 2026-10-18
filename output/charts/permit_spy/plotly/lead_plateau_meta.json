@@ -1,0 +1,13 @@
+{
+  "chart_name": "lead_plateau",
+  "pair_id": "permit_spy",
+  "generated_at": "2026-10-18T06:14:48.783984+00:00",
+  "generated_by": "scripts/harness/charts.py",
+  "caption": "The winner L13 sits in a stable range L11-L13.",
+  "narrative_alignment_note": "The winner L13 sits in a stable range L11-L13.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/permit_spy/lead_curve_20261017.csv",
+    "results/permit_spy/hindsight_lead_curve_20261017.csv"
+  ]
+}

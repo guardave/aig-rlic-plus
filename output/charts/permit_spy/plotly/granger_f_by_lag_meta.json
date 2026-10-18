@@ -1,0 +1,12 @@
+{
+  "chart_name": "granger_f_by_lag",
+  "pair_id": "permit_spy",
+  "generated_at": "2026-10-18T06:13:59.562754+00:00",
+  "generated_by": "scripts/generate_charts_permit_spy.py",
+  "caption": "Granger p-values by lag for year-over-year permit growth predicting SPY returns.",
+  "narrative_alignment_note": "Granger p-values by lag for year-over-year permit growth predicting SPY returns.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_permit_spy/results/permit_spy/core_models_20261017/granger_causality.csv"
+  ]
+}

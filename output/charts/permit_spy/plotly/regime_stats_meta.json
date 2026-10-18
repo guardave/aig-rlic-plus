@@ -1,13 +1,12 @@
 {
   "chart_name": "regime_stats",
   "pair_id": "permit_spy",
-  "palette_id": "quartile_v1",
-  "rules_applied": [
-    "VIZ-QR1",
-    "VIZ-IC1"
-  ],
-  "narrative_alignment_note": "VIZ-QR1 dual-panel retro-apply (2026-06-10T17:24:02Z): Annualized Sharpe + Annualized Return % side-by-side per quartile, sourced from results/permit_spy/exploratory_20260314/regime_descriptive_stats.csv. Values: sharpe=[0.75, 0.57, 0.81, 0.95], ann_return_pct=[12.2, 8.7, 11.1, 13.2].",
-  "generated_at": "2026-06-10T17:24:02Z",
-  "generated_by": "Lead Lesandro (fix260610_xpair_general, VIZ-QR1 retro-apply)",
-  "disposition": "consumed"
+  "generated_at": "2026-10-18T06:13:50.703858+00:00",
+  "generated_by": "scripts/generate_charts_permit_spy.py",
+  "caption": "SPY performance in the same month across quartiles of year-over-year building-permit growth.",
+  "narrative_alignment_note": "SPY performance in the same month across quartiles of year-over-year building-permit growth.",
+  "disposition": "consumed",
+  "source_artifacts": [
+    "results/permit_spy/regime_quartile_returns.csv"
+  ]
 }
