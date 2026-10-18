@@ -236,19 +236,6 @@ def render_position_adjustment_panel(pair_id: str) -> None:
         "— the trading decision in one visual."
     )
 
-    # ---- Gate on SE1 validation (Wave 1.5 extension contract) ----
-    se1 = st.session_state.get(f"se1_validation_{pair_id}")
-    if not se1 or not se1.get("ok"):
-        st.warning(
-            "Position exposure cannot be derived without valid signal values. "
-            "See diagnostic above.\n\n"
-            "Plain English: the Probability Engine panel above flagged a "
-            "data problem with the signal series, so we cannot compute "
-            "the exposure curve without risking a misleading chart. Fix "
-            "the signal-data issue first, then this panel will render."
-        )
-        return
-
     # ---- Load + schema-validate winner_summary (APP-WS1 / ECON-H5) ----
     # Per APP-SEV1 L1: schema failure = st.error + short-circuit. No silent
     # infer-from-signal-code fallback.
@@ -259,30 +246,37 @@ def render_position_adjustment_panel(pair_id: str) -> None:
         # validate_or_die already rendered st.error with the full error list.
         return
 
-    signals_df = pd.read_parquet(se1["signals_path"])
-    column = se1["column"]
-    threshold = se1["threshold"]
-    is_probability = se1["is_probability"]
-
     # Schema guarantees these four fields are present + canonical-enum valued.
     strategy = winner["strategy_family"]
     direction = winner["direction"]
     target_symbol = winner["target_symbol"]
 
     # QA_VERIFY_B1 F1: plot the positions the rule actually held (deployed, from the artifacts), never a
-    # re-derivation from the signal; the signal-based approximation remains only for pairs whose artifacts
-    # record no positions, and says so.
+    # re-derivation from the signal. They do not depend on the signal panel's checks, so the panel renders
+    # whenever they exist; only the signal-based approximation (pairs whose artifacts record no positions)
+    # is gated on the SE1 validation, and says it is an approximation.
     exposure, pos_file = _deployed_positions(pair_dir, winner)
     approximated = exposure is None
+    se1 = st.session_state.get(f"se1_validation_{pair_id}")
+    signals_df = None
     if approximated:
-        exposure = _compute_exposure(
-            signals_df[column], strategy, threshold, direction, is_probability
-        )
+        if not se1 or not se1.get("ok"):
+            st.warning(
+                "Position exposure cannot be shown: this pair's artifacts record no positions and the signal "
+                "panel above could not be drawn, so an approximate exposure curve would mislead."
+            )
+            return
+        signals_df = pd.read_parquet(se1["signals_path"])
+        exposure = _compute_exposure(signals_df[se1["column"]], strategy, se1["threshold"], direction,
+                                     se1["is_probability"])
+    column = (se1 or {}).get("column", winner.get("signal_column"))
 
     overlay_signal = None
     overlay_label = None
     show_nber = False
-    if pair_id == "t10y3m_spy" and "t10y3m_3m_chg" in signals_df.columns:
+    if pair_id == "t10y3m_spy" and signals_df is None and se1 and se1.get("ok"):
+        signals_df = pd.read_parquet(se1["signals_path"])
+    if pair_id == "t10y3m_spy" and signals_df is not None and "t10y3m_3m_chg" in signals_df.columns:
         overlay_signal = signals_df["t10y3m_3m_chg"]
         overlay_label = "3-month change in 10Y-3M spread"
         show_nber = True
@@ -327,4 +321,4 @@ def render_position_adjustment_panel(pair_id: str) -> None:
                    "approximation computed from the signal, not the rule's deployed positions.")
     else:
         st.caption(f"Source: deployed positions in `results/{pair_id}/{pos_file}` (the series the "
-                   f"headline results are computed from), from {exposure.index.min():%Y-%m}.")
+                   f"headline results are computed from).")
