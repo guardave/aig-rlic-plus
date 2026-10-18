@@ -1,12 +1,13 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-16T18:30:43.052528+00:00",
+  "generated_at": "2026-10-18T11:39:14.458115+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
-  "caption": "Cement-growth coefficient across SPY forward-return quantiles.",
-  "narrative_alignment_note": "Cement-growth coefficient across SPY forward-return quantiles.",
+  "caption": "Quantile-regression slope of the 3-month forward SPY return on year-over-year cement growth at each return quantile; intervals and the equal-slopes test use a moving-block bootstrap because the 3-month returns overlap.",
+  "narrative_alignment_note": "Quantile-regression slope of the 3-month forward SPY return on year-over-year cement growth at each return quantile; intervals and the equal-slopes test use a moving-block bootstrap because the 3-month returns overlap.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/cement_spy/core_models_20261016/quantile_regression.csv"
+    "results/cement_spy/core_models_20261018/quantile_regression.csv",
+    "results/cement_spy/core_models_20261018/quantile_equality_test.json"
   ]
 }

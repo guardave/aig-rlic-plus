@@ -1,12 +1,12 @@
 {
   "chart_name": "walk_forward",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-16T18:30:43.282293+00:00",
+  "generated_at": "2026-10-18T11:39:37.050387+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
-  "caption": "Alias for the dashboard's standard walk-forward chart slot.",
-  "narrative_alignment_note": "Alias for the dashboard's standard walk-forward chart slot.",
+  "caption": "Sharpe of the winner rule and of buy-and-hold SPY in each full calendar year of the test period.",
+  "narrative_alignment_note": "Sharpe of the winner rule and of buy-and-hold SPY in each full calendar year of the test period.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cement_spy/subperiod_sharpe.csv"
+    "results/cement_spy/walk_forward_calendar_year.csv"
   ]
 }

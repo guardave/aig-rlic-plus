@@ -1,0 +1,17 @@
+{
+  "method": "Wald test of equal slopes across quantiles, moving-block bootstrap covariance (block 6, 999 draws, seed 42)",
+  "quantiles": [
+    0.1,
+    0.25,
+    0.5,
+    0.75,
+    0.9
+  ],
+  "reference_quantile": 0.5,
+  "stat": 1.6159115514259248,
+  "df": 4,
+  "p_value": 0.8059295281316838,
+  "reject_equality": false,
+  "n": 224,
+  "n_draws": 999
+}

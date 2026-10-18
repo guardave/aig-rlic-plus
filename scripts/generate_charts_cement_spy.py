@@ -138,6 +138,8 @@ def chart_ccf() -> None:
     colors = np.where(ccf["significant"].astype(bool), C_IND, C_BENCH)
     fig = go.Figure(go.Bar(x=ccf["lag"], y=ccf["ccf"], marker_color=colors, name="Cross-correlation"))
     fig.add_hline(y=ccf["upper_ci"].iloc[0], line_dash="dash", line_color=C_LINE)
+    fig.add_trace(go.Scatter(x=[None], y=[None], mode="lines", name="95% band", line=dict(color=C_LINE, dash="dash"),
+                             hoverinfo="skip"))
     fig.add_hline(y=ccf["lower_ci"].iloc[0], line_dash="dash", line_color=C_LINE)
     fig.update_layout(title="Cross-Correlation: Change in Cement YoY Growth vs SPY Return",
                       xaxis_title="Lag (months): positive = cement leads, negative = SPY leads",
@@ -154,7 +156,9 @@ def chart_granger() -> None:
                                                                            C_TGT)):
         s = gr[gr["direction"] == d]
         fig.add_trace(go.Bar(x=s["lag"], y=s["p_value"], name=lab, marker_color=col))
-    fig.add_hline(y=0.05, line_dash="dash", line_color=C_LINE, annotation_text="p = 0.05 (one lag, unadjusted)")
+    fig.add_hline(y=0.05, line_dash="dash", line_color=C_LINE)
+    fig.add_trace(go.Scatter(x=[None], y=[None], mode="lines", name="p = 0.05 (one lag, unadjusted)",
+                             line=dict(color=C_LINE, dash="dash"), hoverinfo="skip"))
     fig.update_layout(title="Granger Causality p-values by Lag (both directions)", xaxis_title="Lag (months)",
                       yaxis_title="p-value", barmode="group", template="plotly_white", height=430)
     save("granger_f_by_lag", fig, "Granger p-values by lag for year-over-year cement growth and SPY returns, both "

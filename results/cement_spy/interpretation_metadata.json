@@ -3,7 +3,7 @@
   "schema_version": "1.1.0",
   "indicator_nature": "leading",
   "indicator_type": "production",
-  "strategy_objective": "procyclical_capture",
+  "strategy_objective": "max_sharpe",
   "owner_writes": {
     "dana": [
       "indicator_nature",
@@ -25,52 +25,46 @@
       "caveats"
     ]
   },
-  "last_updated_by": "ray",
-  "last_updated_at": "2026-10-16T18:26:20.256704+00:00",
+  "last_updated_by": "evan",
+  "last_updated_at": "2026-10-18T11:32:12.222975+00:00",
   "indicator": "cement",
   "target": "spy",
   "expected_direction": "procyclical",
   "observed_direction": "procyclical",
   "direction_consistent": true,
-  "mechanism": "Portland cement shipments track construction and infrastructure activity; strong or rising shipment growth marks a cyclical upswing in real investment (risk-on), while falling shipments signal a construction slowdown. Exposure is scaled toward SPY when cement-shipment growth is firm.",
+  "mechanism": "Portland cement shipments track construction and infrastructure activity; firm shipment growth marks an upswing in real investment, slowing shipments a construction slowdown.",
   "confidence": "low",
-  "key_finding": "Best search-phase rule uses chg_6m at L8 with OOS Sharpe 0.58 versus buy-and-hold 0.93.",
+  "key_finding": "On today's revised cement values with point-in-time release dates (no archive of first releases), the rule selected on in-sample data uses chg_6m / T0_zero at L8 (IS Sharpe 1.47); test-period Sharpe 0.63 versus buy-and-hold SPY 0.93. Smallest cement-to-SPY Granger p-value 0.14 (lag 2; 1.00 after the 12-lag Bonferroni adjustment).",
   "caveats": [
-    "Even a leading indicator selected at a long lead can be a search artifact \u2014 check adjacent-lead durability.",
+    "USGS revises earlier months and no archive of first-published values exists: the backtest uses today's values (revision lookahead unquantified).",
     "The strategy is search-selected and needs fresh holdout validation.",
-    "The 2020-21 COVID collapse/rebound is an extreme in-window outlier that can dominate the fit.",
-    "Portland Cement Shipments figures are nominal."
+    "The training period is short (the cement series starts 2005-11; rolling windows need several years).",
+    "Data Master's cement series ends 2025-06, so later months are not tested."
   ],
-  "narrative_summary": "Portland cement shipment growth is tested as a procyclical construction-activity overlay for SPY.",
+  "narrative_summary": "Portland cement shipment growth is tested as a construction-activity filter for SPY.",
   "known_stress_episodes": [
-    {
-      "label": "Dot-Com recession",
-      "start": "2001-03-01",
-      "end": "2001-11-30",
-      "note": "Cement shipments softened with the early-2000s slowdown."
-    },
     {
       "label": "Global Financial Crisis",
       "start": "2007-12-01",
       "end": "2009-06-30",
-      "note": "Cement shipments collapsed with the housing bust 2008-09."
+      "note": "Cement shipments collapsed with the housing bust."
     },
     {
       "label": "COVID shock",
       "start": "2020-02-01",
       "end": "2020-04-30",
-      "note": "Orders collapsed then rebounded."
+      "note": "Shipments dipped, then stayed choppy."
     },
     {
       "label": "2022 rate shock",
       "start": "2022-01-01",
       "end": "2022-12-31",
-      "note": "Nominal sales stayed high on inflation."
+      "note": "Shipments held up while equities fell."
     }
   ],
   "data_provenance": {
-    "source": "Data Master.xlsx",
-    "series_id": "Portland Cement Shipments (Data Master)",
-    "accessed_at": "2026-10-16T18:26:20.256704+00:00"
+    "source": "Data Master.xlsx (USGS Mineral Industry Surveys)",
+    "series_id": "USGS_CEMENT (snapshot 20261016T232733Z)",
+    "accessed_at": "2026-10-18T11:32:12.222975+00:00"
   }
 }

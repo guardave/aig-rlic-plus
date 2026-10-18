@@ -1,0 +1,235 @@
+{
+  "pair_id": "cement_spy",
+  "tag": "20261018",
+  "replay": {
+    "pair_id": "cement_spy",
+    "legacy_tag": "20261016",
+    "n_rows_harness": 360,
+    "n_rows_published": 360,
+    "tolerance": 1e-06,
+    "columns": {
+      "is_sharpe": {
+        "max_abs_diff": 1.5543122344752192e-15,
+        "pass": true
+      },
+      "oos_sharpe": {
+        "max_abs_diff": 1.1102230246251565e-15,
+        "pass": true
+      },
+      "is_n": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      },
+      "oos_n": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      },
+      "is_exposure": {
+        "max_abs_diff": 8.326672684688674e-17,
+        "pass": true
+      },
+      "n_trades": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      }
+    },
+    "same_candidate_rows_in_order": true,
+    "valid_flags_equal": true,
+    "common_is_start_equal": true,
+    "selection_method": "is_argmax",
+    "winner": {
+      "harness": "chg_6m|T_roll_p50|P1|procyclical|8",
+      "published": "chg_6m|T_roll_p50|procyclical|8",
+      "match": true
+    },
+    "published": {
+      "key": "chg_6m|T_roll_p50|P1|procyclical|8",
+      "signal": "chg_6m",
+      "threshold": "T_roll_p50",
+      "strategy": "P1",
+      "direction": "procyclical",
+      "lead": 8,
+      "is_sharpe": 1.6321529877603007,
+      "oos_sharpe": 0.5804809170724459,
+      "replay_is_sharpe": 1.6321529877602998,
+      "replay_oos_sharpe": 0.5804809170724455,
+      "tag": "20261016",
+      "selection": "raw in-sample Sharpe argmax, revised values, fixed lag"
+    },
+    "strategy_return": {
+      "rows": 236,
+      "max_abs_diff": 9.8879238130678e-17,
+      "pass": true
+    },
+    "pass": true
+  },
+  "tracks": {
+    "main": {
+      "candidate": "chg_6m|T0_zero|P1|procyclical|8",
+      "is_frozen_object": false,
+      "cuts": {
+        "oos_start": {
+          "cut": "2017-01-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 135,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 135,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "oos_50pct": {
+          "cut": "2021-04-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 186,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 186,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "end_minus_1y": {
+          "cut": "2024-06-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 224,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 224,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_33pct": {
+          "cut": "2009-07-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 45,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 45,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_66pct": {
+          "cut": "2013-04-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 90,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 90,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        }
+      },
+      "pass": true
+    },
+    "comparison": null
+  },
+  "null": {
+    "main": {
+      "n_draws": 100,
+      "n_unique_offsets": 100,
+      "n_draws_without_winner": 0,
+      "n_admissible_offsets": 141,
+      "span": 236,
+      "max_usable_offset": null,
+      "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
+      "seed_base": 20261016,
+      "is_max_percentile": 0.66,
+      "p_is": 0.34,
+      "selection_stat_percentile": 0.93,
+      "p_selection_stat": 0.07,
+      "winner_oos_percentile": 0.37,
+      "p_oos": 0.63,
+      "null_is_max_p5_p50_p95": [
+        1.4181,
+        1.5963,
+        1.7566
+      ],
+      "null_winner_oos_median": 0.675,
+      "edge_share": 0.27,
+      "edge_share_uniform": 0.2,
+      "edge_share_bound": 0.32,
+      "edge_flag": false,
+      "timing_sharpe_mean": -0.0548,
+      "timing_sharpe_sd": 0.2692,
+      "timing_sharpe_se_dependent": 0.0383,
+      "timing_sharpe_se_bandwidth": 12,
+      "timing_sharpe_effective_draws": 49.3,
+      "r71_tolerance": 0.1,
+      "timing_sharpe_mean_all_valid_candidates": 0.0,
+      "r71_pass": true,
+      "null_scores_hist": {
+        "bins": [
+          0.961,
+          0.984,
+          1.0071,
+          1.0301,
+          1.0531,
+          1.0762,
+          1.0992,
+          1.1223,
+          1.1453,
+          1.1683,
+          1.1914,
+          1.2144,
+          1.2375,
+          1.2605,
+          1.2835,
+          1.3066,
+          1.3296,
+          1.3526,
+          1.3757,
+          1.3987,
+          1.4218
+        ],
+        "counts": [
+          3,
+          0,
+          1,
+          3,
+          1,
+          4,
+          16,
+          11,
+          11,
+          8,
+          7,
+          9,
+          6,
+          4,
+          2,
+          6,
+          1,
+          1,
+          2,
+          4
+        ]
+      }
+    },
+    "comparison": null
+  }
+}

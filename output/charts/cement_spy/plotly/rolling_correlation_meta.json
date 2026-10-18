@@ -1,12 +1,13 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-16T18:30:43.178547+00:00",
+  "generated_at": "2026-10-18T11:39:28.641135+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
-  "caption": "Rolling correlation between cement shipment growth and SPY returns; swings through time indicate whether one fixed relationship is likely to describe the whole sample.",
-  "narrative_alignment_note": "Rolling correlation between cement shipment growth and SPY returns; swings through time indicate whether one fixed relationship is likely to describe the whole sample.",
+  "caption": "Rolling 60-month correlation between year-over-year cement growth and the SPY monthly return.",
+  "narrative_alignment_note": "Rolling 60-month correlation between year-over-year cement growth and the SPY monthly return.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/cement_spy/rolling_correlation_cement_spy.csv"
+    "results/cement_spy/rolling_correlation_cement_spy.csv",
+    "results/cement_spy/data_integrity_20261018.json"
   ]
 }

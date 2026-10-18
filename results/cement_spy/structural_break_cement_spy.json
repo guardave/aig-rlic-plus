@@ -1,5 +1,15 @@
 {
   "pair_id": "cement_spy",
-  "method": "rolling-correlation z-score proxy",
-  "max_abs_z": 2.894593635759103
+  "test": "quandt_andrews_sup_f",
+  "model": "spy_ret_t ~ cement_yoy_{t-1}",
+  "trim_pct": 0.15,
+  "n_obs": 223,
+  "sup_f": 3.9229,
+  "breakpoint_date": "2010-07-31",
+  "p_value": 0.156,
+  "p_value_method": "residual bootstrap under the no-break null, 499 draws, seed 42",
+  "sample": [
+    "2006-12-31",
+    "2025-06-30"
+  ]
 }

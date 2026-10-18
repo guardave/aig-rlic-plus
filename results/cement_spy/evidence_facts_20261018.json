@@ -1,0 +1,42 @@
+{
+  "pair_id": "cement_spy",
+  "date_tag": "20261018",
+  "sources": [
+    "core_models_20261018/ccf_prewhitened.csv",
+    "core_models_20261018/correlations.csv",
+    "core_models_20261018/local_projections.csv",
+    "core_models_20261018/quantile_equality_test.json",
+    "core_models_20261018/quantile_regression.csv",
+    "data_integrity_20261018.json",
+    "granger_by_lag.csv",
+    "regime_quartile_returns.csv",
+    "structural_break_cement_spy.json",
+    "subperiod_sharpe.csv",
+    "walk_forward_calendar_year.csv"
+  ],
+  "derived": {
+    "cement_first_month": "2005-11",
+    "cement_last_month": "2025-06",
+    "panel_months": 236,
+    "n_granger_lags": 12,
+    "significance_p": 0.05,
+    "interval_pct": 95,
+    "granger_min_p_cement_to_spy": 0.137644241696597,
+    "granger_cement_to_spy_best_lead": 2,
+    "granger_min_p_bonf_cement_to_spy": 1.0,
+    "granger_min_p_spy_to_cement": 0.1992463116781255,
+    "granger_spy_to_cement_best_lead": 1,
+    "granger_min_p_bonf_spy_to_cement": 1.0,
+    "trade_log_rows": 78,
+    "position_log_rows": 78,
+    "winner_is_rank_among_valid": 2,
+    "position_change_threshold_pp": 5,
+    "oos_months_position_change_gt_5pct": 40,
+    "oos_sum_abs_position_change": 40.0,
+    "n_oos_trade_log_rows": 40,
+    "pre_break_oos_end": "2023-12",
+    "pre_break_oos_n": 84,
+    "pre_break_oos_sharpe": 0.7019,
+    "pre_break_bh_oos_sharpe": 0.8331
+  }
+}

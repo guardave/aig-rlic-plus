@@ -1,62 +1,64 @@
 {
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-16T18:26:20.256704+00:00",
+  "generated_at": "2026-10-18T11:33:49.464316+00:00",
+  "schema_version": "1.3.0",
+  "run_tag": "20261018",
+  "target_symbol": "SPY",
+  "track_policy": "single_revised_no_archive",
+  "main_eligible": true,
+  "cost_assumption_bps": 5,
   "signal_column": "cement_6m",
   "signal_code": "chg_6m",
-  "signal_display_name": "6-month growth",
-  "target_symbol": "SPY",
-  "threshold_code": "T_roll_p50",
-  "threshold_value": -5.392933,
+  "signal_display_name": "6-month growth in cement shipments",
+  "threshold_code": "T0_zero",
+  "threshold_value": 0.0,
   "threshold_rule": "gte",
-  "threshold_note": "T_roll_p50 threshold; threshold_value is latest if rolling",
+  "threshold_note": "T0_zero threshold; threshold_value is the value in force at the last row",
+  "lookback": "LB60 where rolling thresholds apply",
   "strategy_family": "P1_long_cash",
   "strategy_code": "P1",
   "strategy_display_name": "P1 long cash",
-  "strategy_description": "Hold SPY when the lagged cement-shipment-growth signal is favorable (firm); otherwise hold cash.",
+  "strategy_description": "Hold SPY when the lagged cement-shipment growth signal is on the rule's side of its threshold; otherwise hold cash (P1 long/cash).",
   "lead_value": 8,
   "lead_unit": "months",
-  "lead_description": "Signal is lagged 8 month(s) before allocation.",
-  "lookback": "LB60 where rolling thresholds apply",
+  "lead_description": "Signal is lagged 8 months before allocation.",
   "direction": "procyclical",
-  "oos_sharpe": 0.580481,
-  "oos_sortino": 0.541438,
-  "oos_calmar": 0.344593,
-  "oos_ann_return": 0.067015,
-  "oos_ann_vol": 0.125414,
+  "oos_sharpe": 0.627062,
+  "oos_sortino": 0.593027,
+  "oos_calmar": 0.377427,
+  "oos_ann_return": 0.073401,
+  "oos_ann_vol": 0.125735,
   "oos_max_drawdown": -0.194477,
-  "oos_win_rate": 0.303922,
-  "oos_n_trades": 41,
-  "annual_turnover": 4.823529,
+  "oos_win_rate": 0.323529,
+  "oos_n_trades": 39,
+  "annual_turnover": 4.588235,
   "oos_n": 102,
   "oos_period_start": "2017-01-31",
   "oos_period_end": "2025-06-30",
   "bh_sharpe": 0.934934,
   "bh_ann_return": 0.145568,
   "bh_max_drawdown": -0.239272,
-  "cost_assumption_bps": 5,
-  "total_combos": 360,
-  "valid_combos": 340,
-  "schema_version": "1.2.0",
-  "notes": "Portland Cement Shipments is a construction-activity indicator; the nominal-dollar level is non-stationary so all signals are growth transforms. Winner (chg_6m) is selected by in-sample Sharpe on the common IS window (2011-01-31 to 2016-12-31) and evaluated on the held-out OOS window (from 2017-01); still a search-selected rule \u2014 read as found-in-search.",
-  "is_sharpe": 1.632153,
+  "is_sharpe": 1.469448,
   "is_n": 72,
   "is_period_start": "2011-01-31",
   "is_period_end": "2016-12-31",
+  "total_combos": 360,
+  "valid_combos": 340,
+  "notes": "USGS cement shipments are a construction-activity indicator with no archive of first-published values: one track on today's revised values with point-in-time release dates. Still a search-selected rule.",
   "selection": {
-    "objective": "max_is_sharpe",
-    "objective_formula": "in-sample (common window [common_is_start, OOS start 2017-01)) monthly mean/std*sqrt(12); winner evaluated on OOS window",
+    "objective": "max_is_sharpe_lead_plateau_w3",
+    "objective_formula": "D9: min IS Sharpe over 3 adjacent grid leads (edge-clamped); best window = plateau; winner = highest raw IS Sharpe inside it. IS = deployable returns on [common_is_start, oos_start); OOS never consulted",
     "is_window": {
       "start": "2011-01-31",
       "end": "2016-12-31",
       "n": 72,
       "common_is_start": "2011-01-31",
       "oos_start": "2017-01-31",
-      "rule": "eligibility before alignment: a candidate is IS-eligible only if its own first-valid-return date leaves >= MIN_IS_N=60 IS obs before oos_start; common_is_start = latest first-valid-return date among ELIGIBLE candidates; IS metrics computed on [common_is_start, oos_start)",
       "min_is_n": 60,
       "n_candidates": 360,
       "n_eligible": 340,
-      "n_ineligible_short_history": 20,
-      "bh_is_sharpe": 1.080534
+      "rule": "R3.3 eligibility before alignment; common_is_start = latest first-valid return among eligible candidates",
+      "bh_is_sharpe": 1.080536
     },
     "grid_scanned": {
       "leads": [
@@ -72,47 +74,593 @@
         14
       ],
       "n_signals": 6,
-      "n_thresholds": 18,
+      "n_thresholds": 5,
       "n_strategies": 1,
+      "n_combos": 360,
       "n_valid_combos": 340,
-      "median_valid_objective": 0.762886
+      "n_distinct_position_series": 340,
+      "median_valid_objective": 0.762884959544636
     },
     "tie_break_step": null,
     "raw_winner_row": {
       "signal": "chg_6m",
-      "threshold": "T_roll_p50",
-      "strategy": "P1_long_cash",
+      "threshold": "T0_zero",
+      "strategy": "P1",
       "lead_column": "lead_months",
       "lead_value": 8,
-      "source_tournament_file": "tournament_results_20261016.csv",
-      "source_row_index": 233
+      "source_tournament_file": "tournament_results_20261018.csv",
+      "source_row_index": 193
     },
     "runner_up": {
       "signal": "chg_6m",
-      "threshold": "T0_zero",
-      "strategy": "P1_long_cash",
-      "lead_value": 8,
-      "objective_value": 1.469443,
-      "oos_sharpe": 0.627063
-    },
-    "rationale": "Winner is the IS-valid row with the highest IN-SAMPLE Sharpe (common IS window) over the published grid; OOS metrics are reported for that row only (no OOS look-ahead in selection).",
-    "legacy_oos_selected_row": {
-      "signal": "mom",
       "threshold": "T_roll_p50",
-      "direction": "countercyclical",
-      "lead_value": 11,
-      "oos_sharpe": 1.160493,
-      "note": "Pre-GH#251 OOS-argmax selection, comparison only; see legacy_oos_selection_20261016.csv"
+      "strategy": "P1",
+      "lead_value": 8,
+      "objective": "plateau_score_J",
+      "objective_value": 1.328887,
+      "window_leads": [
+        7,
+        8,
+        9
+      ],
+      "is_sharpe": 1.632158,
+      "oos_sharpe": 0.580481
     },
-    "sensitivity_own_is_start_row": {
+    "window_leads": [
+      7,
+      8,
+      9
+    ],
+    "J": 1.359629,
+    "raw_is_argmax": {
+      "key": "chg_6m|T_roll_p50|P1|procyclical|8",
       "signal": "chg_6m",
       "threshold": "T_roll_p50",
+      "strategy": "P1",
       "direction": "procyclical",
-      "lead_value": 8,
-      "own_is_start": "2009-12-31",
-      "own_is_sharpe": 1.655425,
-      "note": "IS argmax without common-start alignment; sensitivity only"
+      "lead": 8,
+      "is_sharpe": 1.632158,
+      "oos_sharpe": 0.580481,
+      "note": "highest single in-sample Sharpe in the grid; reference only, not the selection rule"
     },
-    "objective_runner_up_divergence": null
+    "rationale": "Winner selected on IS data only by the D9 lead-plateau rule; OOS reported for it only.",
+    "inference": {
+      "oos_sharpe_diff_vs_bh_bootstrap": {
+        "observed": -0.3079,
+        "mean": -0.3167,
+        "ci_95": [
+          -0.7892,
+          0.1235
+        ],
+        "p_diff_le_0": 0.9138,
+        "block_length": 6,
+        "draws": 5000,
+        "seed": 42,
+        "method": "paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H)",
+        "sharpe_diff": -0.3079,
+        "ann_return": {
+          "strat": 0.073401,
+          "bh": 0.145568
+        },
+        "ann_vol": {
+          "strat": 0.125735,
+          "bh": 0.159772
+        },
+        "max_dd": {
+          "strat": -0.194477,
+          "bh": -0.239272
+        }
+      },
+      "hac": {
+        "oos_strategy_mean": {
+          "t": 2.0857,
+          "p_value": 0.037,
+          "nw_lag": 4,
+          "n": 102
+        },
+        "oos_excess_mean": {
+          "t": -2.2915,
+          "p_value": 0.0219,
+          "nw_lag": 4,
+          "n": 102
+        }
+      }
+    },
+    "previously_published": [
+      {
+        "key": "chg_6m|T_roll_p50|P1|procyclical|8",
+        "signal": "chg_6m",
+        "threshold": "T_roll_p50",
+        "strategy": "P1",
+        "direction": "procyclical",
+        "lead": 8,
+        "is_sharpe": 1.6321529877603007,
+        "oos_sharpe": 0.5804809170724459,
+        "replay_is_sharpe": 1.6321529877602998,
+        "replay_oos_sharpe": 0.5804809170724455,
+        "tag": "20261016",
+        "selection": "raw in-sample Sharpe argmax, revised values, fixed lag"
+      }
+    ]
+  },
+  "tracks": {
+    "main": {
+      "track": "revised",
+      "lead_unit": "months",
+      "lead_column": "lead_months",
+      "n_candidates": 360,
+      "n_eligible": 340,
+      "n_valid": 340,
+      "n_distinct": 340,
+      "sample": {
+        "alignment": "pit_asof",
+        "release_series": "USGS_CEMENT_MIS",
+        "harsh": false
+      },
+      "eligible": true,
+      "winner": {
+        "key": "chg_6m|T0_zero|P1|procyclical|8",
+        "signal": "chg_6m",
+        "signal_column": "cement_6m",
+        "signal_display": "6-month growth in cement shipments",
+        "threshold": "T0_zero",
+        "threshold_value": 0.0,
+        "threshold_rule": "gte",
+        "direction": "procyclical",
+        "strategy": "P1",
+        "strategy_family": "P1_long_cash",
+        "lead": 8,
+        "is_sharpe": 1.469448,
+        "oos_sharpe": 0.627062,
+        "oos_sortino": 0.593027,
+        "oos_calmar": 0.377427,
+        "oos_ann_return": 0.073401,
+        "oos_ann_vol": 0.125735,
+        "oos_max_drawdown": -0.194477,
+        "oos_win_rate": 0.323529,
+        "oos_n_trades": 39,
+        "annual_turnover": 4.588235,
+        "oos_exposure": 0.490196,
+        "source_row_index": 193,
+        "oos_sharpe_net_5bp": 0.60898
+      },
+      "bh_is": {
+        "sharpe": 1.080536,
+        "sortino": 1.806101,
+        "calmar": 0.761654,
+        "ann_return": 0.12355,
+        "ann_vol": 0.114242,
+        "max_drawdown": -0.162213,
+        "win_rate": 0.666667,
+        "n": 72.0
+      },
+      "bh_oos": {
+        "sharpe": 0.934934,
+        "sortino": 1.365579,
+        "calmar": 0.608378,
+        "ann_return": 0.145568,
+        "ann_vol": 0.159772,
+        "max_drawdown": -0.239272,
+        "win_rate": 0.696078,
+        "n": 102.0
+      },
+      "is_window": [
+        "2011-01-31",
+        "2016-12-31"
+      ],
+      "oos_window": [
+        "2017-01-31",
+        "2025-06-30"
+      ],
+      "is_n": 72,
+      "oos_n": 102,
+      "objective": "max_is_sharpe_lead_plateau_w3",
+      "plateau": {
+        "leads": [
+          7,
+          8,
+          9
+        ],
+        "score": 1.359629,
+        "winner_lead": 8,
+        "global_max_lead": 8,
+        "global_max_inside_plateau": true,
+        "grid_edge": false,
+        "single_window_grid": false,
+        "family": {
+          "signal": "chg_6m",
+          "threshold": "T0_zero",
+          "strategy": "P1",
+          "direction": "procyclical"
+        }
+      },
+      "raw_argmax": {
+        "key": "chg_6m|T_roll_p50|P1|procyclical|8",
+        "signal": "chg_6m",
+        "threshold": "T_roll_p50",
+        "strategy": "P1",
+        "direction": "procyclical",
+        "lead": 8,
+        "is_sharpe": 1.632158,
+        "oos_sharpe": 0.580481,
+        "note": "highest single in-sample Sharpe in the grid; reference only, not the selection rule"
+      },
+      "runner_up": {
+        "signal": "chg_6m",
+        "threshold": "T_roll_p50",
+        "strategy": "P1",
+        "lead_value": 8,
+        "objective": "plateau_score_J",
+        "objective_value": 1.328887,
+        "window_leads": [
+          7,
+          8,
+          9
+        ],
+        "is_sharpe": 1.632158,
+        "oos_sharpe": 0.580481
+      },
+      "spearman_is_oos": 0.1211,
+      "vs_buy_hold": {
+        "observed": -0.3079,
+        "mean": -0.3167,
+        "ci_95": [
+          -0.7892,
+          0.1235
+        ],
+        "p_diff_le_0": 0.9138,
+        "block_length": 6,
+        "draws": 5000,
+        "seed": 42,
+        "method": "paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H)",
+        "sharpe_diff": -0.3079,
+        "ann_return": {
+          "strat": 0.073401,
+          "bh": 0.145568
+        },
+        "ann_vol": {
+          "strat": 0.125735,
+          "bh": 0.159772
+        },
+        "max_dd": {
+          "strat": -0.194477,
+          "bh": -0.239272
+        }
+      },
+      "hac": {
+        "oos_strategy_mean": {
+          "t": 2.0857,
+          "p_value": 0.037,
+          "nw_lag": 4,
+          "n": 102
+        },
+        "oos_excess_mean": {
+          "t": -2.2915,
+          "p_value": 0.0219,
+          "nw_lag": 4,
+          "n": 102
+        }
+      },
+      "undefined_tail": null,
+      "null_tournament": {
+        "n_draws": 100,
+        "n_unique_offsets": 100,
+        "n_draws_without_winner": 0,
+        "n_admissible_offsets": 141,
+        "span": 236,
+        "max_usable_offset": null,
+        "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
+        "seed_base": 20261016,
+        "is_max_percentile": 0.66,
+        "p_is": 0.34,
+        "selection_stat_percentile": 0.93,
+        "p_selection_stat": 0.07,
+        "winner_oos_percentile": 0.37,
+        "p_oos": 0.63,
+        "null_is_max_p5_p50_p95": [
+          1.4181,
+          1.5963,
+          1.7566
+        ],
+        "null_winner_oos_median": 0.675,
+        "edge_share": 0.27,
+        "edge_share_uniform": 0.2,
+        "edge_share_bound": 0.32,
+        "edge_flag": false,
+        "timing_sharpe_mean": -0.0548,
+        "timing_sharpe_sd": 0.2692,
+        "timing_sharpe_se_dependent": 0.0383,
+        "timing_sharpe_se_bandwidth": 12,
+        "timing_sharpe_effective_draws": 49.3,
+        "r71_tolerance": 0.1,
+        "timing_sharpe_mean_all_valid_candidates": 0.0,
+        "r71_pass": true,
+        "null_scores_hist": {
+          "bins": [
+            0.961,
+            0.984,
+            1.0071,
+            1.0301,
+            1.0531,
+            1.0762,
+            1.0992,
+            1.1223,
+            1.1453,
+            1.1683,
+            1.1914,
+            1.2144,
+            1.2375,
+            1.2605,
+            1.2835,
+            1.3066,
+            1.3296,
+            1.3526,
+            1.3757,
+            1.3987,
+            1.4218
+          ],
+          "counts": [
+            3,
+            0,
+            1,
+            3,
+            1,
+            4,
+            16,
+            11,
+            11,
+            8,
+            7,
+            9,
+            6,
+            4,
+            2,
+            6,
+            1,
+            1,
+            2,
+            4
+          ]
+        }
+      }
+    },
+    "comparison": null
+  },
+  "cross_eval": {
+    "not_scorable_reason": "single track"
+  },
+  "winner_fields": {
+    "eligible": {
+      "value": true,
+      "text": "eligible"
+    },
+    "track_label": {
+      "value": "revised",
+      "text": "As revised today (hindsight)"
+    },
+    "signal_code": {
+      "value": "chg_6m",
+      "text": "chg_6m"
+    },
+    "signal_display": {
+      "value": "chg_6m",
+      "text": "6-month growth in cement shipments"
+    },
+    "threshold_code": {
+      "value": "T0_zero",
+      "text": "T0_zero"
+    },
+    "threshold_value": {
+      "value": 0.0,
+      "text": "0.00"
+    },
+    "direction": {
+      "value": "procyclical",
+      "text": "procyclical"
+    },
+    "strategy_family": {
+      "value": "P1_long_cash",
+      "text": "P1_long_cash"
+    },
+    "lead": {
+      "value": 8,
+      "text": "8"
+    },
+    "lead_text": {
+      "value": 8,
+      "text": "8 months"
+    },
+    "lead_word": {
+      "value": 8,
+      "text": "eight"
+    },
+    "is_sharpe": {
+      "value": 1.469448,
+      "text": "1.47"
+    },
+    "oos_sharpe": {
+      "value": 0.627062,
+      "text": "0.63"
+    },
+    "oos_ann_return": {
+      "value": 0.073401,
+      "text": "7.3%"
+    },
+    "oos_sharpe_net_5bp": {
+      "value": 0.60898,
+      "text": "0.61"
+    },
+    "oos_max_drawdown": {
+      "value": -0.194477,
+      "text": "-19.4%"
+    },
+    "oos_n_trades": {
+      "value": 39,
+      "text": "39"
+    },
+    "bh_is_sharpe": {
+      "value": 1.080536,
+      "text": "1.08"
+    },
+    "bh_oos_sharpe": {
+      "value": 0.934934,
+      "text": "0.93"
+    },
+    "bh_oos_ann_return": {
+      "value": 0.145568,
+      "text": "14.6%"
+    },
+    "bh_oos_max_drawdown": {
+      "value": -0.239272,
+      "text": "-23.9%"
+    },
+    "sharpe_gap": {
+      "value": -0.30787200000000003,
+      "text": "-0.31"
+    },
+    "is_start": {
+      "value": "2011-01-31",
+      "text": "2011-01-31"
+    },
+    "is_end": {
+      "value": "2016-12-31",
+      "text": "2016-12-31"
+    },
+    "oos_start": {
+      "value": "2017-01-31",
+      "text": "2017-01-31"
+    },
+    "oos_end": {
+      "value": "2025-06-30",
+      "text": "2025-06-30"
+    },
+    "is_n": {
+      "value": 72,
+      "text": "72"
+    },
+    "oos_n": {
+      "value": 102,
+      "text": "102"
+    },
+    "n_candidates": {
+      "value": 360,
+      "text": "360"
+    },
+    "n_valid": {
+      "value": 340,
+      "text": "340"
+    },
+    "n_distinct": {
+      "value": 340,
+      "text": "340"
+    },
+    "selection_objective": {
+      "value": "max_is_sharpe_lead_plateau_w3",
+      "text": "the highest in-sample Sharpe ratio on a plateau of three neighbouring leads"
+    },
+    "plateau_leads": {
+      "value": [
+        7,
+        8,
+        9
+      ],
+      "text": "7, 8, 9"
+    },
+    "plateau_score": {
+      "value": 1.359629,
+      "text": "1.36"
+    },
+    "plateau_range": {
+      "value": [
+        7,
+        8,
+        9
+      ],
+      "text": "L7-L9"
+    },
+    "annual_turnover": {
+      "value": 4.588235,
+      "text": "4.59"
+    },
+    "oos_exposure": {
+      "value": 0.490196,
+      "text": "49%"
+    },
+    "raw_argmax_lead": {
+      "value": 8,
+      "text": "8"
+    },
+    "raw_argmax_is_sharpe": {
+      "value": 1.632158,
+      "text": "1.63"
+    },
+    "raw_argmax_rule": {
+      "value": "chg_6m|T_roll_p50|P1|procyclical|8",
+      "text": "chg_6m / T_roll_p50 / P1"
+    },
+    "raw_argmax_position": {
+      "value": true,
+      "text": "inside the stable lead range"
+    },
+    "raw_argmax_is_winner": {
+      "value": false,
+      "text": "a different rule from the winner"
+    },
+    "ci_low": {
+      "value": -0.7892,
+      "text": "-0.79"
+    },
+    "ci_high": {
+      "value": 0.1235,
+      "text": "0.12"
+    },
+    "p_diff_le_0": {
+      "value": 0.9138,
+      "text": "0.91"
+    },
+    "null_percentile": {
+      "value": 0.93,
+      "text": "93%"
+    },
+    "null_p_is": {
+      "value": 0.34,
+      "text": "0.34"
+    },
+    "null_draws": {
+      "value": 100,
+      "text": "100"
+    },
+    "track_state": {
+      "value": "single_no_archive",
+      "text": "single_no_archive"
+    },
+    "previous_rule": {
+      "value": "chg_6m|T_roll_p50|P1|procyclical|8",
+      "text": "chg_6m / T_roll_p50 / L8"
+    },
+    "previous_selection": {
+      "value": "raw in-sample Sharpe argmax, revised values, fixed lag",
+      "text": "raw in-sample Sharpe argmax, revised values, fixed lag"
+    },
+    "previous_lead": {
+      "value": 8,
+      "text": "8"
+    },
+    "previous_lead_text": {
+      "value": 8,
+      "text": "8 months"
+    },
+    "previous_oos_sharpe": {
+      "value": 0.5804809170724459,
+      "text": "0.58"
+    },
+    "previous_is_sharpe": {
+      "value": 1.6321529877603007,
+      "text": "1.63"
+    },
+    "previous_tag": {
+      "value": "20261016",
+      "text": "2026-10-16"
+    }
   }
 }

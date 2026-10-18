@@ -1,12 +1,13 @@
 {
   "chart_name": "history_zoom_inflation_2022",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-16T18:30:43.421213+00:00",
+  "generated_at": "2026-10-18T11:39:45.960979+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
-  "caption": "2022 Rate Shock: Nominal Cement Sales Stayed Firm on Inflation; gray bands are NBER recessions.",
-  "narrative_alignment_note": "2022 Rate Shock: Nominal Cement Sales Stayed Firm on Inflation; gray bands are NBER recessions.",
+  "caption": "2022 Rate Shock and After: Cement Shipments and SPY, 2021-2025; gray bands are NBER recessions.",
+  "narrative_alignment_note": "2022 Rate Shock and After: Cement Shipments and SPY, 2021-2025; gray bands are NBER recessions.",
   "disposition": "consumed",
   "source_artifacts": [
-    "data/cement_spy_monthly_latest.parquet"
+    "data/cement_spy_monthly_latest.parquet",
+    "results/cement_spy/data_integrity_20261018.json"
   ]
 }

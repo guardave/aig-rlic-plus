@@ -1,12 +1,13 @@
 {
   "chart_name": "structural_break",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-16T18:30:43.205474+00:00",
+  "generated_at": "2026-10-18T11:39:31.434210+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
-  "caption": "Proxy check for large changes in the cement/SPY relationship.",
-  "narrative_alignment_note": "Proxy check for large changes in the cement/SPY relationship.",
+  "caption": "Quandt-Andrews sup-F test (15% trimming) for a break in the regression of the SPY return on lagged year-over-year cement growth: most likely break 2010-07, bootstrap p-value 0.16.",
+  "narrative_alignment_note": "Quandt-Andrews sup-F test (15% trimming) for a break in the regression of the SPY return on lagged year-over-year cement growth: most likely break 2010-07, bootstrap p-value 0.16.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/cement_spy/structural_break_cement_spy.json"
+    "results/cement_spy/structural_break_cement_spy.json",
+    "results/cement_spy/rolling_correlation_cement_spy.csv"
   ]
 }

@@ -1,12 +1,12 @@
 {
   "chart_name": "granger_f_by_lag",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-16T18:30:42.134212+00:00",
+  "generated_at": "2026-10-18T11:39:09.322825+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
-  "caption": "Granger p-values by lag for cement growth predicting SPY returns.",
-  "narrative_alignment_note": "Granger p-values by lag for cement growth predicting SPY returns.",
+  "caption": "Granger p-values by lag for year-over-year cement growth and SPY returns, both directions; the lags are tried one by one, so a single p below 0.05 is not adjusted for the number of lags.",
+  "narrative_alignment_note": "Granger p-values by lag for year-over-year cement growth and SPY returns, both directions; the lags are tried one by one, so a single p below 0.05 is not adjusted for the number of lags.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/workspaces/aig-rlic-plus/results/cement_spy/core_models_20261016/granger_causality.csv"
+    "results/cement_spy/core_models_20261018/granger_causality.csv"
   ]
 }
