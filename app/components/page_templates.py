@@ -156,6 +156,8 @@ _TRADE_LOG_COLUMN_GLOSSARY_MD: str = (
     "- `quantity_pct` — the **resulting** target portfolio weight after "
     "the trade, expressed as a percentage (0–100). It is the new "
     "position, not the size of the trade itself.\n"
+    "- `trade_size_pct` (where present) — the size of the trade itself, "
+    "in percent of capital (the change in weight).\n"
     "- `price` / `notional_usd` — the closing price of the instrument "
     "on the trade date and the dollar value of the resulting position "
     "(using a $10,000 notional base).\n"
@@ -177,6 +179,7 @@ _TRADE_LOG_COLUMN_DICT_DEFAULTS: dict[str, dict[str, str]] = {
     "side":           {"type": "enum",   "meaning": "BUY increases target exposure; SELL reduces it (toward cash or short).",                                  "example": "SELL"},
     "instrument":     {"type": "string", "meaning": "Ticker of the asset being traded.",                                                                        "example": "SPY"},
     "quantity_pct":   {"type": "float",  "meaning": "Target portfolio weight AFTER this trade, as a percentage (0–100).",                                       "example": "0.0"},
+    "trade_size_pct": {"type": "float",  "meaning": "Size of this trade in percent of capital (the change in weight); present in harness-built logs.",       "example": "12.7"},
     "price":          {"type": "float",  "meaning": "Closing price of the instrument on trade_date, in USD.",                                                   "example": "294.65"},
     "notional_usd":   {"type": "float",  "meaning": "Dollar value of the resulting position (quantity_pct / 100 × $10,000 starting capital).",                  "example": "0.00"},
     "commission_bps": {"type": "float",  "meaning": "Transaction cost charged on THIS execution (one side), in basis points; a round trip is two executions.", "example": "5"},
@@ -1897,7 +1900,7 @@ def _render_executive_confidence_summary(summary: dict) -> None:
 # Selection objective (winner_summary.selection.objective) -> (tournament column, label).
 _OBJECTIVE_COLUMNS = {
     "max_is_sharpe": ("is_sharpe", "in-sample Sharpe"),
-    "max_is_sharpe_lead_plateau_w3": ("is_sharpe", "in-sample Sharpe (stable lead range)"),
+    "max_is_sharpe_lead_plateau_w3": ("is_sharpe", "raw in-sample Sharpe"),
     "max_oos_sharpe": ("oos_sharpe", "OOS Sharpe"),
     "max_oos_sortino": ("oos_sortino", "OOS Sortino"),
     "max_oos_calmar": ("oos_calmar", "OOS Calmar"),
@@ -1976,7 +1979,8 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
     if rank_col not in valid.columns or not valid[rank_col].notna().any():
         rank_col, rank_label = "oos_sharpe", "OOS Sharpe"
     objective_known = objective in _OBJECTIVE_COLUMNS and rank_col == _OBJECTIVE_COLUMNS[objective][0]
-    _is_sel = objective == "max_is_sharpe" and rank_col == "is_sharpe"
+    _is_sel = str(objective or "").startswith("max_is_sharpe") and rank_col == "is_sharpe"
+    _plateau = str(objective or "").startswith("max_is_sharpe_lead_plateau")
     ranked = valid.dropna(subset=[rank_col]).sort_values(rank_col, ascending=False)
     rank_of = ranked[rank_col].rank(ascending=False, method="min")
     top = ranked.head(10).copy()
@@ -2063,7 +2067,9 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
     )
     if objective_known:
         valid_txt = ("(in-sample validity filters)" if _is_sel else _VALID_RULE_TXT)
-        rank_txt = f"ranked by {rank_label}, this pair's selection objective"
+        rank_txt = (f"ranked by {rank_label} of each combination; the winner is chosen by the stable lead range "
+                    "rule (the best run of adjacent leads of one rule, scored by its weakest in-sample Sharpe), "
+                    "not by this column" if _plateau else f"ranked by {rank_label}, this pair's selection objective")
     else:
         valid_txt = _VALID_RULE_TXT
         rank_txt = "ranked by OOS Sharpe (this pair's selection objective is not a single ranking column)"
