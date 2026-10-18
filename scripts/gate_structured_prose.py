@@ -188,18 +188,30 @@ def _matches(num: str, vals: list[float]) -> bool:
 
 
 # --------------------------------------------------------------------------------------------- prose
-def sentences(text: str) -> list[str]:
+def sentences(text: str, clauses: bool = True) -> list[str]:
+    """Checked units: clauses (split at ';' too, so a number in one clause is not read against the 'Sharpe' of
+    another) or whole sentences (clauses=False: the scope of a legacy / raw label)."""
     text = re.sub(r"[*_`#>]", "", text)
-    parts = re.split(r"(?<=[.!?;])\s+|\n\s*[-•]\s+|\n{2,}", text)
+    sep = r"(?<=[.!?;])\s+" if clauses else r"(?<=[.!?])\s+"
+    parts = re.split(sep + r"|\n\s*[-•]\s+|\n{2,}", text)
     return [p.strip() for p in parts if p and p.strip()]
+
+
+def _units(text: str) -> list[tuple[str, bool]]:
+    """(clause, legacy): a legacy / raw label anywhere in a sentence covers all of that sentence's clauses (QA B1
+    consumer_sentiment: a label in one clause did not cover the next clause -> false LEAD / SHARPE findings)."""
+    out = []
+    for sent in sentences(text, clauses=False):
+        lg = bool(LEGACY_LABEL.search(sent))
+        out += [(c, lg) for c in sentences(sent)]
+    return out
 
 
 def check_text(text: str, f: dict, where: str) -> list[str]:
     """Findings for one rendered prose string."""
     out = []
     in_is = str(f.get("_objective") or "").startswith("max_is_sharpe")
-    for s in sentences(text):
-        legacy = bool(LEGACY_LABEL.search(s))
+    for s, legacy in _units(text):
         if "[missing:" in s:
             out.append(f"MISSING {where}: {s[:160]}")
         if re.search(r"sharpe", s, re.I) and not EVIDENCE_EXEMPT.search(s):
@@ -394,25 +406,51 @@ def structural(cfg_path: Path) -> list[str]:
     return sorted(set(out))
 
 
+def _bh_scope(k: str) -> tuple[str, str, str]:
+    """(track, period, kind) of a strategy or buy-and-hold field name: track comparison for comparison_* and the
+    main rule scored on revised data (ce_main_on_revised_*); period is / oos / tail; kind sharpe / drawdown /
+    return."""
+    k = k.lstrip("_")
+    track = "comparison" if k.startswith("comparison_") or k.startswith("ce_main_on_revised") else "main"
+    period = "tail" if "tail" in k else ("is" if re.search(r"(?:^|_)is_", k) else "oos")
+    kind = "sharpe" if "sharpe" in k else ("drawdown" if "drawdown" in k else "return")
+    return track, period, kind
+
+
 def swapped(text: str, f: dict, where: str) -> list[str]:
-    """SWAPPED: in 'X versus Y for buy-and-hold', Y must be a buy-and-hold field and X must not be one (unless
-    the two values are equal)."""
-    bh = [v for k, v in f.items() if k.lstrip("_").replace("comparison_", "").startswith("bh_") and isinstance(v, (int, float))]
+    """SWAPPED: in 'X versus Y for buy-and-hold', Y must be the buy-and-hold field of X's own track, period and
+    kind (QA B1 consumer_sentiment: comparison_bh_is_sharpe 0.71 equalled the winner's OOS 0.71 and passed a
+    correct sentence as swapped; any bh_* field used to count), and X must not be one (unless the values are equal).
+    When X matches no strategy field, every buy-and-hold field is allowed (the SHARPE check reports X)."""
+    bh_items = [(k, v) for k, v in f.items() if k.lstrip("_").replace("comparison_", "").startswith("bh_")
+                or k.lstrip("_").startswith("tail_bh") or k.lstrip("_").startswith("comparison_tail_bh")]
+    bh_items = [(k, v) for k, v in bh_items if isinstance(v, (int, float)) and not isinstance(v, bool)]
+    strat = [(k, v) for k, v in f.items() if isinstance(v, (int, float)) and not isinstance(v, bool)
+             and (k, v) not in bh_items and any(w in k for w in ("sharpe", "return", "drawdown"))]
     out = []
     pat = (r"(" + SHARPE_NUM + r"|[-+\u2212]?\d+\.\d%)\s+(?:versus|vs\.?|against)\s+(" + SHARPE_NUM +
            r"|[-+\u2212]?\d+\.\d%)\s+(?:for\s+)?(?:SPY\s+)?(?:buy-and-hold|B&H)")
+
+    def val(t):
+        return float(t.replace("\u2212", "-").rstrip("%")) / (100 if t.endswith("%") else 1)
+
+    def hits(t, items):
+        v, d = val(t), (len(t.rstrip("%").split(".")[1]) + (2 if t.endswith("%") else 0))
+        return [k for k, b in items if abs(v - b) <= 0.5 * 10 ** -d + 1e-9]
+    # also 'X (buy-and-hold SPY: Y)' (QA B1 consumer_sentiment F3: the reworded form passed both regexes)
+    pat2 = (r"(" + SHARPE_NUM + r"|[-+\u2212]?\d+\.\d%)\s*\((?:for\s+)?(?:buy-and-hold|B&H)(?:\s+\w+){0,3}\s*[:=]\s*(" +
+            SHARPE_NUM + r"|[-+\u2212]?\d+\.\d%)\)")
     for s in sentences(text):
-        for m in re.finditer(pat, s, re.I):
+        for m in list(re.finditer(pat, s, re.I)) + list(re.finditer(pat2, s, re.I)):
             x, y = m.group(1), m.group(2)
-
-            def val(t):
-                return float(t.replace("\u2212", "-").rstrip("%")) / (100 if t.endswith("%") else 1)
-
-            def is_bh(t):
-                v, d = val(t), (len(t.rstrip("%").split(".")[1]) + (2 if t.endswith("%") else 0))
-                return any(abs(v - b) <= 0.5 * 10 ** -d + 1e-9 for b in bh)
-            if not is_bh(y) or (is_bh(x) and abs(val(x) - val(y)) > 1e-9):
-                out.append(f"SWAPPED {where}: \"{m.group(0)}\" — strategy and buy-and-hold values do not match their fields")
+            xs = hits(x, strat)
+            scopes = {_bh_scope(k) for k in xs}
+            allowed = [(k, v) for k, v in bh_items if not scopes or _bh_scope(k) in scopes]
+            y_ok = bool(hits(y, allowed))
+            x_is_bh = bool(hits(x, bh_items)) and not xs
+            if not y_ok or (x_is_bh and abs(val(x) - val(y)) > 1e-9):
+                out.append(f"SWAPPED {where}: \"{m.group(0)}\" — strategy and buy-and-hold values do not match their "
+                           "fields (same track, period and kind)")
     return out
 
 

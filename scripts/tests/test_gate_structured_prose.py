@@ -186,3 +186,22 @@ RULE_ACTION_TEXT = {"P1": "hold 100% SPY when the reading is below the threshold
 _POS = W.value("oos_sharpe") > 0
 ''')
     assert findings(d, hard=True) == []
+
+
+def test_swapped_compares_buy_and_hold_on_the_same_track_period_and_kind():
+    # QA B1 consumer_sentiment: comparison_bh_is_sharpe 0.7092 rounded to the winner's OOS 0.71, so a correct
+    # 'X versus Y for buy-and-hold' was flagged; and a value from another track used to count as buy-and-hold
+    f = {"oos_sharpe": 0.711528, "bh_oos_sharpe": 0.946184, "is_sharpe": 0.759517, "bh_is_sharpe": 0.62,
+         "comparison_oos_sharpe": 0.711528, "comparison_bh_oos_sharpe": 0.95, "comparison_bh_is_sharpe": 0.7092}
+    assert g.swapped("Test-period Sharpe 0.71 versus 0.95 for buy-and-hold.", f, "x") == []
+    assert g.swapped("Test-period Sharpe 0.95 versus 0.71 for buy-and-hold.", f, "x")          # swapped
+    assert g.swapped("Training Sharpe 0.76 versus 0.95 for buy-and-hold.", f, "x")            # IS vs OOS B&H
+    assert g.swapped("Training Sharpe 0.76 versus 0.62 for buy-and-hold.", f, "x") == []
+    # the reworded form is checked too (QA cs F3), with a deliberately swapped value caught
+    assert g.swapped("Test-period Sharpe 0.71 (buy-and-hold SPY: 0.95).", f, "x") == []
+    assert g.swapped("Test-period Sharpe 0.95 (buy-and-hold SPY: 0.71).", f, "x")
+
+
+def test_a_legacy_label_covers_every_clause_of_its_sentence():
+    units = g._units("The previous rule (published earlier) used lead 1; it scored 0.18. Now lead 8; Sharpe 0.71.")
+    assert [lg for _c, lg in units] == [True, True, False, False]
