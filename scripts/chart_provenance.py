@@ -104,7 +104,14 @@ def record(pair: str, chart_json, sources=(), producer: str | None = None) -> di
     """Record the provenance of a chart JSON just written for ``pair``. ``sources``: paths the producer declares
     (repo-relative or absolute); files read so far by this process under data/ or results/ are added."""
     chart_json = Path(chart_json)
-    declared = {r for r in (_rel(REPO / s if not Path(s).is_absolute() else s) for s in sources) if r}
+    declared = set()
+    for src in sources:                     # a declared input must exist (Codex V51-3: missing ones were dropped)
+        f = REPO / src if not Path(src).is_absolute() else Path(src)
+        if not f.is_file():
+            raise ValueError(f"chart_provenance: declared input {src} of {chart_json.name} does not exist")
+        r = _rel(f)
+        if r:
+            declared.add(r)
     # reads of OTHER pairs' results (a producer looping over several pairs in one process) are not this chart's
     # inputs; declared sources are always kept
     own = {r for r in _READS if r.startswith(("data/", f"results/{pair}/"))}

@@ -548,9 +548,10 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
                     signals_df[signal_column], threshold, window=30
                 )
                 found = sum(1 for v in real_slices.values() if v is not None)
-                data_source_note = (
-                    f"the rule's real signal history — {found}/3 scenarios located"
-                )
+                # no computed count in reader text (Codex V51-4: '{found}/3' was an untagged, data-derived number)
+                data_source_note = ("the rule's real signal history" if found == len(real_slices)
+                                    else "the rule's real signal history where a crossing was found, stylised "
+                                         "otherwise")
         except Exception:
             # Defensive — fall back to stylised if parquet read fails.
             data_source_note = "stylised (the signal history could not be read)"

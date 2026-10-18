@@ -12,8 +12,8 @@
   },
   {
    "id": "bibliographic_citation",
-   "regex": "\\*[^*\\n]+\\*,\\s*\\d+\\(\\d+\\),\\s*\\d+\\s*[–-]\\s*\\d+|\\(\\d{4}[a-z]?\\)",
-   "why": "Reference list entries (journal volume(issue), pages; publication year): bibliographic metadata, not results."
+   "regex": "\\*[^*\\n]+\\*,\\s*\\d+\\(\\d+\\),\\s*\\d+\\s*[–-]\\s*\\d+|[A-Z][A-Za-z'’-]+(?: et al\\.)?(?:,? (?:and|&) [A-Z][A-Za-z'’-]+)?,? \\((?:1[89]|20)\\d{2}[a-z]?\\)",
+   "why": "Reference list entries (journal volume(issue), pages; publication year): bibliographic metadata, not results. Bound to author-year context (Codex V51-7: '(1260d)' in a signal label matched the bare year arm)."
   },
   {
    "id": "trade_log_definitions",
@@ -54,11 +54,6 @@
    "id": "recession_names",
    "regex": "\\bthe (?:2001|2008-09|2020) recession\\b",
    "why": "Names of NBER recessions (episode labels from the track summary's coverage list), not results."
-  },
-  {
-   "id": "trigger_scenarios",
-   "regex": "\\b\\d/3 scenarios located\\b",
-   "why": "Diagnostic of the trigger-card illustration (how many of the three illustrated crossings were found in the signal history), not a research result."
   }
  ]
 }

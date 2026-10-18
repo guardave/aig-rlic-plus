@@ -61,8 +61,8 @@ def test_authored_stale_numbers_equal_to_artifact_values_fail():
     v = _stale_values()
     ev = _evasions(v)
     pool = g.load_pool(PAIR)
-    for text in ev.values():                                 # v1 value matching would accept every one of them
-        assert g.check_text(text, pool, [], "v1") == []
+    for text in ev.values():                                 # v1 value matching accepted every one; v5.2 does not
+        assert g.check_text(text, pool, [], "v1")
 
     def inject(mod):
         mod.STORY_CONFIG.PLAIN_ENGLISH = mod.STORY_CONFIG.PLAIN_ENGLISH + " " + " ".join(ev.values())
@@ -139,13 +139,14 @@ def test_codex_b0f_evasions_fail_layer2_v2(name):
     assert any(b.startswith("UNTAGGED") and repr(num) in b for b in bad), (name, bad[:6])
 
 
-def test_resolution_rules_template_fallback():
-    """v1 value matching, still used for shared-template text."""
+def test_no_value_matching_fallback_correct_values_still_fail_untagged():
+    """v5.2 (Codex V51-5): template text has no value-matching fallback. An untagged number fails even when it
+    EQUALS the current artifact value (the old 'correct magnitude' false pass, F5.2 / N6)."""
     pool = g.load_pool(PAIR)
     ws = _ws()
-    assert g.check_text(f"Test-period Sharpe {ws['oos_sharpe']:.2f}.", pool, [], "t") == []
-    assert g.check_text(f"Drawdown {ws['oos_max_drawdown'] * 100:.1f}%.", pool, [], "t") == []
-    assert g.check_text(f"Window {ws['oos_period_start']} to {ws['oos_period_end']}.", pool, [], "t") == []
+    for t in (f"Test-period Sharpe {ws['oos_sharpe']:.2f}.", f"Drawdown {ws['oos_max_drawdown'] * 100:.1f}%.",
+              f"Window {ws['oos_period_start']} to {ws['oos_period_end']}."):
+        assert any(x.startswith("UNTAGGED-TEMPLATE") for x in g.check_text(t, pool, [], "t")), t
     assert g.check_text("It was right 97.3% of the time.", pool, [], "t")
     assert g.check_text("The rule waits nineteen months.", pool, [], "t")
     assert g.check_text("It ranks at the 72nd percentile.", pool, [], "t")   # an ordinal absent from the pool
@@ -221,7 +222,7 @@ def test_l2v2_f3_chart_text_is_extracted_and_checked():
     texts = g._chart_texts(spec)
     assert len(texts) == 5 and all("987.65" in t for t in texts)
     for t in texts:
-        assert any(x.startswith("UNRESOLVED") for x in _check(t)), t
+        assert any(x.startswith("UNTAGGED-TEMPLATE") for x in _check(t)), t
 
     from streamlit.testing.v1 import AppTest
     at = AppTest.from_string("import streamlit as st, plotly.graph_objects as go\n"
@@ -248,8 +249,8 @@ def test_l2v2_f4_table_cells_are_sentinel_verified_and_sign_aware():
 def test_l2v2_f5_template_matching_is_sign_sensitive():
     x = _ws()["oos_sharpe"]
     assert x > 0
-    assert any(t.startswith("UNRESOLVED") for t in _check(f"Out-of-sample Sharpe {-x:.2f}."))
-    assert _check(f"Out-of-sample Sharpe {x:.2f}.") == []
+    assert any(t.startswith("UNTAGGED-TEMPLATE") for t in _check(f"Out-of-sample Sharpe {-x:.2f}."))
+    assert any(t.startswith("UNTAGGED-TEMPLATE") for t in _check(f"Out-of-sample Sharpe {x:.2f}."))   # V51-5
 
 
 def test_l2v2_f6_winner_field_text_is_reconciled_with_value():
@@ -355,7 +356,7 @@ def test_l2v3_n3_every_visible_plotly_string_is_checked():
     texts = g._chart_texts(spec)
     for n in ("987.65", "876.54", "765.43", "654.32", "543.21", "432.10", "321.09"):
         assert any(n in t for t in texts), (n, texts)
-        assert any(x.startswith("UNRESOLVED") for t in texts if n in t for x in _check(t)), n
+        assert any(x.startswith("UNTAGGED-TEMPLATE") for t in texts if n in t for x in _check(t)), n
 
 
 def test_l2v3_n4_definitions_must_use_numbers_the_spec_or_pipeline_declares():
@@ -385,7 +386,7 @@ def test_headline_numbers_must_be_tagged_even_in_template_text():
     x = _ws()["oos_sharpe"]
     f, _ = g.check_tagged(f"The test-period Sharpe difference is {x:+.2f} (95% interval -0.95 to -0.28).",
                           g.load_pool(PAIR), g._allow_entries(), {}, "t", PAIR, None, headline=True)
-    assert any(t.startswith("HEADLINE") for t in f)
+    assert any(t.startswith("UNTAGGED-TEMPLATE") and "headline surface" in t for t in f)
     findings, stats = g.check_pair(PAIR, g.render_pages(PAIR, sections=("strategy",)))
     assert findings == [] and stats["template_list"] == []    # v5.1: no result number is left value-matched
 

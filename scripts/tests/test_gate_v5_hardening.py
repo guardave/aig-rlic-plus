@@ -234,3 +234,20 @@ def test_streamlit_labels_tooltips_and_options_are_extracted():
     texts = " ".join(t for _, t in blocks)
     for n in ("981.1", "982.2", "983.3", "984.4", "985.5", "988.8", "989.9", "991.2", "993.4", "996.7", "997.8"):
         assert n in texts, n
+
+
+def test_bibliographic_allowlist_needs_an_author_year_citation():
+    # Codex V51-7: the bare '(dddd)' arm matched '(1260d)' in a signal label
+    import re
+    e = next(x for x in g._allow_entries() if x["id"] == "bibliographic_citation")
+    assert re.search(e["regex"], "as shown by Hamilton (1989), regimes")
+    assert re.search(e["regex"], "Politis and Romano (1994)")
+    assert not re.search(e["regex"], "HY-IG Percentile Rank (1260d)")
+    assert not re.search(e["regex"], "the window (2019) only")
+
+
+def test_trigger_card_diagnostic_has_no_computed_count():
+    # Codex V51-4: '{found}/3 scenarios located' was an untagged, data-derived number hidden by an allowlist entry
+    src = (g.APP / "components" / "instructional_trigger_cards.py").read_text()
+    assert "/3 scenarios located" not in src
+    assert not [x for x in g._allow_entries() if x["id"] == "trigger_scenarios"]

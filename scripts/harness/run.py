@@ -21,6 +21,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from harness import artifacts as A  # noqa: E402
+from harness import charts  # noqa: E402  (installs the chart-input recorder before any data is read; Codex V51-3)
 from harness import leak as LK  # noqa: E402
 from harness import null as NL  # noqa: E402
 from harness import prose  # noqa: E402
@@ -549,7 +550,6 @@ def write_outputs(mod, tag: str, out: dict, extra: dict) -> None:
         A.write_json(rdir / "tournament_winner.json", tournament_winner(ws, tag), "tournament_winner")
     ts = track_summary(mod, out, ws)
     A.write_json(rdir / "track_summary.json", ts, "track_summary")
-    from harness import charts
     if out["records"]["main"] and out["records"]["main"].get("eligible"):
         charts.lead_plateau(spec.pair_id, tag, spec.lead_unit)
         charts.chance_check(spec.pair_id, tag)

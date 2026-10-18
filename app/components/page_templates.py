@@ -2080,7 +2080,11 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
         })
 
     st.dataframe(
-        _table_source(pd.DataFrame(display_rows), tourn_path, derived=("Rank",)),
+        # the displayed rank is checked against the file's own rank column (Codex V51-6) when it has one
+        _table_source(pd.DataFrame(display_rows), tourn_path,
+                      derived={"Rank": {"is_sharpe": "is_rank", "oos_sharpe": "oos_rank"}.get(rank_col)
+                               if {"is_sharpe": "is_rank", "oos_sharpe": "oos_rank"}.get(rank_col) in tdf.columns
+                               else None}),
         use_container_width=True,
         hide_index=True,
         column_config={

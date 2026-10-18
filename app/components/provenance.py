@@ -240,7 +240,8 @@ def table_source(df: pd.DataFrame, *sources, derived=()) -> pd.DataFrame:
         except ValueError:
             rel = "outside-repo:" + path
         srcs.append(rel + (f"#{ptr}" if ptr else ""))
-    head = f"{T0}{json.dumps({'src': srcs, 'derived': list(derived)})}{T1}"
+    der = derived if isinstance(derived, dict) else {c: None for c in derived}   # {display col: source col | None}
+    head = f"{T0}{json.dumps({'src': srcs, 'derived': der})}{T1}"
     out = df.copy()
     out.columns = [f"{head}{out.columns[0]}", *out.columns[1:]]
     return out

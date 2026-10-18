@@ -230,7 +230,7 @@ def _render_chart(
             x=series.index,
             y=series.values,
             mode="lines",
-            name=display_name,
+            name=str(display_name),   # str(): plotly would serialise a tagged label by its raw value
             line=dict(color="#D55E00", width=1.2),
             hovertemplate="%{x|%Y-%m-%d}: %{y:.3f}<extra></extra>",
         )
@@ -402,7 +402,7 @@ def _render_chart(
         height=420,
         margin=dict(l=50, r=30, t=30, b=60),
         xaxis_title="Date",
-        yaxis_title=display_name,
+        yaxis_title=str(display_name),
         yaxis2=dict(
             title=(
                 "Indexed price / cumulative return"

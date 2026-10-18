@@ -103,7 +103,8 @@ def test_sourced_table_row_must_be_one_source_row(repo):
     assert not g.row_bound(g._template_cells(f"GFC{g.TABLE_SEP}0.71"), head, rows, der)
     # each number must come from the SAME row: GFC with COVID's value fails
     assert not g.row_bound(g._template_cells(f"GFC{g.TABLE_SEP}0.07"), head, rows, der)
-    assert g.row_bound(g._template_cells(f"GFC{g.TABLE_SEP}74.0%"), head, rows, der)   # percent display
+    # V51-2: a Sharpe is not a ratio-kind column, so it may not be shown x 100 as a percent
+    assert not g.row_bound(g._template_cells(f"GFC{g.TABLE_SEP}74.0%"), head, rows, der)
 
 
 def test_stale_or_foreign_table_source_fails(repo):
@@ -120,7 +121,7 @@ def test_derived_columns_and_json_pointer_sources(repo):
     (repo / "results" / PAIR / "scope.json").write_text(json.dumps(
         {"axis": {"derivatives": [{"name": "z_60m", "definition": "60-month z-score", "window": 60}]}}))
     rows, bad, der = g.table_source_rows(_src("results/toy_spy/scope.json#/axis/derivatives", ("Rank",)), PAIR)
-    assert bad == [] and der == {"Rank"}
+    assert bad == [] and der == {"Rank": None}
     head = ["Rank", "Name", "Window"]
     assert g.row_bound(g._template_cells(f"7{g.TABLE_SEP}z_60m{g.TABLE_SEP}60"), head, rows, der)
     assert not g.row_bound(g._template_cells(f"7{g.TABLE_SEP}z_60m{g.TABLE_SEP}36"), head, rows, der)
@@ -176,3 +177,74 @@ def test_reads_of_other_pairs_results_are_not_inputs(repo):
         fh.read()
     e = cp.record(PAIR, _chart(repo), ["results/toy_spy/subperiod_sharpe.csv"], "test")
     assert not [i for i in e["inputs"] if i.startswith("results/other_spy/")]
+
+
+READS = {"read_csv", "read_parquet", "read_json", "read_excel", "read_text", "read_bytes", "open", "load", "loads"}
+
+
+def _first_recorder_import(tree):
+    import ast
+    for i, st in enumerate(tree.body):
+        names = []
+        if isinstance(st, ast.Import):
+            names = [a.name for a in st.names]
+        elif isinstance(st, ast.ImportFrom):
+            names = [st.module or ""] + [f"{st.module}.{a.name}" for a in st.names]
+        if any(n in ("chart_provenance", "harness.charts", "harness.run") or n.startswith("harness.run")
+               for n in names):
+            return i
+    return None
+
+
+def test_every_chart_producer_installs_the_recorder_before_reading_data():
+    # Codex V51-3: input capture depended on import order; a producer reading data first escaped the recorder
+    import ast
+    root = Path(__file__).resolve().parents[1]
+    producers = [f for f in sorted(root.glob("*.py")) + sorted((root / "harness").glob("*.py"))
+                 if "chart_provenance.record" in f.read_text() or "from harness.run import" in f.read_text()]
+    assert len(producers) >= 6
+    for f in producers:
+        tree = ast.parse(f.read_text())
+        i = _first_recorder_import(tree)
+        assert i is not None or f.name == "charts.py", f"{f.name}: does not import the recorder at module level"
+        if i is None:
+            assert "import chart_provenance" in f.read_text()
+            continue
+        for st in tree.body[:i]:
+            for n in ast.walk(st):
+                if isinstance(n, ast.Call):
+                    fn = n.func.attr if isinstance(n.func, ast.Attribute) else getattr(n.func, "id", "")
+                    assert fn not in READS, f"{f.name}: reads data (line {n.lineno}) before importing the recorder"
+
+
+def test_missing_declared_input_is_rejected(repo):
+    with pytest.raises(ValueError, match="does not exist"):
+        cp.record(PAIR, _chart(repo), ["results/toy_spy/subperiod_sharpe.csv", "data/missing.csv"], "test")
+
+
+def test_every_chart_a_pilot_shows_verifies():
+    # Codex V51-1: the old test only checked that manifests were non-empty; this runs verify() on every record
+    root = Path(__file__).resolve().parents[2]
+    for pair in ("unrate_spy", "cc_delinquency_spy", "hy_ig_spy"):
+        man = json.loads(cp.manifest_path(pair).read_text())
+        bad = {name: cp.verify(pair, f"output/charts/{pair}/plotly/{name}.json") for name in man}
+        assert not {k: v for k, v in bad.items() if v}, (pair, {k: v for k, v in bad.items() if v})
+
+
+def test_percent_display_needs_a_ratio_kind_column():
+    # Codex V51-2 repro: '4348.0%' was accepted against a stored 43.48 (any decimal could be shown x 100)
+    assert not g._cell_ok("4348.0%", [(43.48, False)], set())
+    assert g._cell_ok("43.5%", [(43.48, False)], set())                   # a stored percent shown as stored
+    assert g._cell_ok("6.6%", [(0.066, True)], set())                      # a ratio-kind column shown x 100
+    assert not g._cell_ok("6.6", [(0.066, True)], set())                   # x 100 only with a percent sign
+
+
+def test_derived_rank_is_checked_against_the_source_rank_column(repo):
+    # Codex V51-6 repro: row_bound(['987'], ['Rank'], ..., {'Rank'}) passed a wrong hand-computed rank
+    (repo / "results" / PAIR / "t.csv").write_text("key,is_rank,oos_sharpe\na,1,0.62\nb,2,0.67\n")
+    rows, _b, _d = g.table_source_rows(_src("results/toy_spy/t.csv"), PAIR)
+    head = ["Rank", "Key", "OOS Sharpe"]
+    der = {"Rank": "is_rank"}
+    assert g.row_bound(g._template_cells(f"2{g.TABLE_SEP}b{g.TABLE_SEP}0.67"), head, rows, der)
+    assert not g.row_bound(g._template_cells(f"987{g.TABLE_SEP}b{g.TABLE_SEP}0.67"), head, rows, der)
+    assert not g.row_bound(g._template_cells(f"1{g.TABLE_SEP}b{g.TABLE_SEP}0.67"), head, rows, der)

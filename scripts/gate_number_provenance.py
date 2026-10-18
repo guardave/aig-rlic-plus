@@ -58,6 +58,12 @@ strings, tuples / sets, public module strings and callables are marked authored 
 keyed definitions and categorical labels bind to their own code's spec parameters; widget labels, tooltips,
 options, tick prefixes / suffixes, customdata and table-trace strings are extracted.
 
+v5.2 after Codex L2v5.1: no value-matching fallback remains (an untagged, non-allowlisted template number FAILS as
+UNTAGGED-TEMPLATE whatever its value); sourced-table percent displays may scale x 100 only a ratio-kind column;
+derived table columns are checked against a named source column; declared chart inputs must exist and every
+producer installs the input recorder before reading data (static test); the trigger-card diagnostic carries no
+computed count; the bibliographic allowlist is bound to author-year context.
+
 Usage:
   python scripts/gate_number_provenance.py [pair ...]         # default: every pair with winner_summary 1.3.x
   python scripts/gate_number_provenance.py --text FILE --pair P  # v1 value check of a text file (diagnostic)
@@ -1189,12 +1195,12 @@ def check_tagged(text: str, pool: dict, entries: list[dict], fields: dict, where
             elif not value_match:
                 cnt["template_tokens"] -= 1
                 cnt["provenance_tokens"] += 1
-            elif headline and rx in (NUM, ORDINAL) and not (re.fullmatch(r"(?:19|20)\d\d", m.group(0))):
-                out.append(f"HEADLINE {where}: untagged template number {m.group(0)!r} on a headline surface — "
-                           f"\"{_ctx(body, m)}\"")
-            elif not _resolve_token(m, rx, pool, body):
-                out.append(f"UNRESOLVED {where}: template number {m.group(0)!r} — \"{_ctx(body, m)}\"")
             else:
+                # v5.2 (Codex V51-5): no value-matching fallback. A template number that is neither tagged nor an
+                # allowlisted descriptive phrase FAILS, whatever its value (equalling an artifact value is no proof)
+                kindtxt = "on a headline surface " if headline else ""
+                out.append(f"UNTAGGED-TEMPLATE {where}: template number {m.group(0)!r} {kindtxt}is neither tagged "
+                           f"nor an allowlisted descriptive phrase — \"{_ctx(body, m)}\"")
                 cnt.setdefault("template_blocks", set()).add(body.strip()[:70].replace("\n", " "))
                 cnt.setdefault("template_list", []).append((m.group(0), _ctx(body, m)))
     return out, cnt
@@ -1236,15 +1242,16 @@ def pairs_13() -> list[str]:
 _SRC_ROWS: dict[str, list] = {}
 
 
-def _flat(o, out: list) -> list:
+def _flat(o, out: list, key: str = "") -> list:
+    """(column / key, value) pairs of a JSON record, nested keys flattened to their last name."""
     if isinstance(o, dict):
-        for v in o.values():
-            _flat(v, out)
+        for k, v in o.items():
+            _flat(v, out, str(k))
     elif isinstance(o, (list, tuple)):
         for v in o:
-            _flat(v, out)
+            _flat(v, out, key)
     else:
-        out.append(o)
+        out.append((key, o))
     return out
 
 
@@ -1280,35 +1287,42 @@ def table_source_rows(payload: str, pair: str) -> tuple[list[list], list[str], s
                 recs = o if isinstance(o, list) else [o]
                 _SRC_ROWS[src] = [_flat(r, []) for r in recs]
             elif f.suffix == ".parquet":
-                _SRC_ROWS[src] = pd.read_parquet(f).reset_index().values.tolist()
+                d_ = pd.read_parquet(f).reset_index()
+                _SRC_ROWS[src] = [list(zip(d_.columns.astype(str), r)) for r in d_.values.tolist()]
             else:
-                _SRC_ROWS[src] = pd.read_csv(f, comment="#").values.tolist()
+                d_ = pd.read_csv(f, comment="#")
+                _SRC_ROWS[src] = [list(zip(d_.columns.astype(str), r)) for r in d_.values.tolist()]
         rows += _SRC_ROWS[src]
-    return rows, bad, set(spec.get("derived", []))
+    d = spec.get("derived", {})
+    return rows, bad, (d if isinstance(d, dict) else {c: None for c in d})
 
 
-def _row_values(row: list) -> tuple[list[float], set[str]]:
+def _row_values(row: list) -> tuple[list[tuple[float, bool]], set[str]]:
+    """(numbers with 'may be shown x 100' = the source column's declared kind is a ratio, text cells)."""
+    from components import provenance as P
     nums, strs = [], set()
-    for v in row:
+    for col, v in row:
         if isinstance(v, bool) or v is None:
             continue
+        ratio = P.leaf_kind(f"art:t#/{col}") in P.RATIO_KINDS
         if isinstance(v, (int, float)):
             if not (isinstance(v, float) and math.isnan(v)):
-                nums.append(float(v))
+                nums.append((float(v), ratio))
             continue
         t = str(v)
         strs.add(t)
         try:
-            nums.append(float(t))
+            nums.append((float(t), ratio))
         except ValueError:
             pass
     return nums, strs
 
 
-def _cell_ok(cell, nums: list[float], strs: set[str]) -> bool:
-    """A displayed cell equals a source cell (text), or every number / date in it is a value of the row (as stored,
-    or x 100 for a percent display, at the displayed precision; signed). ``cell``: text, or (exact text, text with
-    allowlisted name spans blanked)."""
+def _cell_ok(cell, nums: list, strs: set[str]) -> bool:
+    """A displayed cell equals a source cell (text), or every number / date in it is a value of the row at the
+    displayed precision (signed). A percent display may show x 100 ONLY of a column whose declared kind is a ratio
+    (Codex V51-2: '4348.0%' no longer matches a stored 43.48); otherwise the value is shown as stored.
+    ``cell``: text, or (exact text, text with allowlisted name spans blanked)."""
     exact, cell = cell if isinstance(cell, tuple) else (cell, cell)
     if exact in strs or not re.search(r"\d", cell):
         return True
@@ -1317,10 +1331,8 @@ def _cell_ok(cell, nums: list[float], strs: set[str]) -> bool:
             return False
     for (x, d, pct), _t in _numbers(cell.replace("−", "-")):
         tol = 0.5 * 10 ** -d + 1e-9
-        if d == 0 and not pct:
-            ok = any(float(v).is_integer() and v == x for v in nums)
-        else:
-            ok = any(abs(v - x) <= tol or abs(v * 100 - x) <= tol for v in nums)
+        ok = any((abs(v - x) <= tol if d else (float(v).is_integer() and v == x)) or
+                 (pct and ratio and abs(v * 100 - x) <= tol) for v, ratio in nums)
         if not ok:
             return False
     return True
@@ -1329,10 +1341,15 @@ def _cell_ok(cell, nums: list[float], strs: set[str]) -> bool:
 _ALL_STRS: dict[int, set] = {}
 
 
-def row_bound(cells: list, header: list[str], rows: list[list], derived: set[str]) -> bool:
+def row_bound(cells: list, header: list[str], rows: list[list], derived) -> bool:
     """Every checked cell of a displayed row is matched by ONE source row: cells with numbers or dates through
     _cell_ok, and text cells that occur in the source (row keys such as an episode name) by equality in that same
-    row. Text the template composes (a label found in no source row) binds nothing."""
+    row. Text the template composes (a label found in no source row) binds nothing. ``derived``: {display column:
+    source column or None}: a derived cell must equal that source column's value in the same row (Codex V51-6: a
+    hand-computed rank is checked against the file's rank column); None = not verifiable, skipped."""
+    derived = derived if isinstance(derived, dict) else {c: None for c in derived}
+    checks = [(c[0] if isinstance(c, tuple) else c, derived[h]) for c, h in zip(cells, header)
+              if h in derived and derived[h] and re.search(r"\d", c[0] if isinstance(c, tuple) else c)]
     if id(rows) not in _ALL_STRS:
         _ALL_STRS.clear()
         _ALL_STRS[id(rows)] = {t for r in rows for t in _row_values(r)[1]}
@@ -1346,11 +1363,20 @@ def row_bound(cells: list, header: list[str], rows: list[list], derived: set[str
             want.append(c)
         elif exact and exact in known:
             keys.append(exact)
-    if not want and not keys:
+    if not want and not keys and not checks:
+        return True
+
+    def derived_ok(r) -> bool:
+        vals = dict(r)
+        for txt, col in checks:
+            v = vals.get(col)
+            n = [x for (x, _d, _p), _t in _numbers(txt)]
+            if v is None or (isinstance(v, float) and math.isnan(v)) or not n or abs(float(v) - n[0]) > 1e-9:
+                return False
         return True
     for r in rows:
         nums, strs = _row_values(r)
-        if all(k in strs for k in keys) and all(_cell_ok(c, nums, strs) for c in want):
+        if all(k in strs for k in keys) and all(_cell_ok(c, nums, strs) for c in want) and derived_ok(r):
             return True
     return False
 
@@ -1515,16 +1541,8 @@ def main(argv=None) -> int:
         print(f"      chart files: {st['charts_checked']} provenance-checked ({sf['chart_file']} text tokens not "
               f"value-matched); sourced tables: {st['rows_checked']} rows row-bound to their source "
               f"(near-miss acceptance {st['row_near_miss'] if st['row_near_miss'] is not None else 'n/a'})")
-        nvm = len(st["template_list"])
-        print(f"      VALUE-MATCHED RESIDUAL (template numbers that are neither tagged nor an allowlisted descriptive "
-              f"phrase): {nvm} token(s)" + (f"; against the {st['tokens_pool']}-value curated pool random-token "
-                                           f"coincidence {st['coincidence_template']:.1%}, near-miss stale Sharpe "
-                                           f"(+-0.01..0.10) accepted {st['near_miss_template']:.1%}" if nvm else
-                                           " (none: every result number on the pages is tagged)")
-              + f". Descriptive template tokens allowlisted with a reason: {vm - nvm} (prose {sf['prose']}, runtime "
-                f"charts {sf['runtime_chart']}, unsourced tables {sf['unsourced_table']} template tokens in all).")
-        for sec, surf, t, ctx in ([] if a.list_template else st["template_list"]):
-            print(f"        value-matched {sec}/{surf}: {t!r} — {ctx[:120]}")
+        print(f"      template numbers: no value matching (v5.2) - every number is tagged, an allowlisted "
+              f"descriptive phrase ({vm} such tokens), or a finding ({len(st['template_list'])} UNTAGGED-TEMPLATE)")
         dfn = st["definition"]
         print(f"      definitions: {st['definition_bound']} tokens bound to their own code (keyed definitions, "
               f"categorical labels; {dfn['codes']} spec codes, random-token acceptance {dfn['per_code_mix']:.1%}, "
