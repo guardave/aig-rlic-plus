@@ -75,6 +75,15 @@ def _strategy_code(s) -> str:
     return head if head in ("P1", "P2", "P3") else "P1"
 
 
+def published_value(rec, pub: pd.DataFrame, w, wrow, col: str) -> float:
+    """A previously published statistic: the immutable record's value, else the published table row's, else (only
+    when neither has it) the harness replay's."""
+    for src in (rec, pub.loc[w] if w in pub.index else None):
+        if src is not None and col in src and pd.notna(src[col]):
+            return float(src[col])
+    return float(wrow[col])
+
+
 def replay_legacy(mod, tol: float = 1e-6) -> dict:
     """Checklist 1: replay the published rule through the harness and compare with the committed artifacts.
     A pair that declares LEGACY_REPLAY = None gets the not_replayable report instead (see not_replayable)."""
@@ -137,9 +146,15 @@ def replay_legacy(mod, tol: float = 1e-6) -> dict:
                      "match": bool(wrow["signal"] == p["signal"] and wrow["threshold"] == p["threshold"]
                                    and wrow["direction"] == pdir and int(wrow["lead"]) == int(p[spec.lead_col])
                                    and ("strategy" not in p or wrow["strategy"] == _strategy_code(p["strategy"])))}
+    # previous_* report what was PUBLISHED (the immutable record, else the published table row), not the harness
+    # replay: on the max_oos_valid path the IS columns are documented differences (QA B1 umcsent L1: replay IS
+    # 0.3107 vs published 0.2825); the replay values are kept next to them for the record
+    def _published(col):
+        return published_value(p, pub, w, wrow, col)
     rep["published"] = {"key": wrow["key"], "signal": str(wrow["signal"]), "threshold": str(wrow["threshold"]),
                         "strategy": str(wrow["strategy"]), "direction": str(wrow["direction"]), "lead": int(wrow["lead"]),
-                        "is_sharpe": float(wrow["is_sharpe"]), "oos_sharpe": float(wrow["oos_sharpe"]),
+                        "is_sharpe": _published("is_sharpe"), "oos_sharpe": _published("oos_sharpe"),
+                        "replay_is_sharpe": float(wrow["is_sharpe"]), "replay_oos_sharpe": float(wrow["oos_sharpe"]),
                         "tag": tag, "selection": label}
     sr = pd.read_csv(rdir / f"strategy_returns_{tag}.csv")
     d = np.abs(res.deployable_returns(w) - sr["strategy_return"].to_numpy(float))

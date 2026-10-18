@@ -221,16 +221,22 @@ def lead_curve(res: TrackResult) -> pd.DataFrame:
 
 
 def trade_log(ws: pd.DataFrame, instrument: str, cost_bps: int, reason: str) -> pd.DataFrame:
+    """One row per position change. quantity_pct = target weight AFTER the trade in percent (the fleet broker-style
+    convention, scripts/_trade_log_broker.py, and the Strategy page's column dictionary); trade_size_pct = size of
+    the trade in percent of capital (QA B1 umcsent M2). A position held from the first row is logged as an entry
+    from flat."""
     pos = ws.set_index("date")["position"].fillna(0.0)
     sig = ws.set_index("date")["signal"]
     thr = ws.set_index("date")["threshold"]
-    ch = pos.diff().fillna(0)
+    before = pos.shift(1).fillna(0.0)
+    ch = pos - before
     rows = []
     for dt, d in ch[ch != 0].items():
         rows.append({"trade_date": dt.date().isoformat(), "side": "BUY" if d > 0 else "SELL",
-                     "instrument": instrument, "quantity_pct": abs(float(d)) * 100, "commission_bps": cost_bps,
+                     "instrument": instrument, "quantity_pct": float(pos.loc[dt]) * 100,
+                     "trade_size_pct": abs(float(d)) * 100, "commission_bps": cost_bps,
                      "signal_value": _r(sig.loc[dt]), "threshold_value": _r(thr.loc[dt]),
-                     "position_before": float(pos.shift(1).fillna(0).loc[dt]), "position_after": float(pos.loc[dt]),
+                     "position_before": float(before.loc[dt]), "position_after": float(pos.loc[dt]),
                      "reason": reason})
     return pd.DataFrame(rows)
 
