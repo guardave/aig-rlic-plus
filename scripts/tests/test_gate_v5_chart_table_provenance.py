@@ -148,3 +148,22 @@ def test_pilots_record_every_chart_they_show():
     for pair in ("unrate_spy", "cc_delinquency_spy", "hy_ig_spy"):
         man = json.loads(cp.manifest_path(pair).read_text())
         assert man and all(e["inputs"] and e["results_tag"] for e in man.values()), pair
+
+
+def test_absent_input_is_reported_with_a_rebuild_path_not_as_stale(repo):
+    # QA pilot-visual M6: a gitignored input missing from a fresh clone read as 16 STALE-CHART
+    f = _chart(repo)
+    cp.record(PAIR, f, ["results/toy_spy/subperiod_sharpe.csv"], "test")
+    (repo / "results" / PAIR / "subperiod_sharpe.csv").unlink()
+    r = cp.verify(PAIR, f.relative_to(repo).as_posix())
+    assert "not present in this checkout" in r and "pair_pipeline_toy_spy.py" in r and "stale" not in r
+
+
+def test_pilot_chart_inputs_are_all_tracked():
+    import subprocess
+    root = Path(__file__).resolve().parents[2]
+    for pair in ("unrate_spy", "cc_delinquency_spy", "hy_ig_spy"):
+        ins = {i for e in json.loads(cp.manifest_path(pair).read_text()).values() for i in e["inputs"]}
+        untracked = [i for i in ins if subprocess.run(["git", "ls-files", "--error-unmatch", i], cwd=root,
+                                                       capture_output=True).returncode]
+        assert not untracked, (pair, untracked)              # a fresh clone can verify every record

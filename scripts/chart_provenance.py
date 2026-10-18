@@ -124,6 +124,14 @@ def record(pair: str, chart_json, sources=(), producer: str | None = None) -> di
     return entry
 
 
+def _ignored(rel: str) -> bool:
+    import subprocess
+    try:
+        return subprocess.run(["git", "check-ignore", "-q", rel], cwd=REPO).returncode == 0
+    except OSError:
+        return False
+
+
 def verify(pair: str, chart_rel: str) -> str | None:
     """None when the chart file at repo-relative ``chart_rel`` matches its provenance record, else the reason."""
     chart = REPO / chart_rel
@@ -139,9 +147,14 @@ def verify(pair: str, chart_rel: str) -> str | None:
     tag = results_tag(pair)
     if tag and e.get("results_tag") != tag:
         return f"chart {chart.stem} was built for run {e.get('results_tag')}, current run is {tag}"
-    stale = [p for p, h in (e.get("inputs") or {}).items() if not (REPO / p).is_file() or sha256(REPO / p) != h]
     if not e.get("inputs"):
         return f"chart {chart.stem} records no inputs"
+    absent = [p for p in e["inputs"] if not (REPO / p).is_file()]
+    if absent:                     # QA pilot-visual M6: say what is missing and how to get it, not "stale"
+        return (f"chart {chart.stem}: input(s) not present in this checkout: {', '.join(absent[:4])} - "
+                f"{'gitignored data: ' if any(_ignored(p) for p in absent) else ''}rebuild with "
+                f"python scripts/pair_pipeline_{pair}.py (or track the file)")
+    stale = [p for p, h in e["inputs"].items() if sha256(REPO / p) != h]
     if stale:
         return f"chart {chart.stem} is stale: input(s) changed since it was built: {', '.join(stale[:4])}"
     return None

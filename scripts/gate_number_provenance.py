@@ -1443,7 +1443,8 @@ def check_pair(pair: str, pages: dict | None = None) -> tuple[list[str], dict]:
                     charts.add(b)
                     r = chart_provenance.verify(pair, b)
                     if r:
-                        findings.append(f"STALE-CHART {where}: {r}")
+                        findings.append(f"{'INPUT-ABSENT' if 'not present in this checkout' in r else 'STALE-CHART'}"
+                                        f" {where}: {r}")
                 continue
             if kind == "chart_file_text":
                 f, c = check_tagged(b, pool, entries, fields, f"{where} [chart]", pair, approved, value_match=False)
