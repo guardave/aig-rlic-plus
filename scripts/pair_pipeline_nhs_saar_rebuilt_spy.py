@@ -432,16 +432,16 @@ def write_narrative_provenance() -> None:
     gr = pd.read_csv(RES / "granger_by_lag.csv")
     best = gr.loc[gr["p_value"].idxmin()]
     write_evidence_facts(PAIR_ID, DATE_TAG, sources=NARRATIVE_SOURCES, derived={
-        "trade_log_rows": n_rows,
+        "n_trade_log_rows": n_rows,
         "position_change_threshold_pp": POSITION_CHANGE_THRESHOLD_PP,
         "oos_months_position_change_gt_5pct": int((d > POSITION_CHANGE_THRESHOLD_PP / 100).sum()),
         "oos_sum_abs_position_change": round(float(d.sum()), 4),
-        "granger_max_lag": GRANGER_MAX_LAG,
-        "granger_best_lag": int(best["lag"]),
-        "granger_best_p": round(float(best["p_value"]), 4),
-        "granger_best_p_holm": round(float(best["p_value_holm"]), 4),
-        "qr_horizon_months": QR_HORIZON, "qr_block": QR_BLOCK,
-        "roll_corr_window": ROLL_CORR_WINDOW})
+        "n_granger_lags": GRANGER_MAX_LAG,
+        "granger_best": {"lag": int(best["lag"])},
+        "granger_min_p_single": round(float(best["p_value"]), 4),
+        "granger_min_p_holm": round(float(best["p_value_holm"]), 4),
+        "n_months_qr_horizon": QR_HORIZON, "n_months_qr_block": QR_BLOCK,
+        "n_months_roll_corr_window": ROLL_CORR_WINDOW})
 
 
 def main(K: int = 100) -> None:

@@ -20,7 +20,8 @@ from harness.spec import Legacy, PairSpec, Rule
 
 PAIR_ID = "nhs_saar_rebuilt_spy"
 SERIES = "HSN1F"
-ROLL_WINDOW, ROLL_MIN = 60, 36        # rolling z-score and rolling-quantile thresholds (legacy constants)
+ROLL_WINDOW = 60                      # rolling z-score and rolling-quantile window, months (legacy constant)
+ROLL_MIN = 36                         # minimum readings in that window (legacy constant)
 
 SIGNALS = {
     "yoy": "nhs_pct_yoy",
@@ -47,7 +48,7 @@ def features(levels: pd.DataFrame) -> pd.DataFrame:
 
 
 def _roll_q(q: float):
-    return lambda s: s.rolling(ROLL_WINDOW, min_periods=ROLL_MIN).quantile(q)
+    return lambda s: s.rolling(60, min_periods=36).quantile(q)       # = ROLL_WINDOW, ROLL_MIN
 
 
 def rules(signal: str) -> dict[str, Rule]:

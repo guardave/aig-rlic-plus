@@ -146,8 +146,9 @@ def chart_ccf() -> None:
     ccf = pd.read_csv(CORE / "ccf_prewhitened.csv")
     colors = np.where(ccf["significant"], C_IND, C_BENCH)
     fig = go.Figure(go.Bar(x=ccf["lag"], y=ccf["ccf"], marker_color=colors, name="CCF"))
-    fig.add_hline(y=ccf["upper_ci"].iloc[0], line_dash="dash", line_color=C_LINE)
-    fig.add_hline(y=ccf["lower_ci"].iloc[0], line_dash="dash", line_color=C_LINE)
+    for col, show in (("upper_ci", True), ("lower_ci", False)):   # 95% band per lag (n differs by lag)
+        fig.add_trace(go.Scatter(x=ccf["lag"], y=ccf[col], mode="lines", line=dict(dash="dash", color=C_LINE, shape="hvh"),
+                                 name="95% band (1.96/sqrt(n))", showlegend=show, hoverinfo="skip"))
     fig.update_layout(title="Cross-Correlation: Change in 6-Month Home-Sales Growth vs SPY Return",
                       xaxis_title="Lag (months; positive = home sales first)", yaxis_title="Correlation",
                       template="plotly_white", height=430)
@@ -161,7 +162,8 @@ def chart_granger() -> None:
     fig.add_trace(go.Bar(x=gr["lag"], y=gr["p_value"], name="p-value (single lag)", marker_color=C_IND))
     fig.add_trace(go.Scatter(x=gr["lag"], y=gr["p_value_holm"], name="Holm-adjusted p-value (all lags)",
                              mode="markers", marker=dict(color=C_LINE, symbol="diamond", size=9)))
-    fig.add_hline(y=0.05, line_dash="dash", line_color=C_LINE, annotation_text="p = 0.05")
+    fig.add_hline(y=0.05, line_dash="dash", line_color=C_LINE, annotation_text="p = 0.05",
+                  annotation_position="top left")
     fig.update_layout(title="Granger Causality: Does Home-Sales Growth Help Forecast SPY?",
                       xaxis_title="Lag (months)", yaxis_title="p-value", template="plotly_white", height=430,
                       legend=dict(orientation="h", y=-0.2))
@@ -203,7 +205,12 @@ def chart_quantile() -> None:
 
 
 def chart_equity_drawdown() -> None:
-    strat = pd.read_csv(RES / f"strategy_returns_{DATE_TAG}.csv", parse_dates=["date"]).set_index("date")
+    full = pd.read_csv(RES / f"strategy_returns_{DATE_TAG}.csv", parse_dates=["date"]).set_index("date")
+    # from the first training month: before it the real-time rule has no published vintage (no position at all)
+    is0 = full.index[full["sample"] == "IS"][0]
+    strat = full.loc[is0:].copy()
+    strat["strategy_equity"] = (1 + strat["strategy_return"]).cumprod()
+    strat["benchmark_equity"] = (1 + strat["benchmark_return"]).cumprod()
     oos0 = strat.index[strat["sample"] == "OOS"][0].strftime("%Y-%m-%d")
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=strat.index, y=strat["strategy_equity"], name="Winner strategy (as known at the time)",
@@ -217,7 +224,7 @@ def chart_equity_drawdown() -> None:
     fig.update_layout(title="Equity Curve: New-Home-Sales Strategy vs SPY", yaxis_title="Growth of $1",
                       template="plotly_white", height=460)
     save("equity_curves", fig, "Winner strategy (as known at the time: real-time HSN1F vintages) equity curve compared "
-         "with buy-and-hold SPY.", [str(RES / f"strategy_returns_{DATE_TAG}.csv")])
+         "with buy-and-hold SPY, both from the first training month.", [str(RES / f"strategy_returns_{DATE_TAG}.csv")])
 
     dd = pd.DataFrame(index=strat.index)
     dd["strategy"] = strat["strategy_equity"] / strat["strategy_equity"].cummax() - 1
@@ -226,7 +233,7 @@ def chart_equity_drawdown() -> None:
     fig2.add_trace(go.Scatter(x=dd.index, y=dd["strategy"] * 100, name="Winner strategy", line=dict(color=C_STRAT, width=2)))
     fig2.add_trace(go.Scatter(x=dd.index, y=dd["benchmark"] * 100, name="Buy-and-hold SPY",
                               line=dict(color=C_BENCH, width=2, dash="dash")))
-    fig2.update_layout(title="Drawdown Comparison", yaxis_title="Drawdown (%)", template="plotly_white", height=430)
+    fig2.update_layout(title="Drawdown Comparison (from the first training month)", yaxis_title="Drawdown (%)", template="plotly_white", height=430)
     save("drawdown", fig2, "Drawdown comparison for the winner strategy (as known at the time) and SPY buy-and-hold.",
          [str(RES / f"strategy_returns_{DATE_TAG}.csv")])
 
@@ -267,8 +274,12 @@ def chart_structural_break() -> None:
 def chart_subperiod() -> None:
     sp = pd.read_csv(RES / "subperiod_sharpe.csv")
     x = [f"{p}<br>({ph}, n={n})" for p, ph, n in zip(sp["period"], sp["phase"], sp["n_obs"])]
+    flat = (sp["strategy_return"] == 0) & (sp["strategy_sharpe"] == 0)   # in cash the whole window: no Sharpe
     fig = go.Figure()
-    fig.add_trace(go.Bar(x=x, y=sp["strategy_sharpe"], name="Strategy Sharpe", marker_color=C_STRAT))
+    fig.add_trace(go.Bar(x=x, y=sp["strategy_sharpe"].where(~flat), name="Strategy Sharpe", marker_color=C_STRAT))
+    for xi in [xv for xv, f in zip(x, flat) if f]:
+        fig.add_annotation(x=xi, y=0, text="strategy in cash<br>all window", showarrow=False, yshift=18,
+                           xshift=-28, font=dict(size=11, color=C_STRAT))
     fig.add_trace(go.Bar(x=x, y=sp["buy_hold_sharpe"], name="SPY Sharpe", marker_color=C_BENCH))
     fig.update_layout(title="Sharpe During Major Stress Episodes", yaxis_title="Sharpe", barmode="group",
                       template="plotly_white", height=430, margin=dict(b=90))
