@@ -388,3 +388,21 @@ def test_headline_numbers_must_be_tagged_even_in_template_text():
     assert any(t.startswith("HEADLINE") for t in f)
     findings, stats = g.check_pair(PAIR, g.render_pages(PAIR, sections=("strategy",)))
     assert findings == [] and stats["template_blocks"]                          # residual blocks are listed
+
+
+def test_n4_definition_pool_takes_only_named_pipeline_parameters(tmp_path, monkeypatch):
+    # Lead tightening of N4: incidental literals inside pipeline code (seeds, clip bounds, ranges) are not
+    # declarations; only named module-level literal constants of the pipeline (plus the spec, manifest, registry)
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / "scripts" / "pair_pipeline_toy_spy.py").write_text(
+        "WINDOW = 36\nLAGS = (1, 3)\nDERIVED = WINDOW * 2\n"
+        "def run():\n    seed = 987\n    return list(range(-20, 21))\n")
+    monkeypatch.setattr(g, "REPO", tmp_path)
+    monkeypatch.setattr(g, "RESULTS", tmp_path / "results")
+    monkeypatch.setattr(g, "REGISTRY", tmp_path / "registry.json")
+    g._SPEC_POOL.pop("toy_spy", None)
+    pool = g.spec_numbers("toy_spy")
+    assert {36.0, 1.0, 3.0} <= pool
+    assert not {987.0, 20.0, 21.0, 72.0} & pool, pool                 # code literals and computed values excluded
+    assert 0 <= g.coincidence_definition("toy_spy") < 0.05
+    g._SPEC_POOL.pop("toy_spy", None)

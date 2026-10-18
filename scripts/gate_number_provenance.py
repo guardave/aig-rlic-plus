@@ -342,6 +342,24 @@ def coincidence(pool: dict, n: int = 3000, seed: int = 7) -> float:
     return hit / n
 
 
+def coincidence_definition(pair: str, n: int = 3000, seed: int = 7) -> float:
+    """Share of random plausible tokens a definition / categorical label could show by coincidence: the same
+    token mix as ``coincidence`` checked the way ``_declared`` checks it (magnitude in spec_numbers)."""
+    pool = spec_numbers(pair)
+    rng = random.Random(seed)
+    hit = 0
+    for i in range(n):
+        k = i % 3
+        if k == 0:
+            v = abs(round(rng.uniform(-3, 3), 2))
+        elif k == 1:
+            v = round(rng.uniform(0, 100), 1)
+        else:
+            v = float(rng.randint(1, 300))
+        hit += any(abs(v - a) < 1e-9 for a in pool)
+    return hit / n
+
+
 # ----------------------------------------------------------------------------------------------- render
 def _page_file(pair: str, section: str) -> Path | None:
     hits = sorted((APP / "pages").glob(f"*_{pair}_{section}.py"))
@@ -599,24 +617,40 @@ _SPEC_POOL: dict[str, set] = {}
 
 
 def spec_numbers(pair: str) -> set[float]:
-    """Numbers the pair DECLARES outside its config (Codex L2v3 N4): every numeric literal and every number inside
-    a string literal of scripts/pair_spec_<pair>.py and scripts/pair_pipeline_<pair>.py (windows, thresholds,
-    quantiles, lags, display names such as '60-month z-score'), the candidates manifest and the registry entry.
+    """Numbers the pair DECLARES outside its config (Codex L2v3 N4, Lead-tightened): every numeric literal and
+    every number inside a string literal of the harness spec scripts/pair_spec_<pair>.py (windows, thresholds,
+    quantiles, lags, display names such as '60-month z-score'); in scripts/pair_pipeline_<pair>.py only the
+    NAMED MODULE-LEVEL parameter constants (``NAME = <literal>``) -- incidental literals inside pipeline code
+    (seeds, clip bounds, 0.5 ...) are not declarations; the candidates manifest and the registry entry.
     Definition text and categorical field labels may show only these numbers (a percentile 'p75' / '75th' also
     matches 0.75)."""
     if pair in _SPEC_POOL:
         return _SPEC_POOL[pair]
     import ast as _ast
     nums: set[float] = set()
-    for f in (REPO / "scripts" / f"pair_spec_{pair}.py", REPO / "scripts" / f"pair_pipeline_{pair}.py"):
-        if not f.exists():
-            continue
-        for n in _ast.walk(_ast.parse(f.read_text())):
+
+    def consts(node) -> None:
+        for n in _ast.walk(node):
             if isinstance(n, _ast.Constant):
                 if isinstance(n.value, (int, float)) and not isinstance(n.value, bool):
                     nums.add(float(n.value))
                 elif isinstance(n.value, str):
-                    nums |= {float(x) for x in re.findall(r"\d+(?:\.\d+)?", n.value)}
+                    nums.update(float(x) for x in re.findall(r"\d+(?:\.\d+)?", n.value))
+
+    spec = REPO / "scripts" / f"pair_spec_{pair}.py"
+    if spec.exists():
+        consts(_ast.parse(spec.read_text()))
+    pipe = REPO / "scripts" / f"pair_pipeline_{pair}.py"
+    if pipe.exists():
+        for st in _ast.parse(pipe.read_text()).body:
+            tgt = st.targets if isinstance(st, _ast.Assign) else [st.target] if isinstance(st, _ast.AnnAssign) else []
+            if not tgt or st.value is None or not all(isinstance(t, _ast.Name) for t in tgt):
+                continue
+            try:
+                _ast.literal_eval(st.value)                     # a literal parameter, not computed code
+            except (ValueError, TypeError, SyntaxError, RecursionError):
+                continue
+            consts(st.value)
     extra: list = []
     try:
         _walk(json.loads((RESULTS / pair / f"candidates_manifest_{load_tag(pair)}.json").read_text()), extra, [])
@@ -874,6 +908,8 @@ def check_pair(pair: str, pages: dict | None = None) -> tuple[list[str], dict]:
                 tot[k] += c[k]
             blocks_seen.update(f"{sec}: {x}" for x in c.get("template_blocks", ()))
     stats = {"tokens_pool": len(pool["nums"]), "coincidence_template": round(coincidence(pool), 3),
+             "definition_pool": len(spec_numbers(pair)),
+             "coincidence_definition": round(coincidence_definition(pair), 3),
              "files": pool["files"], "template_blocks": sorted(blocks_seen), **tot}
     return findings, stats
 
@@ -894,7 +930,8 @@ def main(argv=None) -> int:
         print(f"[{'FAIL' if f else 'OK  '}] {p}: {len(f)} unresolved; pool {st['tokens_pool']} values from "
               f"{', '.join(Path(x).name for x in st['files'])} + registry; {st['tagged_values']} tagged values, "
               f"{st['authored_tokens']} untagged authored tokens (allowlisted or failing), {st['template_tokens']} "
-              f"template tokens (value-matched; coincidence {st['coincidence_template']:.1%})")
+              f"template tokens (value-matched; coincidence {st['coincidence_template']:.1%}); definition pool "
+              f"{st['definition_pool']} declared numbers (definition-path coincidence {st['coincidence_definition']:.1%})")
         for x in f:
             print("     ", x[:260])
         if st.get("template_blocks"):
