@@ -1,22 +1,12 @@
-trade_date,side,instrument,quantity_pct,commission_bps,signal_value,threshold_value,position_before,position_after,reason
-1997-03-31,BUY,SPY,100.0,5,-7.4,-6.0,0.0,1.0,level countercyclical rule crossed T_roll_p75
-1998-03-31,SELL,SPY,100.0,5,-5.8,-6.3,1.0,0.0,level countercyclical rule crossed T_roll_p75
-1998-06-30,BUY,SPY,100.0,5,-7.0,-6.55,0.0,1.0,level countercyclical rule crossed T_roll_p75
-1998-09-30,SELL,SPY,100.0,5,1.8,-6.55,1.0,0.0,level countercyclical rule crossed T_roll_p75
-1998-12-31,BUY,SPY,100.0,5,-7.1,-6.55,0.0,1.0,level countercyclical rule crossed T_roll_p75
-1999-03-31,SELL,SPY,100.0,5,0.0,-5.65,1.0,0.0,level countercyclical rule crossed T_roll_p75
-2002-12-31,BUY,SPY,100.0,5,25.0,41.275,0.0,1.0,level countercyclical rule crossed T_roll_p75
-2008-03-31,SELL,SPY,100.0,5,7.5,0.85,1.0,0.0,level countercyclical rule crossed T_roll_p75
-2010-03-31,BUY,SPY,100.0,5,31.5,33.975,0.0,1.0,level countercyclical rule crossed T_roll_p75
-2015-09-30,SELL,SPY,100.0,5,-5.5,-7.325,1.0,0.0,level countercyclical rule crossed T_roll_p75
-2016-03-31,BUY,SPY,100.0,5,-7.0,-6.975,0.0,1.0,level countercyclical rule crossed T_roll_p75
-2016-06-30,SELL,SPY,100.0,5,7.4,-6.65,1.0,0.0,level countercyclical rule crossed T_roll_p75
-2017-06-30,BUY,SPY,100.0,5,1.5,2.475,0.0,1.0,level countercyclical rule crossed T_roll_p75
-2019-09-30,SELL,SPY,100.0,5,2.8,1.825,1.0,0.0,level countercyclical rule crossed T_roll_p75
-2019-12-31,BUY,SPY,100.0,5,-4.2,1.825,0.0,1.0,level countercyclical rule crossed T_roll_p75
-2020-06-30,SELL,SPY,100.0,5,5.4,3.45,1.0,0.0,level countercyclical rule crossed T_roll_p75
-2020-09-30,BUY,SPY,100.0,5,0.0,3.45,0.0,1.0,level countercyclical rule crossed T_roll_p75
-2020-12-31,SELL,SPY,100.0,5,41.5,5.9,1.0,0.0,level countercyclical rule crossed T_roll_p75
-2021-09-30,BUY,SPY,100.0,5,5.5,6.25,0.0,1.0,level countercyclical rule crossed T_roll_p75
-2023-03-31,SELL,SPY,100.0,5,24.2,5.425000000000001,1.0,0.0,level countercyclical rule crossed T_roll_p75
-2024-06-30,BUY,SPY,100.0,5,33.9,39.7,0.0,1.0,level countercyclical rule crossed T_roll_p75
+trade_date,side,instrument,quantity_pct,trade_size_pct,commission_bps,signal_value,threshold_value,position_before,position_after,reason
+2012-09-30,BUY,SPY,100.0,100.0,5,4.6,-0.2,0.0,1.0,chg_4q procyclical rule crossed T_roll_p50
+2013-12-31,SELL,SPY,0.0,100.0,5,-12.8,-7.15,1.0,0.0,chg_4q procyclical rule crossed T_roll_p50
+2014-06-30,BUY,SPY,100.0,100.0,5,-8.6,-10.75,0.0,1.0,chg_4q procyclical rule crossed T_roll_p50
+2017-09-30,SELL,SPY,0.0,100.0,5,-5.9,6.6,1.0,0.0,chg_4q procyclical rule crossed T_roll_p50
+2019-12-31,BUY,SPY,100.0,100.0,5,12.8,0.75,0.0,1.0,chg_4q procyclical rule crossed T_roll_p50
+2020-12-31,SELL,SPY,0.0,100.0,5,-2.8,0.45,1.0,0.0,chg_4q procyclical rule crossed T_roll_p50
+2021-03-31,BUY,SPY,100.0,100.0,5,45.7,0.45,0.0,1.0,chg_4q procyclical rule crossed T_roll_p50
+2022-03-31,SELL,SPY,0.0,100.0,5,-56.6,-4.35,1.0,0.0,chg_4q procyclical rule crossed T_roll_p50
+2023-03-31,BUY,SPY,100.0,100.0,5,13.6,-5.1,0.0,1.0,chg_4q procyclical rule crossed T_roll_p50
+2024-09-30,SELL,SPY,0.0,100.0,5,-5.2,13.35,1.0,0.0,chg_4q procyclical rule crossed T_roll_p50
+2026-03-31,BUY,SPY,100.0,100.0,5,2.9,-1.15,0.0,1.0,chg_4q procyclical rule crossed T_roll_p50

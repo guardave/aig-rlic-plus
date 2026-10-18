@@ -1,7 +1,7 @@
 {
   "pair_id": "sloos_ci_small_spy",
-  "winner_oos_sharpe": 0.338945,
-  "benchmark_oos_sharpe": 0.890979,
-  "oos_max_drawdown": -0.253635,
+  "winner_oos_sharpe": 0.80826,
+  "benchmark_oos_sharpe": 0.910942,
+  "oos_max_drawdown": -0.194477,
   "bh_max_drawdown": -0.239272
 }

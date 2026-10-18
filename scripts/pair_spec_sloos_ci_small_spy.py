@@ -22,9 +22,6 @@ from harness.spec import Legacy, PairSpec, Rule
 PAIR_ID = "sloos_ci_small_spy"
 SERIES = "DRTSCILM"
 
-ROLL_WINDOW = 20        # quarters: rolling z-score and rolling-percentile thresholds (5 years)
-ROLL_MIN = 12           # quarters: minimum readings before a rolling statistic is defined
-
 SIGNALS = {
     "level": "sloos_level",
     "diff_1q": "sloos_diff_1q",
@@ -39,13 +36,13 @@ def features(levels: pd.DataFrame) -> pd.DataFrame:
     out["sloos_level"] = lvl
     out["sloos_diff_1q"] = lvl.diff(1)
     out["sloos_chg_4q"] = lvl.diff(4)
-    roll = lvl.rolling(ROLL_WINDOW, min_periods=ROLL_MIN)
+    roll = lvl.rolling(20, min_periods=12)                 # 20 quarters (5 years), at least 12 readings
     out["sloos_zscore_20q"] = (lvl - roll.mean()) / roll.std()
     return out
 
 
 def _roll_q(q: float):
-    return lambda s: s.rolling(ROLL_WINDOW, min_periods=ROLL_MIN).quantile(q)
+    return lambda s: s.rolling(20, min_periods=12).quantile(q)    # rolling 20-quarter quantile, >= 12 readings
 
 
 def rules(signal: str) -> dict[str, Rule]:

@@ -1,0 +1,95 @@
+{
+  "pair_id": "sloos_ci_small_spy",
+  "signals": {
+    "level": "sloos_level",
+    "diff_1q": "sloos_diff_1q",
+    "chg_4q": "sloos_chg_4q",
+    "zscore_20q": "sloos_zscore_20q"
+  },
+  "rules": {
+    "level": {
+      "T0_zero": {
+        "variable": "raw",
+        "threshold": 0.0
+      },
+      "T_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T_roll_p75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "diff_1q": {
+      "T0_zero": {
+        "variable": "raw",
+        "threshold": 0.0
+      },
+      "T_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T_roll_p75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "chg_4q": {
+      "T0_zero": {
+        "variable": "raw",
+        "threshold": 0.0
+      },
+      "T_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      },
+      "T_roll_p75": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    },
+    "zscore_20q": {
+      "T_z_0": {
+        "variable": "raw",
+        "threshold": 0.0
+      },
+      "T_z_1.0": {
+        "variable": "raw",
+        "threshold": 1.0
+      },
+      "T_roll_p50": {
+        "variable": "raw",
+        "threshold": "rolling/function of signal"
+      }
+    }
+  },
+  "strategies": [
+    "P1"
+  ],
+  "directions": [
+    "countercyclical",
+    "procyclical"
+  ],
+  "leads": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "lead_unit": "quarters",
+  "binary_signals": [],
+  "min_is_n": 20,
+  "ppy": 4,
+  "oos_start": "2017-12-31",
+  "exposure_bounds": [
+    0.05,
+    0.95
+  ],
+  "max_is_turnover": null,
+  "min_is_trades": null,
+  "position_shift": 0,
+  "n_candidates": 120,
+  "candidates_sha256": "0e8b2cab68534e49e6aef3f116f0c4c9989926a4f991f5eb493e043139b0c17f"
+}

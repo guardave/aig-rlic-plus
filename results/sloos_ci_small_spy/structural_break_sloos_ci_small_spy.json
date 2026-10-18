@@ -1,5 +1,11 @@
 {
   "pair_id": "sloos_ci_small_spy",
-  "method": "rolling-correlation z-score proxy",
-  "max_abs_z": 2.413945939607765
+  "method": "Quandt-Andrews sup-F (Andrews 1993), break in intercept and slope of spy_ret_t on chg_4q_{t-1}",
+  "trim": 0.15,
+  "n": 134,
+  "statistic_name": "sup-F",
+  "statistic": 4.731539818070851,
+  "breakpoint_date": "2009-06-30",
+  "p_value": 0.1282565130260521,
+  "p_value_method": "residual bootstrap under the no-break null, 499 draws, seed 42"
 }

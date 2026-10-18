@@ -1,0 +1,11 @@
+variable,test,statistic,p_value,lags,conclusion
+sloos_level,ADF,-4.5884,0.0001,3,stationary
+sloos_level,KPSS,0.0848,0.1,6,stationary_not_rejected
+sloos_diff_1q,ADF,-6.3804,0.0,3,stationary
+sloos_diff_1q,KPSS,0.0237,0.1,1,stationary_not_rejected
+sloos_chg_4q,ADF,-4.0121,0.0013,10,stationary
+sloos_chg_4q,KPSS,0.0254,0.1,5,stationary_not_rejected
+sloos_zscore_20q,ADF,-4.3954,0.0003,3,stationary
+sloos_zscore_20q,KPSS,0.0528,0.1,6,stationary_not_rejected
+spy_ret,ADF,-11.3751,0.0,0,stationary
+spy_ret,KPSS,0.1277,0.1,1,stationary_not_rejected

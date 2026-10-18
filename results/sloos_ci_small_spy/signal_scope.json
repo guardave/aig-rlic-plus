@@ -3,15 +3,15 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-15T18:15:44.625772+00:00",
+  "last_updated_at": "2026-10-18T07:07:13.173585+00:00",
   "indicator_axis": {
-    "canonical_column": "sloos_ci_small",
-    "display_name": "SLOOS C&I Tightening \u2014 Large & Middle-Market Firms (DRTSCILM)",
+    "canonical_column": "sloos",
+    "display_name": "SLOOS C&I net tightening (DRTSCILM)",
     "derivatives": [
       {
-        "name": "sloos_ci_small",
-        "definition": "Net-% of banks tightening C&I standards to large and middle-market firms (FRED DRTSCILM)",
-        "formula": "Fed SLOOS (Data Master)",
+        "name": "sloos",
+        "definition": "Net % of banks tightening C&I standards, large and middle-market firms",
+        "formula": "FRED DRTSCILM",
         "role": "raw",
         "appears_in_charts": [
           "hero"
@@ -19,35 +19,36 @@
       },
       {
         "name": "sloos_level",
-        "definition": "Tightening level (net %)",
+        "definition": "Net tightening level (net %)",
         "formula": "identity",
         "role": "threshold_input",
-        "appears_in_charts": [
-          "hero",
-          "regime_stats"
-        ]
+        "appears_in_charts": []
       },
       {
         "name": "sloos_diff_1q",
-        "definition": "Quarter-on-quarter change",
+        "definition": "Quarterly change in net tightening",
         "formula": "x_t - x_{t-1}",
         "role": "derivative",
         "appears_in_charts": []
       },
       {
         "name": "sloos_chg_4q",
-        "definition": "4-quarter change",
+        "definition": "4-quarter change in net tightening",
         "formula": "x_t - x_{t-4}",
         "role": "threshold_input",
         "appears_in_charts": [
-          "local_projections"
+          "regime_stats",
+          "local_projections",
+          "quantile_coef",
+          "ccf_prewhitened",
+          "granger_f_by_lag"
         ]
       },
       {
         "name": "sloos_zscore_20q",
-        "definition": "Tightening vs 5-year history",
-        "formula": "(x-mean20q)/std20q",
-        "role": "threshold_input",
+        "definition": "Net tightening versus its 5-year history",
+        "formula": "(x - mean20q) / std20q",
+        "role": "derivative",
         "appears_in_charts": []
       }
     ]
@@ -69,39 +70,44 @@
       {
         "name": "spy_ret",
         "definition": "SPY quarterly return",
-        "formula": "spy_t/spy_{t-1}-1",
+        "formula": "spy_t / spy_{t-1} - 1",
         "role": "derivative",
-        "appears_in_charts": []
+        "appears_in_charts": [
+          "regime_stats"
+        ]
       },
       {
         "name": "spy_fwd_1q",
         "definition": "1-quarter forward SPY return",
-        "formula": "spy_{t+1}/spy_t-1",
+        "formula": "spy_{t+1} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
-        ]
-      },
-      {
-        "name": "spy_fwd_2q",
-        "definition": "2-quarter forward SPY return",
-        "formula": "spy_{t+2}/spy_t-1",
-        "role": "derivative",
-        "appears_in_charts": [
+          "correlation_heatmap",
           "local_projections",
           "quantile_coef"
         ]
       },
       {
-        "name": "spy_fwd_4q",
-        "definition": "4-quarter forward SPY return",
-        "formula": "spy_{t+4}/spy_t-1",
+        "name": "spy_fwd_2q",
+        "definition": "2-quarter forward SPY return",
+        "formula": "spy_{t+2} / spy_t - 1",
         "role": "derivative",
         "appears_in_charts": [
-          "correlation_heatmap"
+          "correlation_heatmap",
+          "local_projections"
+        ]
+      },
+      {
+        "name": "spy_fwd_4q",
+        "definition": "4-quarter forward SPY return",
+        "formula": "spy_{t+4} / spy_t - 1",
+        "role": "derivative",
+        "appears_in_charts": [
+          "correlation_heatmap",
+          "local_projections"
         ]
       }
     ]
   },
-  "notes": "Scope limited to SLOOS C&I tightening (large and middle-market firms, DRTSCILM) signals and SPY returns."
+  "notes": "Scope limited to DRTSCILM-derived signals and SPY returns."
 }
