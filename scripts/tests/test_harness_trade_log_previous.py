@@ -99,11 +99,18 @@ def test_position_chart_keeps_undefined_months_as_cash(tmp_path):
 def test_a_declared_unpublished_legacy_column_gives_no_previous_value():
     # umcsent_spy QA: the 20260912 table's is_sharpe column held OOS Sharpes (no training window existed), so the
     # previous rule's training Sharpe was reported as 1.43; a pair declares it LEGACY_UNPUBLISHED -> None
-    import inspect
-    from harness import run as R
+    import types
+    import pytest
+    from harness.run import legacy_unpublished, published_value
     from harness import prose
-    src = inspect.getsource(R.replay_legacy)
-    assert 'getattr(mod, "LEGACY_UNPUBLISHED", ())' in src and "None if col in unpublished" in src
+    pub = pd.DataFrame({"is_sharpe": [1.427], "oos_sharpe": [1.427]})
+    wrow = pd.Series({"is_sharpe": 0.9, "oos_sharpe": 1.427})
+    un = legacy_unpublished(types.SimpleNamespace(LEGACY_UNPUBLISHED=("is_sharpe",)))
+    assert published_value(None, pub, 0, wrow, "is_sharpe", un) is None
+    assert published_value(None, pub, 0, wrow, "oos_sharpe", un) == 1.427
+    assert legacy_unpublished(types.SimpleNamespace()) == frozenset()
+    with pytest.raises(TypeError):
+        legacy_unpublished(types.SimpleNamespace(LEGACY_UNPUBLISHED="is_sharpe"))     # a bare string (QA EF2)
     f = prose.previous_fields({"key": "k", "signal": "s", "threshold": "t", "lead": 9, "oos_sharpe": 1.427,
                                "is_sharpe": None, "tag": "20260912", "selection": "x"}, "months")
     assert f["previous_is_sharpe"]["value"] is None and f["previous_is_sharpe"]["text"] == "n/a"

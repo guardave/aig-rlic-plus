@@ -161,7 +161,7 @@ def render_evidence_status_note(pair_id: str) -> None:
         _ws = _json.loads((_Path(__file__).resolve().parents[2] / "results" / pair_id / "winner_summary.json")
                           .read_text())
         if _ws.get("main_eligible") is False and "tracks" in _ws:
-            label = "unranked (no rule on data as known at the time)"
+            label = "no rule on data as known at the time"     # "Unranked" is stated once, as the status
     except (OSError, ValueError):
         pass
     st.info(f"**Evidence status: {label}**  \n{status['plain_english']}")

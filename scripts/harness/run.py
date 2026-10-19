@@ -76,9 +76,21 @@ def _strategy_code(s) -> str:
     return head if head in ("P1", "P2", "P3") else "P1"
 
 
-def published_value(rec, pub: pd.DataFrame, w, wrow, col: str) -> float:
+def legacy_unpublished(mod) -> frozenset:
+    """Legacy table columns a pair declares were never published (LEGACY_UNPUBLISHED, a tuple / list of column
+    names; umcsent_spy 20260912: its is_sharpe column held OOS values). A bare string or other type raises
+    (QA EF2: a string was silently ignored)."""
+    v = getattr(mod, "LEGACY_UNPUBLISHED", ())
+    if not isinstance(v, (tuple, list, frozenset, set)) or not all(isinstance(c, str) for c in v):
+        raise TypeError(f"LEGACY_UNPUBLISHED must be a tuple / list of column names, got {v!r}")
+    return frozenset(v)
+
+
+def published_value(rec, pub: pd.DataFrame, w, wrow, col: str, unpublished=frozenset()) -> float | None:
     """A previously published statistic: the immutable record's value, else the published table row's, else (only
-    when neither has it) the harness replay's."""
+    when neither has it) the harness replay's. None for a column the pair declares never published."""
+    if col in unpublished:
+        return None
     for src in (rec, pub.loc[w] if w in pub.index else None):
         if src is not None and col in src and pd.notna(src[col]):
             return float(src[col])
@@ -150,12 +162,10 @@ def replay_legacy(mod, tol: float = 1e-6) -> dict:
     # previous_* report what was PUBLISHED (the immutable record, else the published table row), not the harness
     # replay: on the max_oos_valid path the IS columns are documented differences (QA B1 umcsent L1: replay IS
     # 0.3107 vs published 0.2825); the replay values are kept next to them for the record
-    unpublished = set(getattr(mod, "LEGACY_UNPUBLISHED", ()))
+    unpublished = legacy_unpublished(mod)
 
     def _published(col):
-        # a legacy column the pair declares never published (umcsent_spy 20260912: its is_sharpe column held OOS
-        # values, the run had no training window) is reported as None, never as a previous figure
-        return None if col in unpublished else published_value(p, pub, w, wrow, col)
+        return published_value(p, pub, w, wrow, col, unpublished)
     rep["published"] = {"key": wrow["key"], "signal": str(wrow["signal"]), "threshold": str(wrow["threshold"]),
                         "strategy": str(wrow["strategy"]), "direction": str(wrow["direction"]), "lead": int(wrow["lead"]),
                         "is_sharpe": _published("is_sharpe"), "oos_sharpe": _published("oos_sharpe"),
