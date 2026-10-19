@@ -160,10 +160,17 @@ def draw_record(res: TrackResult) -> dict:
            "is_n": int(np.sum(res.is_mask))}
     if res.selection is None or valid.empty:
         return {"is_max": np.nan, "selection_stat": np.nan, "winner_oos": np.nan, "timing_sharpe": np.nan,
-                "lead": np.nan, "lead_pos": np.nan, "grid_edge": np.nan, "winner_key": None, **win}
+                "lead": np.nan, "lead_pos": np.nan, "grid_edge": np.nan, "winner_key": None, "defined_is_n": np.nan,
+                "leading_cash_share": np.nan, **win}
     w = res.selection["winner"]
     leads = list(res.spec.leads)
     lead = int(tab.loc[w, "lead"])
+    # coverage of the winner inside the (calendar) training window: rows with a defined return, and the share of
+    # the window before its first defined row (scored as cash; Codex null bundle P2-F1, import_price offset 110)
+    r = res.returns[:, int(w)][res.is_mask]
+    ok = ~np.isnan(r)
+    win["defined_is_n"] = int(ok.sum())
+    win["leading_cash_share"] = round(float(np.argmax(ok) if ok.any() else len(r)) / max(len(r), 1), 4)
     return {"is_max": float(valid["is_sharpe"].max()), "selection_stat": float(res.selection.get("score",
             tab.loc[w, "is_sharpe"])), "winner_is": float(tab.loc[w, "is_sharpe"]),
             "winner_oos": float(tab.loc[w, "oos_sharpe"]), "timing_sharpe": _timing_sharpe(res, int(w), res.spec.ppy),
@@ -174,7 +181,7 @@ def draw_record(res: TrackResult) -> dict:
 
 def run_null(spec: PairSpec, make_inputs: Callable[[int], TrackInputs], n_span: int, K: int = 100,
              legacy: bool = False, shuffle_returns_seed: int | None = None,
-             max_offset: int | None = None) -> pd.DataFrame:
+             max_offset: int | None = None, is_start=None) -> pd.DataFrame:
     """K draws; make_inputs(k) returns the shifted track inputs for offset k. shuffle_returns_seed (diagnostic
     only): the target returns are also randomly permuted, which removes their time path."""
     rows = []
@@ -186,7 +193,7 @@ def run_null(spec: PairSpec, make_inputs: Callable[[int], TrackInputs], n_span: 
             ok = ~np.isnan(r)
             r[ok] = np.random.default_rng(shuffle_returns_seed + d).permutation(r[ok])
             ti = TrackInputs(ti.name, ti.index, r, ti.lagged, ti.meta)
-        res = run_tournament(spec, ti, legacy=legacy, full_table=False)
+        res = run_tournament(spec, ti, legacy=legacy, full_table=False, _null_is_start=is_start)
         rows.append({"draw": d, "seed": SEED_BASE, "offset": k, **draw_record(res)})
     out = pd.DataFrame(rows)
     out.attrs.update(n_admissible=int(len(admissible(n_span, spec.ppy, max_offset))), span=int(n_span),
@@ -242,7 +249,8 @@ def summarize(null: pd.DataFrame, actual: dict, grid_len: int, ppy: int = 12) ->
         "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period "
         "point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all "
         "inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same "
-        "selection rule; distinct offsets; R7.1",
+        "selection rule; every draw scored on the real winner's calendar training window, rows where a draw's position "
+        "is undefined scored as cash (defined rows and leading-cash share recorded per draw); distinct offsets; R7.1",
         "seed_base": SEED_BASE,
         "is_max_percentile": p_is[0], "p_is": p_is[1],
         "selection_stat_percentile": p_j[0], "p_selection_stat": p_j[1],

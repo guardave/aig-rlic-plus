@@ -424,7 +424,8 @@ def render_chance_check(pair_id: str, ts: dict) -> None:
                                 f"{nt['n_draws']:,} scrambled-signal contests")
                                + f" (the indicator, {BASIS.get(ts.get('track_state'), BASIS['both'])}, shifted "
                                  "against the returns by a fixed number of periods, wrapping around once; same "
-                                 "selection rule)."
+                                 "selection rule; every contest scored on the real winner's calendar training window, "
+                                 "with periods where a contest's rule has no position counted as cash)."
                                + oos_rank_note(nt)
                                + draws_note(nt) + coarse_note(pair_id, nt) + is_window_note(pair_id)
                                + r71_note(pair_id) + comparison_chance_note(pair_id, ts)))

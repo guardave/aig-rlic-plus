@@ -76,9 +76,16 @@ def any_eligible(spec: PairSpec, ti: TrackInputs) -> bool:
     return bool((np.sum(~np.isnan(R) & pre_oos[:, None], axis=0) >= spec.min_is_n).any())
 
 
-def run_tournament(spec: PairSpec, ti: TrackInputs, legacy: bool = False, full_table: bool = True) -> TrackResult:
+def run_tournament(spec: PairSpec, ti: TrackInputs, legacy: bool = False, full_table: bool = True,
+                   _null_is_start: pd.Timestamp | None = None) -> TrackResult:
     """legacy=True replays the pre-harness pipeline (spec.legacy scoring, eligibility and tie rule, raw IS argmax);
-    otherwise Phase B rules: R3.3 eligibility, deployable scoring, D9 plateau selection with a raw-argmax side row."""
+    otherwise Phase B rules: R3.3 eligibility, deployable scoring, D9 plateau selection with a raw-argmax side row.
+    _null_is_start (null draws only, internal; harness.null.run_null): score the draw on the REAL tournament's
+    CALENDAR training window [start, OOS) instead of the draw's own common start (null v4: comparison-track draws
+    whose shifted raw levels moved a sparse early block trained on longer windows, QA B1 import_price). Rows of that
+    window where a draw's position is undefined are scored as cash (the deployable convention), so the window is
+    equal in calendar terms, not in observed signal rows: draw_record reports defined_is_n and the leading-cash
+    share (Codex null bundle P2-F1). The date must be on the index and before the OOS start."""
     L = spec.legacy
     cands = manifest(spec, legacy=legacy)
     idx = ti.index
@@ -98,6 +105,12 @@ def run_tournament(spec: PairSpec, ti: TrackInputs, legacy: bool = False, full_t
     own_is_n = np.sum(~np.isnan(R) & pre_oos[:, None], axis=0)
     elig_mode = L.eligibility if legacy else "own_is_n"
     cs_row, eligible = common_is_start(first, own_is_n, spec.min_is_n, elig_mode)
+    if _null_is_start is not None:
+        ts = pd.Timestamp(_null_is_start)
+        if ts not in idx or not ts < pd.Timestamp(spec.oos_start):
+            raise ValueError(f"null IS start {ts.date()} is not a rebalance date before the OOS start {spec.oos_start}")
+        if cs_row >= 0:
+            cs_row = int(idx.get_loc(ts))
     rows = np.arange(n)
     is_mask = (rows >= cs_row) & pre_oos if cs_row >= 0 else np.zeros(n, bool)
     if legacy and L.is_window == "own_dropna":      # legacy: every candidate on its own pre-OOS rows (dropna)

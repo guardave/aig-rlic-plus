@@ -153,3 +153,55 @@ def test_chance_fact_states_zero_hits_and_the_test_period_rank():
     nt2 = dict(nt, winner_percentile=0.98, p_selection_stat=0.02, winner_oos_percentile=None)
     out2 = two_track.chance_fact({"null_tournament": nt2})
     assert "at least as high: 0.02" in out2 and "test period" not in out2
+
+
+def test_comparison_draws_score_on_the_real_winners_window():
+    # null v4 (QA B1 import_price): revised-track draws shift the raw levels, so a draw's own common start can
+    # move (unrate offset 156 trained on 273 of 287 months); every draw is now scored on the real window
+    from harness import null as NL
+    from harness import run as R
+    from harness.engine import run_tournament
+    mod = R.load_pair("unrate_spy")
+    ti = R.build_tracks(mod)["comparison"]
+    act = run_tournament(mod.SPEC, ti, full_table=False)
+    make, _n = R.null_maker(mod, "comparison", ti)
+    own = run_tournament(mod.SPEC, make(156), full_table=False)
+    assert int(own.is_mask.sum()) != int(act.is_mask.sum())        # the draw's own window differs (the defect)
+    nd = NL.run_null(mod.SPEC, lambda k: make(k), 400, K=3, is_start=act.common_is_start)
+    assert set(nd["is_n"]) == {int(act.is_mask.sum())} and set(nd["is_start"]) == {str(act.common_is_start.date())}
+
+
+def test_null_is_start_is_validated_and_coverage_recorded():
+    # Codex null bundle P2-F1/F2: the override must be a rebalance date before OOS; coverage is reported per draw
+    import numpy as np
+    import pytest
+    from harness import null as NL
+    from harness import run as R
+    from harness.engine import run_tournament
+    mod = R.load_pair("unrate_spy")
+    ti = R.build_tracks(mod)["comparison"]
+    act = run_tournament(mod.SPEC, ti, full_table=False)
+    with pytest.raises(ValueError):
+        run_tournament(mod.SPEC, ti, full_table=False, _null_is_start=pd.Timestamp("2017-02-15"))   # not on index
+    with pytest.raises(ValueError):
+        run_tournament(mod.SPEC, ti, full_table=False, _null_is_start=pd.Timestamp(mod.SPEC.oos_start))
+    rec = NL.draw_record(run_tournament(mod.SPEC, ti, full_table=False, _null_is_start=act.common_is_start))
+    assert 0 < rec["defined_is_n"] <= rec["is_n"] and 0.0 <= rec["leading_cash_share"] < 1.0
+
+
+def test_import_price_offset_110_trains_on_the_calendar_window_with_leading_cash():
+    # Codex null bundle P2-F1: import_price comparison offset 110 - the forced window is 254 months from 1995-11,
+    # but the selected rule's position is undefined for the first 106 of them (scored as cash)
+    from harness import null as NL
+    from harness import run as R
+    from harness.engine import run_tournament
+    try:
+        mod = R.load_pair("import_price_spy")
+    except Exception:
+        pytest.skip("import_price_spy is not on this branch (lands with its merge)")
+    ti = R.build_tracks(mod)["comparison"]
+    act = run_tournament(mod.SPEC, ti, full_table=False)
+    make, _n = R.null_maker(mod, "comparison", ti)
+    rec = NL.draw_record(run_tournament(mod.SPEC, make(110), full_table=False, _null_is_start=act.common_is_start))
+    assert rec["is_n"] == int(act.is_mask.sum()) == 254
+    assert rec["defined_is_n"] == 254 - 106 and abs(rec["leading_cash_share"] - 106 / 254) < 1e-3

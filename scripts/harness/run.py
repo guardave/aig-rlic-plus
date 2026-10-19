@@ -298,7 +298,7 @@ def run_pair(pair_id: str, tag: str, K: int = 100, write: bool = True, leak: boo
             max_off = NL.max_usable_offset(spec, make, n_span) if ti.name == "real_time" else None
             if ti.name == "real_time":
                 log(f"  usable admissible offsets up to {max_off}")
-            nd = NL.run_null(spec, make, n_span, K, max_offset=max_off)
+            nd = NL.run_null(spec, make, n_span, K, max_offset=max_off, is_start=res.common_is_start)
             nulls[role] = nd
             valid = res.table[res.table["valid"]]
             actual = {"is_max": float(valid["is_sharpe"].max()), "selection_stat": res.selection["score"],
