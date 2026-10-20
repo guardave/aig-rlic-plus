@@ -1,12 +1,12 @@
 {
   "chart_name": "tournament_scatter",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-18T11:39:25.770353+00:00",
+  "generated_at": "2026-10-20T12:09:49.947538+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "Training versus test-period Sharpe of every valid rule; the winner is chosen on training data by the stable-lead-range rule.",
   "narrative_alignment_note": "Training versus test-period Sharpe of every valid rule; the winner is chosen on training data by the stable-lead-range rule.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cement_spy/tournament_results_20261018.csv"
+    "results/cement_spy/tournament_results_20261020.csv"
   ]
 }

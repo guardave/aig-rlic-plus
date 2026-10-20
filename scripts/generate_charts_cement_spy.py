@@ -97,7 +97,8 @@ def chart_hero() -> None:
     nber_legend(fig)
     mark_break(fig)
     fig.update_layout(title="Portland Cement Shipments (Texas, then U.S. Portland-Only; USGS) vs SPY", template="plotly_white",
-                      height=520, hovermode="x unified", legend=dict(orientation="v", x=1.08, y=1), margin=dict(r=260))
+                      height=560, hovermode="x unified",
+                      legend=dict(orientation="h", x=0, y=-0.12, yanchor="top"), margin=dict(r=80, b=120))
     fig.update_yaxes(title_text="Shipments (metric tons)", secondary_y=False)
     fig.update_yaxes(title_text="SPY price", secondary_y=True)
     save("hero", fig, (f"Shipment level and SPY with NBER recession bands. Through {it['last_month_equal_texas_total']} "

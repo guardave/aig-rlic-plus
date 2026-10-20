@@ -1,13 +1,13 @@
 {
   "chart_name": "equity_curves",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-18T11:39:17.241117+00:00",
+  "generated_at": "2026-10-20T12:09:39.413241+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "Winner rule (single track: today's revised cement values with release-date timing) against buy-and-hold SPY from the training start; dashed line = test-period start.",
   "narrative_alignment_note": "Winner rule (single track: today's revised cement values with release-date timing) against buy-and-hold SPY from the training start; dashed line = test-period start.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cement_spy/strategy_returns_20261018.csv",
-    "results/cement_spy/data_integrity_20261018.json"
+    "results/cement_spy/strategy_returns_20261020.csv",
+    "results/cement_spy/data_integrity_20261020.json"
   ]
 }

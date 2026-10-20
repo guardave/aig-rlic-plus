@@ -1,13 +1,13 @@
 {
   "chart_name": "drawdown",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-18T11:39:20.159427+00:00",
+  "generated_at": "2026-10-20T12:09:43.016090+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "Drawdown of the winner rule and of buy-and-hold SPY from the training start.",
   "narrative_alignment_note": "Drawdown of the winner rule and of buy-and-hold SPY from the training start.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cement_spy/strategy_returns_20261018.csv",
-    "results/cement_spy/data_integrity_20261018.json"
+    "results/cement_spy/strategy_returns_20261020.csv",
+    "results/cement_spy/data_integrity_20261020.json"
   ]
 }

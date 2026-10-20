@@ -1,0 +1,14 @@
+{
+  "pair_id": "cement_spy",
+  "track": "revised",
+  "role": "main",
+  "winner_key": "chg_6m|T0_zero|P1|procyclical|8",
+  "generated_at": "2026-10-20T12:06:18.778379+00:00",
+  "vintage_policy": {
+    "alignment": "pit_asof",
+    "release_series": "USGS_CEMENT_MIS",
+    "harsh": false
+  },
+  "calendar_sha256": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
+  "vintage_file_sha256": null
+}

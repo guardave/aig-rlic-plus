@@ -1,0 +1,19 @@
+{
+  "pair_id": "cement_spy",
+  "elapsed_seconds": 124.61307740211487,
+  "stage_times": {
+    "panel": 0.1,
+    "data_integrity": 23.2,
+    "stationarity": 0.2,
+    "correlations": 0.5,
+    "granger": 0.1,
+    "ccf": 0.0,
+    "quartiles": 0.0,
+    "local_projections": 0.0,
+    "quantile_regression": 60.4,
+    "rolling_stability": 4.7,
+    "tournament": 35.5,
+    "validation": 0.0
+  },
+  "generated_at": "2026-10-20T12:04:30.355355+00:00"
+}

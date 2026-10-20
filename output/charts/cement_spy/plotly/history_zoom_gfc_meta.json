@@ -1,13 +1,13 @@
 {
   "chart_name": "history_zoom_gfc",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-18T11:39:40.021986+00:00",
+  "generated_at": "2026-10-20T12:10:07.186901+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "Global Financial Crisis: Cement Shipments and SPY, 2006-2010; gray bands are NBER recessions.",
   "narrative_alignment_note": "Global Financial Crisis: Cement Shipments and SPY, 2006-2010; gray bands are NBER recessions.",
   "disposition": "consumed",
   "source_artifacts": [
     "data/cement_spy_monthly_latest.parquet",
-    "results/cement_spy/data_integrity_20261018.json"
+    "results/cement_spy/data_integrity_20261020.json"
   ]
 }

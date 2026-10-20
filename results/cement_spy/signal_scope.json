@@ -3,14 +3,14 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-18T11:32:12.222975+00:00",
+  "last_updated_at": "2026-10-20T12:04:30.355355+00:00",
   "indicator_axis": {
     "canonical_column": "cement",
-    "display_name": "Portland Cement Shipments (USGS)",
+    "display_name": "Portland cement shipments (Texas, then U.S. portland-only; USGS)",
     "derivatives": [
       {
         "name": "cement",
-        "definition": "Portland cement shipments level (monthly)",
+        "definition": "Portland cement shipments level (monthly, metric tons): Texas total, then U.S. portland-only total after the coverage change",
         "formula": "Data Master snapshot",
         "role": "raw",
         "appears_in_charts": [

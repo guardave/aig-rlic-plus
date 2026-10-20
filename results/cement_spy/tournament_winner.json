@@ -1,8 +1,8 @@
 {
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-18T11:33:49.464316+00:00",
+  "generated_at": "2026-10-20T12:06:18.781314+00:00",
   "track": "main",
-  "source_tournament_file": "tournament_results_20261018.csv",
+  "source_tournament_file": "tournament_results_20261020.csv",
   "winner": {
     "signal": "chg_6m",
     "threshold": "T0_zero",

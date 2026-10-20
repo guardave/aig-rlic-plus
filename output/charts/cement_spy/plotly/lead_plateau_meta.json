@@ -1,12 +1,12 @@
 {
   "chart_name": "lead_plateau",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-18T11:33:51.250558+00:00",
+  "generated_at": "2026-10-20T12:06:28.103553+00:00",
   "generated_by": "scripts/harness/charts.py",
   "caption": "The winner L8 sits in a stable range L7-L9.",
   "narrative_alignment_note": "The winner L8 sits in a stable range L7-L9.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cement_spy/lead_curve_20261018.csv"
+    "results/cement_spy/lead_curve_20261020.csv"
   ]
 }

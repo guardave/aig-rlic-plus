@@ -1,7 +1,7 @@
 {
   "chart_name": "subperiod_sharpe",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-18T11:39:34.229524+00:00",
+  "generated_at": "2026-10-20T12:09:59.982224+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "Winner-rule and buy-and-hold Sharpe by episode; the label gives the episode's phase (before training, training or test).",
   "narrative_alignment_note": "Winner-rule and buy-and-hold Sharpe by episode; the label gives the episode's phase (before training, training or test).",

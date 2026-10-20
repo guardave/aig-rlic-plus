@@ -26,20 +26,21 @@
     ]
   },
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-18T11:32:12.222975+00:00",
+  "last_updated_at": "2026-10-20T12:04:30.355355+00:00",
   "indicator": "cement",
   "target": "spy",
   "expected_direction": "procyclical",
   "observed_direction": "procyclical",
   "direction_consistent": true,
-  "mechanism": "Portland cement shipments track construction and infrastructure activity; firm shipment growth marks an upswing in real investment, slowing shipments a construction slowdown.",
+  "mechanism": "Portland cement shipments track construction and infrastructure activity; firm shipment growth marks an upswing in real investment, slowing shipments a construction slowdown. The series is Texas shipments through 2023-12 and the U.S. portland-only total from 2024-01.",
   "confidence": "low",
   "key_finding": "On today's revised cement values with point-in-time release dates (no archive of first releases), the rule selected on in-sample data uses chg_6m / T0_zero at L8 (IS Sharpe 1.47); test-period Sharpe 0.63 versus buy-and-hold SPY 0.93. Smallest cement-to-SPY Granger p-value 0.14 (lag 2; 1.00 after the 12-lag Bonferroni adjustment).",
   "caveats": [
     "USGS revises earlier months and no archive of first-published values exists: the backtest uses today's values (revision lookahead unquantified).",
     "The strategy is search-selected and needs fresh holdout validation.",
     "The training period is short (the cement series starts 2005-11; rolling windows need several years).",
-    "Data Master's cement series ends 2025-06, so later months are not tested."
+    "Data Master's cement series ends 2025-06, so later months are not tested.",
+    "The series is Texas Portland cement shipments through 2023-12 and the U.S. portland-only all-destination total (USGS MIS Table 2a) from 2024-01; the 2024 year-over-year growth rates are an artifact of that coverage change; portland-only excludes blended cement (Type IL)."
   ],
   "narrative_summary": "Portland cement shipment growth is tested as a construction-activity filter for SPY.",
   "known_stress_episodes": [
@@ -63,8 +64,8 @@
     }
   ],
   "data_provenance": {
-    "source": "Data Master.xlsx (USGS Mineral Industry Surveys)",
+    "source": "Data Master.xlsx (USGS Mineral Industry Surveys): Portland cement shipments: Texas (USGS Mineral Industry Surveys) through 2023-12; from 2024-01 the U.S. portland-only all-destination total (USGS Mineral Industry Surveys Table 2a)",
     "series_id": "USGS_CEMENT (snapshot 20261016T232733Z)",
-    "accessed_at": "2026-10-18T11:32:12.222975+00:00"
+    "accessed_at": "2026-10-20T12:04:30.355355+00:00"
   }
 }
