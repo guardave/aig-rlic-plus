@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_inflation_2022",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-20T11:35:02.240312+00:00",
+  "generated_at": "2026-10-20T12:54:39.042797+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
   "caption": "2022 Inflation and Rate Shock, 2021-2025: YoY growth in retail sales ex food services and SPY; gray bands are NBER recessions and pink bands mark months when retail sales were below their year-earlier level.",
   "narrative_alignment_note": "2022 Inflation and Rate Shock, 2021-2025: YoY growth in retail sales ex food services and SPY; gray bands are NBER recessions and pink bands mark months when retail sales were below their year-earlier level.",

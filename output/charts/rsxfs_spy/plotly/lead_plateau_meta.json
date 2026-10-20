@@ -1,7 +1,7 @@
 {
   "chart_name": "lead_plateau",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-20T11:33:20.588536+00:00",
+  "generated_at": "2026-10-20T12:53:18.465225+00:00",
   "generated_by": "scripts/harness/charts.py",
   "caption": "The winner L8 sits in a stable range L7-L9. The highest single point, L5, was not chosen because its neighbours score lower.",
   "narrative_alignment_note": "The winner L8 sits in a stable range L7-L9. The highest single point, L5, was not chosen because its neighbours score lower.",

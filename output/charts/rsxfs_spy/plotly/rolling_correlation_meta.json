@@ -1,7 +1,7 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-20T11:34:22.045791+00:00",
+  "generated_at": "2026-10-20T12:54:12.066234+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
   "caption": "Rolling 60-month correlation between YoY growth in retail sales ex food services and SPY monthly returns.",
   "narrative_alignment_note": "Rolling 60-month correlation between YoY growth in retail sales ex food services and SPY monthly returns.",

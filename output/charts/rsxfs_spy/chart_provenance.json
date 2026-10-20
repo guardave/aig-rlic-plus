@@ -3,7 +3,7 @@
   "chart_sha256": "f1f9d13ec537a0b98d776d6b370b5c3d6220dc8e754ecd8c4963a731bdd732ce",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:33:41+00:00",
+  "recorded_at": "2026-10-20T12:53:39+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -22,7 +22,7 @@
   "chart_sha256": "d7ba32262c3a1a2e2b7c987db8759facd0029a97aad0a35a96cde0e35fbf725a",
   "results_tag": "20261020",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-20T11:33:25+00:00",
+  "recorded_at": "2026-10-20T12:53:22+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/rsxfs_spy/hindsight_lead_curve_20261020.csv": "f1c9c31ca6f80cfb06af3cd7acf3e18efacbe89381dc3f6249c23c56418f04b9",
@@ -36,7 +36,7 @@
   "chart_sha256": "8c8d7c80531046cd67f9fa15c6d26eed9fe819eea80dd9ba780e668b58ba64f1",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:33:37+00:00",
+  "recorded_at": "2026-10-20T12:53:36+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -54,7 +54,7 @@
   "chart_sha256": "34d12e740b3d299aa7920ab864d44affe719ae7e3ce38b2082be2a7994b3329e",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:34:01+00:00",
+  "recorded_at": "2026-10-20T12:53:57+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -78,7 +78,7 @@
   "chart_sha256": "641ac011d764b9ee65552e8b7c1c1803bea07f88e1874825f40ce4f9326d3db9",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:33:57+00:00",
+  "recorded_at": "2026-10-20T12:53:53+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -102,7 +102,7 @@
   "chart_sha256": "34a5385c8f7dc4853160742e149d64010c086d37a94d587ada36c83639b995f7",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:33:45+00:00",
+  "recorded_at": "2026-10-20T12:53:43+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -122,7 +122,7 @@
   "chart_sha256": "57d69a821c1ddbe6dde9a9b6a01b8eca80f05a9db6c95dd077622c3082bb02c7",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:33:29+00:00",
+  "recorded_at": "2026-10-20T12:53:26+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -137,7 +137,7 @@
   "chart_sha256": "4321c95fa80d8c44237501d798e0078b17e312bc853fbbf7c4318c646626b57f",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:34:50+00:00",
+  "recorded_at": "2026-10-20T12:54:31+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -165,7 +165,7 @@
   "chart_sha256": "74fef8f18848493f1159805606c271ea4ce8d2e4cee734a1dc70534e7f29d8d3",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:34:41+00:00",
+  "recorded_at": "2026-10-20T12:54:24+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -193,7 +193,7 @@
   "chart_sha256": "5a42f16f2a061e8347a0b0d7a01a7588dc49ed22a399f965f9b2ee4a8c651b96",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:34:45+00:00",
+  "recorded_at": "2026-10-20T12:54:28+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -221,7 +221,7 @@
   "chart_sha256": "5a071ee7d304e6ce7f4bfcea67e11606e543f5c5f6bb5134e647775bc21ec270",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:34:54+00:00",
+  "recorded_at": "2026-10-20T12:54:35+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -246,10 +246,10 @@
   }
  },
  "lead_plateau": {
-  "chart_sha256": "839a4a30470950e2d0326298583709439fe8e40e2324e92d5d87dcfcd7f962c3",
+  "chart_sha256": "fdab481232bdcec500f2fd8a8797b6d267bd3788b4f1c242b47844104eddf7e1",
   "results_tag": "20261020",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-20T11:33:20+00:00",
+  "recorded_at": "2026-10-20T12:53:18+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/rsxfs_spy/hindsight_lead_curve_20261020.csv": "f1c9c31ca6f80cfb06af3cd7acf3e18efacbe89381dc3f6249c23c56418f04b9",
@@ -260,7 +260,7 @@
   "chart_sha256": "087c5b0641999f649cab331c622bad8a502ca2f212bca5f5b00439daff391544",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:33:49+00:00",
+  "recorded_at": "2026-10-20T12:53:46+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -281,7 +281,7 @@
   "chart_sha256": "5c591d27d019e56dc780ae392b9311ca6f332bd9dfdeb3d108250a9a760e3b87",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:33:53+00:00",
+  "recorded_at": "2026-10-20T12:53:50+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -304,7 +304,7 @@
   "chart_sha256": "9dc0334e8bb7248adc8df9035afd1733961e9cdc7c5bdc4499c138c375dc6408",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:33:33+00:00",
+  "recorded_at": "2026-10-20T12:53:30+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -320,7 +320,7 @@
   "chart_sha256": "cc74dda852ab06dee4b849551b0eab7695f192247467c0e65d2b9a259b387ac4",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:34:17+00:00",
+  "recorded_at": "2026-10-20T12:54:08+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -346,7 +346,7 @@
   "chart_sha256": "26b3b840afb27d286ecdf3b2f65322d1564e48f9031b70261439f9d31df28a6d",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:34:22+00:00",
+  "recorded_at": "2026-10-20T12:54:12+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -373,7 +373,7 @@
   "chart_sha256": "5172e0fc982d65af3d715686c79475d1bde9957d9093b555a1428424485948b6",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:34:27+00:00",
+  "recorded_at": "2026-10-20T12:54:17+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -401,7 +401,7 @@
   "chart_sha256": "9bdc761e37b34819e7d99f1c325d48faec71f80a34459247ec4c17baa4321d4e",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:34:12+00:00",
+  "recorded_at": "2026-10-20T12:54:04+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -426,7 +426,7 @@
   "chart_sha256": "9bdc761e37b34819e7d99f1c325d48faec71f80a34459247ec4c17baa4321d4e",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:34:06+00:00",
+  "recorded_at": "2026-10-20T12:54:00+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",
@@ -451,7 +451,7 @@
   "chart_sha256": "5172e0fc982d65af3d715686c79475d1bde9957d9093b555a1428424485948b6",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_rsxfs_spy.py",
-  "recorded_at": "2026-10-20T11:34:32+00:00",
+  "recorded_at": "2026-10-20T12:54:21+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/rsxfs_spy_monthly_latest.parquet": "8a701bb7842cd6b3c80437cfe6c4eae5e1284466b65ae11dbafa7bef4add548a",

@@ -1,7 +1,7 @@
 {
   "chart_name": "local_projections",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-20T11:33:53.258446+00:00",
+  "generated_at": "2026-10-20T12:53:50.228850+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
   "caption": "Estimated forward SPY return per percentage point of YoY growth in retail sales ex food services, with Newey-West 95% intervals (lags at least horizon - 1).",
   "narrative_alignment_note": "Estimated forward SPY return per percentage point of YoY growth in retail sales ex food services, with Newey-West 95% intervals (lags at least horizon - 1).",

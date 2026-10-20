@@ -1,7 +1,7 @@
 {
   "chart_name": "regime_stats",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-20T11:33:37.892199+00:00",
+  "generated_at": "2026-10-20T12:53:36.310748+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
   "caption": "Same-month SPY performance across quartiles of YoY growth in retail sales ex food services.",
   "narrative_alignment_note": "Same-month SPY performance across quartiles of YoY growth in retail sales ex food services.",
