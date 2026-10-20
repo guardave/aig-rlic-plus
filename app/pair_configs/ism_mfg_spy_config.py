@@ -35,6 +35,9 @@ _TS = P.json_file(_RES / "track_summary.json")
 _EV = P.json_file(_RES / f"evidence_facts_{_TAG}.json")["derived"]
 _G_SIG = bool(_EV["granger_min_p_holm"] < 0.05)
 _NT = _TS.get("null_tournament") or {}
+_MS = _WS["selection"]["legacy_oos_selected_row"]       # the rule the main site shows (run 20260912, legacy method)
+_MS_RULE = f"{_MS['signal']} / {_MS['threshold']} / L{_MS['lead_value']}"
+_SAME_DD = W.value("oos_max_drawdown") == W.value("bh_oos_max_drawdown")
 _MAN = P.json_file(_RES / f"candidates_manifest_{_TAG}.json")
 _GRID = P.lead_grid(PAIR)
 _GRID_RANGE = f"L{_GRID[0]}-L{_GRID[-1]}"
@@ -103,6 +106,8 @@ _IF_THEN = (
     f"{_THR} -> hold SPY.\n"
     "- **ELSE** -> hold cash."
 )
+_DD_NOTE = ("- The rule's worst test-period drawdown equals buy-and-hold's: it held SPY through the market's deepest "
+            "test-period decline.\n" if _SAME_DD else "")
 _MAIN_TAIL = (
     f" The test period ends with {W.tail_n_periods} month(s) without a defined position ({W.tail_first_date} to "
     f"{W.tail_last_date}), held in cash under the undefined-means-cash rule; holding the last position instead would "
@@ -431,13 +436,15 @@ class StrategyConfig:
     )
 
     STATISTICAL_FRAMING_BANNER = (
-        f"Earlier research run. A research run of {W.previous_tag} on the branch feat261016_pit_release reported the "
-        f"earlier rule {W.previous_rule} (earlier run: test-period Sharpe {W.previous_oos_sharpe}). That run was never "
-        "shown on the main site, which still shows an older rule from an earlier run with a different lead grid and "
-        "selection method. The earlier research run's rule was the single highest training Sharpe with fixed release "
-        "lags. The page now reports the rule selected "
-        "on the training period with point-in-time release dates and the stable-lead-range rule. There is still one "
-        "data track: no archive of earlier ISM values exists."
+        f"Correction (2026-10-20). The main site shows the legacy rule {_MS_RULE} ({_MS['direction']}), which the "
+        f"legacy method chose by its test-period Sharpe of {_MS['oos_sharpe']:.2f}, with a lead below the current "
+        "release-lag floor, so that legacy test-period result was not a held-out result. "
+        f"An earlier research run ({W.previous_tag}, on the branch feat261016_pit_release, never published on the "
+        f"main site) reported the rule {W.previous_rule} (earlier research run: test-period Sharpe "
+        f"{W.previous_oos_sharpe}), the single highest training Sharpe with fixed release lags; the harness replays "
+        "that earlier research run exactly. The page now reports the rule selected on the training period with "
+        "point-in-time release dates and the stable-lead-range rule. There is still one data track: no archive of "
+        "earlier ISM values exists."
     )
 
     PLAIN_ENGLISH = (
@@ -463,7 +470,9 @@ class StrategyConfig:
             "seasonal-factor revisions cannot be measured.",
             f"The single highest training Sharpe in the grid ({W.raw_argmax_rule} at L{W.raw_argmax_lead}) lies "
             f"{W.raw_argmax_position}; it was not chosen.",
-            f"The earlier rule from that research run ({W.previous_rule}) was the single highest training Sharpe with fixed "
+            f"The main site shows the legacy rule {_MS_RULE}, chosen by its test-period Sharpe (legacy method) with a "
+            "lead below the current release-lag floor.",
+            f"The earlier research run's rule ({W.previous_rule}) was the single highest training Sharpe with fixed "
             "lags.",
         ] + ([f"The stable lead range {W.plateau_range} reaches the top of the declared lead grid ({_GRID_RANGE} "
               "months); longer leads were not tested."] if _AT_TOP else []),
@@ -541,7 +550,9 @@ This describes the backtested rule so it can be audited; it is not a trading rec
 - The result is marked `found_in_search`; it still needs a frozen-rule holdout confirmation.
 - {_NO_ARCHIVE}
 - The ISM series in the project's data ends in {W.oos_end}, so the test period ends there; later SPY months are not tested.
-- The earlier rule from the research run ({W.previous_rule}, research run of {W.previous_tag} on the branch feat261016_pit_release, never on the main site) was the single highest training Sharpe with fixed lags; the new framework replays it exactly and no longer selects it.
+- The main site shows the legacy rule {_MS_RULE} ({_MS['direction']}), chosen by its legacy test-period Sharpe of {_MS['oos_sharpe']:.2f} with a lead below the current release-lag floor; it is not replayed as a selection rule because its selection consulted the test period.
+- The earlier research run's rule ({W.previous_rule}, research run of {W.previous_tag} on the branch feat261016_pit_release, never on the main site) was the single highest training Sharpe with fixed lags; the new framework replays it exactly and no longer selects it.
+{_DD_NOTE}
 - Equities often turn before the PMI does, so a lagged PMI rule can stay in cash during the early part of a recovery.
 {_R71_CAVEAT}
 """
@@ -604,8 +615,9 @@ _METHODS_TABLE_MD = P.definition_text("""
 _TOURNAMENT_DESIGN_MD = f"""
 Grid: PMI signals x zero, z-score and rolling-percentile thresholds x the long/cash strategy x procyclical/countercyclical orientations x leads {_GRID_RANGE} months, where the lead is the whole gap between the reading month and the month whose return it trades ({W.n_candidates} declared combinations; {W.n_distinct} distinct position series). The winner is selected on the training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it. There is one data track (today's ISM values), so there is no second winner to compare.
 
-- Winner: `{_RID}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe} ({W.is_start} to {W.is_end}; buy-and-hold {W.bh_is_sharpe}), test-period Sharpe {W.oos_sharpe}. The raw single highest training Sharpe (argmax, {W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}; it is shown for reference and is not the selection rule.{_MAIN_TAIL}
+- Winner: `{_RID}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe} ({W.is_start} to {W.is_end}; buy-and-hold {W.bh_is_sharpe}), test-period Sharpe {W.oos_sharpe}. The raw single highest training Sharpe (argmax, {W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}; it is shown for reference and is not the selection rule. Both training Sharpes round to the same figure; the single-lead peak is slightly higher, but its neighbouring leads score lower, so it lies outside the stable range.{_MAIN_TAIL}
 - Chance check: across {W.null_draws} contests run on circularly shifted PMI data, {_CHANCE_TEXT}.
+- Rule shown on the main site (legacy method): `{_MS_RULE}` ({_MS['direction']}), chosen by its legacy test-period Sharpe of {_MS['oos_sharpe']:.2f} on a lead grid that included a lead below the current release-lag floor; not replayed as a selection rule because it consulted the test period.
 - Earlier research run (a research run of {W.previous_tag} on the branch feat261016_pit_release, never on the main site): previous rule `{W.previous_rule}` ({W.previous_selection}), earlier-run test-period Sharpe {W.previous_oos_sharpe}. The new framework replays that run exactly (same rows, same winner, same returns).
 """
 
