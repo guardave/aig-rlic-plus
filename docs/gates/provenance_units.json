@@ -131,7 +131,7 @@
       "why": "regression coefficients, test statistics and correlations (shown as is, never scaled); transfer-entropy proxies and rank correlations"
     },
     {
-      "pattern": "(?:^|[/#])(?:lead|\\w+_lead|lead_value|lead_days|lag|sig_lag_max|sig_lag_min|position_shift|\\w*horizon_days|lead_grid/\\d+|leads/\\d+|window_leads/\\d+)(?:/|$)",
+      "pattern": "(?:^|[/#])(?:lead|\\w+_lead|lead_value|lead_days|lag|sig_lag_max|sig_lag_min|position_shift|\\w*horizon_days|lead_grid/\\d+|leads/\\d+|window_leads/\\d+|tie/alternatives/\\d+/\\d+)(?:/|$)",
       "kind": "lead",
       "why": "lead / lag / horizon / position shift in the pair's period unit"
     },

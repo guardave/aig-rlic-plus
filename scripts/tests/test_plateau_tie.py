@@ -69,3 +69,10 @@ def test_single_track_notes_never_say_as_known_at(tmp_path, monkeypatch):
     notes = two_track.grid_edge_notes("toy_spy")
     assert notes and notes[0].startswith("As revised today (no archive): the highest single training score")
     assert not any("as known at" in n.lower() for n in notes)
+
+
+def test_tie_leaves_have_declared_kinds():
+    # umcsent_spy rerun: the provenance gate failed on undeclared plateau/tie/alternatives leaves
+    base = "art:toy_spy/winner_summary.json#/tracks/main/plateau/tie"
+    assert P.kind_of(f"{base}/alternatives/0/2") == "lead"
+    assert P.kind_of(f"{base}/n_windows") == "count"
