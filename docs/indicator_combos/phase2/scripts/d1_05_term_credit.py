@@ -2,7 +2,8 @@
 information? Registered hypotheses (frozen d780845f; this is NOT a V-C evaluation):
   H1 SPY: d < 0 in r(t+1) = a + b*term + c*credit + d*term*credit (expanding-z levels), margin 0.25 pp/month
   H2 SPY: joint-distress dummy J = 1{T10Y3M < 0.5 pp} * 1{HY-IG 6m change > 0} beyond the two additive dummies,
-     d < 0 (the question: "the combination may be worse than the sum"), margin 0.50 pp/month
+     margin 0.50 pp/month. The registry sets NO sign value for H2 (pass_rule *pr_inter says "registered sign" without
+     one); d < 0 is INFERRED by Ray (J = 1 is the distress state), not registered (QA D1-05 F1).
   H3 Treasury proxy: same as H1, sign d > 0 (flight to quality), margin 0.10 pp/month
   H4 Treasury proxy: same as H2, sign d > 0, margin 0.20 pp/month
 
@@ -12,7 +13,8 @@ reported, see "Revision" below):
     BofA, previous trading day; first 2000-01, last valid month-end 2026-03). Expanding z-scores need >= 36 months,
     so the first z is 2002-12.
   * Targets over month t+1: SPY dividend-adjusted return minus the 3-month T-bill (DTB3 at t, /12); Treasury
-    proxy = 10-year par-bond return from DGS10 (carry y(t)/12 minus modified duration x change in yield; no
+    proxy = 10-year par-bond return from DGS10 at the month-end CLOSES t and t+1 (same window as SPY; the signals
+    still use the previous trading day's values; QA D1-05 F5 fixed the earlier T-1 -> T+1-1 window) (carry y(t)/12 minus modified duration x change in yield; no
     convexity term) minus the same T-bill. Local data only (gap G6 built from local DGS10; G16 not acquired, so no
     pre-2000 history and no V-B Baa - Aaa supporting run).
   * Primary window: ONE common window for all 4 hypotheses (rows where every design and both targets exist).
@@ -23,8 +25,11 @@ reported, see "Revision" below):
     (stationary bootstrap, mean block 6, 2000 draws, rows resampled jointly, sign-aligned studentised statistics,
     centred as (d* - d_hat) / se*) over all 4. Also reported for comparability with other families: Holm over 4
     on the registered-test p (the larger of the HAC and bootstrap p).
-  * Null tournament N1: term and credit circularly shifted together against the returns (offset uniform in
-    [36, n - 36], K = 500, seed 20261018); percentile of the actual sign-aligned HC0 t among null t.
+  * Null tournament N1: term and credit circularly shifted together against the returns; ALL admissible offsets
+    in [36, n - 37] enumerated exhaustively (n = 315 -> 243 distinct offsets, deterministic; QA D1-05 F2 replaced
+    500 draws with replacement); percentile of the actual sign-aligned HC0 t among null HC0 t.
+  * Purge: the registered purge_months = 1 holds by construction in the real-time loop: a row t enters training at
+    refit T only if t < T, so its label (the return over t+1) is realised at or before the close of T.
   * Null N2 (registered: "random second market member"): credit replaced by each of 5 other unrevised market
     series from the same local file (VIX, DXY, log gold/copper, effective fed funds, log IWM/SPY), same expanding z,
     continuous design only (H1, H3); rank of the actual t among the 6, on their common window.
@@ -43,7 +48,9 @@ reported, see "Revision" below):
     (2020-02..2020-06) removed, one at a time.
 Revision (2026-10-20, before reporting): common primary window; Romano-Wolf centring corrected to (d* - d_hat)/se*;
   Holm, N2, quadrant table, OOS R^2, switches and the post-hoc episode drop added; 'widen' set to NaN where credit is
-  missing. The first-draft numbers were not reported anywhere.
+  missing. The first-draft numbers were not reported anywhere (not verifiable from git: the draft was never committed).
+Revision 2 (2026-10-20, after QA D1-05): H2 sign labelled inferred; N1 exhaustive over 243 offsets; Treasury target
+  priced from close-T yields; post-hoc drop of the 12 flat-and-wide months.
 Exploratory: numbers only, no verdict words.
 """
 from __future__ import annotations
@@ -63,9 +70,11 @@ import p2data as d  # noqa: E402
 OUT = d.P2 / "d1_05"
 SEED = 20261018
 B = 2000
-K = 500
+K = "exhaustive"
 MIN_Z = 36
 N_FAMILY = 4
+SIGN_SOURCE = {"H1": "registered", "H2": "inferred by Ray (registry sets no value)", "H3": "registered",
+               "H4": "registered"}
 SPEC = {"H1": ("spy", "cont", -1, 0.25), "H2": ("spy", "dummy", -1, 0.50),
         "H3": ("tsy", "cont", 1, 0.10), "H4": ("tsy", "dummy", 1, 0.20)}
 EPISODES_POSTHOC = {"drop_2008_09": ("2008-07-31", "2009-06-30"), "drop_2020": ("2020-02-29", "2020-06-30")}
@@ -89,11 +98,21 @@ def add_signals(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def close_value(daily: pd.Series, index: pd.DatetimeIndex) -> pd.Series:
+    """Value at the month-end close itself (used only for the Treasury-proxy TARGET, never for a signal)."""
+    s = daily.dropna().sort_index()
+    closes = d.last_trading_day(index)
+    v = s.reindex(s.index.union(closes)).ffill().reindex(closes)
+    out = pd.Series(v.to_numpy(), index=index)
+    out[closes > s.index.max()] = np.nan
+    return out
+
+
 def build() -> pd.DataFrame:
     idx = d.month_index("2000-01-31")
     hy = daily()
     df = pd.DataFrame({"term": d.t10y3m(idx), "credit": d.hy_ig(idx),
-                       "y10": d._prev_bday_month_end(hy["dgs10"], idx),
+                       "y10": close_value(hy["dgs10"], idx),
                        "tbill": d._prev_bday_month_end(hy["dtb3"], idx)})
     # Treasury proxy return over month t (from yields at t-1 and t)
     yl, y = df["y10"].shift(1) / 100, df["y10"] / 100
@@ -204,11 +223,10 @@ def romano_wolf(data: dict, common: pd.DatetimeIndex) -> dict:
 
 
 def null_n1(df: pd.DataFrame, rows: pd.DatetimeIndex, actual: dict) -> dict:
-    rng = np.random.default_rng(SEED + 2)
     span = df.index[df[["term", "credit"]].notna().all(axis=1)]
     nulls = {h: [] for h in SPEC}
-    for _ in range(K):
-        k = int(rng.integers(36, len(span) - 36))
+    offsets = range(36, len(span) - 36)
+    for k in offsets:
         sh = df.copy()
         sh.loc[span, ["term", "credit"]] = np.roll(df.loc[span, ["term", "credit"]].to_numpy(), k, axis=0)
         sh = add_signals(sh)
@@ -219,7 +237,8 @@ def null_n1(df: pd.DataFrame, rows: pd.DatetimeIndex, actual: dict) -> dict:
     out = {}
     for h, (_, _, sign, _) in SPEC.items():
         v = np.array(nulls[h])
-        out[h] = {"percentile_sign_aligned_t": round(float(np.mean(v < sign * actual[h])) * 100, 1),
+        out[h] = {"statistic": "sign-aligned HC0 t", "distinct_offsets": len(offsets),
+                  "percentile_sign_aligned_t": round(float(np.mean(v < sign * actual[h])) * 100, 1),
                   "null_quantiles": {q: round(float(np.quantile(v, q / 100)), 2) for q in (5, 50, 95)}}
     return out
 
@@ -320,7 +339,7 @@ def main():
     res = {"status": "Exploratory", "question": "D1-05", "registry": "frozen d780845f; not a V-C evaluation",
            "family": "F-TC", "family_registered_hypotheses": N_FAMILY,
            "correction": "Romano-Wolf stepdown over 4 (registered); Holm over 4 also shown",
-           "null": {"N1": {"type": "joint circular shift of term and credit", "K": K, "seed": SEED + 2},
+           "null": {"N1": {"type": "joint circular shift of term and credit", "offsets": "all 243 admissible, exhaustive"},
                     "N2": "credit replaced by each of 5 other market members (continuous design)"},
            "hypotheses": {}}
     full = {h: pd.concat([df[f"{a}_x_next"], design(df, k)], axis=1).dropna() for h, (a, k, _, _) in SPEC.items()}
@@ -335,9 +354,10 @@ def main():
         p_reg[h] = max(prim["p_hac_one_sided"], prim["p_stationary_bootstrap_one_sided"])
         actual[h] = prim["hc0_t"]
         r = {"asset": "SPY" if asset == "spy" else "10y Treasury proxy (DGS10, G6)", "kind": kind,
-             "registered_sign": "d < 0" if sign < 0 else "d > 0", "margin_pp_month": margin,
+             "test_sign": "d < 0" if sign < 0 else "d > 0", "sign_source": SIGN_SOURCE[h],
+             "margin_pp_month": margin,
              "primary_common_window": prim, "sensitivity_own_window": own,
-             "sign_as_registered": bool(np.sign(prim["d_pp_month"]) == sign),
+             "sign_matches_test_sign": bool(np.sign(prim["d_pp_month"]) == sign),
              "abs_d_vs_margin": round(abs(prim["d_pp_month"]) / margin, 2),
              "numeric_thresholds_of_registered_rule_met": bool(
                  p_reg[h] <= 0.05 and np.sign(prim["d_pp_month"]) == sign and abs(prim["d_pp_month"]) >= margin)}
@@ -351,6 +371,13 @@ def main():
                 cov_type="HAC", cov_kwds={"maxlags": 6})
             post[tag] = {"months": int(len(keep)), "d_pp_month": round(float(rr.params["inter"]), 3),
                          "hac_t": round(float(rr.tvalues["inter"]), 2)}
+        if kind == "cont":                                  # QA D1-05 F3: selection on X quadrants, not on y
+            fw = common[((df.loc[common, "z_term"] < 0) & (df.loc[common, "z_credit"] >= 0)).to_numpy()]
+            keep = common.difference(fw)
+            rr = sm.OLS(full[h].loc[keep].iloc[:, 0], full[h].loc[keep].iloc[:, 1:]).fit(
+                cov_type="HAC", cov_kwds={"maxlags": 6})
+            post["drop_12_flat_wide_months"] = {"months": int(len(keep)), "d_pp_month": round(float(rr.params["inter"]), 3),
+                                                "hac_t": round(float(rr.tvalues["inter"]), 2)}
         r["posthoc_episode_drop_descriptive"] = post
         res["hypotheses"][h] = r
         print(h, json.dumps({k: prim[k] for k in ("window", "d_pp_month", "hac_t", "p_stationary_bootstrap_one_sided")}),

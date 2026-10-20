@@ -93,3 +93,6 @@ fixture.
 - **Consequence for reporting.** A d < 0 for H1 that clears the test means flat-and-wide months forecast higher
   next-month SPY returns. That is the opposite of the registry's prose story, and it must not be presented as
   confirming it.
+- **D1-05.H2 has no registered sign** (added after QA D1-05 F1). Its pass rule (`*pr_inter`) names a "registered
+  sign" but gives no value. The exploratory run tests d < 0, which Ray inferred because J = 1 is the joint-distress
+  state. Results for H2 are labelled "sign inferred, not registered".

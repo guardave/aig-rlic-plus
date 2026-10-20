@@ -52,47 +52,50 @@ dd { margin: 0 0 4px 18px; }
 <body>
 <main>
 <h1>指標組合研究：D1-05 期限息差 × 信貸息差（探索性）</h1>
-<div class="sub">研究分支 <code>research261017_indicator_combos</code>　2026 年 10 月 20 日　撰寫：Research Ray<br>
+<div class="sub">研究分支 <code>research261017_indicator_combos</code>　2026 年 10 月 20 日（同日按質檢修訂）　撰寫：Research Ray<br>
 <strong>性質：探索性。</strong>以「只用當時數據」的歷史數據分析，這些數據已被查看過，並非已凍結登記檢定的前瞻期評估。只列數字，不作結論性判斷。</div>
 
 <div class="box"><strong>重點摘要</strong>（共同期間 2002-12 至 2026-02，279 個月，涵蓋 2008、2020 兩次衰退；家族 F-TC 共 4 項登記檢定）
 <ul>
-<li><strong>H1（SPY，期限 × 信貸交互項）。</strong>係數 d = −0.87 個百分點／月，符合登記的數字符號（其實際含義見下文，與登記文字相反），為門檻 3.5 倍；單尾 HAC p = 0.020，區塊重抽樣 p = 0.035；家族 Romano-Wolf 校正（4 項）後 p = 0.151，Holm 校正後 0.138；巧合檢驗百分位 99.0。</li>
-<li><strong>H2、H4</strong> 的方向與登記相反；<strong>H3</strong> 方向相符，p = 0.21。</li>
-<li><strong>即時預測對比樸素基準。</strong>2006-01 至 2026-03（243 個月），交互模型的樣本外 R² 對比歷史平均為 −0.073，加法模型為 −0.055；即兩者的預測誤差都大於簡單歷史平均。</li>
+<li><strong>H1（SPY，期限 × 信貸交互項）。</strong>家族 Romano-Wolf 校正（4 項，登記方法）後 p = 0.145，Holm 校正後 0.138。單一檢定層面：係數 d = −0.87 個百分點／月，符合登記的數字符號，為門檻 3.5 倍；單尾 HAC p = 0.020，區塊重抽樣 p = 0.035。巧合檢驗 N1（全部 243 個平移，HC0 t 值）百分位 98.4。</li>
+<li><strong>H2、H4</strong> 的方向與所檢定的方向相反（H2 的方向由 Ray 推定，登記並無指定）；<strong>H3</strong> 方向相符，p = 0.20。</li>
+<li><strong>即時預測對比樸素基準。</strong>2006-01 至 2026-03（243 個月），樣本外 R² 對比歷史平均：交互模型 −0.073，加法模型 −0.055，最佳單一指標 −0.071；交互模型對比加法模型 −0.017。即三者的預測誤差都大於簡單歷史平均。</li>
 <li><strong>轉成持倉（未計交易成本）。</strong>H1 模型 Sharpe 0.546，買入持有 0.654，十個月均線 0.677，簡單綜合 0.533。</li>
-<li><strong>H1 顯著代表甚麼。</strong>登記的數字符號（d &lt; 0）仍是檢定準則。按此設定，平坦＋擴闊月份的交互項為負，所以 d &lt; 0 代表<strong>曲線平坦而息差擴闊的月份，下月 SPY 回報預測較高</strong>，即息差急升後的反彈。樣本中只有 12 個這類月份（2016 年 6 個、2020 年 4 個、2011 及 2022 年各 1 個），下月 SPY 超額回報平均 +4.28 個百分點。這與登記文字「曲線平坦而息差擴闊時更差」<strong>相反</strong>，H1 結果並不支持該說法。</li>
-<li><strong>勘誤。</strong>登記文字把 H1 的符號說反了，H3 的「避險」說法亦有同樣問題。此問題在查看數據後才發現，已按 Lead 裁定記入 <code>KNOWN_LIMITS.md</code> 第 7 節（2026-10-20），凍結登記沒有改動。</li>
+<li><strong>若 H1 通過檢定，代表甚麼（家族校正後 p = 0.145，並未通過）。</strong>按此設定，平坦＋擴闊月份的交互項為負，所以 d &lt; 0 代表<strong>曲線平坦而息差擴闊的月份，下月 SPY 回報預測較高</strong>，即息差急升後的反彈。這與登記文字「曲線平坦而息差擴闊時更差」<strong>相反</strong>，H1 結果並不支持該說法。樣本中只有 12 個這類月份（2016 年 6 個、2020 年 4 個、2011 及 2022 年各 1 個），下月 SPY 超額回報平均 +4.28 個百分點；剔除這 12 個月後 d = −0.29（HAC t −0.63）。</li>
+<li><strong>勘誤。</strong>登記文字把 H1 的符號說反了，H3 的「避險」說法亦有同樣問題；H2 則根本沒有登記方向。這些在查看數據後才發現，已按 Lead 裁定記入 <code>KNOWN_LIMITS.md</code> 第 7 節（2026-10-20），凍結登記沒有改動。</li>
 </ul></div>
 
 <h2>一、主要結果（共同期間）</h2>
 <table>
 <thead><tr><th>項目</th><th>H1 SPY 水平交互</th><th>H2 SPY 雙重壓力</th><th>H3 國債 水平交互</th><th>H4 國債 雙重壓力</th></tr></thead>
 <tbody>
-<tr><td>係數 d（百分點／月）</td><td class="num">−0.872</td><td class="num">+1.104</td><td class="num">+0.303</td><td class="num">−0.390</td></tr>
-<tr><td>方向與登記相符</td><td>是</td><td>否</td><td>是</td><td>否</td></tr>
-<tr><td>|d|／門檻</td><td class="num">3.49</td><td class="num">2.21</td><td class="num">3.03</td><td class="num">1.95</td></tr>
-<tr><td>單尾 HAC p</td><td class="num">0.020</td><td class="num">0.762</td><td class="num">0.214</td><td class="num">0.723</td></tr>
-<tr><td>單尾區塊重抽樣 p</td><td class="num">0.035</td><td class="num">0.777</td><td class="num">0.214</td><td class="num">0.728</td></tr>
-<tr><td>Romano-Wolf 校正 p（4 項，登記方法）</td><td class="num">0.151</td><td class="num">0.914</td><td class="num">0.490</td><td class="num">0.914</td></tr>
-<tr><td>Holm 校正 p（4 項）</td><td class="num">0.138</td><td class="num">1.00</td><td class="num">0.642</td><td class="num">1.00</td></tr>
-<tr><td>巧合檢驗 N1 百分位</td><td class="num">99.0</td><td class="num">16.8</td><td class="num">76.0</td><td class="num">29.6</td></tr>
-<tr><td>R²</td><td class="num">0.018</td><td class="num">0.007</td><td class="num">0.023</td><td class="num">0.007</td></tr>
+<tr><td>檢定方向（來源）</td><td>d &lt; 0（登記）</td><td>d &lt; 0（Ray 推定，非登記）</td><td>d &gt; 0（登記）</td><td>d &gt; 0（登記）</td></tr>
+<tr><td>係數 d（百分點／月）</td><td class="num">−0.872</td><td class="num">+1.104</td><td class="num">+0.305</td><td class="num">−0.591</td></tr>
+<tr><td>方向與所檢定方向相符</td><td>是</td><td>否</td><td>是</td><td>否</td></tr>
+<tr><td>|d|／門檻</td><td class="num">3.49</td><td class="num">2.21</td><td class="num">3.05</td><td class="num">2.95</td></tr>
+<tr><td>單尾 HAC p</td><td class="num">0.020</td><td class="num">0.762</td><td class="num">0.202</td><td class="num">0.824</td></tr>
+<tr><td>單尾區塊重抽樣 p</td><td class="num">0.035</td><td class="num">0.777</td><td class="num">0.205</td><td class="num">0.824</td></tr>
+<tr><td>Romano-Wolf 校正 p（4 項，登記方法）</td><td class="num">0.145</td><td class="num">0.962</td><td class="num">0.454</td><td class="num">0.962</td></tr>
+<tr><td>Holm 校正 p（4 項）</td><td class="num">0.138</td><td class="num">1.00</td><td class="num">0.614</td><td class="num">1.00</td></tr>
+<tr><td>巧合檢驗 N1 百分位（HC0 t，全部 243 個平移）</td><td class="num">98.4</td><td class="num">18.1</td><td class="num">76.5</td><td class="num">19.3</td></tr>
+<tr><td>R²</td><td class="num">0.018</td><td class="num">0.007</td><td class="num">0.025</td><td class="num">0.008</td></tr>
 </tbody></table>
 <ul>
-<li>D2-09 預算把 H1 的可偵測最小幅度定為 0.79，屬檢定力不足；在這種情況下達到 p ≤ 0.05 的估計值，幅度很可能被高估。</li>
+<li>檢定力：D2-09 的可偵測最小幅度 H1–H4 分別為 0.79／1.97／0.79／1.97，門檻為 0.25／0.50／0.10／0.20，四項都屬檢定力不足（H3、H4 借用 SPY 波幅假設）。在這種情況下達到 p ≤ 0.05 的估計值，幅度很可能被高估。</li>
+<li>國債回報現以月底收市當日的 DGS10 計算，與 SPY 同一期間（初版用前一交易日，期間早一天；H3、H4 數字因而輕微改變）。</li>
 <li>以各自最長期間計算：H1 d = −0.880（280 個月）；H2 由 2000-07 起則 d = +0.156，與共同期間的 +1.104 差別很大。</li>
-<li>N2 巧合檢驗（替代序列由 Ray 自選，並非登記清單）：把信貸息差換成另外 5 個市場序列（VIX、美元指數、金銅比、聯邦基金利率、IWM/SPY），H1 及 H3 都以信貸息差的 t 值最大（6 個中排第 1，純屬巧合的機會為六分之一）。</li>
+<li>N2 巧合檢驗（替代序列由 Ray 自選，並非登記清單）：把信貸息差換成另外 5 個市場序列（VIX、美元指數、金銅比、聯邦基金利率、IWM/SPY），H1 及 H3 都以信貸息差的 t 值最大（H3 僅以 0.98 對 0.96 領先；6 個中排第 1，純屬巧合的機會為六分之一）。</li>
 </ul>
 
 <h2>二、事後描述（無 p 值）</h2>
 <table>
-<thead><tr><th>剔除期間</th><th>H1</th><th>H2</th><th>H3</th><th>H4</th></tr></thead>
+<thead><tr><th>剔除</th><th>H1</th><th>H2</th><th>H3</th><th>H4</th></tr></thead>
 <tbody>
-<tr><td>2008-07 至 2009-06（餘 267 個月）</td><td class="num">−0.874</td><td class="num">+0.487</td><td class="num">−0.087</td><td class="num">−0.270</td></tr>
-<tr><td>2020-02 至 2020-06（餘 274 個月）</td><td class="num">−0.628</td><td class="num">+1.915</td><td class="num">+0.445</td><td class="num">−0.581</td></tr>
+<tr><td>2008-07 至 2009-06（餘 267 個月）</td><td class="num">−0.874</td><td class="num">+0.487</td><td class="num">−0.081</td><td class="num">−0.498</td></tr>
+<tr><td>2020-02 至 2020-06（餘 274 個月）</td><td class="num">−0.628</td><td class="num">+1.915</td><td class="num">+0.436</td><td class="num">−0.732</td></tr>
+<tr><td>12 個平坦＋擴闊月份（餘 267 個月）</td><td class="num">−0.286</td><td>—</td><td class="num">+0.513</td><td>—</td></tr>
 </tbody></table>
-<p>H1 不受 2008–09 影響；剔除 2020 年五個月後 d 縮小約三成（HAC t −1.51）。H3 剔除 2008–09 後方向逆轉。</p>
+<p>H1 不受 2008–09 影響；剔除 2020 年五個月後 d 縮小約三成（HAC t −1.51）；剔除 12 個平坦＋擴闊月份後縮小約三分之二（HAC t −0.63）。另一個交互項為負的組合（陡峭＋收窄，73 個月）平均只有 0.47，低於平坦＋收窄的 0.75，並未呈現同樣規律。H3 剔除 2008–09 後方向逆轉。</p>
 
 <h2>三、即時持倉對比（SPY，2006-01 至 2026-03，未計交易成本）</h2>
 <table>
@@ -110,6 +113,7 @@ dd { margin: 0 0 4px 18px; }
 <li>只涵蓋兩次衰退，而且包括已反覆查看的 2020 年。</li>
 <li>沒有 2000 年前的信貸息差（缺口 G16），無法做登記的 Baa–Aaa 支持性檢驗。</li>
 <li>國債回報為由 DGS10 推算的近似值（缺口 G6），未計凸性。</li>
+<li>H2 的檢定方向由 Ray 推定，並非登記。</li>
 <li>N2 的 5 個替代序列由 Ray 從本地數據中選取，並非登記清單。</li>
 </ul>
 <div class="foot">英文詳細報告：<code>docs/indicator_combos/phase2/D1_05_REPORT.md</code>；程式：<code>phase2/scripts/d1_05_term_credit.py</code>；結果：<code>phase2/d1_05/results.json</code>。</div>
