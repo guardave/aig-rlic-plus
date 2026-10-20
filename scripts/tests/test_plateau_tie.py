@@ -76,3 +76,27 @@ def test_tie_leaves_have_declared_kinds():
     base = "art:toy_spy/winner_summary.json#/tracks/main/plateau/tie"
     assert P.kind_of(f"{base}/alternatives/0/2") == "lead"
     assert P.kind_of(f"{base}/n_windows") == "count"
+
+
+def test_rendered_tie_sentence_is_fully_tagged_and_verifies(tmp_path, monkeypatch):
+    # every number in the rendered tie sentence carries a sentinel that re-evaluates to the shown value with a
+    # declared kind (alternatives are lists of lead values only: window start .. end)
+    import gate_number_provenance as gnp
+    d = tmp_path / "results" / "toy_spy"
+    d.mkdir(parents=True)
+    ws = {"lead_unit": "months", "tracks": {"main": {"eligible": True, "plateau": {
+        "leads": [7, 8, 9], "score": 0.806688, "winner_lead": 9, "grid_edge": False,
+        "tie": {"n_windows": 2, "alternatives": [[6, 7, 8]], "broken_by": "best_is_sharpe_in_window"}}}}}
+    (d / "winner_summary.json").write_text(json.dumps(ws))
+    monkeypatch.setattr(two_track, "__file__", str(tmp_path / "app" / "components" / "two_track.py"))
+    monkeypatch.setattr(P, "RESULTS", tmp_path / "results")
+    monkeypatch.setattr(P, "lead_grid", lambda pair: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+    monkeypatch.setenv("AIG_PROVENANCE_GATE", "1")
+    tie = [n for n in two_track.grid_edge_notes("toy_spy") if "tied exactly" in n][0]
+    clean, _k, _p, sents, _d = gnp.parse_markers(tie)
+    assert clean.startswith("As known at the time: the stable range L7-L9 tied exactly on its score with L6-L8")
+    srcs = [src for _a, _b, src, _u, _s in sents]
+    assert sum("/tie/alternatives/0/" in s for s in srcs) == 2 and sum("/plateau/leads/" in s for s in srcs) == 4
+    for _a, _b, src, unit, shown in sents:
+        assert P.kind_of(src) == "lead", src
+        assert gnp.verify_sentinel(src, unit, shown, {}, "toy_spy") is None, src
