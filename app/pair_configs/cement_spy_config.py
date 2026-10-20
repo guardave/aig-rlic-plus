@@ -430,7 +430,7 @@ class StrategyConfig:
     SIGNAL_RULE_MD = f"""
 **Rule in plain English:** {_RULE}.
 
-Test-period results ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} buy-and-hold; annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; {_D['n_oos_trade_log_rows']} position changes in the test period (each a full switch between SPY and cash, counted from the trade log, including any move into the first test month); annual turnover {W.annual_turnover}; time in SPY {W.oos_exposure}.
+Test-period results ({W.oos_start} to {W.oos_end}): Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} buy-and-hold; annualized return {W.oos_ann_return} versus {W.bh_oos_ann_return}; maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}; {W.oos_n_trades} position changes between consecutive test-period months (each a full switch between SPY and cash; a move into the first test month from the last training-period position is not counted, so the trade log has {_D['n_oos_trade_log_rows']} log rows dated in the test period); annual turnover {W.annual_turnover}; time in SPY {W.oos_exposure}.
 
 {_DATA_NOTE}
 """
