@@ -32,6 +32,9 @@ _GRID = P.lead_grid(PAIR)
 _GRID_RANGE = f"L{_GRID[0]}-L{_GRID[-1]}"
 _IT = P.json_file(_RES / f"data_integrity_{_TAG}.json")
 _SB = P.json_file(_RES / f"structural_break_{PAIR}.json")
+# the rule the main site shows (run 20260830, chosen on its test-period Sharpe), recorded by the pipeline
+_MS = _WS["selection"]["legacy_oos_selected_row"]
+_MS_RULE = f"{_MS['signal']} / {_MS['threshold']} / L{_MS['lead_value']}"
 _LPP = P.col_dict(P.csv_file(_CORE / "local_projections.csv"), "horizon", "p_value")
 _QRDF = P.csv_file(_CORE / "quantile_regression.csv")
 _QRP = P.col_dict(_QRDF, "quantile", "p_value")
@@ -89,16 +92,21 @@ def _thr() -> str:
 _RULE = (f"hold SPY when the {_sig()} from {W.lead_word} months earlier (or the latest month released by then) is "
          f"{SIDE.get(W.value('direction'), W.text('direction'))} {_thr()}; otherwise hold cash")
 
+_T2A = _IT["table2a_label"]
 _DATA_NOTE = (
-    f"**Data note: the cement series is not what its label says for most of the sample.** The Data Master column used "
-    f"here equals the Texas total in the same sheet (Northern plus Southern Texas) in {_IT['n_months_equal_texas_total']} "
-    f"of {_IT['n_months']} months, through {_IT['last_month_equal_texas_total']}. From {_IT['first_month_not_equal']} "
-    f"it is several times the Texas total, an undocumented change of basis, so year-over-year growth reads up to "
-    f"{_IT['max_yoy_growth_pct']:.0f}% ({_IT['max_yoy_growth_month']}). Growth rates that span that month are not "
-    "economic changes. The results below are computed on the series as published in Data Master. Sensitivity, not "
-    f"the rule: on the test sub-period that ends before the change ({W.oos_start} to {_D['pre_break_oos_end']}, "
-    f"{_D['pre_break_oos_n']} observations) the rule's Sharpe is {_D['pre_break_oos_sharpe']:.2f} and "
-    f"buy-and-hold's is {_D['pre_break_bh_oos_sharpe']:.2f}."
+    f"**Data note: what the cement series measures.** The series is Texas Portland cement shipments (USGS Mineral "
+    f"Industry Surveys; it equals the Northern plus Southern Texas total in the same Data Master sheet in "
+    f"{_IT['n_months_equal_texas_total']} of {_IT['n_months']} months) through {_IT['last_month_equal_texas_total']}. "
+    f"From {_IT['first_month_not_equal']}, inside the test period, it switches to the U.S. portland-only "
+    f"all-destination total of USGS Mineral Industry Surveys {_T2A} ({_IT['n_months_equal_table2a']} of "
+    f"{_IT['n_months_compared_table2a']} months from {_IT['first_month_equal_table2a']} to "
+    f"{_IT['last_month_equal_table2a']} equal the published {_T2A} total). The year-over-year growth rates of "
+    f"{P.year(_IT['first_month_not_equal'])} ({_IT['break_year_yoy_min_pct']:.0f}% to {_IT['break_year_yoy_max_pct']:.0f}%) "
+    "are an artifact of that coverage change, not a construction boom. Portland-only shipments exclude blended "
+    "cement (Type IL). The team kept this series deliberately; the results below are computed on it as it stands. "
+    f"Sensitivity, not the rule: on the test sub-period that ends before the change ({W.oos_start} to "
+    f"{_D['pre_break_oos_end']}, {_D['pre_break_oos_n']} observations) the rule's Sharpe is "
+    f"{_D['pre_break_oos_sharpe']:.2f} and buy-and-hold's is {_D['pre_break_bh_oos_sharpe']:.2f}."
 )
 _VINTAGE_NOTE = (
     "USGS revises earlier months and keeps no archive of the values first published, so every result uses today's "
@@ -109,8 +117,8 @@ _VINTAGE_NOTE = (
 
 class StoryConfig:
     PAGE_TITLE = "The Story: Cement Shipments and the S&P 500"
-    PAGE_SUBTITLE = ("Does growth in Portland cement shipments, a construction-activity indicator, help time exposure "
-                     "to the S&P 500 (SPY)?")
+    PAGE_SUBTITLE = ("Does growth in Portland cement shipments (Texas, then the U.S. portland-only total), a "
+                     "construction-activity indicator, help time exposure to the S&P 500 (SPY)?")
 
     HEADLINE_H2 = (f"## Test-period Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold SPY, on today's "
                    "revised cement values (no archive of first releases)")
@@ -125,7 +133,8 @@ class StoryConfig:
 
     WHERE_THIS_FITS = (
         "This is a construction-activity filter for broad U.S. equities. It belongs in the portal as context and as a "
-        "possible exposure filter, not as a standalone forecast, and only after the data note below is resolved."
+        "possible exposure filter, not as a standalone forecast; read it with the series note below (Texas shipments, "
+        "then a U.S. total)."
     )
 
     ONE_SENTENCE_THESIS = (
@@ -144,8 +153,9 @@ class StoryConfig:
     HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
         "How to read it: the shipment level as published in Data Master is on the left axis and SPY on the right; "
-        "grey bands are NBER recessions. The dotted line marks the month where the series changes basis (see the "
-        "data note). The traded signals are growth rates, not the level."
+        "grey bands are NBER recessions. The dotted line marks the month where the series changes coverage (see the "
+        "data note: Texas through the line, the U.S. portland-only total after it). The traded signals are growth "
+        "rates, not the level."
     )
 
     REGIME_TITLE = "What History Shows: SPY Returns by Cement-Growth Quartile"
@@ -207,9 +217,9 @@ Sorting months by year-over-year cement growth, SPY's Sharpe in the weakest quar
             "title": "2022 Rate Shock and After (2021-2025)",
             "narrative": (
                 "Equities fell in 2022 as interest rates rose. The dotted line marks the month the cement series "
-                "changes basis; the jump in growth after it is a data artefact, not a construction boom."
+                "changes coverage from Texas to the U.S. portland-only total; the jump in growth after it is an artifact of that change, not a construction boom."
             ),
-            "caption": "2022 onwards: SPY and cement growth; the dotted line is the series' basis change.",
+            "caption": "2022 onwards: SPY and cement growth; the dotted line is the series' coverage change (Texas to U.S.).",
         },
     ]
 
@@ -319,7 +329,7 @@ LOCAL_PROJECTIONS_BLOCK = dict(
         (f"Horizons with a p-value below {_D['significance_p']:.2f}: {', '.join(f'{h}-month' for h, pv in _LPP.items() if pv < 0.05)}; the "
          "other horizons do not show it, and with several horizons tested a single small p-value is weak evidence."
          if any(pv < 0.05 for pv in _LPP.values()) else f"No horizon has a p-value below {_D['significance_p']:.2f}.")
-        + " The extreme growth readings after the series' basis change are part of the sample."
+        + " The extreme growth readings after the series' coverage change (Texas to U.S.) are part of the sample."
     ),
     key_message="The forward-return response to cement growth is not consistent across horizons.",
 )
@@ -372,10 +382,14 @@ class StrategyConfig:
                      "cement values with release-date timing.")
 
     STATISTICAL_FRAMING_BANNER = (
-        f"Correction (2026-10-18). This page previously reported the rule {W.previous_rule} (test-period Sharpe "
-        f"{W.previous_oos_sharpe}, published {W.previous_tag}), which was the single highest training Sharpe in the "
-        "grid with fixed month-end lags. It now reports the rule selected by the stable-lead-range rule, with each "
-        "reading used only after its release date. The data note below applies to both."
+        f"Correction (2026-10-20). The main site shows the legacy rule {_MS_RULE} ({_MS['direction']}), which the "
+        f"legacy method chose by its test-period Sharpe of {_MS['oos_sharpe']:.2f}, with a lead below the current "
+        "release-lag floor, so that legacy test-period result was not a held-out result. "
+        f"An earlier research run ({W.previous_tag}, on the strict-lead-floor branch, never published on the main "
+        f"site) reported the rule {W.previous_rule} (earlier-run test-period Sharpe {W.previous_oos_sharpe}), the "
+        "single highest training Sharpe in its grid with fixed month-end lags; the harness replays that earlier run "
+        "exactly. The page now reports the rule selected by the stable-lead-range rule, with each reading used only "
+        "after its release date. The series note below applies to every rule on this page."
     )
 
     PLAIN_ENGLISH = f"The rule is to {_RULE}. It is a lagged construction-activity rule, not a real-time forecast."
@@ -389,9 +403,10 @@ class StrategyConfig:
             f"Each reading is used only after its release date (training period {W.is_start} to {W.is_end}).",
         ],
         risks=[
-            (f"The cement column equals the Texas total through {_IT['last_month_equal_texas_total']} and changes "
-             f"basis in {_IT['first_month_not_equal']}; on the test sub-period that ends before that, the rule's Sharpe "
-             f"is {_D['pre_break_oos_sharpe']:.2f} and buy-and-hold's is {_D['pre_break_bh_oos_sharpe']:.2f}."),
+            (f"The series is Texas shipments through {_IT['last_month_equal_texas_total']} and the U.S. portland-only "
+             f"total from {_IT['first_month_not_equal']}, inside the test period; on the test sub-period that ends "
+             f"before the change, the rule's Sharpe is {_D['pre_break_oos_sharpe']:.2f} and buy-and-hold's is "
+             f"{_D['pre_break_bh_oos_sharpe']:.2f}."),
             f"Test-period Sharpe difference versus buy-and-hold {W.sharpe_gap}, 95% interval {W.ci_low} to {W.ci_high}.",
             f"Short training period ({W.is_n} months) and no archive of first-published values.",
             f"No Granger evidence from cement growth to SPY (smallest p-value {_p(_D['granger_min_p_cement_to_spy'])}, "
@@ -483,13 +498,14 @@ STRATEGY_CONFIG = StrategyConfig()
 _DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator (as revised today; no archive) | Data Master.xlsx sheet 'Portland Cement' (pinned: data/release_calendar/snapshots/20261016T232733Z/USGS_CEMENT.csv) | USGS Portland cement shipments column ('Mat - Portland Cment Shipmts'; see the data note) | Monthly |
-| Release dates | data/release_calendar/release_calendar.csv | `USGS_CEMENT_MIS`: USGS Mineral Industry Surveys publication date, else a conservative fallback | Monthly |
-| Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted month-end close | Monthly |
+| Indicator (as revised today; no archive) | USGS Mineral Industry Surveys, Cement (via the team's Data Master workbook) | Portland cement shipments: Texas total until the coverage change, then the U.S. portland-only all-destination total (Table 2a); blended cement (Type IL) excluded | Monthly |
+| Release dates | USGS Mineral Industry Surveys publication dates (release calendar) | First publication date of each month's figures | Monthly |
+| Target | Yahoo Finance | SPY adjusted month-end close | Monthly |
 """)
 
 _INDICATOR_CONSTRUCTION_MD = (
-    "The raw indicator is the cement shipment column of Data Master. Because the level trends, the pipeline uses "
+    "The raw indicator is the Portland cement shipment column of the team's Data Master workbook (Texas shipments, "
+    "then the U.S. portland-only total; see the note below). Because the level trends, the pipeline uses "
     "growth rates only: the 12-month change, 1-month change, 3-month change and 6-month change (in percent), the "
     "60-month z-score of the 12-month change, and the month-to-month difference of the 12-month change. Every signal and rolling threshold is computed on the revised series and then "
     f"lagged so that each month's reading is used only after its release date. The winning signal is `{W.signal_code}` "
@@ -516,7 +532,8 @@ Grid: cement growth transforms x constant and rolling thresholds x long/cash x b
 
 - Winner: `{W.signal_code} / {W.threshold_code} / {W.strategy_family} / L{W.lead}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe}, test-period Sharpe {W.oos_sharpe} (buy-and-hold {W.bh_oos_sharpe}). The single highest training Sharpe ({W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}, shown for reference and not the selection rule.
 - Chance check: across {W.null_draws} contests run on circularly shifted cement data, the real winner's stable-range score ranks at the {W.null_percentile} point of the scrambled scores.
-- Previously published rule: {W.previous_rule} (published {W.previous_tag}), selected as the single highest training Sharpe with fixed month-end lags; the harness replays it exactly.
+- Rule shown on the main site (legacy method): `{_MS_RULE}` ({_MS['direction']}), chosen by its legacy test-period Sharpe of {_MS['oos_sharpe']:.2f}; not replayed as a selection rule because it consulted the test period.
+- Earlier research run ({W.previous_tag}, never on the main site): `{W.previous_rule}`, earlier-run test-period Sharpe {W.previous_oos_sharpe}, the single highest training Sharpe with fixed month-end lags; replayed exactly on the new framework.
 """
 
 _REFERENCES_MD = """
