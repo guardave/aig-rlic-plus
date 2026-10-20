@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_inflation_2022",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-20T10:08:40.778024+00:00",
+  "generated_at": "2026-10-20T14:39:59.692218+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
   "caption": "2022 Inflation Shock: Very Low Sentiment While Equities Fell; gray bands are NBER recessions and pink bands mark months when sentiment was below its year-earlier level.",
   "narrative_alignment_note": "2022 Inflation Shock: Very Low Sentiment While Equities Fell; gray bands are NBER recessions and pink bands mark months when sentiment was below its year-earlier level.",

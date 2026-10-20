@@ -1,7 +1,7 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-20T10:07:36.541279+00:00",
+  "generated_at": "2026-10-20T14:38:37.361870+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
   "caption": "12-month consumer-sentiment change coefficient across quantiles of the 3-month forward SPY return; whiskers are moving-block bootstrap 95% intervals.",
   "narrative_alignment_note": "12-month consumer-sentiment change coefficient across quantiles of the 3-month forward SPY return; whiskers are moving-block bootstrap 95% intervals.",

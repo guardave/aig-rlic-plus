@@ -3,7 +3,7 @@
   "track": "revised",
   "role": "comparison",
   "winner_key": "zscore_60m|T_roll_p50|P1|procyclical|8",
-  "generated_at": "2026-10-20T10:01:27.347886+00:00",
+  "generated_at": "2026-10-20T14:35:38.084373+00:00",
   "vintage_policy": {
     "alignment": "pit_asof",
     "release_series": "UMCSENT",

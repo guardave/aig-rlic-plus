@@ -1,7 +1,7 @@
 {
   "chart_name": "equity_curves",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-20T10:07:40.389480+00:00",
+  "generated_at": "2026-10-20T14:38:46.070090+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
   "caption": "Winner strategy (as known at the time: real-time UMCSENT vintages) equity curve compared with buy-and-hold SPY; the dotted line marks the start of the test period.",
   "narrative_alignment_note": "Winner strategy (as known at the time: real-time UMCSENT vintages) equity curve compared with buy-and-hold SPY; the dotted line marks the start of the test period.",

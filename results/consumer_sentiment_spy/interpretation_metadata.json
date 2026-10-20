@@ -26,7 +26,7 @@
     ]
   },
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-20T09:58:37.578538+00:00",
+  "last_updated_at": "2026-10-20T14:50:13.723243+00:00",
   "indicator": "umcsent",
   "target": "spy",
   "expected_direction": "procyclical",
@@ -40,7 +40,7 @@
     "UMCSENT is rarely revised after its final monthly reading, so the as-known-at-the-time and revised tracks differ mainly through release timing and the shorter vintage archive.",
     "The test window was seen by the previously published run, so it is not a frozen hold-out."
   ],
-  "narrative_summary": "Headline U. Michigan consumer sentiment is tested as a procyclical sentiment overlay for SPY. Compare with umcsent_xlv (same series vs XLV) and umcsent_spy (the expected-business-conditions diffusion vs SPY).",
+  "narrative_summary": "Headline U. Michigan consumer sentiment is tested as a procyclical sentiment overlay for SPY. Compare with umcsent_xlv (same series vs XLV) and umcsent_spy (the share of respondents expecting better business conditions vs SPY).",
   "known_stress_episodes": [
     {
       "label": "Dot-Com recession",
@@ -70,6 +70,6 @@
   "data_provenance": {
     "source": "FRED / ALFRED (University of Michigan Surveys of Consumers)",
     "series_id": "UMCSENT",
-    "accessed_at": "2026-10-20T09:58:37.578538+00:00"
+    "accessed_at": "2026-10-20T14:50:13.723243+00:00"
   }
 }

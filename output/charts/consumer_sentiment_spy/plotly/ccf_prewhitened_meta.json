@@ -1,7 +1,7 @@
 {
   "chart_name": "ccf_prewhitened",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-20T10:07:23.763893+00:00",
+  "generated_at": "2026-10-20T14:38:20.789840+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
   "caption": "Cross-correlation between the monthly change in the 12-month sentiment change and SPY returns; dashed lines are approximate 95% bands.",
   "narrative_alignment_note": "Cross-correlation between the monthly change in the 12-month sentiment change and SPY returns; dashed lines are approximate 95% bands.",

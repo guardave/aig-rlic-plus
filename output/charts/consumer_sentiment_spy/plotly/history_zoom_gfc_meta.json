@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_gfc",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-20T10:08:27.013875+00:00",
+  "generated_at": "2026-10-20T14:39:49.136090+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
   "caption": "Global Financial Crisis: Sentiment Low in Late 2008, SPY Low in Early 2009; gray bands are NBER recessions and pink bands mark months when sentiment was below its year-earlier level.",
   "narrative_alignment_note": "Global Financial Crisis: Sentiment Low in Late 2008, SPY Low in Early 2009; gray bands are NBER recessions and pink bands mark months when sentiment was below its year-earlier level.",

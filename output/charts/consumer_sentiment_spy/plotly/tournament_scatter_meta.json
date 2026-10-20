@@ -1,7 +1,7 @@
 {
   "chart_name": "tournament_scatter",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-20T10:07:51.447595+00:00",
+  "generated_at": "2026-10-20T14:39:17.755300+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
   "caption": "Distribution of test-period Sharpe across valid tournament strategies by lead (as known at the time; the winner is chosen on training data, not on this score).",
   "narrative_alignment_note": "Distribution of test-period Sharpe across valid tournament strategies by lead (as known at the time; the winner is chosen on training data, not on this score).",
