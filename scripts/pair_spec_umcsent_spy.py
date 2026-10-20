@@ -1,7 +1,8 @@
 """Pair spec: University of Michigan Expected Business Conditions x SPY, monthly (Phase B harness, single track).
 
-The series is the University of Michigan survey's EXPECTED BUSINESS CONDITIONS index (Data Master.xlsx
-sheet "UoM_ExptdChgBinesCyle"; release-calendar source id UMICH_EXP_BUS_COND). It is NOT the headline Consumer
+The series is the University of Michigan survey's EXPECTED BUSINESS CONDITIONS series (Data Master.xlsx
+sheet "UoM_ExptdChgBinesCyle", column 1: the share of respondents expecting better business conditions, in percent;
+not the balance score or a diffusion index; release-calendar source id UMICH_EXP_BUS_COND). It is NOT the headline Consumer
 Sentiment index (FRED/ALFRED UMCSENT, used by umcsent_xlv and consumer_sentiment_spy). It has no public archive of
 past values (registry value_vintage revised_no_archive), so there is ONE track: today's values (track_policy
 single_revised_no_archive) with point-in-time release timing. UMCSENT is used ONLY as the release-calendar timing
@@ -109,10 +110,10 @@ LEGACY_REPLAY = "max_oos_valid"      # replayable: the published rule was OOS-se
 LEGACY_UNPUBLISHED = ("is_sharpe",)
 
 SIGNAL_DISPLAY = {
-    "level": "Michigan Expected Business Conditions index (level)",
-    "diff_1m": "Month-on-month change in the Michigan Expected Business Conditions index",
-    "chg_12m": "12-month change in the Michigan Expected Business Conditions index",
-    "zscore_60m": "Michigan Expected Business Conditions index versus its 60-month history (z-score)",
+    "level": "Share expecting better business conditions (level, %)",
+    "diff_1m": "Month-on-month change in the share expecting better business conditions",
+    "chg_12m": "12-month change in the share expecting better business conditions",
+    "zscore_60m": "Share expecting better business conditions versus its 60-month history (z-score)",
 }
 
 
