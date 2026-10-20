@@ -1,7 +1,7 @@
 {
   "chart_name": "equity_curves",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-20T11:13:06.693165+00:00",
+  "generated_at": "2026-10-20T12:26:17.135546+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
   "caption": "Winner strategy (as known at the time: real-time PERMIT vintages) equity curve compared with buy-and-hold SPY, both from the first training month; the dotted line marks the start of the test period.",
   "narrative_alignment_note": "Winner strategy (as known at the time: real-time PERMIT vintages) equity curve compared with buy-and-hold SPY, both from the first training month; the dotted line marks the start of the test period.",

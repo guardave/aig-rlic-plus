@@ -1,7 +1,7 @@
 {
   "chart_name": "structural_break",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-20T11:13:45.047712+00:00",
+  "generated_at": "2026-10-20T12:26:56.791256+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
   "caption": "Proxy check for large swings in the permits growth-SPY correlation.",
   "narrative_alignment_note": "Proxy check for large swings in the permits growth-SPY correlation.",

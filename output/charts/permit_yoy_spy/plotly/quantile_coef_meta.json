@@ -1,7 +1,7 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-20T11:12:59.717882+00:00",
+  "generated_at": "2026-10-20T12:26:07.657108+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
   "caption": "Coefficient of YoY growth in building permits across quantiles of the 3-month forward SPY return; whiskers are moving-block bootstrap 95% intervals.",
   "narrative_alignment_note": "Coefficient of YoY growth in building permits across quantiles of the 3-month forward SPY return; whiskers are moving-block bootstrap 95% intervals.",

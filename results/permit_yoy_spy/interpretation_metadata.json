@@ -26,7 +26,7 @@
     ]
   },
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-20T10:59:39.141935+00:00",
+  "last_updated_at": "2026-10-20T12:24:51.277023+00:00",
   "indicator": "permit_yoy",
   "target": "spy",
   "expected_direction": "procyclical",
@@ -34,7 +34,7 @@
   "direction_consistent": true,
   "mechanism": "Building permits lead housing starts and construction activity and are one of the earliest cyclical movers (a Conference Board leading-index component). Permits growing faster than a year earlier mark housing and its supply chain expanding (risk-on); shrinking permits are an early sign of a cyclical slowdown.",
   "confidence": "low",
-  "key_finding": "As known at the time (real-time PERMIT vintages), the rule selected on in-sample data uses zscore_60m / T_z_0 at L10 (IS Sharpe 0.83); held-out OOS Sharpe 0.44 versus buy-and-hold SPY 0.96.",
+  "key_finding": "As known at the time (real-time PERMIT vintages), the rule selected on in-sample data uses zscore_60m / T_z_0 at L10 (IS Sharpe 0.83); test-period Sharpe 0.44 versus buy-and-hold SPY 0.96.",
   "caveats": [
     "The strategy is search-selected and needs a frozen-rule holdout confirmation.",
     "Building permits are revised after the first print, so the as-known-at-the-time and revised tracks differ through revisions as well as release timing.",
@@ -71,6 +71,6 @@
   "data_provenance": {
     "source": "FRED / ALFRED (U.S. Census Bureau / HUD, new residential construction)",
     "series_id": "PERMIT",
-    "accessed_at": "2026-10-20T10:59:39.141935+00:00"
+    "accessed_at": "2026-10-20T12:24:51.277023+00:00"
   }
 }

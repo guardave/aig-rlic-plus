@@ -362,7 +362,7 @@ def write_metadata(winner: dict, elapsed: float) -> None:
     if has_winner:
         key_finding = (f"As known at the time (real-time PERMIT vintages), the rule selected on in-sample data uses "
                        f"{winner['signal_code']} / {winner['threshold_code']} at L{winner['lead_value']} "
-                       f"(IS Sharpe {winner['is_sharpe']:.2f}); held-out OOS Sharpe {winner['oos_sharpe']:.2f} "
+                       f"(IS Sharpe {winner['is_sharpe']:.2f}); test-period Sharpe {winner['oos_sharpe']:.2f} "
                        f"versus buy-and-hold SPY {winner['bh_sharpe']:.2f}.")
     else:
         key_finding = "As known at the time (real-time PERMIT vintages), no candidate was eligible for selection."
@@ -465,7 +465,7 @@ def write_metadata(winner: dict, elapsed: float) -> None:
     if has_winner:
         obs = (f"The rule selected on in-sample data uses a lead of {winner['lead_value']} months on the "
                f"{winner['signal_display_name'].lower()} ({winner['direction']}, {winner['threshold_code']}); "
-               f"held-out OOS max drawdown {winner['oos_max_drawdown']:.1%} vs buy-and-hold "
+               f"test-period max drawdown {winner['oos_max_drawdown']:.1%} vs buy-and-hold "
                f"{winner['bh_max_drawdown']:.1%}.")
     (RES / "analyst_suggestions.json").write_text(json.dumps({
         "pair_id": PAIR_ID, "schema_version": "1.0.0", "last_updated_at": NOW_ISO,

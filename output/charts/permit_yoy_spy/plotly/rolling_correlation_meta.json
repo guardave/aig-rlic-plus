@@ -1,7 +1,7 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-20T11:13:35.953808+00:00",
+  "generated_at": "2026-10-20T12:26:50.392819+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
   "caption": "Rolling 60-month correlation between YoY growth in building permits and SPY monthly returns.",
   "narrative_alignment_note": "Rolling 60-month correlation between YoY growth in building permits and SPY monthly returns.",

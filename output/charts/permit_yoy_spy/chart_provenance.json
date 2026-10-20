@@ -3,7 +3,7 @@
   "chart_sha256": "de33c7ad6b5e501cb57f7a796ca636e487e23167aeaed9f43e7a33027e763c34",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:12:29+00:00",
+  "recorded_at": "2026-10-20T12:25:38+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -22,7 +22,7 @@
   "chart_sha256": "9b8dbcbaa99ab008748848a6c54cf5485d823bf141f04fb70ea312ec40b84b79",
   "results_tag": "20261020",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-20T11:11:56+00:00",
+  "recorded_at": "2026-10-20T12:25:08+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/permit_yoy_spy/hindsight_lead_curve_20261020.csv": "02d4909920426cbf037c0350fe26e83dce71d32fe72cbc33d2e6be424f74d24f",
@@ -36,7 +36,7 @@
   "chart_sha256": "5121dc3723be7cec26316f0dc85b72955cc2eb871983174fa4080af857f58bf8",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:12:22+00:00",
+  "recorded_at": "2026-10-20T12:25:29+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -54,7 +54,7 @@
   "chart_sha256": "04d2628b0018e607634da0d03e2630ca406994f67981c01e12c839832c08816d",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:13:06+00:00",
+  "recorded_at": "2026-10-20T12:26:17+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -78,7 +78,7 @@
   "chart_sha256": "fd6128ac30228208b5c3b7bf15258c21cf00fdc3bc2e67f3ade7f39ff221ef2e",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:12:59+00:00",
+  "recorded_at": "2026-10-20T12:26:07+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -102,7 +102,7 @@
   "chart_sha256": "8a5695a5591321e12635fad1e90cbeb2aa5fe35be2aff3f22016b4a2b89f4133",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:12:37+00:00",
+  "recorded_at": "2026-10-20T12:25:45+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -122,7 +122,7 @@
   "chart_sha256": "ae7778ec9b43c4bae647ea78f6be9146896aefdbbc02fdd65b9cdcb1722e6609",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:12:03+00:00",
+  "recorded_at": "2026-10-20T12:25:16+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -137,7 +137,7 @@
   "chart_sha256": "1b356d61c24c7039a88318e1875913a694c4861c9c5914a4f6d155e97f32afe7",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:14:10+00:00",
+  "recorded_at": "2026-10-20T12:27:19+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -165,7 +165,7 @@
   "chart_sha256": "b7be04679f0a954691cd4d12f0788e47e40723c607e42384b67619104acbc87b",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:13:57+00:00",
+  "recorded_at": "2026-10-20T12:27:08+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -193,7 +193,7 @@
   "chart_sha256": "ba42c7e11251ae83aa0a4a511e5d908d3521728853c4801a05a9d8a44b573f07",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:14:04+00:00",
+  "recorded_at": "2026-10-20T12:27:13+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -221,7 +221,7 @@
   "chart_sha256": "4d3f96afb5e5170b722b223053676b5b871750224c938a972dd919f0d9241701",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:14:15+00:00",
+  "recorded_at": "2026-10-20T12:27:24+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -246,10 +246,10 @@
   }
  },
  "lead_plateau": {
-  "chart_sha256": "e6b0598563e2d049d609b1a626033c9ab0f6c1f02f56ec3c52a93820e2e399bd",
+  "chart_sha256": "0526131019b2cab4ed2fb49c940165724512b7c362a79d2e250f8890e74a0c51",
   "results_tag": "20261020",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-20T11:11:47+00:00",
+  "recorded_at": "2026-10-20T12:25:01+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "results/permit_yoy_spy/hindsight_lead_curve_20261020.csv": "02d4909920426cbf037c0350fe26e83dce71d32fe72cbc33d2e6be424f74d24f",
@@ -260,7 +260,7 @@
   "chart_sha256": "712cb56ab5f842053bcdd949d24fb38d3238fd5f10ed56e6c2a39cf8b9bf32fe",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:12:44+00:00",
+  "recorded_at": "2026-10-20T12:25:52+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -281,7 +281,7 @@
   "chart_sha256": "f728e5d6c95179350a7bc783a5081a0757033a665bd82c0ce386ebb8992a49fd",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:12:51+00:00",
+  "recorded_at": "2026-10-20T12:25:59+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -304,7 +304,7 @@
   "chart_sha256": "0120db89ea051de1006d3d52ec53816f91e92fd9a19259a393513d3449a945b0",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:12:11+00:00",
+  "recorded_at": "2026-10-20T12:25:22+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -320,7 +320,7 @@
   "chart_sha256": "1a0999961631503d13be67ced6e23f1c20fda0567c83faffacd2b37cd6b676dc",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:13:27+00:00",
+  "recorded_at": "2026-10-20T12:26:42+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -346,7 +346,7 @@
   "chart_sha256": "5b50ce938bd5b34742c4727c05b0cd16632a5d56172e6d4c953e14647efe41f9",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:13:36+00:00",
+  "recorded_at": "2026-10-20T12:26:50+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -373,7 +373,7 @@
   "chart_sha256": "c08758a63eb582965a6b2bdc15aeee969f91067cef04e59bf0367fdd6b3c817a",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:13:45+00:00",
+  "recorded_at": "2026-10-20T12:26:56+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -401,7 +401,7 @@
   "chart_sha256": "c47ebf95dd673bf3dc14d23ee27e644a3b19cbfeee4ad7ab75f302084e458cf4",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:13:20+00:00",
+  "recorded_at": "2026-10-20T12:26:33+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -426,7 +426,7 @@
   "chart_sha256": "c47ebf95dd673bf3dc14d23ee27e644a3b19cbfeee4ad7ab75f302084e458cf4",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:13:14+00:00",
+  "recorded_at": "2026-10-20T12:26:25+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",
@@ -451,7 +451,7 @@
   "chart_sha256": "c08758a63eb582965a6b2bdc15aeee969f91067cef04e59bf0367fdd6b3c817a",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_permit_yoy_spy.py",
-  "recorded_at": "2026-10-20T11:13:51+00:00",
+  "recorded_at": "2026-10-20T12:27:02+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/permit_yoy_spy_monthly_latest.parquet": "d1e411f3fc23c00dda66c7f3f0416ebbef4b9576bcc7989cb63dc63e1cc9a7b7",

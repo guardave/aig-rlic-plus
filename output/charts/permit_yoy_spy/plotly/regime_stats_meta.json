@@ -1,7 +1,7 @@
 {
   "chart_name": "regime_stats",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-20T11:12:21.869487+00:00",
+  "generated_at": "2026-10-20T12:25:29.337554+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
   "caption": "Same-month SPY performance across quartiles of YoY growth in building permits.",
   "narrative_alignment_note": "Same-month SPY performance across quartiles of YoY growth in building permits.",

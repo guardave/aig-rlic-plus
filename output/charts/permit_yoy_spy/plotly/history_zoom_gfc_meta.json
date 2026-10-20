@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_gfc",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-20T11:14:10.021545+00:00",
+  "generated_at": "2026-10-20T12:27:18.943886+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
   "caption": "Global Financial Crisis, 2006-2010: YoY growth in building permits and SPY; gray bands are NBER recessions and pink bands mark months when permits were below their year-earlier level.",
   "narrative_alignment_note": "Global Financial Crisis, 2006-2010: YoY growth in building permits and SPY; gray bands are NBER recessions and pink bands mark months when permits were below their year-earlier level.",

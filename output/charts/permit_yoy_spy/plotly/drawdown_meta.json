@@ -1,7 +1,7 @@
 {
   "chart_name": "drawdown",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-20T11:13:14.867627+00:00",
+  "generated_at": "2026-10-20T12:26:24.887880+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
   "caption": "Drawdown comparison for the winner strategy (as known at the time) and SPY buy-and-hold, both from the first training month.",
   "narrative_alignment_note": "Drawdown comparison for the winner strategy (as known at the time) and SPY buy-and-hold, both from the first training month.",

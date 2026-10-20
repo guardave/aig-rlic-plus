@@ -179,7 +179,7 @@ class StoryConfig:
     REGIME_CHART_NAME = "regime_stats"
     REGIME_CAPTION = (
         f"What this shows: months sorted by year-over-year growth in building permits, from Q1 (weakest) to Q4 "
-        f"(strongest). Same-month SPY Sharpe is {_Q['Q1']:.2f} in Q1, {_Q['Q2']:.2f} in Q2, {_Q['Q3']:.2f} in Q3 "
+        f"(strongest), computed on today's revised data (from {_EV['panel_first_month']}). Same-month SPY Sharpe is {_Q['Q1']:.2f} in Q1, {_Q['Q2']:.2f} in Q2, {_Q['Q3']:.2f} in Q3 "
         f"and {_Q['Q4']:.2f} in Q4."
     )
 
@@ -251,7 +251,8 @@ CORRELATION_BLOCK = dict(
         "from Newey-West standard errors, which allow for the overlap of multi-month returns."
     ),
     chart_name="correlation_heatmap",
-    chart_caption="What this shows: linear correlations between each permits-growth signal and forward SPY returns at several horizons.",
+    chart_caption=("What this shows: linear correlations between each permits-growth signal and forward SPY returns at "
+                   f"several horizons, computed on today's revised data (from {_EV['panel_first_month']})."),
     observation=(
         "Year-over-year growth and its z-score are persistent, so overlapping forward-return correlations carry "
         "less independent evidence than their sample size suggests; the p-values account for that overlap."
@@ -293,7 +294,8 @@ QUARTILE_BLOCK = dict(
     chart_name="regime_stats",
     chart_caption=(
         f"What this shows: same-month SPY Sharpe by quartile of year-over-year permit growth, {_Q['Q1']:.2f} in Q1 "
-        f"(weakest) and {_Q['Q4']:.2f} in Q4 (strongest)."
+        f"(weakest) and {_Q['Q4']:.2f} in Q4 (strongest), computed on today's revised data (from "
+        f"{_EV['panel_first_month']})."
     ),
     observation=f"SPY Sharpe in the same months: Q1 {_Q['Q1']:.2f}, Q2 {_Q['Q2']:.2f}, Q3 {_Q['Q3']:.2f}, Q4 {_Q['Q4']:.2f}.",
     interpretation="Quartiles are concurrent, not predictive: they show the backdrop, while the tournament tests lagged rules.",
