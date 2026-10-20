@@ -1,7 +1,7 @@
 {
   "chart_name": "subperiod_sharpe",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-20T10:41:37.178904+00:00",
+  "generated_at": "2026-10-20T15:26:26.187913+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Strategy and buy-and-hold SPY Sharpe during major stress episodes, with the sample phase (training, test or before training) of each window; windows before the first real-time vintage have no strategy position.",
   "narrative_alignment_note": "Strategy and buy-and-hold SPY Sharpe during major stress episodes, with the sample phase (training, test or before training) of each window; windows before the first real-time vintage have no strategy position.",

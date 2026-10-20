@@ -1,7 +1,7 @@
 {
   "chart_name": "granger_f_by_lag",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-20T10:40:19.932421+00:00",
+  "generated_at": "2026-10-20T15:25:47.014889+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Granger p-values by lag for year-over-year import-price growth predicting SPY returns, with Holm-adjusted p-values across the lags tested.",
   "narrative_alignment_note": "Granger p-values by lag for year-over-year import-price growth predicting SPY returns, with Holm-adjusted p-values across the lags tested.",

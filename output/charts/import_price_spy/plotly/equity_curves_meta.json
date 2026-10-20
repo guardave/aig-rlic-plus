@@ -1,7 +1,7 @@
 {
   "chart_name": "equity_curves",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-20T10:40:42.342749+00:00",
+  "generated_at": "2026-10-20T15:26:01.209087+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Winner strategy (as known at the time: real-time IR vintages) equity curve compared with buy-and-hold SPY, both from the first training month.",
   "narrative_alignment_note": "Winner strategy (as known at the time: real-time IR vintages) equity curve compared with buy-and-hold SPY, both from the first training month.",

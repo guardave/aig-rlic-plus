@@ -3,7 +3,7 @@
   "track": "revised",
   "role": "comparison",
   "winner_key": "yoy_zscore_60m|T_z_1.0|P1|countercyclical|5",
-  "generated_at": "2026-10-20T10:36:10.822831+00:00",
+  "generated_at": "2026-10-20T15:16:37.368710+00:00",
   "vintage_policy": {
     "alignment": "pit_asof",
     "release_series": "IR",

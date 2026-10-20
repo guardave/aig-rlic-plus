@@ -1,7 +1,7 @@
 {
   "chart_name": "ccf_prewhitened",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-20T10:40:12.846201+00:00",
+  "generated_at": "2026-10-20T15:25:42.993610+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Cross-correlation between the monthly change in year-over-year import-price growth and SPY returns.",
   "narrative_alignment_note": "Cross-correlation between the monthly change in year-over-year import-price growth and SPY returns.",

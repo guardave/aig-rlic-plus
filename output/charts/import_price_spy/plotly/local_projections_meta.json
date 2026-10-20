@@ -1,7 +1,7 @@
 {
   "chart_name": "local_projections",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-20T10:40:27.282016+00:00",
+  "generated_at": "2026-10-20T15:25:52.601009+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Estimated forward SPY return per percentage point of year-over-year import-price growth (Newey-West errors).",
   "narrative_alignment_note": "Estimated forward SPY return per percentage point of year-over-year import-price growth (Newey-West errors).",

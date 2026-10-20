@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_covid",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-20T10:42:06.703361+00:00",
+  "generated_at": "2026-10-20T15:26:46.260968+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "COVID Shock: Import Prices Dropped, Then Rebounded Sharply; gray bands are NBER recessions and pink bands mark import prices below their year-earlier level.",
   "narrative_alignment_note": "COVID Shock: Import Prices Dropped, Then Rebounded Sharply; gray bands are NBER recessions and pink bands mark import prices below their year-earlier level.",

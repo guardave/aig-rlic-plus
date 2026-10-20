@@ -1,7 +1,7 @@
 {
   "chart_name": "hero",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-20T10:39:42.727707+00:00",
+  "generated_at": "2026-10-20T15:25:29.807436+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Import Price Index and SPY with NBER recessions; pink bands mark months when import prices were below their year-earlier level. October 2025 has no published reading (the line has a gap there).",
   "narrative_alignment_note": "Import Price Index and SPY with NBER recessions; pink bands mark months when import prices were below their year-earlier level. October 2025 has no published reading (the line has a gap there).",

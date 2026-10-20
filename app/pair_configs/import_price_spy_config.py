@@ -583,10 +583,10 @@ STRATEGY_CONFIG = StrategyConfig()
 _DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator (as known at the time) | ALFRED (FRED vintages, pinned in data/release_calendar/vintages/IR.csv.gz) | `IR`, Import Price Index (end use), all commodities, 2000 = 100, not seasonally adjusted, every published vintage (from 2010-03-16) | Monthly |
-| Indicator (as revised today) | FRED (latest vintage of the same file) | `IR` | Monthly (quarterly in the early years) |
-| Release dates | data/release_calendar/release_calendar.csv | first publication date per month | Monthly |
-| Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted month-end close | Monthly |
+| Indicator (as known at the time) | ALFRED (FRED vintage archive, pinned copy) | `IR`, Import Price Index (end use), all commodities, not seasonally adjusted, every published vintage | Monthly |
+| Indicator (as revised today) | FRED (latest vintage of the same archive) | `IR` | Monthly (quarterly in the early years) |
+| Release dates | Release calendar (first publication date of each month's reading) | `IR` | Monthly |
+| Target | Yahoo Finance (pinned copy) | SPY adjusted month-end close | Monthly |
 """)
 
 _INDICATOR_CONSTRUCTION_MD = (

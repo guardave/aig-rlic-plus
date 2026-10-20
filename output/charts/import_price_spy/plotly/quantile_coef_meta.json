@@ -1,7 +1,7 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-20T10:40:34.407043+00:00",
+  "generated_at": "2026-10-20T15:25:57.153162+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Year-over-year import-price growth coefficient across quantiles of 3-month forward SPY returns.",
   "narrative_alignment_note": "Year-over-year import-price growth coefficient across quantiles of 3-month forward SPY returns.",

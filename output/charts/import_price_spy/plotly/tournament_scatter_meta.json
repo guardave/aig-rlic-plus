@@ -1,7 +1,7 @@
 {
   "chart_name": "tournament_scatter",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-20T10:41:14.197048+00:00",
+  "generated_at": "2026-10-20T15:26:14.092653+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Alias for tournament scatter slot.",
   "narrative_alignment_note": "Alias for tournament scatter slot.",
