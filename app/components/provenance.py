@@ -413,12 +413,23 @@ def count(df: pd.DataFrame, col: str, op: str, other) -> _PInt:
     return _PInt(n, f"count({df.attrs['src']},{_esc(col)},{op},{_esc(str(other))})")
 
 
-def colmin(df: pd.DataFrame, col: str) -> _PNum:
-    return _PNum(float(df[col].astype(float).min()), f"min({df.attrs['src']},{_esc(col)})")
+def _where(df: pd.DataFrame, where) -> tuple[pd.DataFrame, str]:
+    """Rows of a loaded CSV where column == value (both recorded in the tag, so the gate re-evaluates the same
+    subset: null_is_windows files carry several tracks, nhs / cs B1 rerun)."""
+    if where is None:
+        return df, ""
+    wc, wv = where
+    return df[df[wc].astype(str) == str(wv)], f",{_esc(wc)},{_esc(str(wv))}"
 
 
-def colmax(df: pd.DataFrame, col: str) -> _PNum:
-    return _PNum(float(df[col].astype(float).max()), f"max({df.attrs['src']},{_esc(col)})")
+def colmin(df: pd.DataFrame, col: str, where=None) -> _PNum:
+    sub, w = _where(df, where)
+    return _PNum(float(sub[col].astype(float).min()), f"min({df.attrs['src']},{_esc(col)}{w})")
+
+
+def colmax(df: pd.DataFrame, col: str, where=None) -> _PNum:
+    sub, w = _where(df, where)
+    return _PNum(float(sub[col].astype(float).max()), f"max({df.attrs['src']},{_esc(col)}{w})")
 
 
 def colmaxabs(df: pd.DataFrame, col: str) -> _PNum:
@@ -669,6 +680,8 @@ def evaluate(src: str, fields: dict | None = None, pair: str | None = None, _roo
         return len(ev(args[0]))
     if fn in ("min", "max", "maxabs"):
         df = ev(args[0])
+        if len(args) == 4:                        # min(src,col,where_col,value): the rows where where_col == value
+            df = df[df[_unesc(args[2])].astype(str) == _unesc(args[3])]
         sr = df[_unesc(args[1])].astype(float)
         return float(sr.min() if fn == "min" else sr.max() if fn == "max" else sr.abs().max())
     if fn == "key":

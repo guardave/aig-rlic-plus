@@ -488,13 +488,18 @@ def is_window_note(pair_id: str, track: str = "main") -> str:
     unit = _lead_unit(ws) or "periods"
     if not {"is_n_draw", "is_n_actual"} <= set(df.columns):
         return ""
-    if "track" in df.columns:                  # files since QA nomain F4 carry every track's rows
-        df = df[df["track"].astype(str) == track]
+    where = None
+    if "track" in df.columns:                  # files since QA nomain F4 carry every track's rows; the filter is
+        where = ("track", track)               # part of the provenance tag, so the gate re-evaluates the same rows
+        if not (df["track"].astype(str) == track).any():
+            return ""
     elif track != "main":
         return ""
-    if df["is_n_actual"].notna().sum() == 0:
+    sub = df if where is None else df[df["track"].astype(str) == track]
+    if sub["is_n_actual"].notna().sum() == 0:
         return ""
-    lo, hi, act = P.colmin(df, "is_n_draw"), P.colmax(df, "is_n_draw"), P.colmax(df, "is_n_actual")
+    lo, hi = P.colmin(df, "is_n_draw", where), P.colmax(df, "is_n_draw", where)
+    act = P.colmax(df, "is_n_actual", where)
     if float(lo) == float(hi) == float(act):
         return f" Every contest trained on the same {act:.0f} {unit} of in-sample data as the real winner."
     return (f" Training windows differ: the scrambled contests trained on {lo:.0f} to {hi:.0f} {unit} of in-sample "

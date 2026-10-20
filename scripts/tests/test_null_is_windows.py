@@ -205,3 +205,26 @@ def test_import_price_offset_110_trains_on_the_calendar_window_with_leading_cash
     rec = NL.draw_record(run_tournament(mod.SPEC, make(110), full_table=False, _null_is_start=act.common_is_start))
     assert rec["is_n"] == int(act.is_mask.sum()) == 254
     assert rec["defined_is_n"] == 254 - 106 and abs(rec["leading_cash_share"] - 106 / 254) < 1e-3
+
+
+def test_window_note_tags_carry_the_track_filter(tmp_path, monkeypatch):
+    # nhs / cs B1 reruns: the note showed MAIN's 209 but its tag max(file,is_n_actual) re-evaluated over both tracks
+    d = tmp_path / "results" / "toy_spy"
+    d.mkdir(parents=True)
+    (d / "winner_summary.json").write_text('{"lead_unit": "months"}')
+    pd.DataFrame([{"track": "main", "draw": -1, "offset": 0, "is_start": "1999-01-31", "is_n_draw": None,
+                   "is_n_actual": 209},
+                  {"track": "main", "draw": 0, "offset": 5, "is_start": "1999-01-31", "is_n_draw": 209,
+                   "is_n_actual": None},
+                  {"track": "comparison", "draw": -1, "offset": 0, "is_start": "1993-01-31", "is_n_draw": None,
+                   "is_n_actual": 287},
+                  {"track": "comparison", "draw": 0, "offset": 5, "is_start": "1993-01-31", "is_n_draw": 287,
+                   "is_n_actual": None}]).to_csv(d / "null_is_windows_20261017.csv", index=False)
+    monkeypatch.setattr(two_track, "__file__", str(tmp_path / "app" / "components" / "two_track.py"))
+    monkeypatch.setattr(P, "RESULTS", tmp_path / "results")
+    monkeypatch.setenv("AIG_PROVENANCE_GATE", "1")
+    for track, n in (("main", 209), ("comparison", 287)):
+        clean, _k, _p, sents, _d = g.parse_markers(two_track.is_window_note("toy_spy", track))
+        assert str(n) in clean
+        for _a, _b, src, unit, shown in sents:
+            assert g.verify_sentinel(src, unit, shown, {}, "toy_spy") is None, (track, src)
