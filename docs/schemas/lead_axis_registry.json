@@ -797,7 +797,7 @@
     },
     "umcsent_spy": {
       "signal_frequency": "monthly",
-      "signal_description": "U. Michigan Expected Business Conditions (Data Master sheet UoM_ExptdChgBinesCyle, monthly; not the headline Consumer Sentiment index UMCSENT)",
+      "signal_description": "U. Michigan Expected Business Conditions: % of respondents expecting better business conditions a year ahead (Data Master sheet UoM_ExptdChgBinesCyle column 1, monthly; not the balance score or a diffusion index; not the headline Consumer Sentiment index UMCSENT)",
       "publication_lag": "U. Michigan survey, preliminary mid-month and final at or before the end of the survey month (ALFRED UMCSENT median -3.5 d, p90 0 d)",
       "real_time": false,
       "lead_axis": "months",

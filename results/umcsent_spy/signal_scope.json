@@ -3,15 +3,15 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-20T13:52:27.744468+00:00",
+  "last_updated_at": "2026-10-20T14:46:18.031085+00:00",
   "indicator_axis": {
     "canonical_column": "umcsent",
     "display_name": "U. Michigan Expected Business Conditions",
     "derivatives": [
       {
         "name": "umcsent",
-        "definition": "Michigan Expected Business Conditions index",
-        "formula": "Data Master (UoM_ExptdChgBinesCyle)",
+        "definition": "Michigan Expected Business Conditions: % of respondents expecting better business conditions",
+        "formula": "Data Master (UoM_ExptdChgBinesCyle, column 1)",
         "role": "raw",
         "appears_in_charts": [
           "hero"
@@ -19,7 +19,7 @@
       },
       {
         "name": "umcsent_level",
-        "definition": "Index level (bounded survey index, used as is)",
+        "definition": "Level of the share expecting better conditions (bounded percentage, used as is)",
         "formula": "identity",
         "role": "threshold_input",
         "appears_in_charts": [

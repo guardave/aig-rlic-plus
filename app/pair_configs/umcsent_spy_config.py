@@ -5,11 +5,12 @@ Phase B: every result number is rendered from the structured winner fields (resu
 `winner_fields`, via components.winner_fields) or from the evidence tables listed in evidence_facts; none is typed
 here (scripts/gate_structured_prose.py, scripts/gate_number_provenance.py).
 
-The series is the Michigan survey's EXPECTED BUSINESS CONDITIONS index from Data Master (sheet
-UoM_ExptdChgBinesCyle), not the headline Consumer Sentiment index (FRED UMCSENT, used by umcsent_xlv and
+The series is the Michigan survey's EXPECTED BUSINESS CONDITIONS question from Data Master (sheet
+UoM_ExptdChgBinesCyle, column 1): the share of respondents expecting better business conditions, in percent (not the
+balance score and not a diffusion index), not the headline Consumer Sentiment index (FRED UMCSENT, used by umcsent_xlv and
 consumer_sentiment_spy). UMCSENT appears here only as the source of the survey's release dates (timing).
 
-ONE track (track_policy single_revised_no_archive): no public archive of past values of this index exists
+ONE track (track_policy single_revised_no_archive): no public archive of past values of this series exists
 (registry value_vintage revised_no_archive), so the backtest uses today's values with release-calendar timing; the
 shared data-basis strip states that from track_summary.json. The previous rule of this page is the one shown on the
 main site (20260912 run, commit d1b68ecd, selected on test-period Sharpe), replayed exactly by the harness and named
@@ -82,18 +83,19 @@ THRESHOLD_TEXT = P.definitions({
     "T_roll_p75": "its rolling 60-month 75th percentile",
 })
 SIGNAL_TEXT = P.definitions({
-    "level": "Expected Business Conditions level",
-    "diff_1m": "month-on-month change in Expected Business Conditions",
-    "chg_12m": "12-month change in Expected Business Conditions",
-    "zscore_60m": "z-score of Expected Business Conditions against its own five-year history",
+    "level": "share expecting better business conditions",
+    "diff_1m": "month-on-month change in the share expecting better business conditions",
+    "chg_12m": "12-month change in the share expecting better business conditions",
+    "zscore_60m": "z-score of the share expecting better business conditions against its own five-year history",
 })
 SIDE = {"countercyclical": "at or below", "procyclical": "at or above"}
 _EVID_SIG = SIGNAL_TEXT["level"]      # the transform the descriptive tests use (pipeline EVIDENCE_SIGNAL)
-_NO_ARCHIVE = ("No archive of earlier values of this index exists, so every result on these pages uses values as "
+_NO_ARCHIVE = ("No archive of earlier values of this series exists, so every result on these pages uses values as "
                "revised today: any month that was revised after its first publication may differ from what was "
                "known at the time, and that hindsight cannot be measured.")
-_SERIES = ("the University of Michigan Expected Business Conditions index (from the project's Data Master workbook; "
-           "not the headline Consumer Sentiment index)")
+_SERIES = ("the University of Michigan Expected Business Conditions series: the share of respondents who expect better "
+           "business conditions a year ahead, in percent (from the project's Data Master workbook; not a balance or "
+           "diffusion index, and not the headline Consumer Sentiment index)")
 
 
 def _rule() -> str:
@@ -143,7 +145,7 @@ class StoryConfig:
     )
 
     WHERE_THIS_FITS = (
-        "Expected Business Conditions is a survey of expectations, not a price: it is bounded and swings within a "
+        "Expected Business Conditions is a survey share (percent of respondents), not a price: it is bounded and swings within a "
         "range rather than trending. In the portal it is a sentiment signal for broad U.S. equities. It is a "
         "different indicator from the headline Consumer Sentiment index used by the other Michigan pairs."
     )
@@ -163,7 +165,8 @@ class StoryConfig:
     HERO_TITLE = "Michigan Expected Business Conditions vs the S&P 500 (SPY)"
     HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
-        "How to read it: the Expected Business Conditions index (left axis) is shown with SPY (right axis) on the "
+        "How to read it: the share of respondents expecting better business conditions (left axis, percent) is shown "
+        "with SPY (right axis) on the "
         "same time axis. Gray bands are NBER recessions. The values are today's; no archive of earlier values exists."
     )
 
@@ -184,7 +187,7 @@ The winning rule trades on the **{_SIG}** (long/cash): {_RULE}. It was selected 
 
 ### The Sentiment Hypothesis
 
-The usual prior is procyclical: households that expect better business conditions spend more, which supports earnings and equities, so a rule would hold SPY while expectations are strong. The survey asks about the change expected over the next year, though, not about conditions today, and in this data the index rose during the 2001 and 2020 recessions and late in the 2008-09 recession, when conditions were bad but expected to improve. A high reading can therefore mark a weak economy that households expect to recover, which is why the tournament tests both orientations. The selected rule is {W.direction}.
+The usual prior is procyclical: households that expect better business conditions spend more, which supports earnings and equities, so a rule would hold SPY while expectations are strong. The survey asks about the change expected over the next year, though, not about conditions today, and in this data the share rose during the 2001 and 2020 recessions and late in the 2008-09 recession, when conditions were bad but expected to improve. A high reading can therefore mark a weak economy that households expect to recover, which is why the tournament tests both orientations. The selected rule is {W.direction}.
 
 ### Why Timing Is Difficult
 
@@ -196,46 +199,46 @@ Equity prices anticipate the cycle too, and they often turn before survey expect
             "slug": "dotcom",
             "title": "Dot-Com Bust",
             "narrative": (
-                "The index rose through the 2001 recession and peaked in early 2002, while SPY kept falling into late "
+                "The share rose through the 2001 recession and peaked in early 2002, while SPY kept falling into late "
                 "2002: households expected conditions to improve from a weak base, which is not the same as conditions "
                 "being good."
             ),
-            "caption": "Dot-Com: the index rose through the 2001 recession and peaked in early 2002.",
+            "caption": "Dot-Com: the share rose through the 2001 recession and peaked in early 2002.",
         },
         {
             "slug": "gfc",
             "title": "Global Financial Crisis",
             "narrative": (
-                "The index stayed low until late 2008, then rose while the recession was still under way and kept "
+                "The share stayed low until late 2008, then rose while the recession was still under way and kept "
                 "rising through 2009. SPY reached its low in early 2009 and recovered through the rest of the year."
             ),
-            "caption": "GFC: the index stayed low until late 2008, then rose through 2009.",
+            "caption": "GFC: the share stayed low until late 2008, then rose through 2009.",
         },
         {
             "slug": "covid",
             "title": "COVID Shock",
             "narrative": (
-                "The index jumped to its highest reading in the project's data in April 2020, in the middle of the "
+                "The share jumped to its highest reading in the project's data in April 2020, in the middle of the "
                 "crash: households expected business conditions to recover from a sudden collapse, so the jump marked "
                 "expected recovery, not good conditions."
             ),
-            "caption": "COVID: the index jumped to its highest reading in April 2020.",
+            "caption": "COVID: the share jumped to its highest reading in April 2020.",
         },
         {
             "slug": "inflation_2022",
             "title": "2022 Rates Shock",
             "narrative": (
-                "The index slid from its 2021 peak through 2022 as inflation rose and the Federal Reserve raised rates, "
+                "The share slid from its 2021 peak through 2022 as inflation rose and the Federal Reserve raised rates, "
                 "and it stayed well below that peak through 2025 while SPY recovered from late 2022."
             ),
-            "caption": "2022: the index slid from its 2021 peak and stayed well below it.",
+            "caption": "2022: the share slid from its 2021 peak and stayed well below it.",
         },
     ]
 
     NARRATIVE_SECTION_2 = """
 ### What History Shows
 
-The episodes show that this index often moves against the cycle in the short run: it rose in the 2001 and 2020 recessions, when households expected a recovery, and it stayed well below its 2021 peak through the equity recovery that began in late 2022. These episodes are context for reading the strategy result, not evidence that the rule adds value; the test-period comparison with buy-and-hold is on the Strategy page.
+The episodes show that this series often moves against the cycle in the short run: it rose in the 2001 and 2020 recessions, when households expected a recovery, and it stayed well below its 2021 peak through the equity recovery that began in late 2022. These episodes are context for reading the strategy result, not evidence that the rule adds value; the test-period comparison with buy-and-hold is on the Strategy page.
 """
 
     TRANSITION_TEXT = (
@@ -265,7 +268,7 @@ CORRELATION_BLOCK = dict(
         "several horizons."
     ),
     observation=(
-        "The index is persistent and forward returns overlap, so p-values for these correlations use Newey-West errors "
+        "The share is persistent and forward returns overlap, so p-values for these correlations use Newey-West errors "
         "with at least one lag fewer than the horizon."
     ),
     interpretation=(
@@ -337,23 +340,23 @@ CCF_BLOCK = dict(
         "Cross-correlation on first differences filters persistence before testing whether one series tends to "
         "move before or after the other."
     ),
-    question="At which offsets do monthly changes in the index line up with SPY returns?",
-    how_to_read="Bars outside the dashed band mark offsets with unusually large correlation; positive lags mean the index moves first.",
+    question="At which offsets do monthly changes in the share line up with SPY returns?",
+    how_to_read="Bars outside the dashed band mark offsets with unusually large correlation; positive lags mean the share moves first.",
     chart_name="ccf_prewhitened",
     chart_caption=(
-        "What this shows: correlation of monthly changes in the index with SPY returns at offsets in months."
+        "What this shows: correlation of monthly changes in the share with SPY returns at offsets in months."
     ),
-    observation="The index level is persistent from month to month, so differencing matters before reading lead-lag "
+    observation="The share is persistent from month to month, so differencing matters before reading lead-lag "
                 "bars.",
     interpretation="Isolated significant bars are expected by chance across many offsets.",
-    key_message="Read the bars at positive lags for the index moving first.",
+    key_message="Read the bars at positive lags for the share moving first.",
 )
 
 LOCAL_PROJECTIONS_BLOCK = dict(
     chart_status="ready",
     method_name="Local Projections",
     method_theory=(
-        "Local projections estimate how future SPY returns line up with the index over several horizons."
+        "Local projections estimate how future SPY returns line up with the share over several horizons."
     ),
     question=f"How do forward SPY returns relate to the {_EVID_SIG} at different horizons?",
     how_to_read=(
@@ -377,10 +380,10 @@ QUANTILE_BLOCK = dict(
     chart_status="ready",
     method_name="Quantile Regression",
     method_theory=(
-        "Quantile regression checks whether the index matters differently in weak, normal and strong SPY return "
+        "Quantile regression checks whether the share matters differently in weak, normal and strong SPY return "
         "environments."
     ),
-    question="Does the index behave differently in market tails?",
+    question="Does the share behave differently in market tails?",
     how_to_read=(
         f"Compare the coefficient across the quantiles of {_EV['n_months_qr_horizon']}-month forward SPY returns; "
         f"whiskers and the equality test come from a moving-block bootstrap (blocks of {_EV['n_months_qr_block']} months) "
@@ -415,8 +418,9 @@ EVIDENCE_METHOD_BLOCKS = {
         "earlier values)."
     ),
     "plain_english": (
-        "This page asks whether the University of Michigan Expected Business Conditions index (not the headline "
-        "Consumer Sentiment index) helps with SPY timing, first with descriptive tests, then with the tournament. "
+        "This page asks whether the University of Michigan Expected Business Conditions series, the share of "
+        "respondents expecting better business conditions (not the headline Consumer Sentiment index), helps with SPY "
+        "timing, first with descriptive tests, then with the tournament. "
         "All of it uses values as revised today, because no archive of earlier values exists."
     ),
     "level1": [CORRELATION_BLOCK, GRANGER_BLOCK, QUARTILE_BLOCK, CCF_BLOCK],
@@ -452,7 +456,7 @@ class StrategyConfig:
         "highest training "
         "Sharpe with fixed lags. The page now reports the "
         "rule selected on the training period with point-in-time release dates and the stable-lead-range rule. There "
-        "is one data track: no archive of earlier values of this index exists, so every result uses values as "
+        "is one data track: no archive of earlier values of this series exists, so every result uses values as "
         "revised today."
     )
 
@@ -475,7 +479,7 @@ class StrategyConfig:
         risks=[
             f"Test-period Sharpe difference versus buy-and-hold {W.sharpe_gap}, 95% interval {W.ci_low} to "
             f"{W.ci_high}.",
-            "No archive of earlier values of this index exists, so the backtest uses values as revised today; any "
+            "No archive of earlier values of this series exists, so the backtest uses values as revised today; any "
             "hindsight from revisions cannot be measured.",
             f"The single highest training Sharpe in the grid ({W.raw_argmax_rule} at L{W.raw_argmax_lead}) lies "
             f"{W.raw_argmax_position}; it was not chosen.",
@@ -493,7 +497,8 @@ class StrategyConfig:
         {"label": "Granger causality by lag", "path": f"results/{PAIR}/granger_by_lag.csv"},
         {"label": "Regime quartile returns", "path": f"results/{PAIR}/regime_quartile_returns.csv"},
         {"label": "Tournament results (values as revised today)", "path": f"results/{PAIR}/tournament_results_{_TAG}.csv"},
-        {"label": f"Main-site rule's tournament (run of {W.previous_tag}, replayed exactly)",
+        {"label": f"Main-site rule's tournament (run of {W.previous_tag}, replayed exactly). Note: the is_sharpe column in "
+                  "this legacy file repeats the test-period value; that run had no training window",
          "path": f"results/{PAIR}/tournament_results_{W.value('previous_tag')}.csv"},
         {"label": "Stationarity tests", "path": f"results/{PAIR}/stationarity_tests_{_TAG}.csv"},
     ]
@@ -508,7 +513,7 @@ Test-period results on values as revised today ({W.oos_start} to {W.oos_end}): S
 """
 
     HOW_SIGNAL_IS_GENERATED_MD = f"""
-First, the process takes the Expected Business Conditions index as it stands today (no archive of earlier values exists) and computes the {_SIG} and its threshold on the survey's own monthly dates. Second, for each month it uses only readings already published when the month's return window opens (the survey month's reading is released by the end of that month; the release dates come from the survey's headline index, FRED UMCSENT, published in the same release), taking the reading from {W.lead_word} months earlier. Finally, the reading is compared with {_THR}.
+First, the process takes the share of respondents expecting better business conditions as it stands today (no archive of earlier values exists) and computes the {_SIG} and its threshold on the survey's own monthly dates. Second, for each month it uses only readings already published when the month's return window opens (the survey month's reading is released by the end of that month; the release dates come from the survey's headline index, FRED UMCSENT, published in the same release), taking the reading from {W.lead_word} months earlier. Finally, the reading is compared with {_THR}.
 
 OOS Sharpe means test-period (out-of-sample) risk-adjusted return. OOS Return is the annualized test-period return. Maximum Drawdown is the largest peak-to-trough loss. Turnover is how often the strategy changes exposure each year. Win Rate is the share of test-period months with positive strategy return.
 """
@@ -516,7 +521,7 @@ OOS Sharpe means test-period (out-of-sample) risk-adjusted return. OOS Return is
     MANUAL_USE_MD = f"""
 This describes the backtested rule so it can be audited; it is not a trading recommendation.
 
-1. At month end, read the Michigan Expected Business Conditions index as currently published.
+1. At month end, read the Michigan Expected Business Conditions share (respondents expecting better conditions) as currently published.
 2. Compute the threshold ({_THR}) from the published series.
 3. Take the reading from {W.lead_word} months earlier and compare it with that threshold.
 4. Set the position as the rule says (long/cash) and hold it for the following month.
@@ -557,9 +562,9 @@ This describes the backtested rule so it can be audited; it is not a trading rec
 - The result is marked `found_in_search`; it still needs a frozen-rule holdout confirmation.
 - {_NO_ARCHIVE}
 - The series in the project's data ends in {W.oos_end}, so the test period ends there; later SPY months are not tested.
-- The series is the Michigan Expected Business Conditions index from the project's Data Master workbook, not the headline Consumer Sentiment index (FRED UMCSENT); UMCSENT supplies only the release dates.
+- The series is the Michigan Expected Business Conditions share of respondents expecting better business conditions, in percent, from the project's Data Master workbook (not a balance or diffusion index), not the headline Consumer Sentiment index (FRED UMCSENT); UMCSENT supplies only the release dates.
 - The rule previously shown on the main site ({W.previous_rule}, run of {W.previous_tag}) was chosen by its test-period score; the new framework replays it exactly and no longer selects it.
-- The index measures the change households expect over the next year, so it can rise in a recession; a high reading is not the same as a strong economy.
+- The series measures the share of households expecting better conditions over the next year, so it can rise in a recession; a high reading is not the same as a strong economy.
 {_R71_CAVEAT}
 """
 
@@ -587,14 +592,15 @@ STRATEGY_CONFIG = StrategyConfig()
 _DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator (today's values; no archive of earlier values exists) | Data Master workbook, University of Michigan Surveys of Consumers (pinned monthly snapshot) | `UMICH_EXP_BUS_COND`, U. Michigan Expected Business Conditions (survey index; not the headline Consumer Sentiment index) | Monthly |
+| Indicator (today's values; no archive of earlier values exists) | Data Master workbook, University of Michigan Surveys of Consumers (pinned monthly snapshot) | `UMICH_EXP_BUS_COND` (column 1), U. Michigan Expected Business Conditions: % of respondents expecting better business conditions (not the balance score or a diffusion index; not the headline Consumer Sentiment index) | Monthly |
 | Release dates (timing only) | Project release calendar, series `UMCSENT` (FRED / ALFRED first-release dates of the survey's headline index, published in the same release) | first publication date per survey month | Monthly |
 | Target | Yahoo Finance (pinned month-end closes) | SPY adjusted month-end close | Monthly |
 """)
 
 _INDICATOR_CONSTRUCTION_MD = (
-    "The raw indicator is the University of Michigan Expected Business Conditions index (Data Master; not the "
-    "headline Consumer Sentiment index), a bounded survey index that swings within a range rather than trending, so "
+    "The raw indicator is the University of Michigan Expected Business Conditions series (Data Master; not the "
+    "headline Consumer Sentiment index): the share of respondents expecting better business conditions, a bounded "
+    "percentage that swings within a range rather than trending, so "
     f"the level itself is a tradable signal. The pipeline constructs the {SIGNAL_TEXT['level']}; the "
     f"{SIGNAL_TEXT['diff_1m']}; the {SIGNAL_TEXT['chg_12m']}; and the {SIGNAL_TEXT['zscore_60m']}. Signals and "
     "rolling thresholds are computed on the survey's own monthly dates from today's values and then aligned to each "
@@ -609,8 +615,8 @@ _METHODS_TABLE_MD = P.definition_text("""
 | Correlation analysis (Newey-West p-values) | Do expected-conditions signals move linearly with future SPY returns? | Simple baseline before richer tests |
 | Regime quartiles | Do low and high expected-conditions regimes behave differently? | Makes the sentiment story interpretable |
 | Pre-whitened CCF | Where is the lead-lag relationship strongest after filtering persistence? | Reduces false lead-lag signals from autocorrelation |
-| Granger causality (Holm-adjusted across lags) | Does the past index improve SPY forecasts? | Formal lead-lag check |
-| Local projections (Newey-West errors) | How do forward SPY returns relate to the index over horizons? | Shows horizon-specific effects |
+| Granger causality (Holm-adjusted across lags) | Does the past share improve SPY forecasts? | Formal lead-lag check |
+| Local projections (Newey-West errors) | How do forward SPY returns relate to the share over horizons? | Shows horizon-specific effects |
 | Quantile regression (moving-block bootstrap) | Is the effect different in weak or strong market states? | Tests tail and regime sensitivity |
 | Structural break / rolling correlation | Is the relationship stable across time? | Durability and overfit guard |
 | Lead-plateau selection (D9) | Is the chosen lead part of a stable range rather than an isolated peak? | Guards against picking a lucky single lead |
@@ -622,7 +628,7 @@ _TOURNAMENT_DESIGN_MD = f"""
 Grid: expected-conditions signals x zero, z-score and rolling-percentile thresholds x the long/cash strategy x procyclical/countercyclical orientations x leads {_GRID_RANGE} months, where the lead is the whole gap between the reading month and the month whose return it trades ({W.n_candidates} declared combinations; {W.n_distinct} distinct position series). The winner is selected on the training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it. There is one data track (values as revised today), so there is no second winner to compare.
 
 - Winner: `{_RID}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe} ({W.is_start} to {W.is_end}; buy-and-hold {W.bh_is_sharpe}), test-period Sharpe {W.oos_sharpe}. The raw single highest training Sharpe (argmax, {W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}; it is shown for reference and is not the selection rule.{_MAIN_TAIL}
-- Chance check: across {W.null_draws} contests run on circularly shifted index data, {_CHANCE_TEXT}.
+- Chance check: across {W.null_draws} contests run on circularly shifted data of the series, {_CHANCE_TEXT}.
 - Rule previously shown on the main site: `{W.previous_rule}` (run of {W.previous_tag}), {_PREV_DIRECTION}, with a previous test-period Sharpe of {W.previous_oos_sharpe}. The previously published rule was chosen by its test-period score on the lead grid of that run, so that score was not a held-out result. The new framework replays that run exactly (same rows in the same order, same test-period scores, same winner, same returns).
 - Earlier research run: `{_EARLY_RULE}`, {_EARLY_DIRECTION} (the single highest training Sharpe with fixed lags), on the development branch `{_EARLY_BRANCH}`, never shown on the main site.
 """
@@ -650,7 +656,7 @@ METHODOLOGY_CONFIG = MethodologyConfig(
         "last reading in the project's data."
     ),
     plain_english=(
-        "This page documents how the Michigan Expected Business Conditions index was turned into testable signals, how the econometric "
+        "This page documents how the Michigan Expected Business Conditions series (share expecting better conditions) was turned into testable signals, how the econometric "
         "checks were run, and how the tournament selected the final SPY allocation rule."
     ),
 )

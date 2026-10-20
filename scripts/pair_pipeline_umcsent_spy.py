@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Pair pipeline: University of Michigan Expected Business Conditions x SPY (Phase B harness, single track).
 
-The series is the Michigan survey's EXPECTED BUSINESS CONDITIONS index from Data Master.xlsx (sheet
-UoM_ExptdChgBinesCyle), not the headline Consumer Sentiment index (FRED UMCSENT). It has no public archive of past
+The series is the Michigan survey's EXPECTED BUSINESS CONDITIONS question from Data Master.xlsx (sheet
+UoM_ExptdChgBinesCyle, column 1: the SHARE of respondents expecting better business conditions, in percent; not the
+balance / relative score and not a diffusion index), not the headline Consumer Sentiment index (FRED UMCSENT). It has no public archive of past
 values (registry value_vintage revised_no_archive), so the tournament runs on scripts/harness (spec:
 scripts/pair_spec_umcsent_spy.py) on ONE track, "As revised today": today's values (pinned Data Master snapshot
 2026-10-16), aligned point-in-time with the Michigan survey release calendar (FRED UMCSENT release dates are used
@@ -101,13 +102,14 @@ def build_panel() -> pd.DataFrame:
     missing["missing_pct"] = missing["missing_count"] / len(df)
     missing.to_markdown(DATA_DIR / f"missing_value_report_{PAIR_ID}_{DATE_TAG}.md")
     pd.DataFrame([
-        {"Column Name": "umcsent", "Display Name": "U. Michigan Expected Business Conditions",
-         "Description": "University of Michigan Surveys of Consumers: expected change in business conditions "
-                        "(survey index; not the headline Consumer Sentiment index)",
+        {"Column Name": "umcsent", "Display Name": "U. Michigan Expected Business Conditions (% expecting better)",
+         "Description": "University of Michigan Surveys of Consumers, expected change in business conditions a year "
+                        "ahead: share of respondents expecting better conditions (Data Master column 1; not the "
+                        "balance/relative score, not a diffusion index, not the headline Consumer Sentiment index)",
          "Source": "Data Master.xlsx (sheet UoM_ExptdChgBinesCyle), pinned snapshot 2026-10-16",
          "Series ID": "UMICH_EXP_BUS_COND (Data Master; not on FRED/ALFRED). Release timing: FRED UMCSENT "
                       "release dates (same survey release)",
-         "Unit": "Index (survey)", "Transformation": "Monthly level (bounded, stationary)",
+         "Unit": "% of respondents expecting better business conditions", "Transformation": "Monthly level (bounded, stationary)",
          "Seasonal Adj.": "Not seasonally adjusted",
          "Direction Convention": "Higher = more respondents expect better business conditions",
          "Effective Start": str(lv["umcsent"].first_valid_index().date()),
@@ -137,8 +139,9 @@ def run_tournament(K: int = 100) -> tuple[pd.DataFrame, dict, dict]:
         "strategy_description": "Hold SPY when the lagged Michigan Expected Business Conditions signal is on the "
                                 "favourable side "
                                 "of its threshold; otherwise hold cash (P1 long/cash).",
-        "notes": "The University of Michigan Expected Business Conditions index (Data Master; not the headline "
-                 "Consumer Sentiment index) is a bounded survey index. One track: no public archive of past values "
+        "notes": "The University of Michigan Expected Business Conditions series (Data Master; not the headline "
+                 "Consumer Sentiment index) is the share of respondents expecting better business conditions, a "
+                 "bounded percentage. One track: no public archive of past values "
                  "exists, so the results use today's values (revisions may add hindsight) with release-calendar "
                  "timing (UMCSENT release dates); still a search-selected rule. The rule published on the main site "
                  "(20260912, commit d1b68ecd, selected on out-of-sample Sharpe) is replayed exactly and kept as the "
@@ -340,14 +343,15 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
                        f"{winner['is_sharpe']:.2f}) with test-period Sharpe {winner['oos_sharpe']:.2f} versus "
                        f"buy-and-hold {winner['bh_sharpe']:.2f}.",
         "caveats": [
-            "No public archive of past values of this index exists, so the backtest uses today's values; any "
+            "No public archive of past values of this series exists, so the backtest uses today's values; any "
             "revision would add hindsight that cannot be measured.",
             "The strategy is search-selected and needs fresh holdout validation.",
             "The Data Master series ends 2025-09, so the test period ends there.",
             "The rule published on the main site (20260912) was the highest out-of-sample Sharpe with fixed "
             "lags (the test period was used to choose it); it is replaced here.",
         ],
-        "narrative_summary": "The University of Michigan Expected Business Conditions index is tested as a "
+        "narrative_summary": "The share of University of Michigan respondents expecting better business conditions is "
+                             "tested as a "
                              "procyclical sentiment overlay for SPY: hold equity when expectations are favourable.",
         "known_stress_episodes": [
             {"label": "Dot-Com recession", "start": "2001-03-01", "end": "2001-11-30", "note": "NBER recession."},
@@ -362,8 +366,9 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
     (RES / "interpretation_metadata.json").write_text(json.dumps(interp, indent=2) + "\n")
 
     defs = [
-        ("umcsent", "Michigan Expected Business Conditions index", "Data Master (UoM_ExptdChgBinesCyle)", "raw", ["hero"]),
-        ("umcsent_level", "Index level (bounded survey index, used as is)", "identity", "threshold_input",
+        ("umcsent", "Michigan Expected Business Conditions: % of respondents expecting better business conditions",
+         "Data Master (UoM_ExptdChgBinesCyle, column 1)", "raw", ["hero"]),
+        ("umcsent_level", "Level of the share expecting better conditions (bounded percentage, used as is)", "identity", "threshold_input",
          ["hero", "regime_stats", "local_projections", "quantile_coef", "rolling_correlation", "granger_f_by_lag",
           "ccf_prewhitened"]),
         ("umcsent_diff_1m", "Month-on-month change", "x_t - x_{t-1}", "derivative", []),
@@ -406,7 +411,7 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
         "pair_id": PAIR_ID, "schema_version": "1.2.0", "status": "found_in_search", "updated_at": NOW_ISO,
         "plain_english": "A winning rule was found in the search grid, but it has not passed a fresh final exam.",
         "technical_note": f"Winner selected on in-sample data by the lead-plateau rule (D9) from the {DATE_TAG} "
-                          "tournament on today's values of this index (no archive of past values exists); its test-period "
+                          "tournament on today's values of this series (no archive of past values exists); its test-period "
                           "window has been seen by earlier tournaments of this pair, so it is not a frozen-rule "
                           "hold-out result.",
         "next_step": "Freeze the selected rule and run a confirmation test on future data or a reserved holdout window.",
@@ -418,7 +423,7 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
     analyst_suggestions = {
         "pair_id": PAIR_ID, "schema_version": "1.0.0", "last_updated_at": NOW_ISO,
         "suggestions": [{
-            "signal_name": "Start a vintage record of this index", "proposed_by": "evan", "source": "Data Master",
+            "signal_name": "Start a vintage record of this series", "proposed_by": "evan", "source": "Data Master",
             "observation": f"The rule selected on in-sample data uses a {winner['lead_value']}-month lead on the "
                            f"{winner['signal_display_name']} ({winner['direction']}, {winner['threshold_code']}); "
                            f"test-period max drawdown {winner['oos_max_drawdown']:.1%} vs buy-and-hold "
