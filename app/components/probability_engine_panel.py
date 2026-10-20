@@ -437,8 +437,13 @@ def _render_deployed_signal(pair_id: str, winner: dict, sig: pd.DataFrame, p2_ra
         fig.add_vrect(x0=oos, x1=d.index.max(), fillcolor="#56B4E9", opacity=0.08, line_width=0,
                       annotation_text="Test period", annotation_position="top left")
     for ch in coverage_changes or []:     # [{"date": ..., "label": ...}] from the pair config (QA cement F5)
-        dv = ch["date"]                      # an artifact date may be tagged text in gate mode: parse its plain value
-        x = pd.Timestamp((str.__str__(dv) if isinstance(dv, str) else str(dv))[:10])
+        # under the provenance gate the date arrives tagged or wrapped as config text (sentinel / A0 path AP ...
+        # A1 markers): the coordinate is the ISO date inside it
+        m = re.search(r"\d{4}-\d{2}(?:-\d{2})?", str.__str__(ch["date"]) if isinstance(ch["date"], str)
+                      else str(ch["date"]))
+        if not m:
+            continue
+        x = pd.Timestamp(m.group(0))
         if d.index.min() <= x <= d.index.max():
             xs = x.strftime("%Y-%m-%d")                 # plain date text: plotly cannot serialise a Timestamp here
             fig.add_shape(type="line", x0=xs, x1=xs, y0=0, y1=1, xref="x", yref="paper",

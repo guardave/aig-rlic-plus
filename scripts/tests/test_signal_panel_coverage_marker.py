@@ -58,5 +58,9 @@ def test_tagged_artifact_date_is_parsed_in_gate_mode(tmp_path, monkeypatch):
     sig = pd.DataFrame({"signal": np.sin(np.arange(len(idx))), "threshold": 0.0}, index=idx)
     win = {"target_symbol": "SPY", "lead_value": 8, "lead_unit": "months", "threshold_rule": "gte",
            "track_policy": "single_revised_no_archive", "signal_code": "chg_6m", "oos_period_start": "2017-01-31"}
-    PE._render_deployed_signal("toy_spy", win, sig, False, [{"date": date, "label": "Coverage change"}])
-    assert [s.x0 for s in figs[0].layout.shapes if s.type == "line"] == ["2024-01-31"]
+    from components.provenance import A0, A1, AP
+    wrapped = f"{A0}StrategyConfig.SIGNAL_COVERAGE_CHANGES[date]{AP}2024-01-31{A1}"    # gate authored-text marking
+    for dv in (date, wrapped):
+        figs.clear()
+        PE._render_deployed_signal("toy_spy", win, sig, False, [{"date": dv, "label": "Coverage change"}])
+        assert [s.x0 for s in figs[0].layout.shapes if s.type == "line"] == ["2024-01-31"]
