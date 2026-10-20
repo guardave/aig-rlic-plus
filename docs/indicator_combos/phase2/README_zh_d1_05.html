@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>期限信貸組合</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1d2330; --muted: #5b6474; --line: #d9dde4; --accent: #1f5c99; --soft: #f3f6fa;
+  --warn: #8a4b00; --warn-bg: #fff6e8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14181f; --fg: #e6e9ef; --muted: #a3abb9; --line: #2f3643; --accent: #7fb2e5; --soft: #1c222c;
+    --warn: #f0b867; --warn-bg: #2a2216;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14181f; --fg: #e6e9ef; --muted: #a3abb9; --line: #2f3643; --accent: #7fb2e5; --soft: #1c222c;
+  --warn: #f0b867; --warn-bg: #2a2216;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: "Noto Sans CJK TC", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "WenQuanYi Zen Hei", sans-serif;
+  font-size: 15px; line-height: 1.75;
+}
+main { max-width: 860px; margin: 0 auto; padding: 32px 16px 48px; }
+h1 { font-size: 25px; margin: 0 0 4px; }
+.sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+h2 { font-size: 19px; margin: 28px 0 10px; padding-bottom: 4px; border-bottom: 2px solid var(--accent); color: var(--accent); }
+h3 { font-size: 16px; margin: 16px 0 6px; }
+p { margin: 8px 0; }
+.box { background: var(--soft); border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; margin: 12px 0; }
+.warn { background: var(--warn-bg); border-left: 4px solid var(--warn); padding: 10px 14px; margin: 12px 0; }
+table { width: 100%; border-collapse: collapse; margin: 10px 0 14px; font-size: 14px; }
+th, td { border: 1px solid var(--line); padding: 6px 8px; vertical-align: top; text-align: left; }
+th { background: var(--soft); font-weight: 600; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td:nth-child(2) { white-space: nowrap; }
+ol, ul { padding-left: 22px; margin: 6px 0; }
+li { margin: 3px 0; }
+code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; }
+dl { margin: 6px 0; }
+dt { font-weight: 600; margin-top: 6px; }
+dd { margin: 0 0 4px 18px; }
+.foot { color: var(--muted); font-size: 12px; margin-top: 28px; border-top: 1px solid var(--line); padding-top: 10px; }
+@media print { main { padding-top: 0; } h2, h3 { break-after: avoid; } tr { break-inside: avoid; } }
+</style>
+
+</head>
+<body>
+<main>
+<h1>指標組合研究：D1-05 期限息差 × 信貸息差（探索性）</h1>
+<div class="sub">研究分支 <code>research261017_indicator_combos</code>　2026 年 10 月 20 日　撰寫：Research Ray<br>
+<strong>性質：探索性。</strong>以「只用當時數據」的歷史數據分析，這些數據已被查看過，並非已凍結登記檢定的前瞻期評估。只列數字，不作結論性判斷。</div>
+
+<div class="box"><strong>重點摘要</strong>（共同期間 2002-12 至 2026-02，279 個月，涵蓋 2008、2020 兩次衰退；家族 F-TC 共 4 項登記檢定）
+<ul>
+<li><strong>H1（SPY，期限 × 信貸交互項）。</strong>係數 d = −0.87 個百分點／月，符合登記方向，為門檻 3.5 倍；單尾 HAC p = 0.020，區塊重抽樣 p = 0.035；家族 Romano-Wolf 校正（4 項）後 p = 0.151，Holm 校正後 0.138；巧合檢驗百分位 99.0。</li>
+<li><strong>H2、H4</strong> 的方向與登記相反；<strong>H3</strong> 方向相符，p = 0.21。</li>
+<li><strong>即時預測對比樸素基準。</strong>2006-01 至 2026-03（243 個月），交互模型的樣本外 R² 對比歷史平均為 −0.073，加法模型為 −0.055；即兩者的預測誤差都大於簡單歷史平均。</li>
+<li><strong>轉成持倉（未計交易成本）。</strong>H1 模型 Sharpe 0.546，買入持有 0.654，十個月均線 0.677，簡單綜合 0.533。</li>
+<li><strong>登記文字與符號不一致。</strong>登記把 d &lt; 0 解作「曲線平坦而息差擴闊時更差」；但按此設定，平坦＋擴闊的月份其交互項為負，d &lt; 0 反而令預測回報上升。數據上這 12 個月的下月 SPY 超額回報平均為 +4.28 個百分點（主要是 2016 及 2020 年的反彈）。已報 Lead，未改動凍結登記。</li>
+</ul></div>
+
+<h2>一、主要結果（共同期間）</h2>
+<table>
+<thead><tr><th>項目</th><th>H1 SPY 水平交互</th><th>H2 SPY 雙重壓力</th><th>H3 國債 水平交互</th><th>H4 國債 雙重壓力</th></tr></thead>
+<tbody>
+<tr><td>係數 d（百分點／月）</td><td class="num">−0.872</td><td class="num">+1.104</td><td class="num">+0.303</td><td class="num">−0.390</td></tr>
+<tr><td>方向與登記相符</td><td>是</td><td>否</td><td>是</td><td>否</td></tr>
+<tr><td>|d|／門檻</td><td class="num">3.49</td><td class="num">2.21</td><td class="num">3.03</td><td class="num">1.95</td></tr>
+<tr><td>單尾 HAC p</td><td class="num">0.020</td><td class="num">0.762</td><td class="num">0.214</td><td class="num">0.723</td></tr>
+<tr><td>單尾區塊重抽樣 p</td><td class="num">0.035</td><td class="num">0.777</td><td class="num">0.214</td><td class="num">0.728</td></tr>
+<tr><td>Romano-Wolf 校正 p（4 項，登記方法）</td><td class="num">0.151</td><td class="num">0.914</td><td class="num">0.490</td><td class="num">0.914</td></tr>
+<tr><td>Holm 校正 p（4 項）</td><td class="num">0.138</td><td class="num">1.00</td><td class="num">0.642</td><td class="num">1.00</td></tr>
+<tr><td>巧合檢驗 N1 百分位</td><td class="num">99.0</td><td class="num">16.8</td><td class="num">76.0</td><td class="num">29.6</td></tr>
+<tr><td>R²</td><td class="num">0.018</td><td class="num">0.007</td><td class="num">0.023</td><td class="num">0.007</td></tr>
+</tbody></table>
+<ul>
+<li>D2-09 預算把 H1 的可偵測最小幅度定為 0.79，屬檢定力不足；在這種情況下達到 p ≤ 0.05 的估計值，幅度很可能被高估。</li>
+<li>以各自最長期間計算：H1 d = −0.880（280 個月）；H2 由 2000-07 起則 d = +0.156，與共同期間的 +1.104 差別很大。</li>
+<li>N2 巧合檢驗：把信貸息差換成另外 5 個市場序列（VIX、美元指數、金銅比、聯邦基金利率、IWM/SPY），H1 及 H3 都以信貸息差的 t 值最大（6 個中排第 1，純屬巧合的機會為六分之一）。</li>
+</ul>
+
+<h2>二、事後描述（無 p 值）</h2>
+<table>
+<thead><tr><th>剔除期間</th><th>H1</th><th>H2</th><th>H3</th><th>H4</th></tr></thead>
+<tbody>
+<tr><td>2008-07 至 2009-06（餘 267 個月）</td><td class="num">−0.874</td><td class="num">+0.487</td><td class="num">−0.087</td><td class="num">−0.270</td></tr>
+<tr><td>2020-02 至 2020-06（餘 274 個月）</td><td class="num">−0.628</td><td class="num">+1.915</td><td class="num">+0.445</td><td class="num">−0.581</td></tr>
+</tbody></table>
+<p>H1 不受 2008–09 影響；剔除 2020 年五個月後 d 縮小約三成（HAC t −1.51）。H3 剔除 2008–09 後方向逆轉。</p>
+
+<h2>三、即時持倉對比（SPY，2006-01 至 2026-03，未計交易成本）</h2>
+<table>
+<thead><tr><th>策略</th><th>年化超額 %</th><th>Sharpe</th><th>CVaR 5%</th><th>最大回撤 %</th><th>持倉比例</th><th>轉換次數</th></tr></thead>
+<tbody>
+<tr><td>買入持有</td><td class="num">9.93</td><td class="num">0.654</td><td class="num">9.61</td><td class="num">−51.9</td><td class="num">1.00</td><td class="num">0</td></tr>
+<tr><td>H1 模型</td><td class="num">7.57</td><td class="num">0.546</td><td class="num">9.20</td><td class="num">−43.0</td><td class="num">0.90</td><td class="num">12</td></tr>
+<tr><td>最佳單一指標</td><td class="num">8.43</td><td class="num">0.581</td><td class="num">9.32</td><td class="num">−47.7</td><td class="num">0.95</td><td class="num">2</td></tr>
+<tr><td>簡單等權綜合</td><td class="num">5.04</td><td class="num">0.533</td><td class="num">6.59</td><td class="num">−22.4</td><td class="num">0.56</td><td class="num">29</td></tr>
+<tr><td>SPY 十個月均線</td><td class="num">7.17</td><td class="num">0.677</td><td class="num">6.74</td><td class="num">−23.6</td><td class="num">0.80</td><td class="num">31</td></tr>
+</tbody></table>
+
+<h2>四、限制</h2>
+<ul>
+<li>只涵蓋兩次衰退，而且包括已反覆查看的 2020 年。</li>
+<li>沒有 2000 年前的信貸息差（缺口 G16），無法做登記的 Baa–Aaa 支持性檢驗。</li>
+<li>國債回報為由 DGS10 推算的近似值（缺口 G6），未計凸性。</li>
+<li>N2 的 5 個替代序列由研究員從本地數據中選取，並非登記清單。</li>
+</ul>
+<div class="foot">英文詳細報告：<code>docs/indicator_combos/phase2/D1_05_REPORT.md</code>；程式：<code>phase2/scripts/d1_05_term_credit.py</code>；結果：<code>phase2/d1_05/results.json</code>。</div>
+</main>
+</body>
+</html>
