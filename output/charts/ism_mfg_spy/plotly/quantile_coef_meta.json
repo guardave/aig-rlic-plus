@@ -1,7 +1,7 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-20T11:46:49.106076+00:00",
+  "generated_at": "2026-10-20T13:25:05.657043+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
   "caption": "ISM Manufacturing PMI level coefficient across quantiles of 3-month forward SPY returns.",
   "narrative_alignment_note": "ISM Manufacturing PMI level coefficient across quantiles of 3-month forward SPY returns.",

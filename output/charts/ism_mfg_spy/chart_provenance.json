@@ -3,13 +3,16 @@
   "chart_sha256": "d4186f864736e3ca31d21ee1a8e27971e6ecbf118c4e5c88152fd61b1181cf9b",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:46:21+00:00",
+  "recorded_at": "2026-10-20T13:24:51+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
    "results/ism_mfg_spy/core_models_20261020/ccf_prewhitened.csv": "a07465576baa3c34786f29c331be7c464335cbfe61ff380f76ad5c69bde1be79",
    "results/ism_mfg_spy/core_models_20261020/correlations.csv": "05bbd8f2504ecfea4592109e9ee33fd03fbfa4d97b9783d2551842be31b99bd0",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
@@ -17,18 +20,11 @@
   "chart_sha256": "9a8967b5c0d2ebe0053c6ffc073b1c9211bb84629a5d9f81ea5f00dbbb0eef71",
   "results_tag": "20261020",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-20T11:44:41+00:00",
+  "recorded_at": "2026-10-20T13:24:35+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
-   "data/phaseB_inputs/ism_mfg_spy_monthly_legacy_20261016.csv": "f4e1ff8fde12b5fb178ed65157a7d116ca8985497943c3efe2c5d88d337dadeb",
-   "data/phaseB_inputs/spy_month_end_20261017.csv": "dba97c9aaa1cf16c8727e8e6300c053c3a3f718290001ad368bd80dfb51f1be5",
-   "data/release_calendar/release_calendar.csv": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
-   "data/release_calendar/snapshots/20261016T232733Z/ISM_MFG.csv": "b30049c0fffcf26546a27142d1d592e6242ab5bf65c164c8c270bbb7d6931805",
    "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
-   "results/ism_mfg_spy/legacy_oos_selection_20261016.csv": "94c604fcedf0352cd5a11a9fac23eacfc9c904880ca1bfd223654136119b02e7",
    "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
-   "results/ism_mfg_spy/strategy_returns_20261016.csv": "d95e3ece169a9d91c8c2be0a396c82c3edb605fe053e37342bc0a6a855bb909f",
-   "results/ism_mfg_spy/tournament_results_20261016.csv": "a1eaa2a17f5371f6067dd2245388129607402dd6a668ec3f54cabe9a9f8fb899",
    "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
@@ -37,12 +33,15 @@
   "chart_sha256": "9241b6689b80e71407dc218b438b3d20499acd61819ad6280e925259acc27c8b",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:46:12+00:00",
+  "recorded_at": "2026-10-20T13:24:46+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
    "results/ism_mfg_spy/core_models_20261020/correlations.csv": "05bbd8f2504ecfea4592109e9ee33fd03fbfa4d97b9783d2551842be31b99bd0",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
@@ -50,7 +49,7 @@
   "chart_sha256": "5d61bee609d0e88303dcf2cf983fdf5823583f22e688311c357b364bbeb32d1c",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:46:58+00:00",
+  "recorded_at": "2026-10-20T13:25:09+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
@@ -60,8 +59,11 @@
    "results/ism_mfg_spy/core_models_20261020/local_projections.csv": "34babef864b32887c20c6c9ce2d13773680d3e5420a53be398c9399ddfb3f9b2",
    "results/ism_mfg_spy/core_models_20261020/quantile_equality_test.json": "4d261eab519eedc809bd55971687ed3175e6b1537e4d709c8d90847815f28458",
    "results/ism_mfg_spy/core_models_20261020/quantile_regression.csv": "fc2ea918158c1a37f33e3a9bd23be49c1bd4246dad4103879946aa09c019c237",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
    "results/ism_mfg_spy/strategy_returns_20261020.csv": "b82c91eddfc3371a91a0d2562a7dc54b4d4decbe9d59c5104491019792876980",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
@@ -69,7 +71,7 @@
   "chart_sha256": "8c69783a43ddccd0eb875853efd6a0f7c4784ab5dd65918b4d8dc2f9e76b6c58",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:46:49+00:00",
+  "recorded_at": "2026-10-20T13:25:05+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
@@ -79,8 +81,11 @@
    "results/ism_mfg_spy/core_models_20261020/local_projections.csv": "34babef864b32887c20c6c9ce2d13773680d3e5420a53be398c9399ddfb3f9b2",
    "results/ism_mfg_spy/core_models_20261020/quantile_equality_test.json": "4d261eab519eedc809bd55971687ed3175e6b1537e4d709c8d90847815f28458",
    "results/ism_mfg_spy/core_models_20261020/quantile_regression.csv": "fc2ea918158c1a37f33e3a9bd23be49c1bd4246dad4103879946aa09c019c237",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
    "results/ism_mfg_spy/strategy_returns_20261020.csv": "b82c91eddfc3371a91a0d2562a7dc54b4d4decbe9d59c5104491019792876980",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
@@ -88,14 +93,17 @@
   "chart_sha256": "0352b0c1e6fd0570beb74eb96ef66b487d8262ec8b843805aa43463f60b09177",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:46:27+00:00",
+  "recorded_at": "2026-10-20T13:24:55+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
    "results/ism_mfg_spy/core_models_20261020/ccf_prewhitened.csv": "a07465576baa3c34786f29c331be7c464335cbfe61ff380f76ad5c69bde1be79",
    "results/ism_mfg_spy/core_models_20261020/correlations.csv": "05bbd8f2504ecfea4592109e9ee33fd03fbfa4d97b9783d2551842be31b99bd0",
    "results/ism_mfg_spy/core_models_20261020/granger_causality.csv": "3167d5b2bf1907fd5198aded454cbe3244392f95c7eb830c05f7c2fea7c158f1",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
@@ -103,17 +111,21 @@
   "chart_sha256": "8fb76c3a8f67c25b07f2f0179f22cae232729dd30658ff31c7c32b111c9bd94c",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:45:55+00:00",
+  "recorded_at": "2026-10-20T13:24:38+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
-   "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef"
+   "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
+   "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
  "history_zoom_covid": {
   "chart_sha256": "995e451979e7f077e5c610542cd623575ee57d2a99eb8c0179867368d28767d6",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:47:47+00:00",
+  "recorded_at": "2026-10-20T13:25:43+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
@@ -123,12 +135,15 @@
    "results/ism_mfg_spy/core_models_20261020/local_projections.csv": "34babef864b32887c20c6c9ce2d13773680d3e5420a53be398c9399ddfb3f9b2",
    "results/ism_mfg_spy/core_models_20261020/quantile_equality_test.json": "4d261eab519eedc809bd55971687ed3175e6b1537e4d709c8d90847815f28458",
    "results/ism_mfg_spy/core_models_20261020/quantile_regression.csv": "fc2ea918158c1a37f33e3a9bd23be49c1bd4246dad4103879946aa09c019c237",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
    "results/ism_mfg_spy/rolling_correlation_ism_mfg_spy.csv": "7bbaa80b14fb20337a37b56bb0c3416e759486377da48f3324f03d18ed48e050",
    "results/ism_mfg_spy/strategy_returns_20261020.csv": "b82c91eddfc3371a91a0d2562a7dc54b4d4decbe9d59c5104491019792876980",
    "results/ism_mfg_spy/structural_break_ism_mfg_spy.json": "84e59adf8296b990ecb0c523e27ff93078bcfd7f8be04326da14a26eab3f8f19",
    "results/ism_mfg_spy/subperiod_sharpe.csv": "ba1c11f0eefae930c442fca3d6cc8086b691521df0ed5eedc222b07decda3e5f",
    "results/ism_mfg_spy/tournament_results_20261020.csv": "f0ab3fac6cb3b82ced68e537d7808368b2e996d1559295c5af476bed58f045f1",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
@@ -136,7 +151,7 @@
   "chart_sha256": "a59818e08fe0f08425c0d8784f9dd91654b6eb029bac4cb6a8e2f9aeb00aa3ec",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:47:38+00:00",
+  "recorded_at": "2026-10-20T13:25:35+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
@@ -146,12 +161,15 @@
    "results/ism_mfg_spy/core_models_20261020/local_projections.csv": "34babef864b32887c20c6c9ce2d13773680d3e5420a53be398c9399ddfb3f9b2",
    "results/ism_mfg_spy/core_models_20261020/quantile_equality_test.json": "4d261eab519eedc809bd55971687ed3175e6b1537e4d709c8d90847815f28458",
    "results/ism_mfg_spy/core_models_20261020/quantile_regression.csv": "fc2ea918158c1a37f33e3a9bd23be49c1bd4246dad4103879946aa09c019c237",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
    "results/ism_mfg_spy/rolling_correlation_ism_mfg_spy.csv": "7bbaa80b14fb20337a37b56bb0c3416e759486377da48f3324f03d18ed48e050",
    "results/ism_mfg_spy/strategy_returns_20261020.csv": "b82c91eddfc3371a91a0d2562a7dc54b4d4decbe9d59c5104491019792876980",
    "results/ism_mfg_spy/structural_break_ism_mfg_spy.json": "84e59adf8296b990ecb0c523e27ff93078bcfd7f8be04326da14a26eab3f8f19",
    "results/ism_mfg_spy/subperiod_sharpe.csv": "ba1c11f0eefae930c442fca3d6cc8086b691521df0ed5eedc222b07decda3e5f",
    "results/ism_mfg_spy/tournament_results_20261020.csv": "f0ab3fac6cb3b82ced68e537d7808368b2e996d1559295c5af476bed58f045f1",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
@@ -159,7 +177,7 @@
   "chart_sha256": "2eb1f6777ac1f97d2dbf5c47ec8ec926899d34a1ebe69d52b7a4cd5187d029ab",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:47:42+00:00",
+  "recorded_at": "2026-10-20T13:25:39+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
@@ -169,12 +187,15 @@
    "results/ism_mfg_spy/core_models_20261020/local_projections.csv": "34babef864b32887c20c6c9ce2d13773680d3e5420a53be398c9399ddfb3f9b2",
    "results/ism_mfg_spy/core_models_20261020/quantile_equality_test.json": "4d261eab519eedc809bd55971687ed3175e6b1537e4d709c8d90847815f28458",
    "results/ism_mfg_spy/core_models_20261020/quantile_regression.csv": "fc2ea918158c1a37f33e3a9bd23be49c1bd4246dad4103879946aa09c019c237",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
    "results/ism_mfg_spy/rolling_correlation_ism_mfg_spy.csv": "7bbaa80b14fb20337a37b56bb0c3416e759486377da48f3324f03d18ed48e050",
    "results/ism_mfg_spy/strategy_returns_20261020.csv": "b82c91eddfc3371a91a0d2562a7dc54b4d4decbe9d59c5104491019792876980",
    "results/ism_mfg_spy/structural_break_ism_mfg_spy.json": "84e59adf8296b990ecb0c523e27ff93078bcfd7f8be04326da14a26eab3f8f19",
    "results/ism_mfg_spy/subperiod_sharpe.csv": "ba1c11f0eefae930c442fca3d6cc8086b691521df0ed5eedc222b07decda3e5f",
    "results/ism_mfg_spy/tournament_results_20261020.csv": "f0ab3fac6cb3b82ced68e537d7808368b2e996d1559295c5af476bed58f045f1",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
@@ -182,7 +203,7 @@
   "chart_sha256": "36a2e704375ef45c07204f99a5ac69d69c5c5374600fd5b1ae98bb103455fc4d",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:47:55+00:00",
+  "recorded_at": "2026-10-20T13:25:47+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
@@ -192,37 +213,33 @@
    "results/ism_mfg_spy/core_models_20261020/local_projections.csv": "34babef864b32887c20c6c9ce2d13773680d3e5420a53be398c9399ddfb3f9b2",
    "results/ism_mfg_spy/core_models_20261020/quantile_equality_test.json": "4d261eab519eedc809bd55971687ed3175e6b1537e4d709c8d90847815f28458",
    "results/ism_mfg_spy/core_models_20261020/quantile_regression.csv": "fc2ea918158c1a37f33e3a9bd23be49c1bd4246dad4103879946aa09c019c237",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
    "results/ism_mfg_spy/rolling_correlation_ism_mfg_spy.csv": "7bbaa80b14fb20337a37b56bb0c3416e759486377da48f3324f03d18ed48e050",
    "results/ism_mfg_spy/strategy_returns_20261020.csv": "b82c91eddfc3371a91a0d2562a7dc54b4d4decbe9d59c5104491019792876980",
    "results/ism_mfg_spy/structural_break_ism_mfg_spy.json": "84e59adf8296b990ecb0c523e27ff93078bcfd7f8be04326da14a26eab3f8f19",
    "results/ism_mfg_spy/subperiod_sharpe.csv": "ba1c11f0eefae930c442fca3d6cc8086b691521df0ed5eedc222b07decda3e5f",
    "results/ism_mfg_spy/tournament_results_20261020.csv": "f0ab3fac6cb3b82ced68e537d7808368b2e996d1559295c5af476bed58f045f1",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
  "lead_plateau": {
-  "chart_sha256": "718786425416b4b8b99bfdf829494aed7b04256b3d68b26d053bcf4011804e00",
+  "chart_sha256": "2cc3a3b279367255edceffd993ce30a738741b2c4758e1488563ae0d3fb3980c",
   "results_tag": "20261020",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-20T11:44:37+00:00",
+  "recorded_at": "2026-10-20T13:24:31+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
-   "data/phaseB_inputs/ism_mfg_spy_monthly_legacy_20261016.csv": "f4e1ff8fde12b5fb178ed65157a7d116ca8985497943c3efe2c5d88d337dadeb",
-   "data/phaseB_inputs/spy_month_end_20261017.csv": "dba97c9aaa1cf16c8727e8e6300c053c3a3f718290001ad368bd80dfb51f1be5",
-   "data/release_calendar/release_calendar.csv": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
-   "data/release_calendar/snapshots/20261016T232733Z/ISM_MFG.csv": "b30049c0fffcf26546a27142d1d592e6242ab5bf65c164c8c270bbb7d6931805",
-   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
-   "results/ism_mfg_spy/legacy_oos_selection_20261016.csv": "94c604fcedf0352cd5a11a9fac23eacfc9c904880ca1bfd223654136119b02e7",
-   "results/ism_mfg_spy/strategy_returns_20261016.csv": "d95e3ece169a9d91c8c2be0a396c82c3edb605fe053e37342bc0a6a855bb909f",
-   "results/ism_mfg_spy/tournament_results_20261016.csv": "a1eaa2a17f5371f6067dd2245388129607402dd6a668ec3f54cabe9a9f8fb899"
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb"
   }
  },
  "local_projections": {
   "chart_sha256": "a237550a848339168dee9a8bb4dea53b6bd808353c074abf8df32f7e52212d7b",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:46:36+00:00",
+  "recorded_at": "2026-10-20T13:24:58+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
@@ -230,7 +247,10 @@
    "results/ism_mfg_spy/core_models_20261020/correlations.csv": "05bbd8f2504ecfea4592109e9ee33fd03fbfa4d97b9783d2551842be31b99bd0",
    "results/ism_mfg_spy/core_models_20261020/granger_causality.csv": "3167d5b2bf1907fd5198aded454cbe3244392f95c7eb830c05f7c2fea7c158f1",
    "results/ism_mfg_spy/core_models_20261020/local_projections.csv": "34babef864b32887c20c6c9ce2d13773680d3e5420a53be398c9399ddfb3f9b2",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
@@ -238,7 +258,7 @@
   "chart_sha256": "824e0019c70bd764e80ced6b6c7301e85a6542a8317cdfc4fcd14f394f3140c2",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:46:43+00:00",
+  "recorded_at": "2026-10-20T13:25:01+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
@@ -248,7 +268,10 @@
    "results/ism_mfg_spy/core_models_20261020/local_projections.csv": "34babef864b32887c20c6c9ce2d13773680d3e5420a53be398c9399ddfb3f9b2",
    "results/ism_mfg_spy/core_models_20261020/quantile_equality_test.json": "4d261eab519eedc809bd55971687ed3175e6b1537e4d709c8d90847815f28458",
    "results/ism_mfg_spy/core_models_20261020/quantile_regression.csv": "fc2ea918158c1a37f33e3a9bd23be49c1bd4246dad4103879946aa09c019c237",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
@@ -256,11 +279,14 @@
   "chart_sha256": "974e454a7f7bed98996b8386e96e538ad23ee915e1e0339a17dc3e772e41911f",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:46:02+00:00",
+  "recorded_at": "2026-10-20T13:24:42+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
@@ -268,7 +294,7 @@
   "chart_sha256": "84e175db7e268236965953372966ad3a19387f831680f02a2ca2972ff343f1e2",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:47:17+00:00",
+  "recorded_at": "2026-10-20T13:25:20+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
@@ -278,10 +304,13 @@
    "results/ism_mfg_spy/core_models_20261020/local_projections.csv": "34babef864b32887c20c6c9ce2d13773680d3e5420a53be398c9399ddfb3f9b2",
    "results/ism_mfg_spy/core_models_20261020/quantile_equality_test.json": "4d261eab519eedc809bd55971687ed3175e6b1537e4d709c8d90847815f28458",
    "results/ism_mfg_spy/core_models_20261020/quantile_regression.csv": "fc2ea918158c1a37f33e3a9bd23be49c1bd4246dad4103879946aa09c019c237",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
    "results/ism_mfg_spy/rolling_correlation_ism_mfg_spy.csv": "7bbaa80b14fb20337a37b56bb0c3416e759486377da48f3324f03d18ed48e050",
    "results/ism_mfg_spy/strategy_returns_20261020.csv": "b82c91eddfc3371a91a0d2562a7dc54b4d4decbe9d59c5104491019792876980",
    "results/ism_mfg_spy/tournament_results_20261020.csv": "f0ab3fac6cb3b82ced68e537d7808368b2e996d1559295c5af476bed58f045f1",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
@@ -289,7 +318,7 @@
   "chart_sha256": "fe519955d8396908d4c3e7eda8567bad6c26c04d4113da00d780b9a841fc8a29",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:47:22+00:00",
+  "recorded_at": "2026-10-20T13:25:24+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
@@ -299,11 +328,14 @@
    "results/ism_mfg_spy/core_models_20261020/local_projections.csv": "34babef864b32887c20c6c9ce2d13773680d3e5420a53be398c9399ddfb3f9b2",
    "results/ism_mfg_spy/core_models_20261020/quantile_equality_test.json": "4d261eab519eedc809bd55971687ed3175e6b1537e4d709c8d90847815f28458",
    "results/ism_mfg_spy/core_models_20261020/quantile_regression.csv": "fc2ea918158c1a37f33e3a9bd23be49c1bd4246dad4103879946aa09c019c237",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
    "results/ism_mfg_spy/rolling_correlation_ism_mfg_spy.csv": "7bbaa80b14fb20337a37b56bb0c3416e759486377da48f3324f03d18ed48e050",
    "results/ism_mfg_spy/strategy_returns_20261020.csv": "b82c91eddfc3371a91a0d2562a7dc54b4d4decbe9d59c5104491019792876980",
    "results/ism_mfg_spy/structural_break_ism_mfg_spy.json": "84e59adf8296b990ecb0c523e27ff93078bcfd7f8be04326da14a26eab3f8f19",
    "results/ism_mfg_spy/tournament_results_20261020.csv": "f0ab3fac6cb3b82ced68e537d7808368b2e996d1559295c5af476bed58f045f1",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
@@ -311,7 +343,7 @@
   "chart_sha256": "1f78fc6d421a94d7eb215dea7f4e17c87cc68874125d162f45e88ee3925eadcf",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:47:26+00:00",
+  "recorded_at": "2026-10-20T13:25:27+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
@@ -321,12 +353,15 @@
    "results/ism_mfg_spy/core_models_20261020/local_projections.csv": "34babef864b32887c20c6c9ce2d13773680d3e5420a53be398c9399ddfb3f9b2",
    "results/ism_mfg_spy/core_models_20261020/quantile_equality_test.json": "4d261eab519eedc809bd55971687ed3175e6b1537e4d709c8d90847815f28458",
    "results/ism_mfg_spy/core_models_20261020/quantile_regression.csv": "fc2ea918158c1a37f33e3a9bd23be49c1bd4246dad4103879946aa09c019c237",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
    "results/ism_mfg_spy/rolling_correlation_ism_mfg_spy.csv": "7bbaa80b14fb20337a37b56bb0c3416e759486377da48f3324f03d18ed48e050",
    "results/ism_mfg_spy/strategy_returns_20261020.csv": "b82c91eddfc3371a91a0d2562a7dc54b4d4decbe9d59c5104491019792876980",
    "results/ism_mfg_spy/structural_break_ism_mfg_spy.json": "84e59adf8296b990ecb0c523e27ff93078bcfd7f8be04326da14a26eab3f8f19",
    "results/ism_mfg_spy/subperiod_sharpe.csv": "ba1c11f0eefae930c442fca3d6cc8086b691521df0ed5eedc222b07decda3e5f",
    "results/ism_mfg_spy/tournament_results_20261020.csv": "f0ab3fac6cb3b82ced68e537d7808368b2e996d1559295c5af476bed58f045f1",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
@@ -334,7 +369,7 @@
   "chart_sha256": "9e40cb09140e9f47f55887f2dd181317419e52c42986c32946e5ff72d1d17873",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:47:11+00:00",
+  "recorded_at": "2026-10-20T13:25:16+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
@@ -344,9 +379,12 @@
    "results/ism_mfg_spy/core_models_20261020/local_projections.csv": "34babef864b32887c20c6c9ce2d13773680d3e5420a53be398c9399ddfb3f9b2",
    "results/ism_mfg_spy/core_models_20261020/quantile_equality_test.json": "4d261eab519eedc809bd55971687ed3175e6b1537e4d709c8d90847815f28458",
    "results/ism_mfg_spy/core_models_20261020/quantile_regression.csv": "fc2ea918158c1a37f33e3a9bd23be49c1bd4246dad4103879946aa09c019c237",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
    "results/ism_mfg_spy/strategy_returns_20261020.csv": "b82c91eddfc3371a91a0d2562a7dc54b4d4decbe9d59c5104491019792876980",
    "results/ism_mfg_spy/tournament_results_20261020.csv": "f0ab3fac6cb3b82ced68e537d7808368b2e996d1559295c5af476bed58f045f1",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
@@ -354,7 +392,7 @@
   "chart_sha256": "9e40cb09140e9f47f55887f2dd181317419e52c42986c32946e5ff72d1d17873",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:47:05+00:00",
+  "recorded_at": "2026-10-20T13:25:12+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
@@ -364,9 +402,12 @@
    "results/ism_mfg_spy/core_models_20261020/local_projections.csv": "34babef864b32887c20c6c9ce2d13773680d3e5420a53be398c9399ddfb3f9b2",
    "results/ism_mfg_spy/core_models_20261020/quantile_equality_test.json": "4d261eab519eedc809bd55971687ed3175e6b1537e4d709c8d90847815f28458",
    "results/ism_mfg_spy/core_models_20261020/quantile_regression.csv": "fc2ea918158c1a37f33e3a9bd23be49c1bd4246dad4103879946aa09c019c237",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
    "results/ism_mfg_spy/strategy_returns_20261020.csv": "b82c91eddfc3371a91a0d2562a7dc54b4d4decbe9d59c5104491019792876980",
    "results/ism_mfg_spy/tournament_results_20261020.csv": "f0ab3fac6cb3b82ced68e537d7808368b2e996d1559295c5af476bed58f045f1",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  },
@@ -374,7 +415,7 @@
   "chart_sha256": "1f78fc6d421a94d7eb215dea7f4e17c87cc68874125d162f45e88ee3925eadcf",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_ism_mfg_spy.py",
-  "recorded_at": "2026-10-20T11:47:32+00:00",
+  "recorded_at": "2026-10-20T13:25:31+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/ism_mfg_spy_monthly_latest.parquet": "9a3501ddf2ba520d6f6f73fa54c25b64ef679d89aa8edaab733cdfa330fe40ef",
@@ -384,12 +425,15 @@
    "results/ism_mfg_spy/core_models_20261020/local_projections.csv": "34babef864b32887c20c6c9ce2d13773680d3e5420a53be398c9399ddfb3f9b2",
    "results/ism_mfg_spy/core_models_20261020/quantile_equality_test.json": "4d261eab519eedc809bd55971687ed3175e6b1537e4d709c8d90847815f28458",
    "results/ism_mfg_spy/core_models_20261020/quantile_regression.csv": "fc2ea918158c1a37f33e3a9bd23be49c1bd4246dad4103879946aa09c019c237",
+   "results/ism_mfg_spy/lead_curve_20261020.csv": "c59fb6df7c1154f69813e4d25c92f865f16030e9818dcfe15e2c2105ef307fbb",
+   "results/ism_mfg_spy/null_tournament_20261020.csv": "a6aadd286865bb91aee864a194c05ca0e4d47d2616f3a3da51cb0a98574c4ed0",
    "results/ism_mfg_spy/regime_quartile_returns.csv": "385011867cb655e5e79add68d28907ab0ef86b86ec02f1cb1b7b979fc4d82225",
    "results/ism_mfg_spy/rolling_correlation_ism_mfg_spy.csv": "7bbaa80b14fb20337a37b56bb0c3416e759486377da48f3324f03d18ed48e050",
    "results/ism_mfg_spy/strategy_returns_20261020.csv": "b82c91eddfc3371a91a0d2562a7dc54b4d4decbe9d59c5104491019792876980",
    "results/ism_mfg_spy/structural_break_ism_mfg_spy.json": "84e59adf8296b990ecb0c523e27ff93078bcfd7f8be04326da14a26eab3f8f19",
    "results/ism_mfg_spy/subperiod_sharpe.csv": "ba1c11f0eefae930c442fca3d6cc8086b691521df0ed5eedc222b07decda3e5f",
    "results/ism_mfg_spy/tournament_results_20261020.csv": "f0ab3fac6cb3b82ced68e537d7808368b2e996d1559295c5af476bed58f045f1",
+   "results/ism_mfg_spy/track_summary.json": "f7500703e25067566281317e2296f6d4be5c6728f232ad6924edd72e59838abc",
    "results/ism_mfg_spy/winner_summary.json": "6859606c3b0349d7e383e6667be4c493a9ce6f6bd713b59ae3d3cb0b410142d2"
   }
  }

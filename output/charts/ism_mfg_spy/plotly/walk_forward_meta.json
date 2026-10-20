@@ -1,7 +1,7 @@
 {
   "chart_name": "walk_forward",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-20T11:47:38.463027+00:00",
+  "generated_at": "2026-10-20T13:25:35.390705+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
   "caption": "Alias for the dashboard's standard walk-forward chart slot.",
   "narrative_alignment_note": "Alias for the dashboard's standard walk-forward chart slot.",

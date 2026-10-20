@@ -1,7 +1,7 @@
 {
   "chart_name": "subperiod_sharpe",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-20T11:47:32.888002+00:00",
+  "generated_at": "2026-10-20T13:25:31.587013+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
   "caption": "Strategy and buy-and-hold SPY Sharpe during major stress episodes, with the sample phase (training, test or before training) and the number of months of each window.",
   "narrative_alignment_note": "Strategy and buy-and-hold SPY Sharpe during major stress episodes, with the sample phase (training, test or before training) and the number of months of each window.",

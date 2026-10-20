@@ -320,6 +320,12 @@ def chart_history_zoom(slug: str, title: str, start: str, end: str) -> None:
 
 
 def main() -> None:
+    # harness charts (lead plateau, chance check) re-recorded from the run's artifacts by the same producer
+    # (scripts/harness/charts.py), so a harness chart change does not need a pipeline rerun
+    from harness import charts as HC
+    import pair_spec_ism_mfg_spy as spec_mod
+    HC.lead_plateau(PAIR, DATE_TAG, spec_mod.SPEC.lead_unit)
+    HC.chance_check(PAIR, DATE_TAG)
     chart_hero()
     chart_regime_stats()
     chart_correlation_heatmap()

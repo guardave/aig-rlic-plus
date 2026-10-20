@@ -1,7 +1,7 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-20T11:47:22.103081+00:00",
+  "generated_at": "2026-10-20T13:25:24.037747+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
   "caption": "Rolling 60-month correlation between the ISM Manufacturing PMI level and SPY returns.",
   "narrative_alignment_note": "Rolling 60-month correlation between the ISM Manufacturing PMI level and SPY returns.",

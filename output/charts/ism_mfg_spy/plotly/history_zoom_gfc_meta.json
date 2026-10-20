@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_gfc",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-20T11:47:47.563751+00:00",
+  "generated_at": "2026-10-20T13:25:43.466863+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
   "caption": "Global Financial Crisis: The PMI Fell to Its Cycle Low in December 2008; gray bands are NBER recessions and pink bands mark months with the PMI below 50 (contraction).",
   "narrative_alignment_note": "Global Financial Crisis: The PMI Fell to Its Cycle Low in December 2008; gray bands are NBER recessions and pink bands mark months with the PMI below 50 (contraction).",

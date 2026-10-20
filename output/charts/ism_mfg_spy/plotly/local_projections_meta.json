@@ -1,7 +1,7 @@
 {
   "chart_name": "local_projections",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-20T11:46:42.891536+00:00",
+  "generated_at": "2026-10-20T13:25:01.858815+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
   "caption": "Estimated forward SPY return per point of the ISM Manufacturing PMI (Newey-West errors).",
   "narrative_alignment_note": "Estimated forward SPY return per point of the ISM Manufacturing PMI (Newey-West errors).",
