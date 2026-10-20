@@ -1,0 +1,8 @@
+{
+  "method": "moving-block bootstrap Wald (block 6, 499 draws)",
+  "stat": 20.548924204062615,
+  "df": 4,
+  "p_value": 0.00038900361360440363,
+  "reject_equality": true,
+  "n": 391
+}

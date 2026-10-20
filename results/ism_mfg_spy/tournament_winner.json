@@ -1,8 +1,8 @@
 {
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-18T11:08:10.352005+00:00",
+  "generated_at": "2026-10-20T11:44:34.827754+00:00",
   "track": "main",
-  "source_tournament_file": "tournament_results_20261018.csv",
+  "source_tournament_file": "tournament_results_20261020.csv",
   "winner": {
     "signal": "level",
     "threshold": "T_roll_p25",

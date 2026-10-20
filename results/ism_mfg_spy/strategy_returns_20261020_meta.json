@@ -1,0 +1,14 @@
+{
+  "pair_id": "ism_mfg_spy",
+  "track": "revised",
+  "role": "main",
+  "winner_key": "level|T_roll_p25|P1|procyclical|10",
+  "generated_at": "2026-10-20T11:44:34.822553+00:00",
+  "vintage_policy": {
+    "alignment": "pit_asof",
+    "release_series": "ISM_MFG",
+    "harsh": false
+  },
+  "calendar_sha256": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
+  "vintage_file_sha256": null
+}

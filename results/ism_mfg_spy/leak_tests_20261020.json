@@ -1,0 +1,235 @@
+{
+  "pair_id": "ism_mfg_spy",
+  "tag": "20261020",
+  "replay": {
+    "pair_id": "ism_mfg_spy",
+    "legacy_tag": "20261016",
+    "n_rows_harness": 288,
+    "n_rows_published": 288,
+    "tolerance": 1e-06,
+    "columns": {
+      "is_sharpe": {
+        "max_abs_diff": 1.3322676295501878e-15,
+        "pass": true
+      },
+      "oos_sharpe": {
+        "max_abs_diff": 1.2212453270876722e-15,
+        "pass": true
+      },
+      "is_n": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      },
+      "oos_n": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      },
+      "is_exposure": {
+        "max_abs_diff": 8.326672684688674e-17,
+        "pass": true
+      },
+      "n_trades": {
+        "max_abs_diff": 0.0,
+        "pass": true
+      }
+    },
+    "same_candidate_rows_in_order": true,
+    "valid_flags_equal": true,
+    "common_is_start_equal": true,
+    "selection_method": "is_argmax",
+    "winner": {
+      "harness": "diff_1m|T0_zero|P1|countercyclical|13",
+      "published": "diff_1m|T0_zero|countercyclical|13",
+      "match": true
+    },
+    "published": {
+      "key": "diff_1m|T0_zero|P1|countercyclical|13",
+      "signal": "diff_1m",
+      "threshold": "T0_zero",
+      "strategy": "P1",
+      "direction": "countercyclical",
+      "lead": 13,
+      "is_sharpe": 0.7566535280641571,
+      "oos_sharpe": 0.7919067979575192,
+      "replay_is_sharpe": 0.7566535280641574,
+      "replay_oos_sharpe": 0.7919067979575195,
+      "tag": "20261016",
+      "selection": "raw in-sample Sharpe argmax, revised values, fixed lag"
+    },
+    "strategy_return": {
+      "rows": 394,
+      "max_abs_diff": 9.71445146547012e-17,
+      "pass": true
+    },
+    "pass": true
+  },
+  "tracks": {
+    "main": {
+      "candidate": "level|T_roll_p25|P1|procyclical|10",
+      "is_frozen_object": false,
+      "cuts": {
+        "oos_start": {
+          "cut": "2017-09-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 297,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 297,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "oos_50pct": {
+          "cut": "2021-10-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 346,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 346,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "end_minus_1y": {
+          "cut": "2024-10-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 382,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 382,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_33pct": {
+          "cut": "2001-03-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 99,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 99,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_66pct": {
+          "cut": "2009-06-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 198,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 198,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        }
+      },
+      "pass": true
+    },
+    "comparison": null
+  },
+  "null": {
+    "main": {
+      "n_draws": 100,
+      "n_unique_offsets": 100,
+      "n_draws_without_winner": 0,
+      "n_admissible_offsets": 561,
+      "span": 934,
+      "max_usable_offset": null,
+      "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; every draw scored on the real winner's calendar training window, rows where a draw's position is undefined scored as cash (defined rows and leading-cash share recorded per draw); distinct offsets; R7.1",
+      "seed_base": 20261016,
+      "is_max_percentile": 0.15,
+      "p_is": 0.85,
+      "selection_stat_percentile": 0.43,
+      "p_selection_stat": 0.57,
+      "winner_oos_percentile": 0.1,
+      "p_oos": 0.9,
+      "null_is_max_p5_p50_p95": [
+        0.828,
+        0.9259,
+        1.0757
+      ],
+      "null_winner_oos_median": 0.7359,
+      "edge_share": 0.15,
+      "edge_share_uniform": 0.1667,
+      "edge_share_bound": 0.2785,
+      "edge_flag": false,
+      "timing_sharpe_mean": 0.0155,
+      "timing_sharpe_sd": 0.2488,
+      "timing_sharpe_se_dependent": 0.0384,
+      "timing_sharpe_se_bandwidth": 4,
+      "timing_sharpe_effective_draws": 42.1,
+      "r71_tolerance": 0.1,
+      "timing_sharpe_mean_all_valid_candidates": -0.0,
+      "r71_pass": true,
+      "null_scores_hist": {
+        "bins": [
+          0.6722,
+          0.6873,
+          0.7024,
+          0.7175,
+          0.7326,
+          0.7477,
+          0.7628,
+          0.7779,
+          0.793,
+          0.8081,
+          0.8233,
+          0.8384,
+          0.8535,
+          0.8686,
+          0.8837,
+          0.8988,
+          0.9139,
+          0.929,
+          0.9441,
+          0.9592,
+          0.9743
+        ],
+        "counts": [
+          1,
+          0,
+          4,
+          5,
+          10,
+          4,
+          11,
+          2,
+          6,
+          12,
+          3,
+          6,
+          11,
+          1,
+          9,
+          5,
+          0,
+          0,
+          8,
+          2
+        ]
+      }
+    },
+    "comparison": null
+  }
+}

@@ -26,7 +26,7 @@
     ]
   },
   "last_updated_by": "ray",
-  "last_updated_at": "2026-10-18T11:25:56.342792+00:00",
+  "last_updated_at": "2026-10-20T11:44:01.147131+00:00",
   "indicator": "ism",
   "target": "spy",
   "expected_direction": "procyclical",
@@ -71,6 +71,6 @@
   "data_provenance": {
     "source": "Data Master.xlsx (ISM), pinned snapshot 20261016T232733Z",
     "series_id": "ISM_MFG",
-    "accessed_at": "2026-10-18T11:25:56.342792+00:00"
+    "accessed_at": "2026-10-20T11:44:01.147131+00:00"
   }
 }
