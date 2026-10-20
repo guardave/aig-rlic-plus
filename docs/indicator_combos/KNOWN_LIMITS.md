@@ -78,3 +78,18 @@ two things:
 
 **Rule.** Every test that calls git unsets all `GIT_*` variables. The tests in `tests/` do this with an autouse
 fixture.
+
+## 7. Erratum: D1-05 sign wording (recorded 2026-10-20, Lead ruling; registry not edited)
+
+- **What is wrong.** In the frozen registry (`d780845f`) the pass-rule wording for D1-05.H1, "sign d < 0 (flat
+  curve with wide spreads worse)", misstates its own sign. The statistic is d on z(term) × z(credit). A month with
+  a flat curve and wide spreads has z(term) < 0 and z(credit) > 0, so the product is negative. With d < 0, those
+  months get a HIGHER forecast, not a lower one. D1-05.H3 has the same problem: "sign d > 0 (flight to quality)"
+  gives flat-and-wide months a LOWER Treasury-proxy forecast.
+- **What stays.** The registered numerical signs (H1 d < 0, H3 d > 0) remain the tests of record. Only the prose
+  reading is in error.
+- **When it was found.** After the data were viewed, during the exploratory D1-05 run of 2026-10-20
+  (`phase2/D1_05_REPORT.md`, quadrant table). It is therefore not a pre-registered correction.
+- **Consequence for reporting.** A d < 0 for H1 that clears the test means flat-and-wide months forecast higher
+  next-month SPY returns. That is the opposite of the registry's prose story, and it must not be presented as
+  confirming it.

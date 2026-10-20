@@ -79,8 +79,13 @@ those months. The data line up with that arithmetic, not with the registry text:
 - "Flat" means below the expanding mean of T10Y3M (about 1.5–2 pp). It does not mean an inverted curve.
 - The 12 flat-and-wide months are 2011-12, 2016-01..06, 2020-03..06 and 2022-06. These are months right after
   credit-spread spikes, and they are followed by rebounds; 2020-03 is followed by +12.7 pp.
-- So the registered **numerical** sign (d < 0) holds. The **economic reading** in the registry text runs the other
-  way. This is a wording issue in the frozen registry. I have not changed it, and I raise it to the Lead.
+- **What a significant H1 means.** The registered numerical sign (d < 0) is the test of record. A d < 0 that clears
+  it means that **flat-and-wide months forecast HIGHER next-month SPY returns**: rebounds after spread spikes. In
+  this sample that rests on 12 months: 6 in 2016, 4 in 2020, 1 in 2011 and 1 in 2022. This is the **opposite** of
+  the registry's prose story ("flat curve with wide spreads worse"), and the H1 result does not support that story.
+- **Erratum.** The registry wording misstates its own sign for H1, and likewise for H3 ("flight to quality"). This
+  was found after the data were viewed. It is recorded as a dated erratum in `KNOWN_LIMITS.md` § 7 (Lead ruling,
+  2026-10-20). The frozen registry is not edited.
 
 ## Sensitivities
 
@@ -95,7 +100,8 @@ those months. The data line up with that arithmetic, not with the registry text:
 
 The joint-dummy coefficients depend heavily on whether 2000-07..2002-11 is included (H2: +1.10 vs +0.16).
 
-**N2 null (registered: random second market member).** Credit is replaced by each of 5 other unrevised market
+**N2 null (registered: random second market member).** The pool below was chosen by Ray and is not registered.
+Credit is replaced by each of 5 other unrevised market
 series (VIX, DXY, log gold/copper, effective fed funds, log IWM/SPY), using the continuous design. On the common N2
 window (2003-07 .. 2026-03, 273 months for H1; 272 for H3), credit has the largest sign-aligned t of the 6 for both
 H1 (1.92; next VIX 1.47) and H3 (0.96; next IWM/SPY 0.86). With only 5 alternatives, rank 1 of 6 has a 1-in-6 chance
@@ -149,7 +155,7 @@ Adding the interaction raises the forecast error relative to the additive model.
 - Pre-2000 history (V-B) is not available (G16).
 - The Treasury proxy has no convexity term and uses a constant-maturity yield (G6).
 - The overlay ignores trading costs and is a translation, not a registered endpoint.
-- The N2 pool is small (6 members) and was chosen by me from the series held locally; it is not a registered list.
+- The N2 pool is small (6 members). It was chosen by Ray from the series held locally and is not registered.
 
 ## Files
 
