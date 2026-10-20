@@ -432,7 +432,7 @@ class StrategyConfig:
 
     STATISTICAL_FRAMING_BANNER = (
         f"Earlier research run. A research run of {W.previous_tag} on the branch feat261016_pit_release reported the "
-        f"rule {W.previous_rule} (earlier research run: test-period Sharpe {W.previous_oos_sharpe}). That run was never "
+        f"earlier rule {W.previous_rule} (earlier run: test-period Sharpe {W.previous_oos_sharpe}). That run was never "
         "shown on the main site, which still shows an older rule from an earlier run with a different lead grid and "
         "selection method. The earlier research run's rule was the single highest training Sharpe with fixed release "
         "lags. The page now reports the rule selected "
@@ -463,7 +463,7 @@ class StrategyConfig:
             "seasonal-factor revisions cannot be measured.",
             f"The single highest training Sharpe in the grid ({W.raw_argmax_rule} at L{W.raw_argmax_lead}) lies "
             f"{W.raw_argmax_position}; it was not chosen.",
-            f"The earlier research run's rule ({W.previous_rule}) was the single highest training Sharpe with fixed "
+            f"The earlier rule from that research run ({W.previous_rule}) was the single highest training Sharpe with fixed "
             "lags.",
         ] + ([f"The stable lead range {W.plateau_range} reaches the top of the declared lead grid ({_GRID_RANGE} "
               "months); longer leads were not tested."] if _AT_TOP else []),
@@ -541,7 +541,7 @@ This describes the backtested rule so it can be audited; it is not a trading rec
 - The result is marked `found_in_search`; it still needs a frozen-rule holdout confirmation.
 - {_NO_ARCHIVE}
 - The ISM series in the project's data ends in {W.oos_end}, so the test period ends there; later SPY months are not tested.
-- The earlier research run's rule ({W.previous_rule}, research run of {W.previous_tag} on the branch feat261016_pit_release, never on the main site) was the single highest training Sharpe with fixed lags; the new framework replays it exactly and no longer selects it.
+- The earlier rule from the research run ({W.previous_rule}, research run of {W.previous_tag} on the branch feat261016_pit_release, never on the main site) was the single highest training Sharpe with fixed lags; the new framework replays it exactly and no longer selects it.
 - Equities often turn before the PMI does, so a lagged PMI rule can stay in cash during the early part of a recovery.
 {_R71_CAVEAT}
 """
@@ -606,7 +606,7 @@ Grid: PMI signals x zero, z-score and rolling-percentile thresholds x the long/c
 
 - Winner: `{_RID}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe} ({W.is_start} to {W.is_end}; buy-and-hold {W.bh_is_sharpe}), test-period Sharpe {W.oos_sharpe}. The raw single highest training Sharpe (argmax, {W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}; it is shown for reference and is not the selection rule.{_MAIN_TAIL}
 - Chance check: across {W.null_draws} contests run on circularly shifted PMI data, {_CHANCE_TEXT}.
-- Earlier research run (a research run of {W.previous_tag} on the branch feat261016_pit_release, never on the main site): `{W.previous_rule}` ({W.previous_selection}), earlier-research-run test-period Sharpe {W.previous_oos_sharpe}. The new framework replays that run exactly (same rows, same winner, same returns).
+- Earlier research run (a research run of {W.previous_tag} on the branch feat261016_pit_release, never on the main site): previous rule `{W.previous_rule}` ({W.previous_selection}), earlier-run test-period Sharpe {W.previous_oos_sharpe}. The new framework replays that run exactly (same rows, same winner, same returns).
 """
 
 _REFERENCES_MD = """
