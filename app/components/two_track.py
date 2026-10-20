@@ -474,6 +474,12 @@ def render_lead_plateau(pair_id: str, ts: dict, ws: dict) -> None:
     cap += "."
     if gl is not None and not plat.get("global_max_inside_plateau"):
         cap += f" The highest single point, L{gl}, was not chosen because its neighbours score lower."
+    # an exact tie on the range score is stated here too, from the same tagged sentence as the Strategy notes
+    # (QA umcsent F3); the chart shows the MAIN track's curve, so only its tie
+    for n in grid_edge_notes(pair_id):
+        head, _sep, body = n.partition(": ")
+        if "tied exactly" in body and head not in (REV_LABEL,):
+            cap += f" {body[0].upper()}{body[1:]}"
     load_plotly_chart("lead_plateau", pair_id=pair_id, fallback_text="Lead chart pending.", caption=cap)
 
 

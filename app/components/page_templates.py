@@ -1688,7 +1688,8 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
             _col1, _col2 = st.columns(2)
             with _col1:
                 st.markdown(f"**Signal code:** `{winner.get('signal_code', 'N/A')}`")
-                st.markdown(f"**Signal column:** `{winner.get('signal_column', 'N/A')}`")
+                # the display name, not the raw column id (QA umcsent F4: umcsent_zscore_60m on the page)
+                st.markdown(f"**Signal:** {winner.get('signal_display_name') or winner.get('signal_code', 'N/A')}")
                 # #244 re-open: a rolling-quantile winner uses a TIME-VARYING boundary,
                 # so showing a lone fixed number implies a fixed cutoff. Label it as the
                 # moving rolling median with its latest value.

@@ -100,3 +100,25 @@ def test_rendered_tie_sentence_is_fully_tagged_and_verifies(tmp_path, monkeypatc
     for _a, _b, src, unit, shown in sents:
         assert P.kind_of(src) == "lead", src
         assert gnp.verify_sentinel(src, unit, shown, {}, "toy_spy") is None, src
+
+
+def test_lead_chart_caption_states_the_main_tie(tmp_path, monkeypatch):
+    # QA umcsent F3: the Evidence lead caption did not mention the tie
+    import streamlit as st
+    d = tmp_path / "results" / "toy_spy"
+    d.mkdir(parents=True)
+    ws = {"lead_unit": "months", "track_policy": "single_revised_no_archive", "tracks": {"main": {
+        "eligible": True, "plateau": {"leads": [7, 8, 9], "score": 0.8067, "winner_lead": 9, "grid_edge": False,
+                                      "tie": {"n_windows": 2, "alternatives": [[6, 7, 8]],
+                                              "broken_by": "best_is_sharpe_in_window"}}}}}
+    (d / "winner_summary.json").write_text(json.dumps(ws))
+    monkeypatch.setattr(two_track, "__file__", str(tmp_path / "app" / "components" / "two_track.py"))
+    monkeypatch.setattr(P, "RESULTS", tmp_path / "results")
+    monkeypatch.setattr(P, "lead_grid", lambda pair: list(range(2, 14)))
+    monkeypatch.setattr(st, "markdown", lambda *a, **k: None)
+    caps = []
+    monkeypatch.setattr(two_track, "load_plotly_chart", lambda *a, **k: caps.append(k.get("caption")))
+    two_track.render_lead_plateau("toy_spy", {"plateau": {"leads": [7, 8, 9], "winner_lead": 9}}, ws)
+    assert caps[0] == ("The winner L9 sits in a stable range L7-L9. The stable range L7-L9 tied exactly on its score "
+                       "with L6-L8; the tie went to L7-L9 because it has the higher best training Sharpe inside the "
+                       "range.")
