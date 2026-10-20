@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Pair pipeline: USGS Portland cement shipments x SPY (Phase B harness, single track).
+"""Pair pipeline: Portland cement shipments (Texas, then U.S. portland-only; USGS MIS) x SPY (Phase B, single track).
+
+Series (user ruling 2026-10-19: kept as is, named correctly and disclosed): the Data Master column equals the Texas
+total (USGS Mineral Industry Surveys) through 2023-12; from 2024-01 it is the U.S. portland-only all-destination
+total of MIS Table 2a (excludes blended cement, including Type IL). The 2024 year-over-year growth rates span that
+change of coverage and are not economic changes.
+
 
 The tournament runs on scripts/harness (spec: scripts/pair_spec_cement_spy.py) on ONE track: USGS cement shipments
 have no public archive of past values (registry value_vintage revised_no_archive), so the rule uses today's values
@@ -33,12 +39,13 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
 import pair_spec_cement_spy as spec_mod  # noqa: E402
-from harness.artifacts import trade_log, winner_series  # noqa: E402
+from harness.artifacts import trade_log, winner_series, write_json  # noqa: E402
+from harness.data import load_pinned  # noqa: E402
 from harness.evidence import write_evidence_facts  # noqa: E402
 from harness.run import run_pair  # noqa: E402
 
 PAIR_ID = "cement_spy"
-DATE_TAG = "20261018"  # Phase B B1s: harness, single track (revised, no archive), D9 plateau, L5..L14, null K=100
+DATE_TAG = "20261020"  # Phase B B1s post-Codex rerun: single track (revised, no archive), D9, L5..L14, null v4 K=100
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
 EXPECTED_DIRECTION = "procyclical"
@@ -49,6 +56,10 @@ QR_BLOCK = 6                          # quantile regression: moving-block bootst
 QR_DRAWS = 999                        # quantile regression: bootstrap draws (seed 42)
 ROLL_CORR_WINDOW = 60                 # rolling correlation window (months; min 36 observations)
 POSITION_CHANGE_THRESHOLD_PP = 5      # a test-period month counts as a position change above this size
+MAIN_SITE_TAG = "20260830"            # the run whose rule the main site shows (selected on test-period Sharpe, legacy)
+TABLE2A = "usgs_mis_202506_table2a_total.csv"   # pinned USGS MIS Table 2a monthly totals (basis check only)
+SERIES_NAME = ("Portland cement shipments: Texas (USGS Mineral Industry Surveys) through 2023-12; from 2024-01 the "
+               "U.S. portland-only all-destination total (USGS Mineral Industry Surveys Table 2a)")
 
 DATA_DIR = REPO / "data"
 RES = REPO / "results" / PAIR_ID
@@ -103,16 +114,19 @@ def build_panel() -> pd.DataFrame:
     missing["missing_pct"] = missing["missing_count"] / len(df)
     missing.to_markdown(DATA_DIR / f"missing_value_report_cement_spy_{DATE_TAG}.md")
     pd.DataFrame([
-        {"Column Name": "cement", "Display Name": "Portland cement shipments",
-         "Description": "USGS Mineral Industry Surveys: U.S. Portland cement shipments (monthly)",
+        {"Column Name": "cement", "Display Name": "Portland cement shipments (Texas, then U.S. portland-only)",
+         "Description": SERIES_NAME + " (monthly, metric tons)",
          "Source": "Data Master.xlsx sheet 'Portland Cement' (pinned snapshot "
                    "data/release_calendar/snapshots/20261016T232733Z/USGS_CEMENT.csv)",
-         "Series ID": "USGS_CEMENT (release calendar USGS_CEMENT_MIS)", "Unit": "As published in Data Master",
+         "Series ID": "Data Master 'Mat - Portland Cment Shipmts' (snapshot USGS_CEMENT; release calendar USGS_CEMENT_MIS)",
+         "Unit": "Metric tons",
          "Transformation": "Monthly level; only growth transforms are traded",
          "Seasonal Adj.": "As published in Data Master",
          "Direction Convention": "Higher growth = more construction activity",
          "Effective Start": str(df["cement"].first_valid_index().date()),
-         "Known Quirks": "No archive of first-published values: revised values only (value_vintage revised_no_archive); "
+         "Known Quirks": "Coverage change at 2024-01 (Texas total -> U.S. portland-only Table 2a total; the 2024 "
+                         "year-over-year growth rates are an artifact of it); portland-only excludes blended cement "
+                         "(Type IL); no archive of first-published values (value_vintage revised_no_archive); "
                          "published about 2-5 months after the month; Data Master ends 2025-06",
          "Display Note": "Construction-activity indicator; the trending level is never a signal.",
          "Refresh Freq.": "Monthly", "Refresh Source": "data/Data Master.xlsx"},
@@ -146,6 +160,11 @@ def stage_data_integrity(df: pd.DataFrame) -> dict:
     div = m.index[~eq]
     ratio = (m["used"] / m["tx_total"])[~eq]
     yoy = df["cement_yoy"]
+    t2a = load_pinned(TABLE2A)["table2a_total_shipments_t"]
+    post = m.loc[m.index >= div[0], "used"] if len(div) else m["used"].iloc[:0]
+    both = post.index.intersection(t2a.index)
+    match = (post.reindex(both) - t2a.reindex(both)).abs() < 1
+    y24 = yoy[(yoy.index.year == div[0].year)] if len(div) else yoy.iloc[:0]
     out = {"pair_id": PAIR_ID, "source": "data/Data Master.xlsx sheet 'Portland Cement'",
            "column_used": "Mat - Portland Cment Shipmts (column 1)",
            "comparison_column": "Portland Cement Shipments by State, Texas, Metric Tons (column 4)",
@@ -156,12 +175,22 @@ def stage_data_integrity(df: pd.DataFrame) -> dict:
            "ratio_to_texas_after_break_min": float(ratio.min()) if len(div) else None,
            "ratio_to_texas_after_break_max": float(ratio.max()) if len(div) else None,
            "max_yoy_growth_pct": float(yoy.max()), "max_yoy_growth_month": yoy.idxmax().strftime("%Y-%m"),
-           "reading": "Through the last equal month the series is Texas Portland cement shipments, not the U.S. "
-                      "total; from the first unequal month it is on a different, larger basis, so growth rates "
-                      "across the break are not economic changes."}
+           "break_year_yoy_min_pct": float(y24.min()) if len(y24) else None,
+           "break_year_yoy_max_pct": float(y24.max()) if len(y24) else None,
+           "table2a_label": "Table 2a",
+           "table2a_source": "USGS Mineral Industry Surveys, Cement, June 2025 edition, Table 2a total shipments "
+                             f"(data/phaseB_inputs/{TABLE2A})",
+           "n_months_compared_table2a": int(len(both)), "n_months_equal_table2a": int(match.sum()),
+           "first_month_equal_table2a": both[match.to_numpy()][0].strftime("%Y-%m") if match.any() else None,
+           "last_month_equal_table2a": both[match.to_numpy()][-1].strftime("%Y-%m") if match.any() else None,
+           "reading": "Through the last month equal to the Texas total the series is Texas Portland cement shipments; "
+                      "from the first unequal month it equals the U.S. portland-only all-destination total of MIS "
+                      "Table 2a (blended cement, including Type IL, excluded), so growth rates across the change of "
+                      "coverage are not economic changes. User ruling 2026-10-19: series kept, named and disclosed."}
     (RES / f"data_integrity_{DATE_TAG}.json").write_text(json.dumps(out, indent=2) + "\n")
     print(f"  basis check: {out['n_months_equal_texas_total']}/{out['n_months']} months equal the Texas total; "
-          f"break at {out['first_month_not_equal']}")
+          f"break at {out['first_month_not_equal']}; {out['n_months_equal_table2a']}/{out['n_months_compared_table2a']} "
+          "later months equal the MIS Table 2a total")
     return out
 
 
@@ -375,16 +404,46 @@ def trade_reason(winner: dict) -> str:
     return f"{winner['signal_code']} {winner['direction']} rule crossed {winner['threshold_code']}"
 
 
+def main_site_rule() -> dict:
+    """The rule the main site shows: winner of run 20260830 (strategy_returns_20260830_meta.json winner key), its row
+    in tournament_results_20260830.csv (both restored from main). That run selected on test-period Sharpe over the
+    grid {0,1,2,3,6,9,12} (lead 0 is below the current release-lag floor), so it is reported as the main-site rule,
+    not replayed as a selection rule."""
+    meta = json.loads((RES / f"strategy_returns_{MAIN_SITE_TAG}_meta.json").read_text())
+    sig, thr, dirn, lead = meta["winner_key"].split("|")
+    t = pd.read_csv(RES / f"tournament_results_{MAIN_SITE_TAG}.csv")
+    r = t[(t["signal"] == sig) & (t["threshold"] == thr) & (t["direction"] == dirn) & (t["lead_months"] == int(lead))]
+    if len(r) != 1:
+        raise ValueError(f"main-site rule {meta['winner_key']} not found once in tournament_results_{MAIN_SITE_TAG}")
+    r = r.iloc[0]
+    return {"signal": sig, "threshold": thr, "direction": dirn, "lead_value": int(lead),
+            "oos_sharpe": float(r["oos_sharpe"]), "tag": MAIN_SITE_TAG,
+            "source": f"tournament_results_{MAIN_SITE_TAG}.csv row {int(r.name)}, "
+                      f"strategy_returns_{MAIN_SITE_TAG}_meta.json winner_key",
+            "note": f"Rule shown on the main site (run {MAIN_SITE_TAG}), selected on its test-period Sharpe (legacy "
+                    "method); reference only, not a selection rule."}
+
+
 def run_tournament() -> tuple[pd.DataFrame, dict, dict]:
     out = run_pair(PAIR_ID, DATE_TAG, K=100, extra={
         "target_symbol": TARGET_SYMBOL, "cost_bps": COST_BPS,
         "lookback": "LB60 where rolling thresholds apply",
         "strategy_description": "Hold SPY when the lagged cement-shipment growth signal is on the rule's side of its "
                                 "threshold; otherwise hold cash (P1 long/cash).",
-        "notes": "USGS cement shipments are a construction-activity indicator with no archive of first-published "
-                 "values: one track on today's revised values with point-in-time release dates. Still a "
-                 "search-selected rule."})
+        "notes": "Portland cement shipments (Texas through 2023-12, then the U.S. portland-only MIS Table 2a total) "
+                 "are a construction-activity indicator with no archive of first-published values: one track on "
+                 "today's revised values with point-in-time release dates. Still a search-selected rule. The main "
+                 "site shows the 20260830 rule (test-period-selected, legacy method); the 20261016 research run "
+                 "(raw in-sample Sharpe argmax, fixed lags, never on the main site) is replayed exactly and kept as "
+                 "the previous rule."})
     winner = json.loads((RES / "winner_summary.json").read_text())
+    # the rule the main site still shows (run 20260830, test-period-selected): recorded next to the selection as the
+    # legacy_oos_selected_row, read from that run's immutable files; reference only, never a selection rule
+    winner["selection"]["legacy_oos_selected_row"] = main_site_rule()
+    write_json(RES / "winner_summary.json", winner, "winner_summary")
+    from harness import charts as HC            # re-record the harness charts on the amended summary (provenance)
+    HC.lead_plateau(PAIR_ID, DATE_TAG, spec_mod.SPEC.lead_unit)
+    HC.chance_check(PAIR_ID, DATE_TAG)
     tourn = pd.read_csv(RES / f"tournament_results_{DATE_TAG}.csv")
     tourn["valid"] = tourn["valid"].astype(bool)
     res = out["results"]["main"]
@@ -461,7 +520,8 @@ def write_metadata(winner: dict, granger: dict, elapsed: float) -> None:
         "expected_direction": EXPECTED_DIRECTION, "observed_direction": winner["direction"],
         "direction_consistent": winner["direction"] == EXPECTED_DIRECTION,
         "mechanism": "Portland cement shipments track construction and infrastructure activity; firm shipment growth "
-                     "marks an upswing in real investment, slowing shipments a construction slowdown.",
+                     "marks an upswing in real investment, slowing shipments a construction slowdown. The series is "
+                     "Texas shipments through 2023-12 and the U.S. portland-only total from 2024-01.",
         "confidence": "low",
         "key_finding": (f"On today's revised cement values with point-in-time release dates (no archive of first "
                         f"releases), the rule selected on in-sample data uses {winner['signal_code']} / "
@@ -475,6 +535,9 @@ def write_metadata(winner: dict, granger: dict, elapsed: float) -> None:
             "The strategy is search-selected and needs fresh holdout validation.",
             "The training period is short (the cement series starts 2005-11; rolling windows need several years).",
             "Data Master's cement series ends 2025-06, so later months are not tested.",
+            "The series is Texas Portland cement shipments through 2023-12 and the U.S. portland-only all-destination "
+            "total (USGS MIS Table 2a) from 2024-01; the 2024 year-over-year growth rates are an artifact of that "
+            "coverage change; portland-only excludes blended cement (Type IL).",
         ],
         "narrative_summary": "Portland cement shipment growth is tested as a construction-activity filter for SPY.",
         "known_stress_episodes": [
@@ -485,7 +548,7 @@ def write_metadata(winner: dict, granger: dict, elapsed: float) -> None:
             {"label": "2022 rate shock", "start": "2022-01-01", "end": "2022-12-31",
              "note": "Shipments held up while equities fell."},
         ],
-        "data_provenance": {"source": "Data Master.xlsx (USGS Mineral Industry Surveys)",
+        "data_provenance": {"source": "Data Master.xlsx (USGS Mineral Industry Surveys): " + SERIES_NAME,
                             "series_id": "USGS_CEMENT (snapshot 20261016T232733Z)", "accessed_at": NOW_ISO},
     }
     (RES / "interpretation_metadata.json").write_text(json.dumps(interp, indent=2) + "\n")
@@ -497,9 +560,11 @@ def write_metadata(winner: dict, granger: dict, elapsed: float) -> None:
         "pair_id": PAIR_ID, "schema_version": "1.0.0", "owner": "evan", "last_updated_by": "evan",
         "last_updated_at": NOW_ISO,
         "indicator_axis": {
-            "canonical_column": "cement", "display_name": "Portland Cement Shipments (USGS)",
+            "canonical_column": "cement",
+            "display_name": "Portland cement shipments (Texas, then U.S. portland-only; USGS)",
             "derivatives": [
-                der("cement", "Portland cement shipments level (monthly)", "Data Master snapshot", "raw", ["hero"]),
+                der("cement", "Portland cement shipments level (monthly, metric tons): Texas total, then U.S. "
+                    "portland-only total after the coverage change", "Data Master snapshot", "raw", ["hero"]),
                 der("cement_yoy", "12-month growth", "100*(x_t/x_{t-12}-1)", "derivative",
                     ["hero", "regime_stats", "local_projections", "quantile_coef", "rolling_correlation",
                      "structural_break", "ccf_prewhitened", "granger_f_by_lag", "correlation_heatmap"] + zooms),

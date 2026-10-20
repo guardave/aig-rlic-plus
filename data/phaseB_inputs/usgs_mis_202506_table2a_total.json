@@ -1,0 +1,10 @@
+{
+  "file": "data/phaseB_inputs/usgs_mis_202506_table2a_total.csv",
+  "source": "USGS Mineral Industry Surveys, Cement, June 2025 edition (mis-202506-cemen.xlsx), Table 2a 'Portland cement shipments, by destination, January 2024-June 2025', row 'Total shipments' (monthly columns; the 2024 and January-June 2025 total columns dropped)",
+  "units": "metric tons",
+  "basis": "portland cement only (excludes blended cement, including Type IL), all destinations, U.S.",
+  "source_url_pattern": "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/media/files/mis-YYYYMM-cemen.xlsx",
+  "xlsx_sha256": "e2d266b167c4cb8749b55e16f9ef5a9a3eb2d3ce4942dfe14b853b336639011f",
+  "retrieved_utc": "2026-10-18 (scratchpad/cement_data, data helper)",
+  "use": "basis check only: compared with the Data Master cement column from 2024-01 (scripts/pair_pipeline_cement_spy.py stage_data_integrity); not a model input"
+}

@@ -892,7 +892,7 @@
     },
     "cement_spy": {
       "signal_frequency": "monthly",
-      "signal_description": "USGS Portland Cement shipments (monthly)",
+      "signal_description": "Portland cement shipments (monthly, metric tons): Texas (USGS Mineral Industry Surveys) through 2023-12; from 2024-01 the U.S. portland-only all-destination total (USGS MIS Table 2a)",
       "publication_lag": "USGS monthly cement survey, ~2-3 months after month-end (median 72 d, p90 122 d; 55-91 d before the 2025 shutdown, 95-165 d since 2025-07)",
       "real_time": false,
       "lead_axis": "months",
@@ -914,7 +914,7 @@
       "floor_basis": "STRICT floor (standard Step 2, amended 2026-10-16): effective lag E = lead + position_shift >= 5 (smallest E with first_release(M) <= period_end(M+E-1) at the 90th percentile); lead_floor 5 = 5 - position_shift 0. Evidence: USGS Mineral Industry Surveys 'Cement in <month>' PDF publication (S3 Last-Modified) dates, 2021-09..2026-06; S&P Global confirms Apr-2025 data published 2025-07-24; _pws/lead-lesandro/pkg9_strict_floor/release_lag_evidence.csv. Grid truncated from the bottom (top not extended, protocol D2): 2..14 -> 5..14.",
       "conformed": true,
       "reconfirmed_winner": "cement_yoy / L4 / countercyclical / OOS Sharpe 1.253 (#255 floored re-run, DATE_TAG 20261008)",
-      "note": "Phase B harness (20261018): single track (today's revised USGS values; no archive of first releases), D9 lead-plateau selection on the registry grid L5..L14 with position_shift 0, point-in-time release timing (USGS_CEMENT_MIS). Published 20261016 rule (raw IS-Sharpe argmax, fixed lag) replayed by the harness and kept as the previous rule.",
+      "note": "Phase B harness (run 20261020, post-Codex rerun): single track (today's revised values; no archive of first releases), D9 lead-plateau selection on the registry grid L5..L14 with position_shift 0, point-in-time release timing (USGS_CEMENT_MIS). Published 20261016 research-run rule (raw IS-Sharpe argmax, fixed lag) replayed by the harness and kept as the previous rule; the main site shows the 20260830 rule (test-period-selected, legacy). SERIES BASIS / USER RULING 2026-10-19: the Data Master column equals the Texas total (USGS MIS, Northern + Southern Texas) in every month 2005-11..2023-12 and, from 2024-01, the U.S. portland-only all-destination total of MIS Table 2a (exact match to the June 2025 edition through 2025-06, incl. Mar-2025 2,928,034 t); kept as a deliberate team choice, no data change; named correctly and disclosed: Texas basis to 2023-12, coverage change at 2024-01 inside the test period, 2024 YoY of about +250% to +390% (ruling text: +270-390%; the computed range is in data_integrity_<tag>.json) is an artifact of the change, portland-only excludes blended cement (Type IL). Basis evidence: scratchpad cement_data (data helper), data/phaseB_inputs/usgs_mis_202506_table2a_total.csv, results/cement_spy/data_integrity_<tag>.json.",
       "position_shift": 0,
       "lead_floor_effective": 5,
       "release_calendar_series": "USGS_CEMENT_MIS",

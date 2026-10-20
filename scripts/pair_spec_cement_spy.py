@@ -1,4 +1,9 @@
-"""Pair spec: USGS Portland cement shipments x SPY, monthly (Phase B harness, single track).
+"""Pair spec: Portland cement shipments (Texas, then U.S. portland-only; USGS MIS) x SPY, monthly (Phase B, single track).
+
+Series (user ruling 2026-10-19: kept, named correctly, disclosed): the Data Master column 'Mat - Portland Cment
+Shipmts' equals the Texas total (USGS Mineral Industry Surveys) through 2023-12; from 2024-01 it equals the U.S.
+portland-only all-destination total of MIS Table 2a (blended cement, including Type IL, excluded). The 2024
+year-over-year growth rates span that coverage change and are not economic changes (pipeline stage_data_integrity).
 
 USGS cement shipments have no public archive of past values (registry value_vintage revised_no_archive), so there is
 ONE track: today's values (track_policy single_revised_no_archive) with point-in-time release timing. A month's

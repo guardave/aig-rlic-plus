@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Chart generation for Portland cement shipments x SPY (Phase B, single track: today's revised values, no archive).
+"""Chart generation for Portland cement shipments (Texas through 2023-12, then the U.S. portland-only MIS Table 2a
+total) x SPY (Phase B, single track: today's revised values, no archive).
 
 Presentational layer only: every series and every number in a title or caption is read from the pipeline artifacts
 (results/cement_spy, data/cement_spy_monthly_latest.parquet). The lead plateau and chance-check charts are written by
@@ -26,7 +27,7 @@ from _nber import add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
 
 PAIR = "cement_spy"
-DATE_TAG = "20261018"
+DATE_TAG = "20261020"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"
@@ -79,7 +80,7 @@ def mark_break(fig: go.Figure, start=None, end=None) -> None:
         return
     fig.add_shape(type="line", x0=b, x1=b, xref="x", yref="paper", y0=0, y1=1,
                   line=dict(color=C_BREAK, width=2, dash="dot"))
-    fig.add_trace(go.Scatter(x=[None], y=[None], mode="lines", name="Data basis break in the cement series",
+    fig.add_trace(go.Scatter(x=[None], y=[None], mode="lines", name="Coverage change: Texas to U.S. portland-only",
                              line=dict(color=C_BREAK, width=2, dash="dot"), hoverinfo="skip"))
 
 
@@ -88,20 +89,21 @@ def chart_hero() -> None:
     it = integrity()
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     add_nber_shading(fig, x_min=df.index.min(), x_max=df.index.max())
-    fig.add_trace(go.Scatter(x=df.index, y=df["cement"], name="Cement shipments (Data Master column)",
+    fig.add_trace(go.Scatter(x=df.index, y=df["cement"], name="Cement shipments (Texas, then U.S. portland-only)",
                              line=dict(color=C_IND, width=2),
                              hovertemplate="%{x|%Y-%m}<br>Shipments: %{y:,.0f}<extra></extra>"), secondary_y=False)
     fig.add_trace(go.Scatter(x=df.index, y=df["spy"], name="SPY price", line=dict(color=C_TGT, width=1.6),
                              hovertemplate="%{x|%Y-%m}<br>SPY: %{y:.2f}<extra></extra>"), secondary_y=True)
     nber_legend(fig)
     mark_break(fig)
-    fig.update_layout(title="Portland Cement Shipments (as published in Data Master) vs SPY", template="plotly_white",
+    fig.update_layout(title="Portland Cement Shipments (Texas, then U.S. Portland-Only; USGS) vs SPY", template="plotly_white",
                       height=520, hovermode="x unified", legend=dict(orientation="v", x=1.08, y=1), margin=dict(r=260))
     fig.update_yaxes(title_text="Shipments (metric tons)", secondary_y=False)
     fig.update_yaxes(title_text="SPY price", secondary_y=True)
     save("hero", fig, (f"Shipment level and SPY with NBER recession bands. Through {it['last_month_equal_texas_total']} "
-                       f"the column equals the Texas total in the same sheet; the dotted line marks "
-                       f"{it['first_month_not_equal']}, where it moves to a larger basis."), [PANEL, INTEGRITY])
+                       f"the series is Texas Portland cement shipments; the dotted line marks "
+                       f"{it['first_month_not_equal']}, where it changes to the U.S. portland-only total (USGS MIS "
+                       "Table 2a)."), [PANEL, INTEGRITY])
 
 
 def chart_regime_stats() -> None:
@@ -355,7 +357,7 @@ def main() -> None:
     chart_walk_forward()
     chart_history_zoom("gfc", "Global Financial Crisis: Cement Shipments and SPY, 2006-2010", "2006-01-31", "2010-12-31")
     chart_history_zoom("covid", "COVID Shock: Cement Shipments and SPY, 2018-2021", "2018-01-31", "2021-12-31")
-    chart_history_zoom("inflation_2022", "2022 Rate Shock and After: Cement Shipments and SPY, 2021-2025",
+    chart_history_zoom("inflation_2022", "2022 Rate Shock and After: Cement Shipments and SPY, 2021-2025 (coverage change marked)",
                        "2021-01-31", "2025-06-30")
     print(f"Done. Charts saved to {OUT}")
 
