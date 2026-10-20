@@ -1,8 +1,8 @@
 {
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-10-18T13:49:13.237180+00:00",
+  "generated_at": "2026-10-20T11:43:53.705758+00:00",
   "track": "main",
-  "source_tournament_file": "tournament_results_20261018.csv",
+  "source_tournament_file": "tournament_results_20261020.csv",
   "winner": {
     "signal": "zscore_60m",
     "threshold": "T_roll_p50",
