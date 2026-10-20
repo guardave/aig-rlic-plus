@@ -13,7 +13,7 @@ All Phase 2 inputs are point-in-time. They are read through `scripts/p2data.py`.
 | Variable | Source | Point-in-time handling | First month |
 |----------|--------|------------------------|-------------|
 | `term` | the pinned T10Y3M above | previous trading day's value at the month-end close | 1982-01 |
-| `credit` | `data/hy_ig_spy_daily_20000101_20260422.parquet`, columns `hy_oas − ig_oas` (ICE BofA OAS) | previous trading day's value at the month-end close | 2000-01 (last 2026-04) |
+| `credit` | `data/hy_ig_spy_daily_20000101_20260422.parquet`, columns `hy_oas − ig_oas` (ICE BofA OAS) | previous trading day's value at the month-end close | 2000-01 (last valid month-end 2026-03: the file ends 2026-04-22, before the 2026-04 close). No pre-2000 credit spread is held (gap G16), so every credit model starts its training in 2000-01 |
 | `sahm` | ALFRED UNRATE vintages (`data/release_calendar/vintages/UNRATE.csv.gz`) | `_pit_align.realtime_apply` (vintage visible at the close); 3-month average minus the minimum of the prior 12 months' 3-month averages | 1981-04 |
 | `permit` | ALFRED PERMIT vintages | `realtime_apply`; YoY % inside the vintage | 1999-08 |
 | `sma_flag` | SPY dividend-adjusted month-end closes, `feat261017_phaseB_harness:data/phaseB_inputs/spy_month_end_20261017.csv` (read with `git show`, GIT_* variables unset) | close below its 10-month SMA at the close | 1993-10 |

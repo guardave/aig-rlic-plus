@@ -192,12 +192,14 @@ def holm(pvals: dict, m: int) -> dict:
     return adj
 
 
-def null_bss(panel, y, cols, start, end, K=500):
+def null_bss(panel, y, cols, start, end, K=500, ends=None):
+    """Null BSS per draw; with `ends` (a dict tag -> end date) one array per window from the SAME draws."""
     added = [c for c in cols if c != "term"]
     rng = np.random.default_rng(SEED)
     span = panel[added].dropna().index
     n = len(span)
-    out = []
+    ends = ends or {"full": end}
+    out = {t: [] for t in ends}
     for _ in range(K):
         k = int(rng.integers(36, n - 36))
         sh = panel.copy()
@@ -205,12 +207,14 @@ def null_bss(panel, y, cols, start, end, K=500):
         sh.loc[span, added] = np.roll(vals, k, axis=0)
         pm = realtime_predictions(sh, y, cols, start)
         pt = realtime_predictions(sh.where(sh[cols].notna().all(axis=1)), y, ["term"], start)
-        w = pm.index[(pm.index >= pd.Timestamp(start)) & (pm.index <= end)]
-        m = pm[w].notna() & pt[w].notna()
-        bm = np.mean((pm[w][m] - y[w][m]) ** 2)
-        bt = np.mean((pt[w][m] - y[w][m]) ** 2)
-        out.append(1 - bm / bt)
-    return np.array(out)
+        for t, e in ends.items():
+            w = pm.index[(pm.index >= pd.Timestamp(start)) & (pm.index <= e)]
+            m = pm[w].notna() & pt[w].notna()
+            bm = np.mean((pm[w][m] - y[w][m]) ** 2)
+            bt = np.mean((pt[w][m] - y[w][m]) ** 2)
+            out[t].append(1 - bm / bt)
+    out = {t: np.array(v) for t, v in out.items()}
+    return out if len(out) > 1 else out["full"]
 
 
 def main(K: int = 500):
@@ -223,7 +227,7 @@ def main(K: int = 500):
            "family": "F-REC", "family_registered_hypotheses": N_FAMILY, "correction": "Holm over 7 (unrun = p 1)",
            "label": "NBER recession month in (t, t+12]", "label_lag_months": LAG, "refit": "annual (January)",
            "null": {"type": "N1 circular shift of added predictors", "K": K, "seed": SEED}, "models": {}}
-    preds, pv = {}, {}
+    preds, pv, pv_ex = {}, {}, {}
     for h, cols in MODELS.items():
         start = EVAL_START[h]
         need = panel[cols].notna().all(axis=1)
@@ -261,16 +265,22 @@ def main(K: int = 500):
                       "episode_log_score_gain_vs_term": episode_gains(pm.reindex(ww), pt_same.reindex(ww), y)}
         r["B2a_choices"] = chosen
         if K:
-            nb = null_bss(sub, y, cols, start, LAST_LABELLED, K)
+            nbs = null_bss(sub, y, cols, start, LAST_LABELLED, K, ends={"full": LAST_LABELLED, "ex2020": EX2020_END})
+            nb = nbs["full"]
             r["null_bss_percentile_full"] = round(float(np.mean(nb < r["full"]["bss_vs_term_same_rows"]) * 100), 1)
             r["null_bss_quantiles"] = {q: round(float(np.quantile(nb, q / 100)), 4) for q in (5, 50, 95)}
+            ne = nbs["ex2020"]           # POST-HOC window, same draws
+            r["ex2020"]["null_bss_percentile"] = round(float(np.mean(ne < r["ex2020"]["bss_vs_term_same_rows"]) * 100), 1)
+            r["ex2020"]["null_bss_quantiles"] = {q: round(float(np.quantile(ne, q / 100)), 4) for q in (5, 50, 95)}
         pv[h] = r["full"]["p_block_bootstrap_one_sided"]
+        pv_ex[h] = r["ex2020"]["p_block_bootstrap_one_sided"]
         res["models"][h] = r
         preds[h] = pm
         preds[f"{h}_term_same"] = pt_same
         print(h, json.dumps({k: r["full"][k] for k in ("window", "recessions_count", "bss_vs_term_same_rows",
                                                        "p_block_bootstrap_one_sided")}), flush=True)
     res["holm_adjusted_p_full"] = holm(pv, N_FAMILY)
+    res["holm_adjusted_p_ex2020_posthoc"] = holm(pv_ex, N_FAMILY)
     pd.DataFrame(preds).join(y.rename("y")).to_csv(OUT / "predictions.csv", float_format="%.5g")
     (OUT / "results.json").write_text(json.dumps(res, indent=1))
 

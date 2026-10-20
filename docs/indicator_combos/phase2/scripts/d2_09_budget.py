@@ -44,7 +44,7 @@ START = {"T10Y3M": "1982-01", "HY_IG_OAS": "2000-01", "HY_OAS": "2000-01", "VIX"
          "HSN1F": "1999-07", "HOUST": "1981-01", "M2SL": "1981-01", "BUSLOANS": "1996-12", "NEWORDER": "1997-03",
          "UMCSENT": "1998-07", "RSXFS": "2001-06", "DRTSCILM": "2010-04", "DRCCLACBN": "2011-05",
          "ISM_MFG": "1985-02", "NAHB_HMI": "1985-01", "USGS_CEMENT_MIS": "2007-04", "FLEET": "1997-12"}
-END = {"HY_IG_OAS": "2026-04", "HY_OAS": "2026-04", "VIX": "2026-04", "FEDFUNDS": "2026-04", "VIX3M": "2026-03",
+END = {"HY_IG_OAS": "2026-03", "HY_OAS": "2026-03", "VIX": "2026-03", "FEDFUNDS": "2026-03", "VIX3M": "2026-03",
        "GOLD_COPPER": "2026-05"}
 EVENT_KIND = {"cvar_overlay": "drawdown", "false_exit_rate": "drawdown", "capture_share": "drawdown",
               "plateau_k": "drawdown", "lexicographic_recession": "recession", "brier_skill": "recession",
@@ -92,14 +92,38 @@ def sma_exits(p: pd.Series) -> list[pd.Timestamp]:
     return list(f.index[(f & ~f.shift(1, fill_value=False)) & p.rolling(10).mean().notna()])
 
 
+CVAR_SEEDS = (20261018, 20261019, 20261020)
+CVAR_SIMS = 4000
+_cvar_cache: dict[int, list[float | None]] = {}
+
+
+def cvar_mde_seeds(years: int) -> list[float | None]:
+    """CVaR MDE at a whole number of years for 3 independent seeds (4000 sims each); cached so that equal
+    window lengths get identical values (batch-1 QA F7: one stream of 1500 sims gave grid-step noise)."""
+    if years not in _cvar_cache:
+        vals = []
+        for sd in CVAR_SEEDS:
+            v = cvar_mde(years, 0.8, sims=CVAR_SIMS, rng=np.random.default_rng(sd))["mde_rel_reduction_80pct_power"]
+            vals.append(None if isinstance(v, str) else v)
+        _cvar_cache[years] = vals
+    return _cvar_cache[years]
+
+
+SEED_SPREAD: dict[str, tuple] = {}
+
+
 def mde(h: dict, n: int, rng) -> tuple[float | None, str]:
     ep, pr = h["endpoint"], h["pass_rule"]
     t, T = ep["type"], n / 12
     if n < 24:
         return None, "window too short"
     if t == "cvar_overlay":
-        v = cvar_mde(max(1, round(T)), 0.8, sims=1500, rng=rng)["mde_rel_reduction_80pct_power"]
-        return (None if isinstance(v, str) else v), "Monte Carlo, iid Student-t(5), rho 0.8 (KNOWN_LIMITS 3)"
+        vals = [v for v in cvar_mde_seeds(max(1, round(T))) if v is not None]
+        if not vals:
+            return None, "Monte Carlo: no delta <= 0.9 reached 80% power"
+        SEED_SPREAD[h["hid"]] = (min(vals), max(vals))
+        return float(np.median(vals)), ("Monte Carlo, iid Student-t(5), rho 0.8, median of 3 seeds x 4000 sims "
+                                        "(KNOWN_LIMITS 3)")
     if t == "interaction":
         hz = ep["params"].get("return_horizon_months", 1)
         s, m = SIGMA * sqrt(hz), n / hz
@@ -142,7 +166,9 @@ def main():
             if a_start:
                 starts.append(a_start)
             start = pd.Period(max(starts), "M")
-            end = pd.Period(min(ends), "M") - h["label_horizon_months"]
+            # t must have its predictors (t <= predictor end) AND a fully observed label (t + horizon <= 2026-09);
+            # batch-1 QA F6: the horizon was previously subtracted from the predictor end.
+            end = min(pd.Period(min(ends), "M"), pd.Period("2026-09", "M") - h["label_horizon_months"])
             ev_start = start + BURN_IN
             n = max(0, (end - ev_start).n + 1)
             w0, w1 = ev_start.to_timestamp(how="end").normalize(), end.to_timestamp(how="end").normalize()
@@ -174,13 +200,22 @@ def main():
                          "recessions_in_VD_2020": int(any(str(p.date())[:4] == "2020" for p in recs)),
                          "spy_drawdowns_15pct": len(dd), "sma_exit_episodes": len(ex),
                          "min_events_registered": h["min_events"], "margin": h["pass_rule"]["margin"],
-                         "mde_80pct": v, "mde_method": how, "label": label})
+                         "mde_80pct": v, "mde_seed_min": SEED_SPREAD.get(h["hid"], (None, None))[0],
+                         "mde_seed_max": SEED_SPREAD.get(h["hid"], (None, None))[1],
+                         "label_flips_within_seed_range": bool(
+                             h["hid"] in SEED_SPREAD and
+                             (SEED_SPREAD[h["hid"]][0] > 2 * abs(h["pass_rule"]["margin"])) !=
+                             (SEED_SPREAD[h["hid"]][1] > 2 * abs(h["pass_rule"]["margin"]))),
+                         "mde_method": how, "label": label})
     df = pd.DataFrame(rows)
     df.to_csv(OUT / "budget.csv", index=False)
     summ = {"status": "Exploratory (descriptive)", "registry": "frozen d780845f", "assumptions":
             {"sigma_pp_month": SIGMA, "burn_in_months": BURN_IN, "power": 0.8, "alpha_two_sided": 0.05,
              "multiplicity": "not included in MDE; family test counts listed per row"},
             "n_hypotheses": len(df), "label_counts": df["label"].value_counts().to_dict(),
+            "cvar_mde_monte_carlo": {"sims": CVAR_SIMS, "seeds": list(CVAR_SEEDS), "grid_step": 0.025,
+                                     "rows_whose_label_flips_within_seed_range":
+                                         df.loc[df["label_flips_within_seed_range"], "hid"].tolist()},
             "by_family": df.groupby("family")["label"].value_counts().unstack(fill_value=0).to_dict(orient="index")}
     (OUT / "summary.json").write_text(json.dumps(summ, indent=1, default=str))
     print(df[["hid", "evaluable_window", "years", "recessions", "spy_drawdowns_15pct", "mde_80pct", "margin",

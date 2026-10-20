@@ -11,15 +11,31 @@
  "n_hypotheses": 76,
  "label_counts": {
   "blocked (G17)": 24,
-  "MDE <= 2x margin": 10,
-  "underpowered": 10,
+  "MDE <= 2x margin": 11,
   "underpowered; regime episodes not counted": 9,
+  "underpowered": 9,
   "no MDE method; event-limited": 8,
+  "MDE <= 2x margin; event-limited": 5,
   "no MDE method": 5,
-  "underpowered; event-limited": 4,
-  "MDE <= 2x margin; event-limited": 3,
   "no MDE method; regime episodes not counted": 2,
+  "underpowered; event-limited": 2,
   "blocked (G15)": 1
+ },
+ "cvar_mde_monte_carlo": {
+  "sims": 4000,
+  "seeds": [
+   20261018,
+   20261019,
+   20261020
+  ],
+  "grid_step": 0.025,
+  "rows_whose_label_flips_within_seed_range": [
+   "D1-01.H2",
+   "D1-12.H1",
+   "D1-12.H2",
+   "D1-12.H3",
+   "D2-06.H2"
+  ]
  },
  "by_family": {
   "F-COMP": {
@@ -71,14 +87,14 @@
    "underpowered; regime episodes not counted": 0
   },
   "F-HOUS": {
-   "MDE <= 2x margin": 1,
+   "MDE <= 2x margin": 2,
    "MDE <= 2x margin; event-limited": 1,
    "blocked (G15)": 0,
    "blocked (G17)": 6,
    "no MDE method": 2,
    "no MDE method; event-limited": 0,
    "no MDE method; regime episodes not counted": 0,
-   "underpowered": 4,
+   "underpowered": 3,
    "underpowered; event-limited": 0,
    "underpowered; regime episodes not counted": 0
   },
@@ -108,14 +124,14 @@
   },
   "F-RISKOFF": {
    "MDE <= 2x margin": 4,
-   "MDE <= 2x margin; event-limited": 2,
+   "MDE <= 2x margin; event-limited": 4,
    "blocked (G15)": 0,
    "blocked (G17)": 0,
    "no MDE method": 0,
    "no MDE method; event-limited": 0,
    "no MDE method; regime episodes not counted": 0,
    "underpowered": 0,
-   "underpowered; event-limited": 2,
+   "underpowered; event-limited": 0,
    "underpowered; regime episodes not counted": 0
   },
   "F-SECT": {
