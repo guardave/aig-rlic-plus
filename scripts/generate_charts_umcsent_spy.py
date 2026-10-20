@@ -314,6 +314,11 @@ def main() -> None:
                        "2018-01-31", "2021-12-31")
     chart_history_zoom("inflation_2022", "2022 Rate Shock: Expected Conditions Slid From the 2021 Peak and Stayed Well Below It",
                        "2021-01-31", "2025-09-30")
+    # the harness's own charts for this run (normally drawn by the pipeline): re-rendered here so a template change
+    # in scripts/harness/charts.py is picked up without rerunning the tournament
+    from harness import charts as harness_charts
+    harness_charts.lead_plateau(PAIR, DATE_TAG, "months")
+    harness_charts.chance_check(PAIR, DATE_TAG)
     print(f"Done. Charts saved to {OUT}")
 
 
