@@ -1,12 +1,12 @@
 {
   "chart_name": "local_projections",
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-10-18T13:56:30.313148+00:00",
+  "generated_at": "2026-10-20T11:45:49.627431+00:00",
   "generated_by": "scripts/generate_charts_umcsent_spy.py",
   "caption": "Estimated forward SPY return per index point of Michigan Expected Business Conditions (Newey-West errors).",
   "narrative_alignment_note": "Estimated forward SPY return per index point of Michigan Expected Business Conditions (Newey-West errors).",
   "disposition": "consumed",
   "source_artifacts": [
-    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_umcsent_spy/results/umcsent_spy/core_models_20261018/local_projections.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_umcsent_spy/results/umcsent_spy/core_models_20261020/local_projections.csv"
   ]
 }

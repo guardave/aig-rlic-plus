@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_covid",
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-10-18T13:58:00.015188+00:00",
+  "generated_at": "2026-10-20T11:47:14.742504+00:00",
   "generated_by": "scripts/generate_charts_umcsent_spy.py",
   "caption": "COVID Shock: Expected Conditions Jumped to Their Highest Reading in April 2020; gray bands are NBER recessions.",
   "narrative_alignment_note": "COVID Shock: Expected Conditions Jumped to Their Highest Reading in April 2020; gray bands are NBER recessions.",

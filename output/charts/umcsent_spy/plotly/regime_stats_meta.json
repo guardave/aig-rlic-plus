@@ -1,7 +1,7 @@
 {
   "chart_name": "regime_stats",
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-10-18T13:56:03.042002+00:00",
+  "generated_at": "2026-10-20T11:45:33.078155+00:00",
   "generated_by": "scripts/generate_charts_umcsent_spy.py",
   "caption": "SPY performance in the same month across quartiles of the Michigan Expected Business Conditions level.",
   "narrative_alignment_note": "SPY performance in the same month across quartiles of the Michigan Expected Business Conditions level.",

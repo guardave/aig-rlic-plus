@@ -1,13 +1,13 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-10-18T13:56:37.067019+00:00",
+  "generated_at": "2026-10-20T11:45:55.444581+00:00",
   "generated_by": "scripts/generate_charts_umcsent_spy.py",
   "caption": "Expected Business Conditions level coefficient across quantiles of 3-month forward SPY returns.",
   "narrative_alignment_note": "Expected Business Conditions level coefficient across quantiles of 3-month forward SPY returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_umcsent_spy/results/umcsent_spy/core_models_20261018/quantile_regression.csv",
-    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_umcsent_spy/results/umcsent_spy/core_models_20261018/quantile_equality_test.json"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_umcsent_spy/results/umcsent_spy/core_models_20261020/quantile_regression.csv",
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_umcsent_spy/results/umcsent_spy/core_models_20261020/quantile_equality_test.json"
   ]
 }

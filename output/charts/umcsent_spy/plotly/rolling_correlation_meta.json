@@ -1,7 +1,7 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-10-18T13:57:14.675522+00:00",
+  "generated_at": "2026-10-20T11:46:34.083194+00:00",
   "generated_by": "scripts/generate_charts_umcsent_spy.py",
   "caption": "Rolling 60-month correlation between the Expected Business Conditions level and SPY returns.",
   "narrative_alignment_note": "Rolling 60-month correlation between the Expected Business Conditions level and SPY returns.",

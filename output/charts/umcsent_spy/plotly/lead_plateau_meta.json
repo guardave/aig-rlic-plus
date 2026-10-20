@@ -1,12 +1,12 @@
 {
   "chart_name": "lead_plateau",
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-10-18T13:49:17.848552+00:00",
+  "generated_at": "2026-10-20T11:43:57.367935+00:00",
   "generated_by": "scripts/harness/charts.py",
   "caption": "The winner L9 sits in a stable range L7-L9.",
   "narrative_alignment_note": "The winner L9 sits in a stable range L7-L9.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/umcsent_spy/lead_curve_20261018.csv"
+    "results/umcsent_spy/lead_curve_20261020.csv"
   ]
 }

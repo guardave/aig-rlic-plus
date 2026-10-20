@@ -1,12 +1,12 @@
 {
   "chart_name": "correlation_heatmap",
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-10-18T13:56:10.109726+00:00",
+  "generated_at": "2026-10-20T11:45:37.194818+00:00",
   "generated_by": "scripts/generate_charts_umcsent_spy.py",
   "caption": "Pearson correlations between Michigan Expected Business Conditions signals and forward SPY returns.",
   "narrative_alignment_note": "Pearson correlations between Michigan Expected Business Conditions signals and forward SPY returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_umcsent_spy/results/umcsent_spy/core_models_20261018/correlations.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_umcsent_spy/results/umcsent_spy/core_models_20261020/correlations.csv"
   ]
 }

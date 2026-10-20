@@ -1,7 +1,7 @@
 {
   "chart_name": "structural_break",
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-10-18T13:57:21.591912+00:00",
+  "generated_at": "2026-10-20T11:46:40.672623+00:00",
   "generated_by": "scripts/generate_charts_umcsent_spy.py",
   "caption": "Proxy check for large changes in the expected conditions/SPY relationship.",
   "narrative_alignment_note": "Proxy check for large changes in the expected conditions/SPY relationship.",
