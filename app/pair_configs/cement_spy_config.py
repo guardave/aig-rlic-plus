@@ -149,7 +149,7 @@ class StoryConfig:
         "values with release-date timing."
     )
 
-    HERO_TITLE = "Portland Cement Shipments vs the S&P 500 (SPY)"
+    HERO_TITLE = "Portland Cement Shipments (Texas, then U.S. portland-only) vs the S&P 500 (SPY)"
     HERO_CHART_NAME = "hero"
     HERO_CAPTION = (
         "How to read it: the shipment level as published in Data Master is on the left axis and SPY on the right; "
