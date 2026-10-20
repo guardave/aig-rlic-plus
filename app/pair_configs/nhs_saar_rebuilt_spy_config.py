@@ -36,6 +36,9 @@ _GRID = P.lead_grid(PAIR)
 _GRID_RANGE = f"L{_GRID[0]}-L{_GRID[-1]}"
 _PLATEAU = W.value("plateau_leads") or []
 _AT_TOP = bool(_PLATEAU) and _PLATEAU[-1] == _GRID[-1]
+_COMP_AT_TOP = W.value("comparison_lead") == _GRID[-1]     # hindsight winner at the grid ceiling (QA F4)
+_COMP_EDGE = (f" The hindsight winner's lead (L{W.comparison_lead}) is the top of the declared lead grid "
+              f"({_GRID_RANGE} months); longer leads were not tested." if _COMP_AT_TOP else "")
 
 
 def _r71_caveat() -> str:
@@ -463,7 +466,9 @@ class StrategyConfig:
             f"The earlier research run's rule ({W.previous_rule}) was the single highest training Sharpe on revised "
             "data with fixed lags.",
         ] + ([f"The stable lead range {W.plateau_range} reaches the top of the declared lead grid ({_GRID_RANGE} "
-              "months); longer leads were not tested."] if _AT_TOP else []),
+              "months); longer leads were not tested."] if _AT_TOP else [])
+          + ([f"The hindsight winner's lead (L{W.comparison_lead}) is the top of the declared lead grid; longer "
+              "leads were not tested."] if _COMP_AT_TOP else []),
         conclusion=(
             f"Rule {_RID}: test-period Sharpe "
             f"{W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold ({W.oos_start} to {W.oos_end}), maximum "
@@ -601,7 +606,7 @@ _TOURNAMENT_DESIGN_MD = f"""
 Grid: new-home-sales transforms x zero, z-score and rolling-percentile thresholds x the long/cash strategy x procyclical/countercyclical orientations x leads {_GRID_RANGE} months, where the lead is the whole gap between the reading month and the month whose return it trades ({W.n_candidates} declared combinations; {W.n_distinct} distinct position series, the others repeat a series exactly). Each data track selects its own winner on the training period: every window of three neighbouring leads is scored by its lowest training Sharpe, the best window is the stable lead range, and the winner is the highest training Sharpe inside it.
 
 - As known at the time (headline): `{_RID}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe}, test-period Sharpe {W.oos_sharpe}. The single highest training Sharpe on this track ({W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}; it is shown for reference and is not the selection rule.
-- As revised today (hindsight): `{_RID_REVISED}`, training Sharpe {W.comparison_is_sharpe}, test-period Sharpe {W.comparison_oos_sharpe}.{_COMP_TAIL}
+- As revised today (hindsight): `{_RID_REVISED}`, training Sharpe {W.comparison_is_sharpe}, test-period Sharpe {W.comparison_oos_sharpe}.{_COMP_EDGE}{_COMP_TAIL}
 - Cross-evaluation: the headline rule scored on revised data has test-period Sharpe {W.ce_main_on_revised_oos_sharpe}; the hindsight rule scored on data as known at the time has {W.ce_revised_on_main_oos_sharpe}.
 - Chance check: across {W.null_draws} contests run on circularly shifted home-sales data, {_CHANCE_TEXT}.
 - Earlier research run: `{W.previous_rule}` ({W.previous_selection}; research run of {W.previous_tag} on the branch spike261015_is_oos_floor, never shown on the main site; not the lead-floor branch's result). In that earlier research run its test-period Sharpe was {W.previous_oos_sharpe}. The new framework replays that earlier research run exactly (same rows, same winner, same returns).
