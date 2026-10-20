@@ -1,7 +1,7 @@
 {
   "chart_name": "hero",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-20T13:24:42.505178+00:00",
+  "generated_at": "2026-10-20T15:02:13.890366+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
   "caption": "ISM Manufacturing PMI and SPY with NBER recessions; pink bands mark months with the PMI below 50 (contraction) and the dotted line marks 50. Values as revised today (no archive of past values).",
   "narrative_alignment_note": "ISM Manufacturing PMI and SPY with NBER recessions; pink bands mark months with the PMI below 50 (contraction) and the dotted line marks 50. Values as revised today (no archive of past values).",

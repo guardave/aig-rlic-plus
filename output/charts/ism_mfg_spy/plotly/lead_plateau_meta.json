@@ -1,7 +1,7 @@
 {
   "chart_name": "lead_plateau",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-20T13:24:31.233435+00:00",
+  "generated_at": "2026-10-20T15:01:57.981122+00:00",
   "generated_by": "scripts/harness/charts.py",
   "caption": "The winner L10 sits in a stable range L8-L10. The highest single point, L2, was not chosen because its neighbours score lower.",
   "narrative_alignment_note": "The winner L10 sits in a stable range L8-L10. The highest single point, L2, was not chosen because its neighbours score lower.",

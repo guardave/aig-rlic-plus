@@ -1,7 +1,7 @@
 {
   "chart_name": "ccf_prewhitened",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-20T13:24:55.004218+00:00",
+  "generated_at": "2026-10-20T15:02:27.775664+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
   "caption": "Cross-correlation between the monthly change in the ISM Manufacturing PMI and SPY returns.",
   "narrative_alignment_note": "Cross-correlation between the monthly change in the ISM Manufacturing PMI and SPY returns.",

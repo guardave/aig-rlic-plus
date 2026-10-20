@@ -1,7 +1,7 @@
 {
   "chart_name": "structural_break",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-20T13:25:27.802728+00:00",
+  "generated_at": "2026-10-20T15:03:04.518988+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
   "caption": "Proxy check for large changes in the ISM PMI/SPY relationship.",
   "narrative_alignment_note": "Proxy check for large changes in the ISM PMI/SPY relationship.",

@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_dotcom",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-20T13:25:39.441225+00:00",
+  "generated_at": "2026-10-20T15:03:15.609213+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
   "caption": "Dot-Com Bust: The PMI Fell Below 50 in 2000 and Bottomed in Late 2001; gray bands are NBER recessions and pink bands mark months with the PMI below 50 (contraction).",
   "narrative_alignment_note": "Dot-Com Bust: The PMI Fell Below 50 in 2000 and Bottomed in Late 2001; gray bands are NBER recessions and pink bands mark months with the PMI below 50 (contraction).",

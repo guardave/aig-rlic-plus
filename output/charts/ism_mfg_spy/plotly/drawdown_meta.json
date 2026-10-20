@@ -1,7 +1,7 @@
 {
   "chart_name": "drawdown",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-20T13:25:12.660614+00:00",
+  "generated_at": "2026-10-20T15:02:48.611804+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
   "caption": "Drawdown comparison for the winner strategy (as revised today) and SPY buy-and-hold.",
   "narrative_alignment_note": "Drawdown comparison for the winner strategy (as revised today) and SPY buy-and-hold.",
