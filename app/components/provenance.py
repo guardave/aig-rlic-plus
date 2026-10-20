@@ -312,6 +312,38 @@ def deployed_signal(pair_id: str, rdir=None):
     return df[[c for c in ("signal", "threshold", "position") if c in df.columns]]
 
 
+R71_NULL_FILE = {"main": "null_tournament", "comparison": "hindsight_null_tournament"}
+
+
+def r71_calibration(pair_id: str, track: str = "main", rdir=None) -> tuple[str, dict | None, str]:
+    """(status, record, reason) of the track's calibrated R7.1 reference, results/<pair>/r71_calibration_<tag>.json
+    (written by a separate script, not the pipeline; Lead decoupling decision 2026-10-19). status: "ok" (record
+    present, run tag and null-file sha256 match the current run), "pending" (no artifact / no record for the track),
+    "stale" (artifact for another run or a null file that has changed since). The record is tagged in gate mode."""
+    import hashlib
+    rdir = Path(rdir or RESULTS / pair_id)
+    try:
+        tag = run_tag(json.loads((rdir / "winner_summary.json").read_text()))
+    except (OSError, ValueError):
+        return "pending", None, "no winner_summary"
+    f = rdir / f"r71_calibration_{tag}.json" if tag else None
+    if f is None or not f.is_file():
+        others = sorted(rdir.glob("r71_calibration_*.json"))
+        return ("stale", None, f"calibration on file is for another run ({others[-1].name})") if others else \
+            ("pending", None, "no calibration artifact")
+    data = json_file(f) if gate_on() else json.loads(f.read_text())
+    rec = (data.get("tracks") or {}).get(track)
+    if not rec:
+        return "pending", None, f"no calibration record for the {track} track"
+    nf = rdir / f"{R71_NULL_FILE[track]}_{tag}.csv"
+    if not nf.is_file():
+        return "stale", None, f"null file {nf.name} is missing"
+    sha = hashlib.sha256(nf.read_bytes()).hexdigest()
+    if str(rec.get("null_file")) != nf.name or str(rec.get("null_sha256")) != sha:
+        return "stale", None, f"calibration was computed from a different null file than {nf.name}"
+    return "ok", rec, ""
+
+
 def resolve_current(pair_id: str, stem: str, ext: str = "csv", rdir=None) -> Path | None:
     """current_file for page components: a missing Phase B current-run file is shown as an error on the page and
     the component renders nothing from another run."""

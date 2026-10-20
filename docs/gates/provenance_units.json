@@ -86,6 +86,21 @@
       "why": "Sharpe difference vs buy-and-hold and its bootstrap interval"
     },
     {
+      "pattern": "r71_calibration_\\d{8}\\.json#/tracks/\\w+/(?:T|centre|critical_value)$",
+      "kind": "sharpe",
+      "why": "calibrated R7.1 reference: mean timing Sharpe, reference centre and 95% half-width (Sharpe units)"
+    },
+    {
+      "pattern": "r71_calibration_\\d{8}\\.json#/tracks/\\w+/B$",
+      "kind": "count",
+      "why": "number of simulated return paths"
+    },
+    {
+      "pattern": "r71_calibration_\\d{8}\\.json#/tracks/\\w+/p_value$",
+      "kind": "pvalue",
+      "why": "add-one two-sided p-value of the calibrated reference"
+    },
+    {
       "pattern": "/(?:insufficient_reason|main_not_eligible)/min_required$",
       "kind": "count",
       "why": "minimum training rows the method requires (rt_insufficient reason)"

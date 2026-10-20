@@ -351,6 +351,27 @@ def _check_no_main_winner(pair: str, rdir: Path, ws: dict) -> tuple[list[str], l
                   f"{len(t)} candidates, reason, hindsight winner and buy-and-hold"]
 
 
+def _r71_calibration(pair: str, rdir: Path, ws: dict) -> tuple[list[str], list[str]]:
+    """Calibrated R7.1 reference (r71_calibration_<run_tag>.json, Lead decoupling 2026-10-19): STALE (another run,
+    or a null file changed since) is hard; PENDING (no artifact yet) and OK are INFO."""
+    if "tracks" not in ws:
+        return [], []
+    if str(REPO / "app") not in sys.path:
+        sys.path.insert(0, str(REPO / "app"))
+    from components import provenance as P
+    hard, soft = [], []
+    for track, rec in (ws.get("tracks") or {}).items():
+        if not (rec or {}).get("null_tournament"):
+            continue
+        status, _r, why = P.r71_calibration(pair, track, rdir)
+        if status == "stale":
+            hard.append(f"R71: calibrated reference for the {track} track is STALE ({why})")
+        else:
+            soft.append(f"INFO: R71 calibrated reference for the {track} track: {status.upper()}"
+                        + (f" ({why})" if why else ""))
+    return hard, soft
+
+
 def check_pair(pair: str) -> tuple[list[str], list[str]]:
     """(hard_failures, soft_warnings)."""
     rdir = REPO / "results" / pair
@@ -361,8 +382,10 @@ def check_pair(pair: str) -> tuple[list[str], list[str]]:
     hard: list[str] = []
     soft: list[str] = []
 
+    r71_hard, r71_soft = _r71_calibration(pair, rdir, ws)
     if ws.get("main_eligible") is False and not ws.get("selection"):
-        return _check_no_main_winner(pair, rdir, ws)
+        h, s_ = _check_no_main_winner(pair, rdir, ws)
+        return h + r71_hard, s_ + r71_soft
 
     win_lead = int(ws.get("lead_value", ws.get("lead_months")))
     win_sharpe = float(ws["oos_sharpe"])
@@ -467,7 +490,7 @@ def check_pair(pair: str) -> tuple[list[str], list[str]]:
             src = "\n\n".join(t for _, t in config_prose(cfg))
         soft.extend(check_prose(src, ws, other_sigs))
 
-    return hard, soft
+    return hard + r71_hard, soft + r71_soft
 
 
 def main() -> int:

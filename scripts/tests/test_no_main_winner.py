@@ -156,3 +156,53 @@ def test_single_track_no_archive_pages_never_claim_as_known_at(pair):
     txt = "\n".join(_page_text(pair).values())
     assert not re.search(r"\bas[- ]known[- ]at", txt, re.I), re.search(r".{80}\bas[- ]known[- ]at.{80}", txt,
                                                                        re.I | re.S)
+
+
+def _cal_pair(tmp_path, null_text="draw,offset\n0,5\n", rec_sha=None, tag=TAG, track="main"):
+    import hashlib
+    d = tmp_path / "results" / "toy_spy"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "winner_summary.json").write_text(json.dumps({"run_tag": TAG, "tracks": {"main": {}}}))
+    (d / f"null_tournament_{TAG}.csv").write_text(null_text)
+    sha = rec_sha or hashlib.sha256(null_text.encode()).hexdigest()
+    (d / f"r71_calibration_{tag}.json").write_text(json.dumps({"tracks": {track: {
+        "null_file": f"null_tournament_{TAG}.csv", "null_sha256": sha, "method": "stationary bootstrap",
+        "B": 199, "T": -0.196, "centre": -0.01, "critical_value": 0.17, "pass": False, "p_value": 0.03}}}))
+    return d
+
+
+def test_r71_calibration_artifact_status(tmp_path):
+    # Lead decoupling: the calibrated reference is a separate artifact hash-bound to the null file
+    d = _cal_pair(tmp_path)
+    assert P.r71_calibration("toy_spy", "main", d)[0] == "ok"
+    assert P.r71_calibration("toy_spy", "comparison", d)[0] == "pending"           # no record for the track
+    (d / f"null_tournament_{TAG}.csv").write_text("draw,offset\n0,6\n")            # null changed since
+    assert P.r71_calibration("toy_spy", "main", d)[0] == "stale"
+    d2 = _cal_pair(tmp_path / "b", tag="20261001")                                 # artifact of another run
+    assert P.r71_calibration("toy_spy", "main", d2)[0] == "stale"
+    (d2 / "r71_calibration_20261001.json").unlink()
+    assert P.r71_calibration("toy_spy", "main", d2)[0] == "pending"
+
+
+def test_r71_note_pending_text_on_the_pilots():
+    note = two_track.r71_note("unrate_spy")
+    assert "understates the spread of the null mean" in note and "calibrated reference is pending" in note
+
+
+def test_r71_note_uses_the_calibrated_reference_and_gate_flags_stale(tmp_path, monkeypatch):
+    d = _cal_pair(tmp_path)
+    ws = {"run_tag": TAG, "tracks": {"main": {"null_tournament": {
+        "timing_sharpe_mean": -0.196, "timing_sharpe_se_dependent": 0.058, "r71_tolerance": 0.117, "r71_pass": False}}}}
+    (d / "winner_summary.json").write_text(json.dumps(ws))
+    monkeypatch.setattr(two_track, "__file__", str(tmp_path / "app" / "components" / "two_track.py"))
+    monkeypatch.setattr(P, "RESULTS", tmp_path / "results")
+    note = two_track.r71_note("toy_spy")
+    assert "calibrated reference (199 simulated return paths" in note and "does not pass" in note
+    assert "pending" not in note
+    monkeypatch.setattr(gc, "REPO", tmp_path)
+    hard, _soft = gc._r71_calibration("toy_spy", d, ws)
+    assert hard == []
+    (d / f"null_tournament_{TAG}.csv").write_text("draw,offset\n0,7\n")
+    hard, _soft = gc._r71_calibration("toy_spy", d, ws)
+    assert hard and "STALE" in hard[0]
+    assert "calibrated reference is pending" in two_track.r71_note("toy_spy")

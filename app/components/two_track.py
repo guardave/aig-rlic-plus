@@ -560,12 +560,19 @@ def r71_note(pair_id: str, track: str = "main", label: str = "Calibration check 
         return ""
     if m is None or se is None or tol is None or ok is None:
         return ""
+    st_, cal, _why = P.r71_calibration(pair_id, track)
+    if st_ == "ok":          # calibrated reference on file for this run (r71_calibration_<tag>.json)
+        return (f" {label} against a calibrated reference ({cal['B']:.0f} simulated return paths, "
+                f"{cal['method']}): the scrambled contests' winners have a mean timing Sharpe of {cal['T']:.3f}, "
+                f"against a reference centre of {cal['centre']:.3f} and a 95% half-width of "
+                f"{cal['critical_value']:.3f}; the check {'passes' if bool(cal['pass']) else 'does not pass'}.")
     out = (f" {label}: the scrambled contests' winners have a mean timing Sharpe of {m:.3f}"
            f" (dependence-aware standard error {se:.3f}) against a tolerance of {tol:.3f} in absolute value;"
            f" the check {'passes' if bool(ok) else 'does not pass'}")
     if float(se) * 2 < float(tol) and bool(ok):    # QA EF F6: not appended to a failure, where it read as an excuse
         out += " (the tolerance is set by its fixed floor, not by the standard error)"
-    return out + "."
+    return out + (". This standard error understates the spread of the null mean (independent QA and Codex review); "
+                  "a calibrated reference is pending.")
 
 
 def comparison_chance_note(pair_id: str, ts: dict) -> str:
