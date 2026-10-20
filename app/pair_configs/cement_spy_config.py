@@ -394,6 +394,11 @@ class StrategyConfig:
 
     PLAIN_ENGLISH = f"The rule is to {_RULE}. It is a lagged construction-activity rule, not a real-time forecast."
 
+    # the series' coverage change (Texas to the U.S. portland-only total), read from the basis-check artifact; the
+    # Strategy signal panel marks it like the pair's other charts (QA final F5)
+    SIGNAL_COVERAGE_CHANGES = [{"date": _IT["first_month_not_equal"],
+                                "label": "Coverage change: Texas to U.S. portland-only"}]
+
     EXECUTIVE_CONFIDENCE_SUMMARY = dict(
         status="",
         status_detail=("Selected on the training period from today's revised cement values (no archive of first "
