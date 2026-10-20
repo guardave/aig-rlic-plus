@@ -1,12 +1,12 @@
 {
   "chart_name": "equity_curves",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-18T09:04:45.892753+00:00",
+  "generated_at": "2026-10-20T10:40:42.342749+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Winner strategy (as known at the time: real-time IR vintages) equity curve compared with buy-and-hold SPY, both from the first training month.",
   "narrative_alignment_note": "Winner strategy (as known at the time: real-time IR vintages) equity curve compared with buy-and-hold SPY, both from the first training month.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_import_price_spy/results/import_price_spy/strategy_returns_20261018.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_import_price_spy/results/import_price_spy/strategy_returns_20261020.csv"
   ]
 }

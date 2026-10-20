@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_gfc",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-18T09:05:13.558591+00:00",
+  "generated_at": "2026-10-20T10:41:59.206006+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Global Financial Crisis: Import Prices Peaked With Oil, Then Collapsed; gray bands are NBER recessions and pink bands mark import prices below their year-earlier level.",
   "narrative_alignment_note": "Global Financial Crisis: Import Prices Peaked With Oil, Then Collapsed; gray bands are NBER recessions and pink bands mark import prices below their year-earlier level.",

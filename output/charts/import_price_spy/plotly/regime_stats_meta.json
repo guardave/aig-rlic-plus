@@ -1,7 +1,7 @@
 {
   "chart_name": "regime_stats",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-18T09:04:23.537264+00:00",
+  "generated_at": "2026-10-20T10:39:53.813278+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "SPY performance in the same month across quartiles of year-over-year import-price growth.",
   "narrative_alignment_note": "SPY performance in the same month across quartiles of year-over-year import-price growth.",

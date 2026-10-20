@@ -1,12 +1,12 @@
 {
   "chart_name": "correlation_heatmap",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-18T09:04:28.070068+00:00",
+  "generated_at": "2026-10-20T10:40:04.339986+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Pearson correlations between import-price growth transforms and forward SPY returns.",
   "narrative_alignment_note": "Pearson correlations between import-price growth transforms and forward SPY returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_import_price_spy/results/import_price_spy/core_models_20261018/correlations.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_import_price_spy/results/import_price_spy/core_models_20261020/correlations.csv"
   ]
 }

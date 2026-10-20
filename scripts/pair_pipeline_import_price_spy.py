@@ -40,7 +40,7 @@ from harness.evidence import write_evidence_facts  # noqa: E402
 from harness.run import run_pair  # noqa: E402
 
 PAIR_ID = "import_price_spy"
-DATE_TAG = "20261018"  # Phase B B1: harness, two tracks, D9 plateau, registry grid L2..L13, null K=100, bootstrap
+DATE_TAG = "20261020"  # Phase B B1 post-Codex rerun: harness v2 (run_tag), null v4, templates; registry grid L2..L13
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
 EVIDENCE_SIGNAL = "import_price_yoy"   # YoY growth: the transform the legacy evidence tests used (REP_SIGNAL)
@@ -433,7 +433,9 @@ NARRATIVE_SOURCES = ["regime_quartile_returns.csv", "granger_by_lag.csv", "subpe
 
 def write_narrative_provenance() -> None:
     """evidence_facts_<tag>.json: the evidence tables the page prose cites (scripts/gate_number_provenance.py)."""
-    n_rows = len(pd.read_csv(RES / "winner_trades_broker_style.csv"))
+    log = pd.read_csv(RES / "winner_trades_broker_style.csv")
+    n_rows = len(log)
+    n_rows_oos = int((pd.to_datetime(log["trade_date"]) >= pd.Timestamp(spec_mod.SPEC.oos_start)).sum())
     sr = pd.read_csv(RES / f"strategy_returns_{DATE_TAG}.csv")
     oos = sr.loc[sr["sample"] == "OOS", "position"].to_numpy(float)
     d = np.abs(np.diff(oos[~np.isnan(oos)]))
@@ -441,6 +443,7 @@ def write_narrative_provenance() -> None:
     best = gr.loc[gr["p_value"].idxmin()]
     write_evidence_facts(PAIR_ID, DATE_TAG, sources=NARRATIVE_SOURCES, derived={
         "n_trade_log_rows": n_rows,
+        "n_trade_log_rows_oos": n_rows_oos,
         "position_change_threshold_pp": POSITION_CHANGE_THRESHOLD_PP,
         "oos_months_position_change_gt_5pct": int((d > POSITION_CHANGE_THRESHOLD_PP / 100).sum()),
         "oos_sum_abs_position_change": round(float(d.sum()), 4),

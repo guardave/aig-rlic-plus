@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_inflation_2022",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-18T09:05:19.714487+00:00",
+  "generated_at": "2026-10-20T10:42:13.947634+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "2022 Rate Shock: Import Prices Peaked in Mid-2022 as Equities Sold Off; gray bands are NBER recessions and pink bands mark import prices below their year-earlier level. October 2025 has no published reading (the line has a gap there).",
   "narrative_alignment_note": "2022 Rate Shock: Import Prices Peaked in Mid-2022 as Equities Sold Off; gray bands are NBER recessions and pink bands mark import prices below their year-earlier level. October 2025 has no published reading (the line has a gap there).",

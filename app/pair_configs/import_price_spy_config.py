@@ -4,8 +4,8 @@ Phase B: every result number is rendered from the structured winner fields (resu
 winner_summary.json `winner_fields`, via components.winner_fields) or from the evidence tables listed in
 evidence_facts; none is typed here (scripts/gate_structured_prose.py, scripts/gate_number_provenance.py).
 MAIN = as known at the time (real-time IR vintages, ALFRED, from 2010-03 only); COMPARISON = as revised today
-(hindsight). The previous rule of this page (20261016 run, commit 1d06839f, development lineage) is replayed exactly
-by the harness and named from the previous_* fields. The main site still shows an older rule from an earlier run.
+(hindsight). The earlier research run (20261016, commit 1d06839f on branch feat261016_pit_release, never on the main
+site) is replayed exactly by the harness and named from the previous_* fields. The main site still shows an older rule.
 """
 
 from __future__ import annotations
@@ -441,10 +441,11 @@ class StrategyConfig:
     )
 
     STATISTICAL_FRAMING_BANNER = (
-        f"Update (2026-10-18). The previous development version of this page reported the rule {W.previous_rule} "
-        f"(test-period Sharpe {W.previous_oos_sharpe}, run of {W.previous_tag}), the single highest training Sharpe "
-        "on revised data with fixed release lags; that version was not published on the main site, which still shows "
-        "an older rule from an earlier run with a different lead grid and selection method. The page now reports the rule "
+        f"Earlier research run. A research run of {W.previous_tag} on the branch feat261016_pit_release reported the "
+        f"rule {W.previous_rule} (earlier research run: test-period Sharpe {W.previous_oos_sharpe}). That run was never "
+        "shown on the main site, which still shows an older rule from an earlier run with a different lead grid and "
+        "selection method. The earlier research run's rule was the single highest training Sharpe on revised data "
+        "with fixed release lags. The page now reports the rule "
         "selected on the training period from data as known at the time, with point-in-time release dates and the "
         "stable-lead-range rule; today's revised data are shown for comparison only."
     )
@@ -473,7 +474,7 @@ class StrategyConfig:
             f"at the time ({W.is_start} to {W.is_end}) covers no recession.",
             f"The rule selected on revised data {'is the same' if _SAME_RULE else 'differs'} (hindsight test-period "
             f"Sharpe {W.comparison_oos_sharpe}).",
-            f"The previous rule of this page ({W.previous_rule}) was the single highest training Sharpe on revised "
+            f"The earlier research run's rule ({W.previous_rule}) was the single highest training Sharpe on revised "
             "data with fixed lags.",
         ] + ([f"The stable lead range {W.plateau_range} reaches the top of the declared lead grid ({_GRID_RANGE} "
               "months); longer leads were not tested."] if _AT_TOP else []),
@@ -491,7 +492,7 @@ class StrategyConfig:
         {"label": "Tournament results (as known at the time)", "path": f"results/{PAIR}/tournament_results_{_TAG}.csv"},
         {"label": "Tournament results (as revised today, hindsight)",
          "path": f"results/{PAIR}/hindsight_tournament_results_{_TAG}.csv"},
-        {"label": f"Previous rule's tournament (run of {W.previous_tag}, replayed exactly)",
+        {"label": f"Earlier research run tournament ({W.previous_tag}, replayed exactly)",
          "path": f"results/{PAIR}/tournament_results_{W.value('previous_tag')}.csv"},
         {"label": "Stationarity tests", "path": f"results/{PAIR}/stationarity_tests_{_TAG}.csv"},
     ]
@@ -552,7 +553,7 @@ This describes the backtested rule so it can be audited; it is not a trading rec
 
 - The result is marked `found_in_search`; it still needs a frozen-rule holdout confirmation.
 - The headline uses import-price data as known at the time; that archive starts on {_FIRST_VINTAGE}, so its training period ({W.is_start} to {W.is_end}) is short and contains no recession. On today's revised data the selected rule {'is the same' if _SAME_RULE else 'is different'} (test-period Sharpe {W.comparison_oos_sharpe}, hindsight).
-- The previous rule of this page ({W.previous_rule}, run of {W.previous_tag}) was the single highest training Sharpe on revised data with fixed lags; the new framework replays it exactly and no longer selects it.
+- The earlier research run's rule ({W.previous_rule}, research run of {W.previous_tag} on the branch feat261016_pit_release, never on the main site) was the single highest training Sharpe on revised data with fixed lags; the new framework replays it exactly and no longer selects it.
 - All-commodity import prices move closely with oil and the dollar; falling import prices can signal a demand collapse as easily as relief from inflation.
 {_R71_CAVEAT}
 """
@@ -560,7 +561,10 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     TRADE_LOG_EXAMPLE_MD = (
         "**A concrete example from this pair:** the broker-style log records each switch between SPY and cash "
         f"that the rule makes when the {_SIG} reading crosses {_THR}. It covers the full reconstructed history "
-        f"({_EV['n_trade_log_rows']} rows), not only the test period."
+        f"({_EV['n_trade_log_rows']} rows), not only the test period. Of those rows, {_EV['n_trade_log_rows_oos']} are "
+        f"dated in the test period; the headline's {W.oos_n_trades} switches count only changes between consecutive test-period "
+        "months" + (", so the switch made at the first test month is in the log but not in the headline count."
+                    if _EV['n_trade_log_rows_oos'] - W.value('oos_n_trades') == 1 else ".")
     )
 
     TRADE_LOG_COLUMN_EXAMPLES = {
@@ -623,7 +627,7 @@ Grid: import-price growth transforms x zero, z-score and rolling-percentile thre
 - As revised today (hindsight): `{_RID_REVISED}`, stable lead range {W.comparison_plateau_range}, training Sharpe {W.comparison_is_sharpe} ({W.comparison_is_start} to {W.comparison_is_end}), test-period Sharpe {W.comparison_oos_sharpe}.{_C_TOP_TEXT}{_COMP_TAIL}
 - Cross-evaluation: the headline rule scored on revised data has test-period Sharpe {W.ce_main_on_revised_oos_sharpe}; the hindsight rule scored on data as known at the time has {W.ce_revised_on_main_oos_sharpe}{_CE_NOTE}.
 - Chance check: across {W.null_draws} contests run on circularly shifted import-price data, {_CHANCE_TEXT}.
-- Previous rule of this page: `{W.previous_rule}` ({W.previous_selection}; run of {W.previous_tag}, development version, not published on the main site), test-period Sharpe {W.previous_oos_sharpe}. The new framework replays that run exactly (same rows, same winner, same returns).
+- Earlier research run (a research run of {W.previous_tag} on the branch feat261016_pit_release, never on the main site): `{W.previous_rule}` ({W.previous_selection}), earlier-research-run test-period Sharpe {W.previous_oos_sharpe}. The new framework replays that run exactly (same rows, same winner, same returns).
 """
 
 _REFERENCES_MD = """

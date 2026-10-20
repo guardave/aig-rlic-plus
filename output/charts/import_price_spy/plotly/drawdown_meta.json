@@ -1,12 +1,12 @@
 {
   "chart_name": "drawdown",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-18T09:04:48.957748+00:00",
+  "generated_at": "2026-10-20T10:40:50.164114+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Drawdown comparison for the winner strategy (as known at the time) and SPY buy-and-hold.",
   "narrative_alignment_note": "Drawdown comparison for the winner strategy (as known at the time) and SPY buy-and-hold.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_import_price_spy/results/import_price_spy/strategy_returns_20261018.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_import_price_spy/results/import_price_spy/strategy_returns_20261020.csv"
   ]
 }

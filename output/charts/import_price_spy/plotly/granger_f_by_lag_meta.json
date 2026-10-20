@@ -1,12 +1,12 @@
 {
   "chart_name": "granger_f_by_lag",
   "pair_id": "import_price_spy",
-  "generated_at": "2026-10-18T09:04:34.544091+00:00",
+  "generated_at": "2026-10-20T10:40:19.932421+00:00",
   "generated_by": "scripts/generate_charts_import_price_spy.py",
   "caption": "Granger p-values by lag for year-over-year import-price growth predicting SPY returns, with Holm-adjusted p-values across the lags tested.",
   "narrative_alignment_note": "Granger p-values by lag for year-over-year import-price growth predicting SPY returns, with Holm-adjusted p-values across the lags tested.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_import_price_spy/results/import_price_spy/core_models_20261018/granger_causality.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_import_price_spy/results/import_price_spy/core_models_20261020/granger_causality.csv"
   ]
 }
