@@ -78,9 +78,25 @@ def test_escalation_rule():
     assert "0.2" in C.ESCALATION_RULE and "99" in C.ESCALATION_RULE and "199" in C.ESCALATION_RULE
 
 
+def test_escalation_uses_the_unrounded_margin():
+    # Codex closure E1: 0.19996 was rounded to 0.2000 before the strict < 0.20 test and skipped escalation
+    near = {"pass": True, "margin_ratio": round(0.19996, 4), "_margin_ratio": 0.19996}
+    assert near["margin_ratio"] == 0.2
+    esc, why = C.needs_escalation(near, {"pass": True, "margin_ratio": 0.5, "_margin_ratio": 0.5})
+    assert esc and "0.19996" in why
+    # decide() carries the unrounded value next to the rounded field
+    s, c = np.array([0.0, 0.2, -0.3, 0.4, 0.1]), np.array([2, 2, 3, 4, 1])
+    rec = C.decide(0.32, s, c)
+    assert rec["_margin_ratio"] == pytest.approx(abs(0.22 - 0.18) / 0.18) and rec["margin_ratio"] == round(
+        rec["_margin_ratio"], 4)
+
+
 def test_harness_commit_is_never_blank(monkeypatch):
     import subprocess
-    assert C.harness_commit("abc1234") == "abc1234"
+    assert C.harness_commit("abc1234") == "abc1234" and C.harness_commit(" abc1234\n") == "abc1234"
+    for blank in ("", "   ", "\n\t"):                                   # Codex closure C7-E
+        with pytest.raises(ValueError, match="blank"):
+            C.harness_commit(blank)
     head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True,
                           env={k: v for k, v in __import__("os").environ.items() if not k.startswith("GIT_")},
                           check=True).stdout.strip()
@@ -136,6 +152,7 @@ def test_producer_binds_the_current_null_file_shares_paths_and_uses_the_v4_windo
     assert rec["null_file"] == nf.name and rec["null_sha256"] == hashlib.sha256(nf.read_bytes()).hexdigest()
     assert rec["T"] == pytest.approx(round(float(null["timing_sharpe"].dropna().mean()), 4), abs=0)
     assert rec["harness_commit"] and len(rec["harness_commit"]) == 40
+    assert "_margin_ratio" not in rec and "_margin_ratio" not in rec["sensitivity"]
     # paths: B stationary of mean L, sens_B_max circular of 2L, drawn once up front
     L = rec["L"]
     assert paths == [(L, "stationary")] * 3 + [(2 * L, "circular")] * 3

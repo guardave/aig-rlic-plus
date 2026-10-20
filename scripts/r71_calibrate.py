@@ -132,6 +132,7 @@ def decide(T: float, s: np.ndarray, c: np.ndarray) -> dict:
             "p_value": round(float((1 + np.sum(dev >= d)) / (len(Ts) + 1)), 4), "sd": round(float(np.std(Ts, ddof=1)), 4),
             "p_resolution": round(1.0 / (len(Ts) + 1), 4), "tail_paths": int(np.sum(dev > q)),
             "margin_ratio": round(abs(d - q) / q, 4) if q > 0 else None,
+            "_margin_ratio": abs(d - q) / q if q > 0 else None,      # unrounded: the escalation rule's input
             "selected_draws": {"min": int(c.min()), "max": int(c.max()),
                                "distribution": {str(int(v)): int(f) for v, f in zip(vals, freq)}}}
 
@@ -143,8 +144,9 @@ def needs_escalation(prim: dict, sens: dict) -> tuple[bool, str]:
     if prim["pass"] != sens["pass"]:
         why.append("primary and sensitivity disagree")
     for name, r in (("primary", prim), ("sensitivity", sens)):
-        if r["margin_ratio"] is None or r["margin_ratio"] < ESCALATE_MARGIN:
-            why.append(f"{name} margin {r['margin_ratio']} < {ESCALATE_MARGIN}")
+        m = r.get("_margin_ratio", r["margin_ratio"])     # unrounded (Codex closure E1: 0.19996 was stored as 0.2)
+        if m is None or m < ESCALATE_MARGIN:
+            why.append(f"{name} margin {m if m is None else round(m, 6)} < {ESCALATE_MARGIN}")
     return bool(why), "; ".join(why)
 
 
@@ -172,8 +174,10 @@ def score_paths(spec, make, offsets, groups, is_start, log=print, tag="") -> lis
 def harness_commit(explicit: str | None = None) -> str:
     """The harness commit the artifact is computed with: --harness-commit for a controlled overlay, otherwise
     `git rev-parse HEAD` of the repo, which must succeed (Codex option-C C7: never blank provenance)."""
-    if explicit:
-        return explicit
+    if explicit is not None:                          # Codex closure C7-E: a blank value is not provenance
+        if not explicit.strip():
+            raise ValueError("--harness-commit is blank")
+        return explicit.strip()
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
     out = subprocess.run(["git", "rev-parse", "HEAD"], cwd=R.REPO, env=env, capture_output=True, text=True,
                          check=True).stdout.strip()
@@ -224,6 +228,8 @@ def calibrate_track(mod, track: str, B: int = 199, sens_B: int = 99, sens_B_max:
         ss, sc = np.concatenate([ss, xs]), np.concatenate([sc, xc])
         sens = decide(T, ss, sc)
     sB = len(ss)
+    for r in (prim, sens):
+        r.pop("_margin_ratio", None)                   # the artifact keeps the rounded field only
     return {"null_file": nf.name, "null_sha256": hashlib.sha256(nf.read_bytes()).hexdigest(), "T": round(T, 4),
             "K": int(null["timing_sharpe"].notna().sum()), "method": METHOD, "B": B,
             "block_rule": BLOCK_RULE, "L": L, "L_raw": round(L_raw, 3), "L_floor": L_FLOOR,
