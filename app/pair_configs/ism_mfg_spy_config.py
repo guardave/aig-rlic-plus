@@ -6,8 +6,8 @@ here (scripts/gate_structured_prose.py, scripts/gate_number_provenance.py).
 
 ONE track (track_policy single_revised_no_archive): the ISM Manufacturing PMI has no public archive of past values
 (registry value_vintage revised_no_archive), so the backtest uses today's values with release-calendar timing; the
-shared data-basis strip states that from track_summary.json. The previous rule of this page (20261016 run, commit
-1d06839f, development lineage) is replayed exactly by the harness and named from the previous_* fields. The main
+shared data-basis strip states that from track_summary.json. The earlier research run (20261016, commit 1d06839f on
+branch feat261016_pit_release, never on the main site) is replayed exactly and named from the previous_* fields. The main
 site still shows an older rule from an earlier run.
 """
 
@@ -431,10 +431,11 @@ class StrategyConfig:
     )
 
     STATISTICAL_FRAMING_BANNER = (
-        f"Update (2026-10-18). The previous development version of this page reported the rule {W.previous_rule} "
-        f"(test-period Sharpe {W.previous_oos_sharpe}, run of {W.previous_tag}), the single highest training Sharpe "
-        "with fixed release lags; that version was not published on the main site, which still shows an older rule "
-        "from an earlier run with a different lead grid and selection method. The page now reports the rule selected "
+        f"Earlier research run. A research run of {W.previous_tag} on the branch feat261016_pit_release reported the "
+        f"rule {W.previous_rule} (earlier research run: test-period Sharpe {W.previous_oos_sharpe}). That run was never "
+        "shown on the main site, which still shows an older rule from an earlier run with a different lead grid and "
+        "selection method. The earlier research run's rule was the single highest training Sharpe with fixed release "
+        "lags. The page now reports the rule selected "
         "on the training period with point-in-time release dates and the stable-lead-range rule. There is still one "
         "data track: no archive of earlier ISM values exists."
     )
@@ -462,7 +463,7 @@ class StrategyConfig:
             "seasonal-factor revisions cannot be measured.",
             f"The single highest training Sharpe in the grid ({W.raw_argmax_rule} at L{W.raw_argmax_lead}) lies "
             f"{W.raw_argmax_position}; it was not chosen.",
-            f"The previous rule of this page ({W.previous_rule}) was the single highest training Sharpe with fixed "
+            f"The earlier research run's rule ({W.previous_rule}) was the single highest training Sharpe with fixed "
             "lags.",
         ] + ([f"The stable lead range {W.plateau_range} reaches the top of the declared lead grid ({_GRID_RANGE} "
               "months); longer leads were not tested."] if _AT_TOP else []),
@@ -477,7 +478,7 @@ class StrategyConfig:
         {"label": "Granger causality by lag", "path": f"results/{PAIR}/granger_by_lag.csv"},
         {"label": "Regime quartile returns", "path": f"results/{PAIR}/regime_quartile_returns.csv"},
         {"label": "Tournament results (today's ISM values)", "path": f"results/{PAIR}/tournament_results_{_TAG}.csv"},
-        {"label": f"Previous rule's tournament (run of {W.previous_tag}, replayed exactly)",
+        {"label": f"Earlier research run tournament ({W.previous_tag}, replayed exactly)",
          "path": f"results/{PAIR}/tournament_results_{W.value('previous_tag')}.csv"},
         {"label": "Stationarity tests", "path": f"results/{PAIR}/stationarity_tests_{_TAG}.csv"},
     ]
@@ -540,7 +541,7 @@ This describes the backtested rule so it can be audited; it is not a trading rec
 - The result is marked `found_in_search`; it still needs a frozen-rule holdout confirmation.
 - {_NO_ARCHIVE}
 - The ISM series in the project's data ends in {W.oos_end}, so the test period ends there; later SPY months are not tested.
-- The previous rule of this page ({W.previous_rule}, run of {W.previous_tag}) was the single highest training Sharpe with fixed lags; the new framework replays it exactly and no longer selects it.
+- The earlier research run's rule ({W.previous_rule}, research run of {W.previous_tag} on the branch feat261016_pit_release, never on the main site) was the single highest training Sharpe with fixed lags; the new framework replays it exactly and no longer selects it.
 - Equities often turn before the PMI does, so a lagged PMI rule can stay in cash during the early part of a recovery.
 {_R71_CAVEAT}
 """
@@ -548,7 +549,10 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     TRADE_LOG_EXAMPLE_MD = (
         "**A concrete example from this pair:** the broker-style log records each switch between SPY and cash "
         f"that the rule makes when the {_SIG} reading crosses {_THR}. It covers the full reconstructed history "
-        f"({_EV['n_trade_log_rows']} rows), not only the test period."
+        f"({_EV['n_trade_log_rows']} rows), not only the test period. Of those rows, {_EV['n_trade_log_rows_oos']} are "
+        f"dated in the test period; the headline's {W.oos_n_trades} switches count only changes between consecutive test-period "
+        "months" + (", so the switch made at the first test month is in the log but not in the headline count."
+                    if _EV['n_trade_log_rows_oos'] - W.value('oos_n_trades') == 1 else ".")
     )
 
     TRADE_LOG_COLUMN_EXAMPLES = {
@@ -567,9 +571,9 @@ STRATEGY_CONFIG = StrategyConfig()
 _DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator (today's values; no archive of earlier values exists) | Data Master workbook (ISM Report On Business), pinned snapshot in data/release_calendar/snapshots/ | `ISM_MFG`, ISM Manufacturing PMI, diffusion index, seasonally adjusted | Monthly |
-| Release dates | data/release_calendar/release_calendar.csv (ISM publication calendar: first business day of the following month) | first publication date per month | Monthly |
-| Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted month-end close | Monthly |
+| Indicator (today's values; no archive of earlier values exists) | Institute for Supply Management, Manufacturing ISM Report On Business, via the project's Data Master workbook (pinned snapshot) | `ISM_MFG`, ISM Manufacturing PMI, diffusion index, seasonally adjusted | Monthly |
+| Release dates | ISM publication calendar (first business day of the following month) | first publication date per month | Monthly |
+| Target | Yahoo Finance (pinned month-end extract) | SPY adjusted month-end close | Monthly |
 """)
 
 _INDICATOR_CONSTRUCTION_MD = (
@@ -602,7 +606,7 @@ Grid: PMI signals x zero, z-score and rolling-percentile thresholds x the long/c
 
 - Winner: `{_RID}`, stable lead range {W.plateau_range}, training Sharpe {W.is_sharpe} ({W.is_start} to {W.is_end}; buy-and-hold {W.bh_is_sharpe}), test-period Sharpe {W.oos_sharpe}. The raw single highest training Sharpe (argmax, {W.raw_argmax_rule} at L{W.raw_argmax_lead}, Sharpe {W.raw_argmax_is_sharpe}) is {W.raw_argmax_is_winner}, {W.raw_argmax_position}; it is shown for reference and is not the selection rule.{_MAIN_TAIL}
 - Chance check: across {W.null_draws} contests run on circularly shifted PMI data, {_CHANCE_TEXT}.
-- Previous rule of this page: `{W.previous_rule}` ({W.previous_selection}, run of {W.previous_tag}, development version, not published on the main site), with a previous test-period Sharpe of {W.previous_oos_sharpe}. The new framework replays that run exactly (same rows, same winner, same returns).
+- Earlier research run (a research run of {W.previous_tag} on the branch feat261016_pit_release, never on the main site): `{W.previous_rule}` ({W.previous_selection}), earlier-research-run test-period Sharpe {W.previous_oos_sharpe}. The new framework replays that run exactly (same rows, same winner, same returns).
 """
 
 _REFERENCES_MD = """
