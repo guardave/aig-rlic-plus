@@ -1,7 +1,7 @@
 {
   "chart_name": "structural_break",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-20T12:26:12.256261+00:00",
+  "generated_at": "2026-10-20T15:19:18.499951+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "Quandt-Andrews sup-F test (15% trimming) for a break in the regression of the SPY return on lagged year-over-year cement growth: most likely break 2010-07, bootstrap p-value 0.16.",
   "narrative_alignment_note": "Quandt-Andrews sup-F test (15% trimming) for a break in the regression of the SPY return on lagged year-over-year cement growth: most likely break 2010-07, bootstrap p-value 0.16.",

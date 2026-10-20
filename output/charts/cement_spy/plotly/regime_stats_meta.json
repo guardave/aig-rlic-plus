@@ -1,7 +1,7 @@
 {
   "chart_name": "regime_stats",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-20T12:24:57.308918+00:00",
+  "generated_at": "2026-10-20T15:18:39.380631+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "SPY Sharpe and annualized return in the same month, by quartile of year-over-year cement shipment growth (concurrent, descriptive).",
   "narrative_alignment_note": "SPY Sharpe and annualized return in the same month, by quartile of year-over-year cement shipment growth (concurrent, descriptive).",

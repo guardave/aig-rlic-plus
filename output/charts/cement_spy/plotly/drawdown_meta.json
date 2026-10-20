@@ -1,7 +1,7 @@
 {
   "chart_name": "drawdown",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-20T12:25:42.104530+00:00",
+  "generated_at": "2026-10-20T15:19:04.007298+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "Drawdown of the winner rule and of buy-and-hold SPY from the training start.",
   "narrative_alignment_note": "Drawdown of the winner rule and of buy-and-hold SPY from the training start.",

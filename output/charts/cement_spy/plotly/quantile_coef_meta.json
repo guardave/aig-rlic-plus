@@ -1,7 +1,7 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-20T12:25:27.608463+00:00",
+  "generated_at": "2026-10-20T15:18:57.147164+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "Quantile-regression slope of the 3-month forward SPY return on year-over-year cement growth at each return quantile; intervals and the equal-slopes test use a moving-block bootstrap because the 3-month returns overlap.",
   "narrative_alignment_note": "Quantile-regression slope of the 3-month forward SPY return on year-over-year cement growth at each return quantile; intervals and the equal-slopes test use a moving-block bootstrap because the 3-month returns overlap.",
