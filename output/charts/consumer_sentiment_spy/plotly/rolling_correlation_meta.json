@@ -1,7 +1,7 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-18T08:09:49.093891+00:00",
+  "generated_at": "2026-10-20T10:07:56.159136+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
   "caption": "Rolling 60-month correlation between the 12-month change in consumer sentiment and SPY monthly returns.",
   "narrative_alignment_note": "Rolling 60-month correlation between the 12-month change in consumer sentiment and SPY monthly returns.",

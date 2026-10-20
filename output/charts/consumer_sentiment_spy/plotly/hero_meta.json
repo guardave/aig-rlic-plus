@@ -1,7 +1,7 @@
 {
   "chart_name": "hero",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-18T08:09:18.494581+00:00",
+  "generated_at": "2026-10-20T10:07:09.671639+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
   "caption": "Headline consumer sentiment and SPY with NBER recessions; pink bands mark months when sentiment was below its year-earlier level.",
   "narrative_alignment_note": "Headline consumer sentiment and SPY with NBER recessions; pink bands mark months when sentiment was below its year-earlier level.",

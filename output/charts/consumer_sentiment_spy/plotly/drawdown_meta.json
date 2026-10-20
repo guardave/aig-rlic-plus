@@ -1,12 +1,12 @@
 {
   "chart_name": "drawdown",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-18T08:09:40.803266+00:00",
+  "generated_at": "2026-10-20T10:07:44.237102+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
   "caption": "Drawdown comparison for the winner strategy (as known at the time) and SPY buy-and-hold.",
   "narrative_alignment_note": "Drawdown comparison for the winner strategy (as known at the time) and SPY buy-and-hold.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/consumer_sentiment_spy/strategy_returns_20261018.csv"
+    "results/consumer_sentiment_spy/strategy_returns_20261020.csv"
   ]
 }

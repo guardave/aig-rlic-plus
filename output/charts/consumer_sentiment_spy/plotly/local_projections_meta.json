@@ -1,12 +1,12 @@
 {
   "chart_name": "local_projections",
   "pair_id": "consumer_sentiment_spy",
-  "generated_at": "2026-10-18T08:09:32.503655+00:00",
+  "generated_at": "2026-10-20T10:07:32.880287+00:00",
   "generated_by": "scripts/generate_charts_consumer_sentiment_spy.py",
   "caption": "Estimated forward SPY return per index point of 12-month change in consumer sentiment, with Newey-West 95% intervals (lags at least horizon - 1).",
   "narrative_alignment_note": "Estimated forward SPY return per index point of 12-month change in consumer sentiment, with Newey-West 95% intervals (lags at least horizon - 1).",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/consumer_sentiment_spy/core_models_20261018/local_projections.csv"
+    "results/consumer_sentiment_spy/core_models_20261020/local_projections.csv"
   ]
 }
