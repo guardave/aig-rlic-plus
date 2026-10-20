@@ -353,7 +353,8 @@ def _check_no_main_winner(pair: str, rdir: Path, ws: dict) -> tuple[list[str], l
 
 def _r71_calibration(pair: str, rdir: Path, ws: dict) -> tuple[list[str], list[str]]:
     """Calibrated R7.1 reference (r71_calibration_<run_tag>.json, Lead decoupling 2026-10-19): STALE (another run,
-    or a null file changed since) is hard; PENDING (no artifact yet) and OK are INFO."""
+    or a null file changed since) is hard, and so is an OK record that contradicts itself (_r71_record_errors);
+    PENDING (no artifact yet) and OK are INFO."""
     if "tracks" not in ws:
         return [], []
     if str(REPO / "app") not in sys.path:
@@ -363,13 +364,36 @@ def _r71_calibration(pair: str, rdir: Path, ws: dict) -> tuple[list[str], list[s
     for track, rec in (ws.get("tracks") or {}).items():
         if not (rec or {}).get("null_tournament"):
             continue
-        status, _r, why = P.r71_calibration(pair, track, rdir)
+        status, r, why = P.r71_calibration(pair, track, rdir)
         if status == "stale":
             hard.append(f"R71: calibrated reference for the {track} track is STALE ({why})")
-        else:
-            soft.append(f"INFO: R71 calibrated reference for the {track} track: {status.upper()}"
-                        + (f" ({why})" if why else ""))
+            continue
+        if status == "ok":
+            hard += [f"R71: calibrated reference for the {track} track: {x}" for x in _r71_record_errors(r)]
+        soft.append(f"INFO: R71 calibrated reference for the {track} track: {status.upper()}"
+                    + (f" ({why})" if why else ""))
     return hard, soft
+
+
+def _r71_record_errors(r: dict) -> list[str]:
+    """Internal consistency of a calibrated R7.1 record (option C): the outcome follows |T - c| <= q, the screening
+    flag follows the fixed |T| > threshold and is not the outcome, and the harness commit is named."""
+    out = []
+    try:
+        T, c, q = float(r["T"]), float(r["centre"]), float(r["critical_value"])
+        if bool(r["pass"]) != (abs(T - c) <= q + 5e-5):
+            out.append(f"pass={r['pass']} contradicts |T - centre| = {abs(T - c):.4f} vs half-width {q:.4f}")
+        thr = float(r["screening_threshold"])
+        if bool(r["screening_flag"]) != (abs(T) > thr):
+            out.append(f"screening_flag={r['screening_flag']} contradicts |T| = {abs(T):.4f} vs {thr}")
+        sn = r.get("sensitivity") or {}
+        if sn and bool(sn["pass"]) != (abs(T - float(sn["centre"])) <= float(sn["critical_value"]) + 5e-5):
+            out.append("sensitivity pass contradicts its centre and half-width")
+        if not str(r.get("harness_commit") or "").strip():
+            out.append("harness_commit is empty")
+    except (KeyError, TypeError, ValueError) as e:
+        out.append(f"record incomplete ({e!r})")
+    return out
 
 
 def check_pair(pair: str) -> tuple[list[str], list[str]]:

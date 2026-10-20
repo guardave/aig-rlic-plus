@@ -552,10 +552,33 @@ def oos_rank_note(nt: dict, who: str = "real winner") -> str:
             f"{_ordinal(round(q * 100))} percentile of the scrambled contests' winners' test-period Sharpes.")
 
 
+def _r71_screen_line(T: float, rec: dict | None, on_track: str = "") -> str:
+    """Option C (user 2026-10-20): the fixed |mean| > 0.10 screen, on a line of its own and never part of the
+    pass / fail. Raised -> a construction review (Phase B ledger); a completed review is named from the
+    calibration record's construction_review {status, ref}."""
+    raised = abs(float(T)) > R71_SCREEN
+    rv = (rec or {}).get("construction_review") or {}
+    if not raised:
+        state = "not raised"
+    elif rv.get("status") == "completed":
+        state = "raised; construction review completed" + (f" (see {rv['ref']})" if rv.get("ref") else "")
+    else:
+        state = "raised; construction review required"
+    return f"\n\n{R71_SCREEN_LABEL}{on_track}: {state}.\n\n"
+
+
+R71_SCREEN = 0.10
+R71_SCREEN_LABEL = ("Screening flag (fixed threshold 0.10 on the absolute mean timing Sharpe; diagnostic, "
+                    "not part of the check)")
+
+
 def r71_note(pair_id: str, track: str = "main", label: str = "Calibration check (R7.1)") -> str:
     """The R7.1 calibration result stated on every pair, pass or fail (QA B1 umcsent F2: a pass 0.001 inside the
-    tolerance was invisible): the mean timing Sharpe of the scrambled contests' winners, its dependence-aware SE,
-    the tolerance and the outcome, tagged from winner_summary tracks.main.null_tournament. '' without a null."""
+    tolerance was invisible), then the separate fixed screening flag on its own line (option C; Codex option-C
+    C5). With a current calibrated reference (r71_calibration_<tag>.json): its paths, block length and rule,
+    p-value, the 2L sensitivity and the Monte Carlo resolution in plain words; otherwise the Bartlett statement
+    with the pending note. Tagged from winner_summary tracks.<track>.null_tournament / the calibration record.
+    '' without a null."""
     try:
         ws = P.json_file(Path(__file__).resolve().parents[2] / "results" / pair_id / "winner_summary.json")
         n = ws["tracks"][track]["null_tournament"]
@@ -565,19 +588,34 @@ def r71_note(pair_id: str, track: str = "main", label: str = "Calibration check 
         return ""
     if m is None or se is None or tol is None or ok is None:
         return ""
+    on_track = "" if track == "main" else " on that track"
     st_, cal, _why = P.r71_calibration(pair_id, track)
     if st_ == "ok":          # calibrated reference on file for this run (r71_calibration_<tag>.json)
-        return (f" {label} against a calibrated reference ({cal['B']:.0f} simulated return paths, "
-                f"{cal['method']}): the scrambled contests' winners have a mean timing Sharpe of {cal['T']:.3f}, "
-                f"against a reference centre of {cal['centre']:.3f} and a 95% half-width of "
-                f"{cal['critical_value']:.3f}; the check {'passes' if bool(cal['pass']) else 'does not pass'}.")
+        unit = {"months": "months", "quarters": "quarters", "days": "trading days"}.get(ws.get("lead_unit"), "periods")
+        sn = cal.get("sensitivity") or {}
+        out = (f" {label} against a calibrated reference: {cal['B']:.0f} simulated return paths, each a stationary "
+               f"bootstrap of the target returns resampled separately within the training and the test period, "
+               f"in blocks averaging {cal['L']:.0f} {unit} (block length fixed in advance: the Politis-White rule on "
+               f"squared returns, at least {cal['L_floor']:.0f} and at most {cal['L_cap']:.0f} {unit}, a quarter "
+               f"of the test period), and shared by "
+               f"all scrambled contests. The scrambled contests' winners have a mean timing Sharpe of "
+               f"{cal['T']:.3f}, against a reference centre of {cal['centre']:.3f} and a 95% half-width of "
+               f"{cal['critical_value']:.3f} (p-value {cal['p_value']:.3f}); the check "
+               f"{'passes' if bool(cal['pass']) else 'does not pass'}.")
+        if sn:
+            out += (f" Sensitivity with fixed blocks of {sn['block']:.0f} {unit} ({sn['B']:.0f} paths): the check "
+                    f"{'passes' if bool(sn['pass']) else 'does not pass'} (p-value {sn['p_value']:.3f}).")
+        out += (f" Resolution: with {cal['B']:.0f} paths the p-value moves in steps of {cal['p_resolution']:.3f} "
+                f"and the 95% half-width rests on the {cal['tail_paths']:.0f} paths beyond it, so it is a coarse "
+                f"estimate.")
+        return out + _r71_screen_line(cal["T"], cal, on_track)
     out = (f" {label}: the scrambled contests' winners have a mean timing Sharpe of {m:.3f}"
            f" (dependence-aware standard error {se:.3f}) against a tolerance of {tol:.3f} in absolute value;"
            f" the check {'passes' if bool(ok) else 'does not pass'}")
     if float(se) * 2 < float(tol) and bool(ok):    # QA EF F6: not appended to a failure, where it read as an excuse
         out += " (the tolerance is set by its fixed floor, not by the standard error)"
     return out + (". This standard error understates the spread of the null mean (independent QA and Codex review); "
-                  "a calibrated reference is pending.")
+                  "a calibrated reference is pending." + _r71_screen_line(m, None, on_track))
 
 
 def comparison_chance_note(pair_id: str, ts: dict) -> str:

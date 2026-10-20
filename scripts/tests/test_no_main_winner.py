@@ -158,7 +158,7 @@ def test_single_track_no_archive_pages_never_claim_as_known_at(pair):
                                                                        re.I | re.S)
 
 
-def _cal_pair(tmp_path, null_text="draw,offset\n0,5\n", rec_sha=None, tag=TAG, track="main"):
+def _cal_pair(tmp_path, null_text="draw,offset\n0,5\n", rec_sha=None, tag=TAG, track="main", extra=None):
     import hashlib
     d = tmp_path / "results" / "toy_spy"
     d.mkdir(parents=True, exist_ok=True)
@@ -167,7 +167,10 @@ def _cal_pair(tmp_path, null_text="draw,offset\n0,5\n", rec_sha=None, tag=TAG, t
     sha = rec_sha or hashlib.sha256(null_text.encode()).hexdigest()
     (d / f"r71_calibration_{tag}.json").write_text(json.dumps({"tracks": {track: {
         "null_file": f"null_tournament_{TAG}.csv", "null_sha256": sha, "method": "stationary bootstrap",
-        "B": 199, "T": -0.196, "centre": -0.01, "critical_value": 0.17, "pass": False, "p_value": 0.03}}}))
+        "B": 199, "T": -0.196, "centre": -0.01, "critical_value": 0.17, "pass": False, "p_value": 0.03,
+        "L": 3, "L_floor": 3, "L_cap": 9, "p_resolution": 0.005, "tail_paths": 10,
+        "sensitivity": {"B": 99, "block": 6, "centre": 0.0, "critical_value": 0.16, "pass": False, "p_value": 0.02},
+        "screening_threshold": 0.1, "screening_flag": True, "harness_commit": "f" * 40, **(extra or {})}}}))
     return d
 
 
@@ -187,6 +190,58 @@ def test_r71_calibration_artifact_status(tmp_path):
 def test_r71_note_pending_text_on_the_pilots():
     note = two_track.r71_note("unrate_spy")
     assert "understates the spread of the null mean" in note and "calibrated reference is pending" in note
+    assert "\n\n" + two_track.R71_SCREEN_LABEL + ": " in note          # option C: the screen is stated while pending
+
+
+def _cal_note(tmp_path, monkeypatch, **kw):
+    d = _cal_pair(tmp_path, **kw)
+    ws = {"run_tag": TAG, "lead_unit": "quarters", "tracks": {"main": {"null_tournament": {
+        "timing_sharpe_mean": -0.196, "timing_sharpe_se_dependent": 0.058, "r71_tolerance": 0.117, "r71_pass": False}}}}
+    (d / "winner_summary.json").write_text(json.dumps(ws))
+    monkeypatch.setattr(two_track, "__file__", str(tmp_path / "app" / "components" / "two_track.py"))
+    monkeypatch.setattr(P, "RESULTS", tmp_path / "results")
+    return d, ws
+
+
+def test_r71_note_renders_block_rule_p_value_resolution_and_a_separate_screening_line(tmp_path, monkeypatch):
+    # Codex option-C C5: L, block rule, p-value, B and the resolution limit in words; the 0.10 screen on its own
+    # line, never merged into the pass / fail
+    _cal_note(tmp_path, monkeypatch)
+    note = two_track.r71_note("toy_spy")
+    body, _sep, flag = note.partition("\n\n")
+    for frag in ("199 simulated return paths", "stationary bootstrap", "blocks averaging 3 quarters",
+                 "Politis-White rule on squared returns, at least 3 and at most 9 quarters", "p-value 0.030",
+                 "the check does not pass", "fixed blocks of 6 quarters (99 paths)", "p-value 0.020",
+                 "steps of 0.005", "the 10 paths beyond it", "coarse estimate"):
+        assert frag in body, frag
+    assert "Screening flag" not in body and "construction review" not in body
+    assert flag.strip() == (two_track.R71_SCREEN_LABEL + ": raised; construction review required.")
+    monkeypatch.setenv("AIG_PROVENANCE_GATE", "1")
+    clean, _k, _p, _sents, _d = g.parse_markers(two_track.r71_note("toy_spy"))
+    assert "Screening flag" in clean
+
+
+def test_r71_screening_flag_is_independent_of_the_outcome(tmp_path, monkeypatch):
+    # a calibrated PASS with |T| > 0.10 still raises the screen; a completed review is named
+    _cal_note(tmp_path, monkeypatch, extra={"T": 0.15, "centre": 0.1, "critical_value": 0.17, "pass": True,
+                                             "construction_review": {"status": "completed", "ref": "ledger R71-CR1"}})
+    note = two_track.r71_note("toy_spy")
+    assert "the check passes" in note
+    assert note.rstrip().endswith("raised; construction review completed (see ledger R71-CR1).")
+    _cal_note(tmp_path / "b", monkeypatch, extra={"T": 0.05, "centre": 0.0, "pass": True, "screening_flag": False})
+    assert note != two_track.r71_note("toy_spy") and two_track.r71_note("toy_spy").rstrip().endswith(": not raised.")
+
+
+def test_gate_flags_a_calibrated_record_that_contradicts_itself(tmp_path, monkeypatch):
+    for extra, frag in (({"pass": True}, "contradicts |T - centre|"),
+                        ({"screening_flag": False}, "screening_flag=False contradicts"),
+                        ({"harness_commit": ""}, "harness_commit is empty")):
+        d = _cal_pair(tmp_path / frag[:6].strip(), extra=extra)
+        ws = {"run_tag": TAG, "tracks": {"main": {"null_tournament": {"timing_sharpe_mean": -0.196}}}}
+        (d / "winner_summary.json").write_text(json.dumps(ws))
+        monkeypatch.setattr(gc, "REPO", tmp_path)
+        hard, _soft = gc._r71_calibration("toy_spy", d, ws)
+        assert any(frag in h for h in hard), (frag, hard)
 
 
 def test_r71_note_uses_the_calibrated_reference_and_gate_flags_stale(tmp_path, monkeypatch):
@@ -197,7 +252,7 @@ def test_r71_note_uses_the_calibrated_reference_and_gate_flags_stale(tmp_path, m
     monkeypatch.setattr(two_track, "__file__", str(tmp_path / "app" / "components" / "two_track.py"))
     monkeypatch.setattr(P, "RESULTS", tmp_path / "results")
     note = two_track.r71_note("toy_spy")
-    assert "calibrated reference (199 simulated return paths" in note and "does not pass" in note
+    assert "calibrated reference: 199 simulated return paths" in note and "does not pass" in note
     assert "pending" not in note
     monkeypatch.setattr(gc, "REPO", tmp_path)
     hard, _soft = gc._r71_calibration("toy_spy", d, ws)

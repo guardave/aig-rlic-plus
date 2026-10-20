@@ -86,19 +86,19 @@
       "why": "Sharpe difference vs buy-and-hold and its bootstrap interval"
     },
     {
-      "pattern": "r71_calibration_\\d{8}\\.json#/tracks/\\w+/(?:T|centre|critical_value)$",
+      "pattern": "r71_calibration_\\d{8}\\.json#/tracks/\\w+/(?:sensitivity/)?(?:T|centre|critical_value)$",
       "kind": "sharpe",
       "why": "calibrated R7.1 reference: mean timing Sharpe, reference centre and 95% half-width (Sharpe units)"
     },
     {
-      "pattern": "r71_calibration_\\d{8}\\.json#/tracks/\\w+/B$",
+      "pattern": "r71_calibration_\\d{8}\\.json#/tracks/\\w+/(?:sensitivity/)?(?:B|block|L|L_floor|L_cap|tail_paths)$",
       "kind": "count",
-      "why": "number of simulated return paths"
+      "why": "number of simulated return paths, block lengths and their rule's floor / cap (periods), paths beyond the 95% half-width"
     },
     {
-      "pattern": "r71_calibration_\\d{8}\\.json#/tracks/\\w+/p_value$",
+      "pattern": "r71_calibration_\\d{8}\\.json#/tracks/\\w+/(?:sensitivity/)?(?:p_value|p_resolution)$",
       "kind": "pvalue",
-      "why": "add-one two-sided p-value of the calibrated reference"
+      "why": "add-one two-sided p-value of the calibrated reference (primary or sensitivity) and its step 1/(B+1)"
     },
     {
       "pattern": "/(?:insufficient_reason|main_not_eligible)/min_required$",

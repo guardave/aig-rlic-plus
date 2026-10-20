@@ -64,6 +64,11 @@
    "id": "recession_names",
    "regex": "\\bthe (?:2001|2008-09|2020) recession\\b",
    "why": "Names of NBER recessions (episode labels from the track summary's coverage list), not results."
+  },
+  {
+   "id": "r71_screening_flag",
+   "regex": "\\bScreening flag \\(fixed threshold 0\\.10 on the absolute mean timing Sharpe; diagnostic, not part of the check\\)",
+   "why": "R7.1 option C (user decision 2026-10-20): the fixed screening threshold is a policy constant, not a result; the screened value itself is tagged from the artifacts."
   }
  ]
 }

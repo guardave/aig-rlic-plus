@@ -18,7 +18,7 @@ from harness import run as R  # noqa: E402
 from harness.engine import TrackInputs, positions_for, run_tournament  # noqa: E402
 
 REF_COMMIT = "c936621e"
-NUM = ["is_sharpe", "oos_sharpe", "is_exposure", "is_annual_turnover", "is_ann_return", "is_max_drawdown"]
+NULL_FILE = {"main": "null_tournament_{tag}.csv", "comparison": "hindsight_null_tournament_{tag}.csv"}
 
 
 def _reference_engine(tmp_path):
@@ -35,41 +35,76 @@ def _reference_engine(tmp_path):
     return mod
 
 
-def _same(a, b):
-    ta, tb = a.table, b.table
-    assert list(ta["key"]) == list(tb["key"])
-    for c in NUM + ["valid", "is_eligible", "is_n", "oos_n", "is_n_trades"]:
-        x, y = ta[c].to_numpy(), tb[c].to_numpy()
-        if x.dtype.kind == "f":
-            assert np.allclose(x, y, rtol=0, atol=1e-12, equal_nan=True), c
+def _eq(x, y, what):
+    """Exact (1e-12) equality of two results' fields: arrays, frames, dicts, scalars, NaN = NaN."""
+    if isinstance(x, pd.DataFrame):
+        assert list(x.columns) == list(y.columns) and len(x) == len(y), what
+        for c in x.columns:
+            _eq(x[c].to_numpy(), y[c].to_numpy(), f"{what}.{c}")
+    elif isinstance(x, np.ndarray):
+        assert x.shape == y.shape, what
+        if x.dtype.kind in "fc":
+            assert np.allclose(x, y, rtol=0, atol=1e-12, equal_nan=True), what
+        elif x.dtype.kind == "O":
+            for i, (u, v) in enumerate(zip(x, y)):
+                _eq(u, v, f"{what}[{i}]")
         else:
-            assert (x == y).all(), c
-    assert (a.selection or {}).get("winner") == (b.selection or {}).get("winner")
-    assert abs((a.selection or {}).get("score", 0) - (b.selection or {}).get("score", 0)) <= 1e-12
-    assert np.array_equal(a.is_mask, b.is_mask)
+            assert np.array_equal(x, y), what
+    elif isinstance(x, dict):
+        assert set(x) == set(y), what
+        for k in x:
+            _eq(x[k], y[k], f"{what}.{k}")
+    elif isinstance(x, (list, tuple)):
+        assert len(x) == len(y), what
+        for i, (u, v) in enumerate(zip(x, y)):
+            _eq(u, v, f"{what}[{i}]")
+    elif isinstance(x, (float, np.floating)) and not isinstance(x, bool):
+        assert (np.isnan(x) and np.isnan(y)) or abs(x - y) <= 1e-12, what
+    else:
+        assert x == y or (x is None and y is None), (what, x, y)
+
+
+FIELDS = ("name", "cands", "positions", "returns", "table", "common_is_start", "is_mask", "oos_mask", "selection",
+          "raw_idx", "bh_is", "bh_oos", "n_distinct", "collapse", "meta")
+
+
+def _same(a, b):
+    """The complete scoring / selection output (Codex option-C S3): positions, strategy-return matrix, full table,
+    selection (winner, score, plateau_j ...), raw_idx, windows, buy-and-hold and the distinct-series collapse."""
+    for f in FIELDS:
+        _eq(getattr(a, f), getattr(b, f), f)
+    assert NL.draw_record(a).keys() == NL.draw_record(b).keys()
+    _eq(dict(NL.draw_record(a)), dict(NL.draw_record(b)), "draw_record")
 
 
 @pytest.mark.parametrize("pair,track", [("unrate_spy", "main"), ("unrate_spy", "comparison"),
-                                        ("cc_delinquency_spy", "main")])
+                                        ("cc_delinquency_spy", "main"), ("permit_spy", "main")])
 def test_refactored_tournament_equals_the_reference_and_cached_rescoring_is_exact(tmp_path, pair, track):
+    """Every offset of the pair's CURRENT null file (all draws, Codex option-C S3; AIG_FULL_TESTS=1, cc always),
+    full tables, re-scored on a synthetic path with the positions built once."""
+    import json
+    import chart_provenance
     ref = _reference_engine(tmp_path)
     mod = R.load_pair(pair)
     ti = R.build_tracks(mod)[track]
     _same(run_tournament(mod.SPEC, ti), ref.run_tournament(mod.SPEC, ti))            # real tournament
     act = run_tournament(mod.SPEC, ti, full_table=False)
-    make, n_span = R.null_maker(mod, track, ti)
+    rdir = R.REPO / "results" / pair
+    tag = chart_provenance.run_tag_of(json.loads((rdir / "winner_summary.json").read_text()), rdir)
+    offsets = [int(k) for k in pd.read_csv(rdir / NULL_FILE[track].format(tag=tag))["offset"]]
+    assert len(offsets) >= 20
+    if pair != "cc_delinquency_spy" and os.environ.get("AIG_FULL_TESTS") != "1":
+        offsets = offsets[::max(1, len(offsets) // 6)]   # routine runs: a spread of offsets (cc: all of them);
+        # AIG_FULL_TESTS=1 runs every offset of every case (the acceptance sweep, ~20 min on the shared host)
+    make, _n = R.null_maker(mod, track, ti)
     rng = np.random.default_rng(20261020)
-    for k in NL.offsets(n_span, mod.SPEC.ppy, 3):
-        x = make(int(k))
+    for k in offsets:
+        x = make(k)
         pos = positions_for(mod.SPEC, x)
-        for _b in range(2):                     # synthetic paths: permuted returns, NaN rows kept in place
-            r = x.ret.copy()
-            ok = ~np.isnan(r)
-            r[ok] = rng.permutation(r[ok])
-            xs = TrackInputs(x.name, x.index, r, x.lagged, x.meta)
-            fresh = ref.run_tournament(mod.SPEC, xs, full_table=False, _null_is_start=act.common_is_start)
-            cached = run_tournament(mod.SPEC, xs, full_table=False, _null_is_start=act.common_is_start,
-                                    _positions=pos)
-            _same(cached, fresh)
-            assert NL.draw_record(cached)["timing_sharpe"] == pytest.approx(NL.draw_record(fresh)["timing_sharpe"],
-                                                                            abs=1e-12, nan_ok=True)
+        r = x.ret.copy()                         # a synthetic path: permuted returns, NaN rows kept in place
+        ok = ~np.isnan(r)
+        r[ok] = rng.permutation(r[ok])
+        xs = TrackInputs(x.name, x.index, r, x.lagged, x.meta)
+        fresh = ref.run_tournament(mod.SPEC, xs, full_table=True, _null_is_start=act.common_is_start)
+        cached = run_tournament(mod.SPEC, xs, full_table=True, _null_is_start=act.common_is_start, _positions=pos)
+        _same(cached, fresh)
