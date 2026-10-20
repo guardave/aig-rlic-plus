@@ -1,0 +1,67 @@
+{
+  "pair_id": "retail_inv_sales_spy",
+  "run_tag": "20261018",
+  "tracks": {
+    "comparison": {
+      "null_file": "hindsight_null_tournament_20261018.csv",
+      "null_sha256": "710680d2ab941af448352f442c89f5587d8362b9cd878768049add58f79b1c62",
+      "T": -0.0909,
+      "K": 100,
+      "method": "stationary bootstrap of the target returns (Politis-Romano), resampled within the training and test blocks separately, shared by all draws of a path; null v4 calendar window",
+      "B": 199,
+      "block_rule": "Politis-White stationary block length of squared target returns, floor 3, cap OOS/4",
+      "L": 6,
+      "L_raw": 6.085,
+      "L_floor": 3,
+      "L_cap": 28,
+      "seed": 1223223734,
+      "centre": -0.0006,
+      "critical_value": 0.1376,
+      "pass": true,
+      "p_value": 0.185,
+      "sd": 0.0681,
+      "p_resolution": 0.005,
+      "tail_paths": 10,
+      "margin_ratio": 0.3436,
+      "selected_draws": {
+        "min": 100,
+        "max": 100,
+        "distribution": {
+          "100": 199
+        }
+      },
+      "sensitivity": {
+        "method": "circular moving-block bootstrap, fixed blocks of 2L (sensitivity)",
+        "B": 99,
+        "B_default": 99,
+        "block": 12,
+        "seed": 1223223735,
+        "escalation_triggered": false,
+        "escalated": false,
+        "escalation_reason": null,
+        "centre": -0.0043,
+        "critical_value": 0.109,
+        "pass": true,
+        "p_value": 0.15,
+        "sd": 0.0586,
+        "p_resolution": 0.01,
+        "tail_paths": 5,
+        "margin_ratio": 0.2059,
+        "selected_draws": {
+          "min": 100,
+          "max": 100,
+          "distribution": {
+            "100": 99
+          }
+        }
+      },
+      "escalation_rule": "sensitivity B=99 by default, extended to 199 (the next 100 paths of the same seeded stream) when the primary and the sensitivity disagree or when ||T - c| - q| / q < 0.2 on either; fixed before the fleet run (Lead 2026-10-20, Codex option-C review)",
+      "screening_threshold": 0.1,
+      "screening_flag": false,
+      "screening_note": "diagnostic only, never part of the pass / fail; raised -> construction review",
+      "harness_commit": "2a543b6877d7867045859025139cf5bd0310498c",
+      "seconds": 5664.8
+    }
+  },
+  "generated_at": "2026-10-20T15:23:28+00:00"
+}
