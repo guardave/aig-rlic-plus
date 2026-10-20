@@ -142,7 +142,7 @@ class StoryConfig:
 
     WHERE_THIS_FITS = (
         "This is the headline sentiment index. The portal also pairs it with the health-care sector (umcsent_xlv) "
-        "and pairs the survey's expected-business-conditions component with SPY (umcsent_spy). Read them "
+        "and pairs the share of survey respondents expecting better business conditions with SPY (umcsent_spy). Read them "
         "together."
     )
 
@@ -513,10 +513,10 @@ STRATEGY_CONFIG = StrategyConfig()
 _DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator (as known at the time) | ALFRED (FRED vintages, pinned in data/release_calendar/vintages/UMCSENT.csv.gz) | `UMCSENT`, University of Michigan Index of Consumer Sentiment (headline), every published vintage | Monthly |
-| Indicator (as revised today) | FRED (latest vintage of the same file) | `UMCSENT` | Monthly |
-| Release dates | data/release_calendar/release_calendar.csv | first publication date per month | Monthly |
-| Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted month-end close | Monthly |
+| Indicator (as known at the time) | ALFRED (FRED archive of every published vintage) | `UMCSENT`, University of Michigan Index of Consumer Sentiment (headline), every published vintage | Monthly |
+| Indicator (as revised today) | FRED (latest published values) | `UMCSENT` | Monthly |
+| Release dates | FRED / ALFRED release calendar | first publication date per month | Monthly |
+| Target | Yahoo Finance | SPY adjusted month-end close | Monthly |
 """)
 
 _INDICATOR_CONSTRUCTION_MD = P.definition_text(

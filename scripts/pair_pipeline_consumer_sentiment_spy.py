@@ -10,8 +10,8 @@ Each track selects its own winner on in-sample data by the D9 lead-plateau rule 
 leak tests. The earlier development run 20261015 (raw IS-Sharpe argmax, fixed lags, no position shift; never on the
 main site) is replayed exactly by the harness (LEGACY_SPEC); the main-site rule (run 20261009) is recorded for reference.
 
-The headline sentiment index (FRED UMCSENT, range ~50-112) is NOT the expected-business-conditions diffusion used
-by umcsent_spy; umcsent_xlv uses the same series against XLV.
+The headline sentiment index (FRED UMCSENT, range ~50-112) is NOT the share (%) of respondents
+expecting better business conditions used by umcsent_spy; umcsent_xlv uses the same series against XLV.
 
 This file keeps the pair's evidence stages (computed on the revised panel, descriptive only), metadata and the
 narrative-provenance record. Inference on overlapping h-month forward returns is HAC (Newey-West, maxlags >=
@@ -376,7 +376,7 @@ def write_metadata(winner: dict, elapsed: float) -> None:
         ],
         "narrative_summary": "Headline U. Michigan consumer sentiment is tested as a procyclical sentiment overlay "
                              "for SPY. Compare with umcsent_xlv (same series vs XLV) and umcsent_spy (the "
-                             "expected-business-conditions diffusion vs SPY).",
+                             "share of respondents expecting better business conditions vs SPY).",
         "known_stress_episodes": [
             {"label": "Dot-Com recession", "start": "2001-03-01", "end": "2001-11-30", "note": "NBER recession."},
             {"label": "Global Financial Crisis", "start": "2007-12-01", "end": "2009-06-30", "note": "NBER recession."},

@@ -1156,7 +1156,7 @@
       "observed_winner_lead_unit": "months",
       "conformed": true,
       "class": "monthly",
-      "note": "Phase B harness (20261018): two tracks (real-time ALFRED vintages = MAIN; revised = comparison), D9 lead-plateau selection on the registry grid L1..L13 with position_shift 1, point-in-time release timing. Published 20261015 rule (raw IS-Sharpe argmax, fixed lag, no position shift: level/T_roll_p25/procyclical/L1) replayed exactly and kept as the previous rule. Compare with umcsent_xlv (same series vs XLV) and umcsent_spy (expected-business-conditions vs SPY).",
+      "note": "Phase B harness (run 20261020): two tracks (real-time ALFRED vintages = MAIN; revised = comparison), D9 lead-plateau selection on the registry grid L1..L13 with position_shift 1, point-in-time release timing. The main site shows the 20261009 OOS-selected rule (diff_1m/T_roll_p75/countercyclical/L12); the earlier development run 20261015 (raw IS-Sharpe argmax, fixed lag, no position shift: level/T_roll_p25/procyclical/L1; never on the main site) is replayed exactly and kept as the previous rule. Compare with umcsent_xlv (same series vs XLV) and umcsent_spy (share of respondents expecting better business conditions vs SPY).",
       "position_shift": 1,
       "lead_floor_effective": 1,
       "release_calendar_series": "UMCSENT",
