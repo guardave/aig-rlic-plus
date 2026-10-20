@@ -172,7 +172,7 @@ indicators:
 
   "Mat - Portland Cment Shipmts":
     indicator_id: cement
-    display_name: Portland Cement Shipments
+    display_name: "Portland Cement Shipments (Texas, then U.S. portland-only)"
     category: materials
 
   "HY - IG spread":

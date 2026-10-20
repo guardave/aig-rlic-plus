@@ -108,7 +108,7 @@ sloos_ci_small_firms,"SLOOS C&I Tightening (Small Firms, DRTSCIS)",credit,SPY,sl
 mfg_new_orders,Manufacturers' New Orders,production,SPY,mfg_new_orders_spy,in_progress,,,,
 mfg_new_orders_total,Manufacturers' New Orders: Total Manufacturing (AMTMNO),production,SPY,mfg_new_orders_total_spy,not_started,,,,
 import_price,Import Price Index,macro,SPY,import_price_spy,in_progress,G - Import $ Indx,,G - Import $ Indx,94
-cement,Portland Cement Shipments,materials,SPY,cement_spy,in_progress,Mat - Portland Cment Shipmts,,Mat - Portland Cment Shipmts,76
+cement,"Portland Cement Shipments (Texas, then U.S. portland-only)",materials,SPY,cement_spy,in_progress,Mat - Portland Cment Shipmts,,Mat - Portland Cment Shipmts,76
 retail_inv_sales,Retail Inventories-to-Sales Ratio,production,SPY,retail_inv_sales_spy,in_progress,,,,
 cc_delinquency,"Credit Card Delinquency Rate (NSA, DRCCLACBN)",credit,SPY,cc_delinquency_spy,in_progress,,,,
 cc_delinquency_sa,"Credit Card Delinquency Rate (SA, DRCCLACBS)",credit,SPY,cc_delinquency_sa_spy,not_started,,,,
@@ -120,7 +120,7 @@ t10y3m,10Y-3M Treasury Spread,rates,XLY,t10y3m_xly,not_started,G - (US10Y-US3M),
 t10y3m,10Y-3M Treasury Spread,rates,XLK,t10y3m_xlk,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
 t10y3m,10Y-3M Treasury Spread,rates,XLF,t10y3m_xlf,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
 t10y3m,10Y-3M Treasury Spread,rates,XLV,t10y3m_xlv,not_started,G - (US10Y-US3M),,G - (US10Y-US3M),63
-cement,Portland Cement Shipments,materials,XLP,cement_xlp,not_started,Mat - Portland Cment Shipmts,,Mat - Portland Cment Shipmts,76
+cement,"Portland Cement Shipments (Texas, then U.S. portland-only)",materials,XLP,cement_xlp,not_started,Mat - Portland Cment Shipmts,,Mat - Portland Cment Shipmts,76
 import_price,Import Price Index,macro,XLE,import_price_xle,not_started,G - Import $ Indx,,G - Import $ Indx,94
 import_price,Import Price Index,macro,XLI,import_price_xli,not_started,G - Import $ Indx,,G - Import $ Indx,94
 sloos_ci_small,SLOOS C&I Tightening (Large & Middle-Market Firms),credit,XLP,sloos_ci_small_xlp,not_started,C&I Loan,,C&I Loan,117
