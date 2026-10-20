@@ -26,6 +26,7 @@ _RES = Path(__file__).resolve().parents[2] / "results" / PAIR
 _WS = P.json_file(_RES / "winner_summary.json")
 _TAG = _WS["selection"]["raw_winner_row"]["source_tournament_file"].split("_")[-1].removesuffix(".csv")
 _CORE = _RES / f"core_models_{_TAG}"
+_SP = P.csv_file(_RES / "subperiod_sharpe.csv")
 _Q = P.col_dict(P.csv_file(_RES / "regime_quartile_returns.csv"), "quartile", "sharpe")
 _QR_T = P.csv_file(_CORE / "quantile_regression.csv")
 _QR = P.col_dict(_QR_T, "quantile", "coef")
@@ -254,7 +255,9 @@ CORRELATION_BLOCK = dict(
     how_to_read=(
         "Read the heatmap by signal and horizon. Positive values mean stronger retail sales growth lines up with "
         f"stronger future SPY returns; negative values mean the opposite. A star marks a p-value below {_ALPHA} "
-        "from Newey-West standard errors, which allow for the overlap of multi-month returns."
+        "from Newey-West standard errors, which allow for the overlap of multi-month returns. The correlations are "
+        f"computed on today's revised data from {_EV['panel_first_month']} onward, not on the values as first "
+        "published."
     ),
     chart_name="correlation_heatmap",
     chart_caption="What this shows: linear correlations between each retail sales growth transform and forward SPY returns at several horizons.",
@@ -296,7 +299,8 @@ QUARTILE_BLOCK = dict(
     method_theory="Quartile analysis sorts months by year-over-year retail sales growth and compares SPY returns across the quartile groups.",
     question="Do months of weak and strong retail sales growth produce different SPY outcomes?",
     how_to_read=("Q1 holds the months with the weakest year-over-year retail sales growth; Q4 the months with the "
-                 "strongest. Compare Sharpe, average return and sample size."),
+                 "strongest. Compare Sharpe, average return and sample size. The quartiles are computed on today's "
+                 f"revised data from {_EV['panel_first_month']} onward, not on the values as first published."),
     chart_name="regime_stats",
     chart_caption=(
         f"What this shows: same-month SPY Sharpe by quartile of year-over-year retail sales growth, {_Q['Q1']:.2f} "
@@ -334,8 +338,8 @@ LOCAL_PROJECTIONS_BLOCK = dict(
     ),
     chart_name="local_projections",
     chart_caption=(
-        f"What this shows: slopes from {_LP_COEF[1]:+.4f} at the 1-month horizon (p {_LP_P[1]:.2f}) to "
-        f"{_LP_COEF[12]:+.4f} at the 12-month horizon (p {_LP_P[12]:.2f}, {_LP_LAGS[12]} Newey-West lags)."
+        f"What this shows: slopes from {_LP_COEF[1]:+.4f} at the 1-month horizon (p {_LP_P[1]:.3f}) to "
+        f"{_LP_COEF[12]:+.4f} at the 12-month horizon (p {_LP_P[12]:.3f}, {_LP_LAGS[12]} Newey-West lags)."
     ),
     observation="The raw macro relationship is shown here, not the final lagged tournament rule.",
     interpretation="Overlapping horizons share observations; the Newey-West errors widen the intervals accordingly.",
@@ -489,6 +493,9 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     WALK_FORWARD_CAPTION = (
         "What this shows: Sharpe is return per unit of volatility. The subperiod chart compares the searched rule "
         "with buy-and-hold SPY during major stress windows; n is the number of monthly returns in each window."
+        + "".join(f" In the {r['period']} window, {r['n_pre_is']:.0f} of the {r['n_obs']:.0f} months come before the "
+                  "training window, when no vintage had been published yet, and are held as cash."
+                  for _, r in _SP.iterrows() if float(r["n_pre_is"]) > 0)
     )
     CROSS_PERIOD_CAPTIONS = {
         "rolling_correlation": (

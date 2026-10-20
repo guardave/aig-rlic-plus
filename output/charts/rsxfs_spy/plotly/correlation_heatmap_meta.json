@@ -1,7 +1,7 @@
 {
   "chart_name": "correlation_heatmap",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-20T12:53:39.647275+00:00",
+  "generated_at": "2026-10-20T14:11:00.115826+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
   "caption": "Pearson correlations between retail sales growth transforms and forward SPY returns; stars mark HAC p-values below the significance level.",
   "narrative_alignment_note": "Pearson correlations between retail sales growth transforms and forward SPY returns; stars mark HAC p-values below the significance level.",

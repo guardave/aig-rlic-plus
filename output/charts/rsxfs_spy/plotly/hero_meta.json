@@ -1,7 +1,7 @@
 {
   "chart_name": "hero",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-20T12:53:30.557636+00:00",
+  "generated_at": "2026-10-20T14:10:50.604923+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
   "caption": "Year-over-year growth in retail sales ex food services (RSXFS, revised) and SPY with NBER recessions; pink bands mark months when retail sales were below their year-earlier level.",
   "narrative_alignment_note": "Year-over-year growth in retail sales ex food services (RSXFS, revised) and SPY with NBER recessions; pink bands mark months when retail sales were below their year-earlier level.",

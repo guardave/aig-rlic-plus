@@ -298,7 +298,12 @@ def chart_subperiod() -> None:
         if r["n_oos"] == r["n_obs"]:
             return "test"
         return "mixed"
-    x = [f"{r['period']} ({phase(r)}, n={r['n_obs']})" for _, r in sp.iterrows()]
+    def label(r) -> str:
+        if r["n_pre_is"] > 0:     # months before the first vintage: no position, held as cash by construction
+            return (f"{r['period']} (n={r['n_obs']}:<br>{r['n_pre_is']} before training, held as cash;<br>"
+                    f"{r['n_is']} training)")
+        return f"{r['period']} ({phase(r)}, n={r['n_obs']})"
+    x = [label(r) for _, r in sp.iterrows()]
     fig = go.Figure()
     for col, nm, c in (("strategy_sharpe", "Strategy Sharpe", C_STRAT), ("buy_hold_sharpe", "SPY Sharpe", C_BENCH)):
         fig.add_trace(go.Bar(x=x, y=sp[col], name=nm, marker_color=c, text=sp[col], texttemplate="%{text:.2f}",
@@ -306,7 +311,8 @@ def chart_subperiod() -> None:
     fig.update_layout(title="Sharpe During Major Stress Episodes (annualized; n = months)", yaxis_title="Sharpe",
                       barmode="group", template="plotly_white", height=410)
     cap = ("Strategy and buy-and-hold SPY Sharpe during major stress episodes; each label says whether the window "
-           "falls in the training or test period, and n is the number of monthly returns.")
+           "falls in the training or test period (and how many months come before the training window, held as "
+           "cash), and n is the number of monthly returns.")
     save("subperiod_sharpe", fig, cap, [rel(src)])
     save("walk_forward", fig, cap, [rel(src)])
 

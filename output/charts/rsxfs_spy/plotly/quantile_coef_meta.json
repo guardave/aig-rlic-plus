@@ -1,7 +1,7 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-20T12:53:53.631445+00:00",
+  "generated_at": "2026-10-20T14:11:14.071794+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
   "caption": "Coefficient of YoY growth in retail sales ex food services across quantiles of the 3-month forward SPY return; whiskers are moving-block bootstrap 95% intervals.",
   "narrative_alignment_note": "Coefficient of YoY growth in retail sales ex food services across quantiles of the 3-month forward SPY return; whiskers are moving-block bootstrap 95% intervals.",

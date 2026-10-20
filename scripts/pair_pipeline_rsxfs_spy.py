@@ -373,7 +373,7 @@ def write_metadata(winner: dict, elapsed: float) -> None:
         "confidence": "low",
         "key_finding": f"As known at the time (real-time RSXFS vintages), the rule selected on in-sample data uses "
                        f"{winner['signal_code']} / {winner['threshold_code']} at L{winner['lead_value']} "
-                       f"(IS Sharpe {winner['is_sharpe']:.2f}); held-out OOS Sharpe {winner['oos_sharpe']:.2f} "
+                       f"(IS Sharpe {winner['is_sharpe']:.2f}); test-period Sharpe {winner['oos_sharpe']:.2f} "
                        f"versus buy-and-hold SPY {winner['bh_sharpe']:.2f}.",
         "caveats": [
             "The strategy is search-selected and needs a frozen-rule holdout confirmation.",
@@ -459,7 +459,7 @@ def write_metadata(winner: dict, elapsed: float) -> None:
             "signal_name": "Lead robustness", "proposed_by": "evan", "source": "FRED",
             "observation": f"The rule selected on in-sample data uses a lead of {winner['lead_value']} months on the "
                            f"{winner['signal_display_name'].lower()} ({winner['direction']}, "
-                           f"{winner['threshold_code']}); held-out OOS max drawdown {winner['oos_max_drawdown']:.1%} "
+                           f"{winner['threshold_code']}); test-period maximum drawdown {winner['oos_max_drawdown']:.1%} "
                            f"vs buy-and-hold {winner['bh_max_drawdown']:.1%}.",
             "rationale": "Retail sales are broadly coincident and the sample holds few consumer downturns, so "
                          "the lead needs adjacent-lead durability on new data.",

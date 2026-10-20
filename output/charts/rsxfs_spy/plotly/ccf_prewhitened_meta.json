@@ -1,7 +1,7 @@
 {
   "chart_name": "ccf_prewhitened",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-20T12:53:43.151710+00:00",
+  "generated_at": "2026-10-20T14:11:03.828141+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
   "caption": "Cross-correlation between the monthly change in YoY retail sales growth and SPY returns; dashed lines are approximate 95% bands.",
   "narrative_alignment_note": "Cross-correlation between the monthly change in YoY retail sales growth and SPY returns; dashed lines are approximate 95% bands.",

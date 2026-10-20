@@ -1,7 +1,7 @@
 {
   "chart_name": "equity_curves",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-20T12:53:57.088594+00:00",
+  "generated_at": "2026-10-20T14:11:18.647872+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
   "caption": "Winner strategy (as known at the time: real-time RSXFS vintages) equity curve compared with buy-and-hold SPY, both from the first training month; the dotted line marks the start of the test period.",
   "narrative_alignment_note": "Winner strategy (as known at the time: real-time RSXFS vintages) equity curve compared with buy-and-hold SPY, both from the first training month; the dotted line marks the start of the test period.",
