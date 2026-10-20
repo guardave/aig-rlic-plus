@@ -17,22 +17,12 @@
   "chart_sha256": "c74d6f3176bc6afd77ad69df5d0faacf3955fb2a6feeb13800b00460a390e3d9",
   "results_tag": "20261020",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-20T11:17:43+00:00",
+  "recorded_at": "2026-10-20T12:42:26+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
-   "data/phaseB_inputs/sloos_ci_small_spy_quarterly_legacy_20261015.csv": "50f5a364a2750ec7d3b8eccdc605f9092a03fa4ba3a7db6ec79014594e48e4c0",
-   "data/phaseB_inputs/spy_month_end_20261017.csv": "dba97c9aaa1cf16c8727e8e6300c053c3a3f718290001ad368bd80dfb51f1be5",
-   "data/release_calendar/release_calendar.csv": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
-   "data/release_calendar/release_calendar_meta.json": "9c8ab4d3258bf7938b38557a99f8266b638943d34e95fbed963d581484dd3e96",
-   "data/release_calendar/vintages/DRTSCILM.csv.gz": "b90b4947f514e54c1652c9c21a6ea78a1d36571c50513217d09913e7a3892a52",
    "results/sloos_ci_small_spy/hindsight_lead_curve_20261020.csv": "f35261d39f5bf4399728bd42b4d27cfd04d2a271ce637e0add912b815466adee",
    "results/sloos_ci_small_spy/lead_curve_20261020.csv": "964647d443f4c89257fdbc5172a0de2d439517987612a7f65859633143457394",
-   "results/sloos_ci_small_spy/legacy_oos_selection_20261015.csv": "42320c67f3ba75b287b3a6ee0244b1e307b21ce29e9de1262db39e44784eb4c6",
    "results/sloos_ci_small_spy/null_tournament_20261020.csv": "ba6f6432304ac9bd1a7c578fb0444dce7b12c8bcc868da25ef0b132e8a5a5a53",
-   "results/sloos_ci_small_spy/strategy_returns_20260830_meta.json": "4ce2efecbddb080bc5e7c5d911cccdedab8d8258f3f2df6970e0bc5e35657aff",
-   "results/sloos_ci_small_spy/strategy_returns_20261015.csv": "dfa0b51408738e44cf4bf91d7f06a4091956bcb003ec73dbc0cb61351dcc8214",
-   "results/sloos_ci_small_spy/tournament_results_20260830.csv": "16616c8ab59c3205851e6ab797287e4a6cc1983b10981c15799e258ab1795732",
-   "results/sloos_ci_small_spy/tournament_results_20261015.csv": "4406bf46adcfdda0bff87badd7243e4da67b72e3fe3df78d540cab25d49ee6d6",
    "results/sloos_ci_small_spy/track_summary.json": "6317eef8fc0d09ae958981058ff23292ea9df2affdb16ff40456303773cf865c",
    "results/sloos_ci_small_spy/winner_summary.json": "76a73bd8a1ee9da336ce8cd6e9668b2752d6705f05d3783a37372101d2a4cb37"
   }
@@ -210,27 +200,14 @@
   }
  },
  "lead_plateau": {
-  "chart_sha256": "8b804d7c96ce3c3c9d03db501a0f8d3d112e9c077e9ecd3b80c0468d40dfa4cd",
+  "chart_sha256": "ca99013328f81444dc6d3b5fc1d57befac3b5b5491361dc708943d9d914b4308",
   "results_tag": "20261020",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-20T11:17:39+00:00",
+  "recorded_at": "2026-10-20T12:42:20+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
-   "data/phaseB_inputs/sloos_ci_small_spy_quarterly_legacy_20261015.csv": "50f5a364a2750ec7d3b8eccdc605f9092a03fa4ba3a7db6ec79014594e48e4c0",
-   "data/phaseB_inputs/spy_month_end_20261017.csv": "dba97c9aaa1cf16c8727e8e6300c053c3a3f718290001ad368bd80dfb51f1be5",
-   "data/release_calendar/release_calendar.csv": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
-   "data/release_calendar/release_calendar_meta.json": "9c8ab4d3258bf7938b38557a99f8266b638943d34e95fbed963d581484dd3e96",
-   "data/release_calendar/vintages/DRTSCILM.csv.gz": "b90b4947f514e54c1652c9c21a6ea78a1d36571c50513217d09913e7a3892a52",
    "results/sloos_ci_small_spy/hindsight_lead_curve_20261020.csv": "f35261d39f5bf4399728bd42b4d27cfd04d2a271ce637e0add912b815466adee",
-   "results/sloos_ci_small_spy/lead_curve_20261020.csv": "964647d443f4c89257fdbc5172a0de2d439517987612a7f65859633143457394",
-   "results/sloos_ci_small_spy/legacy_oos_selection_20261015.csv": "42320c67f3ba75b287b3a6ee0244b1e307b21ce29e9de1262db39e44784eb4c6",
-   "results/sloos_ci_small_spy/null_tournament_20261020.csv": "ba6f6432304ac9bd1a7c578fb0444dce7b12c8bcc868da25ef0b132e8a5a5a53",
-   "results/sloos_ci_small_spy/strategy_returns_20260830_meta.json": "4ce2efecbddb080bc5e7c5d911cccdedab8d8258f3f2df6970e0bc5e35657aff",
-   "results/sloos_ci_small_spy/strategy_returns_20261015.csv": "dfa0b51408738e44cf4bf91d7f06a4091956bcb003ec73dbc0cb61351dcc8214",
-   "results/sloos_ci_small_spy/tournament_results_20260830.csv": "16616c8ab59c3205851e6ab797287e4a6cc1983b10981c15799e258ab1795732",
-   "results/sloos_ci_small_spy/tournament_results_20261015.csv": "4406bf46adcfdda0bff87badd7243e4da67b72e3fe3df78d540cab25d49ee6d6",
-   "results/sloos_ci_small_spy/track_summary.json": "6317eef8fc0d09ae958981058ff23292ea9df2affdb16ff40456303773cf865c",
-   "results/sloos_ci_small_spy/winner_summary.json": "76a73bd8a1ee9da336ce8cd6e9668b2752d6705f05d3783a37372101d2a4cb37"
+   "results/sloos_ci_small_spy/lead_curve_20261020.csv": "964647d443f4c89257fdbc5172a0de2d439517987612a7f65859633143457394"
   }
  },
  "local_projections": {
