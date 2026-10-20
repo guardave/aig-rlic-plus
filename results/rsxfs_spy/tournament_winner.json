@@ -1,8 +1,8 @@
 {
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-18T10:26:33.631249+00:00",
+  "generated_at": "2026-10-20T11:30:34.596764+00:00",
   "track": "main",
-  "source_tournament_file": "tournament_results_20261018.csv",
+  "source_tournament_file": "tournament_results_20261020.csv",
   "winner": {
     "signal": "yoy_zscore_60m",
     "threshold": "T_z_0",

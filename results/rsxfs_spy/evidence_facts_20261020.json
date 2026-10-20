@@ -1,0 +1,54 @@
+{
+  "pair_id": "rsxfs_spy",
+  "date_tag": "20261020",
+  "sources": [
+    "core_models_20261020/ccf_prewhitened.csv",
+    "core_models_20261020/local_projections.csv",
+    "core_models_20261020/quantile_equality_test.json",
+    "core_models_20261020/quantile_regression.csv",
+    "granger_by_lag.csv",
+    "regime_quartile_returns.csv",
+    "subperiod_sharpe.csv"
+  ],
+  "derived": {
+    "trade_log_rows": 36,
+    "n_oos_trade_log_rows": 16,
+    "oos_sum_abs_position_change": 16.0,
+    "n_oos_changes_within_test": 16,
+    "oos_entry_move_into_first_test_month": false,
+    "significance_p": 0.05,
+    "n_granger_lags": 12,
+    "granger_min_p": 0.4434332361637695,
+    "granger_best": {
+      "lag": 4
+    },
+    "granger_min_p_bonferroni": 1.0,
+    "ccf_sales_first": {
+      "lag": []
+    },
+    "ccf_spy_first": {
+      "lag": [
+        12,
+        1
+      ]
+    },
+    "panel_first_month": "1993-01",
+    "revision": {
+      "n_months": 304,
+      "first_month": "2001-06",
+      "last_month": "2026-09",
+      "mom": {
+        "mean_abs_revision_pp": 0.4292,
+        "sign_changed_share": 0.1579,
+        "corr_first_latest": 0.9471,
+        "sd_latest_pp": 1.8513
+      },
+      "yoy": {
+        "mean_abs_revision_pp": 0.7972,
+        "sign_changed_share": 0.0362,
+        "corr_first_latest": 0.9876,
+        "sd_latest_pp": 5.2453
+      }
+    }
+  }
+}

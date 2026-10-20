@@ -1,7 +1,7 @@
 {
   "chart_name": "structural_break",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-18T10:34:37.683143+00:00",
+  "generated_at": "2026-10-20T11:34:27.431375+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
   "caption": "Proxy check for large swings in the retail sales growth-SPY correlation.",
   "narrative_alignment_note": "Proxy check for large swings in the retail sales growth-SPY correlation.",

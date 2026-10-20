@@ -1,13 +1,13 @@
 {
   "chart_name": "correlation_heatmap",
   "pair_id": "rsxfs_spy",
-  "generated_at": "2026-10-18T10:33:50.882434+00:00",
+  "generated_at": "2026-10-20T11:33:41.781305+00:00",
   "generated_by": "scripts/generate_charts_rsxfs_spy.py",
   "caption": "Pearson correlations between retail sales growth transforms and forward SPY returns; stars mark HAC p-values below the significance level.",
   "narrative_alignment_note": "Pearson correlations between retail sales growth transforms and forward SPY returns; stars mark HAC p-values below the significance level.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/rsxfs_spy/core_models_20261018/correlations.csv",
-    "results/rsxfs_spy/evidence_facts_20261018.json"
+    "results/rsxfs_spy/core_models_20261020/correlations.csv",
+    "results/rsxfs_spy/evidence_facts_20261020.json"
   ]
 }
