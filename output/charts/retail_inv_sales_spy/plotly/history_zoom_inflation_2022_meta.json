@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_inflation_2022",
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-10-18T13:51:03.711177+00:00",
+  "generated_at": "2026-10-20T11:03:42.947774+00:00",
   "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
   "caption": "2022 Rate Shock: Ratio Rose From Record Lows While SPY Sold Off; gray bands are NBER recessions.",
   "narrative_alignment_note": "2022 Rate Shock: Ratio Rose From Record Lows While SPY Sold Off; gray bands are NBER recessions.",

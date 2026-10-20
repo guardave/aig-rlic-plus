@@ -1,7 +1,7 @@
 {
   "chart_name": "structural_break",
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-10-18T13:50:09.564852+00:00",
+  "generated_at": "2026-10-20T11:02:29.121353+00:00",
   "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
   "caption": "Proxy check for large changes in the inventories-to-sales / SPY relationship.",
   "narrative_alignment_note": "Proxy check for large changes in the inventories-to-sales / SPY relationship.",

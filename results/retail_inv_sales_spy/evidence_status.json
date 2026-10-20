@@ -2,7 +2,7 @@
   "pair_id": "retail_inv_sales_spy",
   "schema_version": "1.2.0",
   "status": "found_in_search",
-  "updated_at": "2026-10-18T13:37:35.993811+00:00",
+  "updated_at": "2026-10-20T10:58:27.566887+00:00",
   "plain_english": "There is no winning rule on data as known at the time: the archive of past releases is too short to train on. A rule found on today's revised data is shown as hindsight only.",
   "technical_note": "Real-time RETAILIRSA vintages start 2013-07-31, leaving 47 training rows before the test period (minimum 60); MAIN is not eligible. The as-revised-today winner comes from the 20261018 tournament (D9 lead plateau) and is search-selected hindsight, not a frozen-rule hold-out result.",
   "next_step": "Re-run once enough real-time history exists, or freeze the hindsight rule and test it on data released after this run.",

@@ -1,7 +1,7 @@
 {
   "chart_name": "equity_curves",
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-10-18T13:49:23.608629+00:00",
+  "generated_at": "2026-10-20T11:01:34.736977+00:00",
   "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
   "caption": "No rule exists on data as known at the time for this pair. Shown: the rule selected on today's revised data (as revised today (hindsight)) compared with buy-and-hold SPY, both from the first training month.",
   "narrative_alignment_note": "No rule exists on data as known at the time for this pair. Shown: the rule selected on today's revised data (as revised today (hindsight)) compared with buy-and-hold SPY, both from the first training month.",

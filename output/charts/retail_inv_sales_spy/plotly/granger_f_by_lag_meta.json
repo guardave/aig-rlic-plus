@@ -1,7 +1,7 @@
 {
   "chart_name": "granger_f_by_lag",
   "pair_id": "retail_inv_sales_spy",
-  "generated_at": "2026-10-18T13:49:01.396127+00:00",
+  "generated_at": "2026-10-20T11:00:55.555147+00:00",
   "generated_by": "scripts/generate_charts_retail_inv_sales_spy.py",
   "caption": "Granger p-values by lag for the 12-month change in the inventories-to-sales ratio predicting SPY returns, with Holm-adjusted p-values across the lags tested.",
   "narrative_alignment_note": "Granger p-values by lag for the 12-month change in the inventories-to-sales ratio predicting SPY returns, with Holm-adjusted p-values across the lags tested.",
