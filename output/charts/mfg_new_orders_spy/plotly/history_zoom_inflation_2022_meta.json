@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_inflation_2022",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-18T08:53:36.361148+00:00",
+  "generated_at": "2026-10-20T10:46:33.228174+00:00",
   "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
   "caption": "2022 Inflation and Rate Shock, 2021-2025: YoY growth in core capital goods orders and SPY; gray bands are NBER recessions and pink bands mark months when orders were below their year-earlier level.",
   "narrative_alignment_note": "2022 Inflation and Rate Shock, 2021-2025: YoY growth in core capital goods orders and SPY; gray bands are NBER recessions and pink bands mark months when orders were below their year-earlier level.",

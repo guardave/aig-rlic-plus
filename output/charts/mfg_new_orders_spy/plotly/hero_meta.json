@@ -1,7 +1,7 @@
 {
   "chart_name": "hero",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-18T08:51:38.227157+00:00",
+  "generated_at": "2026-10-20T10:44:15.790890+00:00",
   "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
   "caption": "Year-over-year growth in core capital goods orders (NEWORDER, revised) and SPY with NBER recessions; pink bands mark months when orders were below their year-earlier level.",
   "narrative_alignment_note": "Year-over-year growth in core capital goods orders (NEWORDER, revised) and SPY with NBER recessions; pink bands mark months when orders were below their year-earlier level.",

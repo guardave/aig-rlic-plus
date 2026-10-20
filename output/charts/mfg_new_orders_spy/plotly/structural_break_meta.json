@@ -1,7 +1,7 @@
 {
   "chart_name": "structural_break",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-18T08:53:07.670049+00:00",
+  "generated_at": "2026-10-20T10:45:57.505445+00:00",
   "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
   "caption": "Proxy check for large swings in the orders growth-SPY correlation.",
   "narrative_alignment_note": "Proxy check for large swings in the orders growth-SPY correlation.",

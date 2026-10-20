@@ -1,12 +1,12 @@
 {
   "chart_name": "ccf_prewhitened",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-18T08:52:05.836896+00:00",
+  "generated_at": "2026-10-20T10:44:44.795460+00:00",
   "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
   "caption": "Cross-correlation between the monthly change in YoY orders growth and SPY returns; dashed lines are approximate 95% bands.",
   "narrative_alignment_note": "Cross-correlation between the monthly change in YoY orders growth and SPY returns; dashed lines are approximate 95% bands.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/mfg_new_orders_spy/core_models_20261018/ccf_prewhitened.csv"
+    "results/mfg_new_orders_spy/core_models_20261020/ccf_prewhitened.csv"
   ]
 }

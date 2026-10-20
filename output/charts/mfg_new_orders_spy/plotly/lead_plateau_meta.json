@@ -1,13 +1,13 @@
 {
   "chart_name": "lead_plateau",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-18T08:44:31.997602+00:00",
+  "generated_at": "2026-10-20T10:43:56.715221+00:00",
   "generated_by": "scripts/harness/charts.py",
   "caption": "The winner L11 sits in a stable range L10-L12.",
   "narrative_alignment_note": "The winner L11 sits in a stable range L10-L12.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/mfg_new_orders_spy/lead_curve_20261018.csv",
-    "results/mfg_new_orders_spy/hindsight_lead_curve_20261018.csv"
+    "results/mfg_new_orders_spy/lead_curve_20261020.csv",
+    "results/mfg_new_orders_spy/hindsight_lead_curve_20261020.csv"
   ]
 }

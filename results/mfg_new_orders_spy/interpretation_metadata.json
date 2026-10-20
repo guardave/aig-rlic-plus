@@ -26,7 +26,7 @@
     ]
   },
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-18T08:42:13.750939+00:00",
+  "last_updated_at": "2026-10-20T10:31:18.050070+00:00",
   "indicator": "mfg_new_orders",
   "target": "spy",
   "expected_direction": "procyclical",
@@ -71,6 +71,6 @@
   "data_provenance": {
     "source": "FRED / ALFRED (U.S. Census Bureau, advance durable goods / M3)",
     "series_id": "NEWORDER",
-    "accessed_at": "2026-10-18T08:42:13.750939+00:00"
+    "accessed_at": "2026-10-20T10:31:18.050070+00:00"
   }
 }

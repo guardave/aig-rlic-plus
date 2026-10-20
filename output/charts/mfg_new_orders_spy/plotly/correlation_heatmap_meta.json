@@ -1,13 +1,13 @@
 {
   "chart_name": "correlation_heatmap",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-18T08:51:55.494851+00:00",
+  "generated_at": "2026-10-20T10:44:36.817101+00:00",
   "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
   "caption": "Pearson correlations between core capital goods orders growth transforms and forward SPY returns; stars mark HAC p-values below the significance level.",
   "narrative_alignment_note": "Pearson correlations between core capital goods orders growth transforms and forward SPY returns; stars mark HAC p-values below the significance level.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/mfg_new_orders_spy/core_models_20261018/correlations.csv",
-    "results/mfg_new_orders_spy/evidence_facts_20261018.json"
+    "results/mfg_new_orders_spy/core_models_20261020/correlations.csv",
+    "results/mfg_new_orders_spy/evidence_facts_20261020.json"
   ]
 }

@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "owner": "evan",
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-18T08:42:13.750939+00:00",
+  "last_updated_at": "2026-10-20T10:31:18.050070+00:00",
   "indicator_axis": {
     "canonical_column": "mfg_new_orders",
     "display_name": "Core capital goods orders (NEWORDER)",

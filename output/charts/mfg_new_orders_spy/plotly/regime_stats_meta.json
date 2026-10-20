@@ -1,7 +1,7 @@
 {
   "chart_name": "regime_stats",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-18T08:51:47.333463+00:00",
+  "generated_at": "2026-10-20T10:44:24.866838+00:00",
   "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
   "caption": "Same-month SPY performance across quartiles of YoY growth in core capital goods orders.",
   "narrative_alignment_note": "Same-month SPY performance across quartiles of YoY growth in core capital goods orders.",

@@ -12,9 +12,10 @@ The tournament runs on scripts/harness (spec: scripts/pair_spec_mfg_new_orders_s
   * COMPARISON, "As revised today (hindsight)": today's revised values with point-in-time release timing.
 Each track selects its own winner on in-sample data by the D9 lead-plateau rule over the registry grid L3..L14
 (position_shift 0: the lead is the whole lag between the reading month and the return month); null tournament
-K=100, paired block bootstrap vs buy-and-hold SPY, leak tests. The 20261016 rule (raw IS-Sharpe argmax on a common
-IS start, fixed lags, commit 1d06839f) is replayed exactly by the harness (LEGACY_SPEC) and kept as the previous
-rule.
+K=100, paired block bootstrap vs buy-and-hold SPY, leak tests. The earlier research run 20261016 (raw IS-Sharpe
+argmax on a common IS start, fixed lags, commit 1d06839f, never on the main site) is replayed exactly by the harness
+(LEGACY_SPEC) and kept as the previous rule; the rule the main site shows (run 20260830, commit c1797488,
+OOS-selected) is recorded for reference from that run's own files.
 
 This file keeps the pair's evidence stages (computed on the revised panel, descriptive only), metadata and the
 narrative-provenance record. Inference on overlapping h-month forward returns is HAC (Newey-West, maxlags >=
@@ -40,12 +41,13 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
 import pair_spec_mfg_new_orders_spy as spec_mod  # noqa: E402
-from harness.artifacts import trade_log, winner_series  # noqa: E402
+from harness.artifacts import trade_log, winner_series, write_json  # noqa: E402
 from harness.evidence import evidence_path, write_evidence_facts  # noqa: E402
 from harness.run import run_pair  # noqa: E402
 
 PAIR_ID = "mfg_new_orders_spy"
-DATE_TAG = "20261018"  # Phase B B1: harness, two tracks, D9 plateau, registry grid L3..L14, null K=100, bootstrap
+DATE_TAG = "20261020"  # Phase B B1 post-Codex rerun: harness v2 (run_tag), data.py last-row fix, null v4
+MAIN_SITE_TAG = "20260830"  # the run whose rule the main site shows (OOS-selected, legacy method; commit c1797488)
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
 K_NULL = 100                          # null-tournament draws per track
@@ -141,6 +143,26 @@ def trade_reason(winner: dict) -> str:
     return f"{winner['signal_code']} {winner['direction']} rule crossed {winner['threshold_code']}"
 
 
+def main_site_rule() -> dict:
+    """The rule shown on the main site: winner of run 20260830 (strategy_returns_20260830_meta.json winner key),
+    its row in tournament_results_20260830.csv (both restored from commit c1797488, byte-identical to main). That run
+    selected on test-period Sharpe (its is_sharpe column holds the OOS values), so it is reported as the main-site
+    rule, not replayed as a selection rule."""
+    meta = json.loads((RES / f"strategy_returns_{MAIN_SITE_TAG}_meta.json").read_text())
+    sig, thr, dirn, lead = meta["winner_key"].split("|")
+    t = pd.read_csv(RES / f"tournament_results_{MAIN_SITE_TAG}.csv")
+    r = t[(t["signal"] == sig) & (t["threshold"] == thr) & (t["direction"] == dirn) & (t["lead_months"] == int(lead))]
+    if len(r) != 1:
+        raise ValueError(f"main-site rule {meta['winner_key']} not found once in tournament_results_{MAIN_SITE_TAG}")
+    r = r.iloc[0]
+    return {"signal": sig, "threshold": thr, "direction": dirn, "lead_value": int(lead),
+            "oos_sharpe": float(r["oos_sharpe"]), "tag": MAIN_SITE_TAG,
+            "source": f"tournament_results_{MAIN_SITE_TAG}.csv row {int(r.name)}, "
+                      f"strategy_returns_{MAIN_SITE_TAG}_meta.json winner_key",
+            "note": f"Rule shown on the main site (run {MAIN_SITE_TAG}), selected on its test-period Sharpe (legacy "
+                    "method); reference only, not a selection rule."}
+
+
 def run_tournament() -> tuple[pd.DataFrame, dict, dict]:
     out = run_pair(PAIR_ID, DATE_TAG, K=K_NULL, extra={
         "target_symbol": TARGET_SYMBOL, "cost_bps": COST_BPS,
@@ -149,9 +171,17 @@ def run_tournament() -> tuple[pd.DataFrame, dict, dict]:
                                 "favorable side of its threshold; otherwise cash (long/cash).",
         "notes": "Core capital goods orders (NEWORDER, nondefense capital goods ex aircraft) is a nominal, trending "
                  "level, so every signal is a growth transform. Headline = as known at the time (real-time "
-                 "vintages); still a search-selected rule. The 20261016 rule (raw in-sample Sharpe argmax, fixed "
-                 "lags) is replayed exactly and kept as the previous rule."})
+                 "vintages); still a search-selected rule. The main site shows the 20260830 rule (OOS-selected, "
+                 "legacy method); the earlier research run 20261016 (raw in-sample Sharpe argmax, fixed lags, never "
+                 "on the main site) is replayed exactly and kept as the previous rule."})
     winner = json.loads((RES / "winner_summary.json").read_text())
+    # the rule the main site still shows (run 20260830, OOS-selected): recorded next to the selection as the
+    # legacy_oos_selected_row, read from that run's immutable files; reference only, never a selection rule
+    winner["selection"]["legacy_oos_selected_row"] = main_site_rule()
+    write_json(RES / "winner_summary.json", winner, "winner_summary")
+    from harness import charts as HC            # re-record the harness charts on the amended summary (provenance)
+    HC.lead_plateau(PAIR_ID, DATE_TAG, spec_mod.SPEC.lead_unit)
+    HC.chance_check(PAIR_ID, DATE_TAG)
     tourn = pd.read_csv(RES / f"tournament_results_{DATE_TAG}.csv")
     tourn["valid"] = tourn["valid"].astype(bool)
     res = out["results"]["main"]

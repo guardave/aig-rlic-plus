@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_gfc",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-18T08:53:27.607493+00:00",
+  "generated_at": "2026-10-20T10:46:22.287114+00:00",
   "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
   "caption": "Global Financial Crisis, 2006-2010: YoY growth in core capital goods orders and SPY; gray bands are NBER recessions and pink bands mark months when orders were below their year-earlier level.",
   "narrative_alignment_note": "Global Financial Crisis, 2006-2010: YoY growth in core capital goods orders and SPY; gray bands are NBER recessions and pink bands mark months when orders were below their year-earlier level.",

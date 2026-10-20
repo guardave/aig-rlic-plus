@@ -1,12 +1,12 @@
 {
   "chart_name": "local_projections",
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-18T08:52:22.808661+00:00",
+  "generated_at": "2026-10-20T10:44:57.534943+00:00",
   "generated_by": "scripts/generate_charts_mfg_new_orders_spy.py",
   "caption": "Estimated forward SPY return per percentage point of YoY growth in core capital goods orders, with Newey-West 95% intervals (lags at least horizon - 1).",
   "narrative_alignment_note": "Estimated forward SPY return per percentage point of YoY growth in core capital goods orders, with Newey-West 95% intervals (lags at least horizon - 1).",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/mfg_new_orders_spy/core_models_20261018/local_projections.csv"
+    "results/mfg_new_orders_spy/core_models_20261020/local_projections.csv"
   ]
 }

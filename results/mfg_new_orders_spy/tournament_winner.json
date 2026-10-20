@@ -1,8 +1,8 @@
 {
   "pair_id": "mfg_new_orders_spy",
-  "generated_at": "2026-10-18T08:44:29.794909+00:00",
+  "generated_at": "2026-10-20T10:39:06.012505+00:00",
   "track": "main",
-  "source_tournament_file": "tournament_results_20261018.csv",
+  "source_tournament_file": "tournament_results_20261020.csv",
   "winner": {
     "signal": "yoy",
     "threshold": "T_roll_p25",

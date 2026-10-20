@@ -1,7 +1,7 @@
 {
   "pair_id": "mfg_new_orders_spy",
   "schema_version": "1.0.0",
-  "last_updated_at": "2026-10-18T08:42:13.750939+00:00",
+  "last_updated_at": "2026-10-20T10:31:18.050070+00:00",
   "suggestions": [
     {
       "signal_name": "Lead robustness",
@@ -11,7 +11,7 @@
       "rationale": "Capital-spending cycles in the sample are few, so the lead needs adjacent-lead durability on new data.",
       "possible_use_case": "robustness check",
       "caveats": "Search-selected rule; not final-exam validated.",
-      "date_filed": "2026-10-18"
+      "date_filed": "2026-10-20"
     }
   ],
   "notes": "Generated with the core capital goods orders (NEWORDER) x SPY pair pipeline."
