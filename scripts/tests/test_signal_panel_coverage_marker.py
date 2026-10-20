@@ -36,3 +36,27 @@ def test_quartile_palette_is_sequential():
     from _quartile_chart import QUARTILE_COLORS
     lum = [0.2126 * int(c[1:3], 16) + 0.7152 * int(c[3:5], 16) + 0.0722 * int(c[5:7], 16) for c in QUARTILE_COLORS]
     assert lum == sorted(lum, reverse=True)                     # light Q1 .. dark Q4, one hue
+
+
+def test_tagged_artifact_date_is_parsed_in_gate_mode(tmp_path, monkeypatch):
+    # cement F5: the date comes from P.json_file, which is tagged text under the provenance gate
+    import json
+    import streamlit as st
+    from components import probability_engine_panel as PE
+    from components import provenance as P
+    d = tmp_path / "results" / "toy_spy"
+    d.mkdir(parents=True)
+    (d / "data_integrity_20261020.json").write_text(json.dumps({"first_month_not_equal": "2024-01-31"}))
+    monkeypatch.setattr(P, "RESULTS", tmp_path / "results")
+    monkeypatch.setenv("AIG_PROVENANCE_GATE", "1")
+    date = P.json_file(d / "data_integrity_20261020.json")["first_month_not_equal"]
+    figs = []
+    monkeypatch.setattr(st, "plotly_chart", lambda fig, **k: figs.append(fig))
+    monkeypatch.setattr(st, "caption", lambda *a, **k: None)
+    monkeypatch.setattr(PE, "_load_target_price_overlay", lambda *a: None)
+    idx = pd.date_range("2006-01-31", "2025-06-30", freq="ME")
+    sig = pd.DataFrame({"signal": np.sin(np.arange(len(idx))), "threshold": 0.0}, index=idx)
+    win = {"target_symbol": "SPY", "lead_value": 8, "lead_unit": "months", "threshold_rule": "gte",
+           "track_policy": "single_revised_no_archive", "signal_code": "chg_6m", "oos_period_start": "2017-01-31"}
+    PE._render_deployed_signal("toy_spy", win, sig, False, [{"date": date, "label": "Coverage change"}])
+    assert [s.x0 for s in figs[0].layout.shapes if s.type == "line"] == ["2024-01-31"]
