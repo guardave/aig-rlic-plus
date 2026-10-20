@@ -5,9 +5,10 @@ Bureau); its first print is the advance estimate, revised in later reports. Phas
 winner_summary.json `winner_fields`, via components.winner_fields), the track summary, or the evidence tables and
 derived facts declared in evidence_facts_<tag>.json; none is typed here (scripts/gate_structured_prose.py,
 scripts/gate_number_provenance.py). MAIN = as known at the time (real-time RSXFS vintages); COMPARISON = as
-revised today (hindsight). The previous rule (raw in-sample Sharpe argmax, fixed lags, development run 20261016) is
-replayed exactly by the harness; the correction banner names it from the previous_* fields and names the older
-rule still shown on the main site from the 20261016 selection record. The pre-Phase-B prose (a hand-typed
+revised today (hindsight). The banner names the rule the main site shows (run 20260827, OOS-selected; recorded by the
+pipeline as winner_summary selection.legacy_oos_selected_row) and the earlier research run (20261016, raw in-sample
+Sharpe argmax, fixed lags; branch fix261016_strict_lead_floor, never on the main site), which the harness replays
+exactly (previous_* fields). The pre-Phase-B prose (a hand-typed
 headline Sharpe and a lead in words that did not match the rule) is replaced by provenance-loaded text.
 """
 
@@ -72,9 +73,11 @@ _R71_CAVEAT = _r71_caveat()
 _CHANCE_TEXT = (f"the real winner's stable-range score is above the winners of all {W.null_draws} scrambled contests"
                 if W.value("null_percentile") == 1 else
                 f"the real winner's stable-range score ranks at the {W.null_percentile} point of the scrambled scores")
+_MS = _WS["selection"]["legacy_oos_selected_row"]
+_MS_RULE = f"{_MS['signal']} / {_MS['threshold']} / L{_MS['lead_value']}"
 _COMP_TAIL = (
     f" On the revised track the last test month ({W.comparison_tail_first_date} to {W.comparison_tail_last_date}) "
-    "has no defined position because the revised series ends before the return data; the published "
+    "has no defined position in the track's inputs; the published "
     f"figure counts it as cash, and holding the last defined position instead gives a test-period Sharpe of "
     f"{W.comparison_tail_hold_last_sharpe}."
     if W.has("comparison_tail_n_periods") else "")
@@ -397,10 +400,13 @@ class StrategyConfig:
     )
 
     STATISTICAL_FRAMING_BANNER = (
-        "Correction (2026-10-18). The main site still shows an older rule for this pair, chosen by its test-period "
-        f"score (legacy method). The previous development run ({W.previous_tag}, not on the main site) reported "
-        f"{W.previous_rule} ({W.previous_selection}: training Sharpe {W.previous_is_sharpe}, test-period Sharpe "
-        f"{W.previous_oos_sharpe}), on retail sales data as downloaded for that run. The page now reports the rule "
+        f"Correction (2026-10-20). The main site shows the rule {_MS_RULE} ({_MS['direction']}), "
+        f"which the legacy method chose by its test-period Sharpe of {_MS['oos_sharpe']:.2f}, so that legacy "
+        "test-period result was not a held-out result. "
+        f"An earlier run (a research run of {W.previous_tag} on the branch fix261016_strict_lead_floor, never "
+        f"published on the main site) reported the rule {W.previous_rule} ({W.previous_selection}: earlier-run "
+        f"training Sharpe {W.previous_is_sharpe}, earlier-run test-period Sharpe {W.previous_oos_sharpe}), on retail "
+        "sales data as downloaded for that run. The page now reports the rule "
         "selected on the training period from data as known at the time, with point-in-time release dates and the "
         "stable-lead-range rule; today's revised data are shown for comparison only."
     )
@@ -423,6 +429,7 @@ class StrategyConfig:
             f"Test-period Sharpe difference versus buy-and-hold {W.sharpe_gap}, 95% interval {W.ci_low} to {W.ci_high}.",
             f"The rule selected on revised data {'is the same' if _SAME_RULE else 'differs'} (hindsight test-period "
             f"Sharpe {W.comparison_oos_sharpe}).",
+            f"The rule shown on the main site ({_MS_RULE}) was chosen by the legacy method on its test-period score.",
             "The advance estimate is revised, sometimes enough to change the sign of a month's growth; the rule trades "
             "on the figures as first and later published.",
             "Retail sales are nominal: inflation can keep reported growth positive while real spending slows.",
@@ -441,8 +448,10 @@ class StrategyConfig:
         {"label": "Tournament results (as known at the time)", "path": f"results/{PAIR}/tournament_results_{_TAG}.csv"},
         {"label": "Tournament results (as revised today, hindsight)",
          "path": f"results/{PAIR}/hindsight_tournament_results_{_TAG}.csv"},
-        {"label": f"Previous development-run tournament ({W.previous_tag})",
+        {"label": f"Earlier research-run tournament ({W.previous_tag})",
          "path": f"results/{PAIR}/tournament_results_{W.value('previous_tag')}.csv"},
+        {"label": "Main-site run tournament (legacy method)",
+         "path": f"results/{PAIR}/tournament_results_{_MS['tag']}.csv"},
         {"label": "Advance estimate vs today's revised growth, by month",
          "path": f"results/{PAIR}/revision_first_vs_latest_{_TAG}.csv"},
         {"label": "Stationarity tests", "path": f"results/{PAIR}/stationarity_tests_{_TAG}.csv"},
@@ -505,7 +514,8 @@ This describes the backtested rule so it can be audited; it is not a trading rec
 - The result is marked `found_in_search`; it still needs a frozen-rule holdout confirmation.
 - The headline uses retail sales data as known at the time. On today's revised data the selected rule {'is the same' if _SAME_RULE else 'is different'} (test-period Sharpe {W.comparison_oos_sharpe}, hindsight).
 - The advance estimate is revised: {_REV_TEXT}
-- The previous development-run rule ({W.previous_rule}, {W.previous_selection}) is replayed exactly on the new framework.
+- The main site shows the legacy rule {_MS_RULE}, chosen by the legacy method on its test-period Sharpe; it is not replayed as a selection rule because it consulted the test period.
+- The earlier run's rule ({W.previous_rule}, {W.previous_selection}; a research run of {W.previous_tag}, never on the main site) is replayed exactly on the new framework.
 - The test window was seen by the earlier runs, so it is not a frozen hold-out.
 - Retail sales are nominal and broadly coincident with the business cycle, and the 2020-21 collapse and rebound sits inside the test window.
 {_R71_CAVEAT}
@@ -532,10 +542,10 @@ STRATEGY_CONFIG = StrategyConfig()
 _DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator (as known at the time) | ALFRED (FRED vintages, pinned in data/release_calendar/vintages/RSXFS.csv.gz) | `RSXFS`, Advance Retail Sales: Retail Trade, excluding food services (U.S. Census Bureau), every published vintage | Monthly |
-| Indicator (as revised today) | FRED (latest vintage of the same file) | `RSXFS` | Monthly |
-| Release dates | data/release_calendar/release_calendar.csv | first publication date per month | Monthly |
-| Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted month-end close | Monthly |
+| Indicator (as known at the time) | ALFRED, St. Louis Fed (every published vintage, pinned archive) | `RSXFS`, Advance Retail Sales: Retail Trade, excluding food services (U.S. Census Bureau) | Monthly |
+| Indicator (as revised today) | FRED, St. Louis Fed (latest vintage of the same archive) | `RSXFS` | Monthly |
+| Release dates | ALFRED first-vintage dates (project release calendar) | first publication date per month | Monthly |
+| Target | Yahoo Finance (pinned month-end extract) | SPY adjusted month-end close | Monthly |
 """)
 
 _INDICATOR_CONSTRUCTION_MD = P.definition_text(
@@ -573,8 +583,8 @@ Grid: retail sales growth transforms x zero, fixed z-score and rolling-percentil
 - Cross-evaluation: the headline rule scored on revised data has test-period Sharpe {W.ce_main_on_revised_oos_sharpe}; the hindsight rule scored on data as known at the time has {W.ce_revised_on_main_oos_sharpe}.
 - Revisions: {_REV_TEXT}
 - Chance check: across {W.null_draws} contests run on circularly shifted retail sales data, {_CHANCE_TEXT}.
-- Previous development-run rule: `{W.previous_rule}` ({W.previous_selection}), test-period Sharpe {W.previous_oos_sharpe}; replayed exactly on the new framework from that run's own data.
-- Rule shown on the main site: an older rule chosen by its test-period Sharpe (legacy method), kept as the `legacy_oos_selected` row of the previous run's selection record; it is not replayed as a selection rule because it consulted the test period.
+- Rule shown on the main site (legacy method): `{_MS_RULE}` ({_MS['direction']}), chosen by its legacy test-period Sharpe of {_MS['oos_sharpe']:.2f}; not replayed as a selection rule because it consulted the test period.
+- Earlier run (a research run of {W.previous_tag}, never on the main site): `{W.previous_rule}` ({W.previous_selection}), earlier-run test-period Sharpe {W.previous_oos_sharpe}; replayed exactly on the new framework from that run's own data.
 """
 
 _REFERENCES_MD = """

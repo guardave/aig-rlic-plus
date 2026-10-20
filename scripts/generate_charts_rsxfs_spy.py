@@ -24,7 +24,7 @@ from _nber import RECESSIONS, add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
 
 PAIR = "rsxfs_spy"
-DATE_TAG = "20261018"
+DATE_TAG = "20261020"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 PANEL = "data/rsxfs_spy_monthly_latest.parquet"
@@ -145,8 +145,9 @@ def chart_correlation_heatmap() -> None:
                       template="plotly_white",
                       height=520, xaxis_title="Forward SPY return horizon",
                       annotations=[dict(text=f"* HAC (Newey-West) p < {a}, lags at least horizon - 1", xref="paper",
-                                        yref="paper", x=0, y=-0.16, showarrow=False, font=dict(size=11))],
-                      margin=dict(l=190, b=110))
+                                        yref="paper", x=0, y=-0.27, xanchor="left", showarrow=False,
+                                        font=dict(size=11))],
+                      margin=dict(l=190, b=130))
     save("correlation_heatmap", fig, "Pearson correlations between retail sales growth transforms and forward SPY "
          "returns; stars mark HAC p-values below the significance level.", [rel(CORE / "correlations.csv"), rel(FACTS)])
 
@@ -168,14 +169,14 @@ def chart_granger() -> None:
     gr = pd.read_csv(CORE / "granger_causality.csv")
     k, a = len(gr), alpha()
     fig = go.Figure(go.Bar(x=gr["lag"], y=gr["p_value"], name="p-value (unadjusted)", marker_color=C_IND))
-    fig.add_hline(y=a, line_dash="dash", line_color=C_LINE)
-    fig.add_hline(y=a / k, line_dash="dot", line_color=C_LINE)
-    for y, txt, shift in ((a, f"p = {a}", 6), (a / k, f"Bonferroni: {a} / {k} lags", -6)):
-        fig.add_annotation(x=1.01, xref="paper", xanchor="left", y=y, yref="y", yshift=shift, text=txt,
-                           showarrow=False, font=dict(size=11))
+    # reference lines as legend entries (no free text labels: the two lines sit close together near zero)
+    x0, x1 = float(gr["lag"].min()) - 0.5, float(gr["lag"].max()) + 0.5
+    for y, txt, dash in ((a, f"p = {a}", "dash"), (a / k, f"Bonferroni: {a} / {k} lags", "dot")):
+        fig.add_trace(go.Scatter(x=[x0, x1], y=[y, y], mode="lines", name=txt, hoverinfo="skip",
+                                 line=dict(color=C_LINE, dash=dash, width=1.5)))
     fig.update_layout(title="Granger Causality: Does Retail Sales YoY Growth Help Forecast SPY?",
                       xaxis_title="Lag (months)", yaxis_title="p-value (unadjusted)", template="plotly_white",
-                      height=430, margin=dict(r=190), xaxis=dict(tickmode="linear", dtick=1))
+                      height=430, xaxis=dict(tickmode="linear", dtick=1))
     save("granger_f_by_lag", fig, "Granger p-values by lag for YoY growth in retail sales ex food services predicting "
          "SPY returns, with the significance line and the Bonferroni line for the number of lags tried.",
          [rel(CORE / "granger_causality.csv"), rel(FACTS)])
@@ -331,6 +332,12 @@ def chart_history_zoom(slug: str, title: str, start: str, end: str) -> None:
 
 
 def main() -> None:
+    # harness charts (lead plateau, chance check) re-recorded on the final winner_summary, which the pipeline
+    # amends after run_pair (main-site rule record)
+    from harness import charts as HC
+    import pair_spec_rsxfs_spy as spec_mod
+    HC.lead_plateau(PAIR, DATE_TAG, spec_mod.SPEC.lead_unit)
+    HC.chance_check(PAIR, DATE_TAG)
     chart_hero()
     chart_regime_stats()
     chart_correlation_heatmap()
