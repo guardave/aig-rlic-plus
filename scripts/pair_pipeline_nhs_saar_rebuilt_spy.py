@@ -8,7 +8,8 @@ The tournament runs on scripts/harness (spec: scripts/pair_spec_nhs_saar_rebuilt
 Each track selects its own winner on in-sample data by the D9 lead-plateau rule over the registry grid L2..L14
 (position_shift 0: the lead is the whole lag between the reading month and the return month); null tournament
 K=100, paired block bootstrap vs buy-and-hold SPY, leak tests. The 20261015 rule (raw IS argmax, commit 525922aa)
-is replayed exactly by the harness and kept as the previous rule.
+(earlier research run on branch spike261015_is_oos_floor, never on main) is replayed exactly by the harness and kept
+as the previous rule.
 
 This file keeps the pair's evidence stages (computed on the revised panel, descriptive only), metadata and the
 narrative-provenance record. Overlapping-horizon inference uses HAC errors with at least h-1 lags; the Granger
@@ -127,8 +128,9 @@ def run_tournament(K: int = 100) -> tuple[pd.DataFrame, dict, dict]:
         "strategy_description": "Hold SPY when the lagged new-home-sales signal is on the favourable side of its "
                                 "threshold; otherwise hold cash (P1 long/cash).",
         "notes": "New home sales are an early housing-cycle indicator. Headline = as known at the time (real-time "
-                 "HSN1F vintages); still a search-selected rule. The 20261015 rule (raw IS argmax, never merged to "
-                 "main) is replayed exactly and kept as the previous rule."})
+                 "HSN1F vintages); still a search-selected rule. The earlier research run's rule (20261015, branch "
+                 "spike261015_is_oos_floor, raw IS argmax, never on main) is replayed exactly and kept as the "
+                 "previous rule."})
     winner = json.loads((RES / "winner_summary.json").read_text())
     tourn = pd.read_csv(RES / f"tournament_results_{DATE_TAG}.csv")
     tourn["valid"] = tourn["valid"].astype(bool)
@@ -327,8 +329,8 @@ def write_metadata(df: pd.DataFrame, winner: dict, elapsed: float) -> None:
             "New home sales are revised heavily in the following months; the headline uses the values as published "
             "at each date (ALFRED vintages) and the as-revised-today result is shown for comparison only.",
             "The strategy is search-selected and needs fresh holdout validation.",
-            "The previous rule (20261015) was the single highest in-sample Sharpe on revised data with fixed lags; "
-            "it is replaced here.",
+            "The earlier research run's rule (20261015, branch spike261015_is_oos_floor, never on main) was the "
+            "single highest in-sample Sharpe on revised data with fixed lags; it is replaced here.",
         ],
         "narrative_summary": "New home sales are tested as an early housing-cycle signal for SPY allocation.",
         "known_stress_episodes": [

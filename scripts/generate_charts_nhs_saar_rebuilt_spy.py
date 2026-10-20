@@ -162,11 +162,13 @@ def chart_granger() -> None:
     fig.add_trace(go.Bar(x=gr["lag"], y=gr["p_value"], name="p-value (single lag)", marker_color=C_IND))
     fig.add_trace(go.Scatter(x=gr["lag"], y=gr["p_value_holm"], name="Holm-adjusted p-value (all lags)",
                              mode="markers", marker=dict(color=C_LINE, symbol="diamond", size=9)))
-    fig.add_hline(y=0.05, line_dash="dash", line_color=C_LINE, annotation_text="p = 0.05",
-                  annotation_position="top left")
+    fig.add_hline(y=0.05, line_dash="dash", line_color=C_LINE)
+    # label outside the plot area, right of the line end: never over a bar (live render and PNG)
+    fig.add_annotation(text="p = 0.05", xref="paper", x=1.0, y=0.05, xanchor="left", showarrow=False,
+                       font=dict(size=11, color=C_LINE))
     fig.update_layout(title="Granger Causality: Does Home-Sales Growth Help Forecast SPY?",
                       xaxis_title="Lag (months)", yaxis_title="p-value", template="plotly_white", height=430,
-                      legend=dict(orientation="h", y=-0.2))
+                      legend=dict(orientation="h", y=-0.2), margin=dict(r=80))
     save("granger_f_by_lag", fig, "Granger p-values by lag for 6-month new-home-sales growth predicting SPY returns, "
          "with Holm-adjusted p-values across the lags tested.", [str(CORE / "granger_causality.csv")])
 
