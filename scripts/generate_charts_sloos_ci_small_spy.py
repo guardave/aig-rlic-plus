@@ -24,7 +24,7 @@ from _nber import add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
 
 PAIR = "sloos_ci_small_spy"
-DATE_TAG = "20261018"
+DATE_TAG = "20261020"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"
@@ -130,10 +130,10 @@ def chart_correlation_heatmap() -> None:
                                zmid=0, zmin=-0.5, zmax=0.5, text=text, texttemplate="%{text}",
                                colorbar=dict(title="r")))
     fig.update_layout(title="Correlation: Lending-Standards Signals vs Forward SPY Returns", template="plotly_white",
-                      height=520, xaxis_title="Forward SPY return horizon (quarters)")
+                      height=560, margin=dict(b=130), xaxis_title="Forward SPY return horizon (quarters)")
     fig.add_annotation(text="p-values use HAC (Newey-West) errors with lags of at least h-1 for overlapping returns.",
-                       xref="paper", yref="paper", x=0, y=-0.16, showarrow=False, xanchor="left",
-                       font=dict(size=10, color="#666666"))
+                       xref="paper", yref="paper", x=0, y=0, yshift=-95, yanchor="top", showarrow=False,
+                       xanchor="left", font=dict(size=10, color="#666666"))
     save("correlation_heatmap", fig, "Pearson correlations between the four net-tightening transforms and forward "
          f"SPY returns; largest |r| {sub['value'].abs().max():.2f}, smallest HAC p {sub['p_value'].min():.2f}.",
          [f"results/{PAIR}/core_models_{DATE_TAG}/correlations.csv"])
@@ -160,8 +160,8 @@ def chart_granger() -> None:
     fig.add_trace(go.Bar(x=gr["lag"], y=gr["p_value"], name="p-value at this lag", marker_color=C_IND))
     fig.add_trace(go.Scatter(x=gr["lag"], y=gr["p_holm"], name="Holm-adjusted p-value (4 lags)", mode="markers",
                              marker=dict(color=C_LINE, size=11, symbol="diamond")))
-    fig.add_hline(y=0.05, line_dash="dash", line_color=C_LINE, annotation_text="p = 0.05",
-                  annotation_position="top left")
+    fig.add_trace(go.Scatter(x=[gr["lag"].min() - 0.5, gr["lag"].max() + 0.5], y=[0.05, 0.05], mode="lines",
+                             name="p = 0.05", line=dict(color=C_LINE, dash="dash")))   # in the legend, not on a bar
     fig.update_layout(title="Granger Causality: Does Net Tightening Help Forecast SPY?", xaxis_title="Lag (quarters)",
                       yaxis_title="p-value", yaxis=dict(range=[0, 1.05]), xaxis=dict(dtick=1), template="plotly_white", height=430,
                       legend=dict(orientation="h", y=-0.2))

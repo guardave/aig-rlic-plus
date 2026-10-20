@@ -38,12 +38,13 @@ warnings.simplefilter("ignore", InterpolationWarning)   # KPSS p-values outside 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
 import pair_spec_sloos_ci_small_spy as spec_mod  # noqa: E402
-from harness.artifacts import trade_log, winner_series  # noqa: E402
+from harness.artifacts import trade_log, winner_series, write_json  # noqa: E402
 from harness.evidence import write_evidence_facts  # noqa: E402
 from harness.run import run_pair  # noqa: E402
 
 PAIR_ID = "sloos_ci_small_spy"
-DATE_TAG = "20261018"  # Phase B B1: harness, two tracks, D9 plateau, null K=100, bootstrap
+DATE_TAG = "20261020"  # Phase B B1 post-Codex rerun: harness 0fa02904 (run_tag, null v4), two tracks, D9, K=100
+MAIN_SITE_TAG = "20260830"  # the run whose rule the main site shows (main branch c1797488; OOS-selected, legacy method)
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
 DATA_DIR = REPO / "data"
@@ -124,6 +125,26 @@ def trade_reason(winner: dict) -> str:
     return f"{winner['signal_code']} {winner['direction']} rule crossed {winner['threshold_code']}"
 
 
+def main_site_rule() -> dict:
+    """The rule shown on the main site: winner of run 20260830 (strategy_returns_20260830_meta.json winner key), its
+    row in tournament_results_20260830.csv (both copied unchanged from the main branch, commit c1797488). That run
+    selected on test-period Sharpe (its is_sharpe column holds the OOS values), so it is reported as the main-site
+    rule, never replayed as a selection rule."""
+    meta = json.loads((RES / f"strategy_returns_{MAIN_SITE_TAG}_meta.json").read_text())
+    sig, thr, dirn, lead = meta["winner_key"].split("|")
+    t = pd.read_csv(RES / f"tournament_results_{MAIN_SITE_TAG}.csv")
+    r = t[(t["signal"] == sig) & (t["threshold"] == thr) & (t["direction"] == dirn) & (t["lead_quarters"] == int(lead))]
+    if len(r) != 1:
+        raise ValueError(f"main-site rule {meta['winner_key']} not found once in tournament_results_{MAIN_SITE_TAG}")
+    r = r.iloc[0]
+    return {"signal": sig, "threshold": thr, "direction": dirn, "lead_value": int(lead),
+            "oos_sharpe": float(r["oos_sharpe"]), "tag": MAIN_SITE_TAG,
+            "source": f"tournament_results_{MAIN_SITE_TAG}.csv row {int(r.name)}, "
+                      f"strategy_returns_{MAIN_SITE_TAG}_meta.json winner_key",
+            "note": "Rule shown on the main site (run 20260830), selected on its test-period Sharpe (legacy method); "
+                    "reference only, not a selection rule."}
+
+
 def run_tournament() -> tuple[pd.DataFrame, dict, dict]:
     out = run_pair(PAIR_ID, DATE_TAG, K=100, extra={
         "target_symbol": TARGET_SYMBOL, "cost_bps": COST_BPS,
@@ -134,6 +155,13 @@ def run_tournament() -> tuple[pd.DataFrame, dict, dict]:
                  "survey. Headline = as known at the time (real-time vintages from 2010), so the training period "
                  "is short; still a search-selected rule."})
     winner = json.loads((RES / "winner_summary.json").read_text())
+    # the rule the main site still shows (run 20260830, OOS-selected): recorded next to the selection as the
+    # legacy_oos_selected_row, read from that run's immutable files; reference only, never a selection rule
+    winner["selection"]["legacy_oos_selected_row"] = main_site_rule()
+    write_json(RES / "winner_summary.json", winner, "winner_summary")
+    from harness import charts as HC            # re-record the harness charts on the amended summary (provenance)
+    HC.lead_plateau(PAIR_ID, DATE_TAG, spec_mod.SPEC.lead_unit)
+    HC.chance_check(PAIR_ID, DATE_TAG)
     tourn = pd.read_csv(RES / f"tournament_results_{DATE_TAG}.csv")
     tourn["valid"] = tourn["valid"].astype(bool)
     res = out["results"]["main"]
