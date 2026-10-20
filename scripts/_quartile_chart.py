@@ -31,9 +31,9 @@ from typing import Sequence
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-# Per-quartile colors matching the umcsent_xlv reference (Q1 red, Q2 orange,
-# Q3 blue, Q4 green).
-QUARTILE_COLORS = ["#d62728", "#ff7f0e", "#1f77b4", "#2ca02c"]
+# Per-quartile colors: sequential (ColorBrewer Blues, colourblind-safe), light Q1 to dark Q4. Q1..Q4 is an
+# ordered variable, so the earlier categorical red / orange / blue / green implied unordered groups (QA cement F7).
+QUARTILE_COLORS = ["#c6dbef", "#6baed6", "#2171b5", "#08306b"]
 
 
 def make_dual_panel_regime_chart(
@@ -88,7 +88,7 @@ def make_dual_panel_regime_chart(
     fig.add_trace(go.Bar(
         x=labels, y=list(sharpe),
         name="Sharpe",
-        marker_color=colors,
+        marker_color=colors, marker_line=dict(color="#08306b", width=1),   # the light Q1 bar keeps an edge
         text=[f"{v:.2f}" for v in sharpe],
         textposition="outside",
     ), row=1, col=1)
@@ -96,7 +96,7 @@ def make_dual_panel_regime_chart(
     fig.add_trace(go.Bar(
         x=labels, y=list(ann_return_pct),
         name="Ann Return %",
-        marker_color=colors,
+        marker_color=colors, marker_line=dict(color="#08306b", width=1),
         text=[f"{v:.1f}%" for v in ann_return_pct],
         textposition="outside",
     ), row=1, col=2)

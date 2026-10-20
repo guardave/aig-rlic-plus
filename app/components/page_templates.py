@@ -1723,7 +1723,9 @@ def render_strategy_page(pair_id: str, config: Any | None = None) -> None:
 
             st.markdown("---")
             # APP-SE1 — Probability Engine Panel
-            render_probability_engine_panel(pair_id)
+            # coverage changes of the indicator series (e.g. cement's 2024-01 switch), declared by the config from
+            # its artifacts: marked on the signal panel like the pair's other charts (QA cement F5)
+            render_probability_engine_panel(pair_id, getattr(config, "SIGNAL_COVERAGE_CHANGES", None))
             st.markdown("---")
             # APP-SE2 — Position Adjustment Panel
             render_position_adjustment_panel(pair_id)

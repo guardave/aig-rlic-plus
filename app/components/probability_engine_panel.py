@@ -389,7 +389,8 @@ def _render_chart(
 _RULE_WORDS = {"gte": "at or above", "gt": "above", "lte": "at or below", "lt": "below"}
 
 
-def _render_deployed_signal(pair_id: str, winner: dict, sig: pd.DataFrame, p2_range: bool) -> None:
+def _render_deployed_signal(pair_id: str, winner: dict, sig: pd.DataFrame, p2_range: bool,
+                            coverage_changes=None) -> None:
     """Phase B Signal Monitoring chart: the winning signal as the rule used it at each rebalance date (lagged by the
     lead, on the track's own data basis) against the threshold it was compared with at that date; test period,
     NBER recessions and the target's indexed price shaded / overlaid; the axis clipped (and said so) when a spike
@@ -435,6 +436,15 @@ def _render_deployed_signal(pair_id: str, winner: dict, sig: pd.DataFrame, p2_ra
     if oos is not None:
         fig.add_vrect(x0=oos, x1=d.index.max(), fillcolor="#56B4E9", opacity=0.08, line_width=0,
                       annotation_text="Test period", annotation_position="top left")
+    for ch in coverage_changes or []:     # [{"date": ..., "label": ...}] from the pair config (QA cement F5)
+        x = pd.Timestamp(str(ch["date"])[:10])
+        if d.index.min() <= x <= d.index.max():
+            xs = x.strftime("%Y-%m-%d")                 # plain date text: plotly cannot serialise a Timestamp here
+            fig.add_shape(type="line", x0=xs, x1=xs, y0=0, y1=1, xref="x", yref="paper",
+                          line=dict(color="#CC79A7", width=1.5, dash="dash"))
+            fig.add_annotation(x=xs, y=0.02, xref="x", yref="paper", text=str(ch["label"]), showarrow=False,
+                               xanchor="left", yanchor="bottom", font=dict(size=10, color="#CC79A7"),
+                               bgcolor="rgba(255,255,255,0.8)")
     v = d["signal"].astype(float).dropna()
     if has_thr:
         v = pd.concat([v, thr.dropna()])
@@ -469,7 +479,7 @@ def _render_deployed_signal(pair_id: str, winner: dict, sig: pd.DataFrame, p2_ra
     st.caption(f"Why this matters: {why}")
 
 
-def render_probability_engine_panel(pair_id: str) -> None:
+def render_probability_engine_panel(pair_id: str, coverage_changes=None) -> None:
     """Render the Probability Engine Panel for a pair (APP-SE1).
 
     Flow:
@@ -560,7 +570,7 @@ def render_probability_engine_panel(pair_id: str) -> None:
         if _sig is None:
             st.session_state[f"se1_validation_{pair_id}"] = {"ok": False, "reason": "no current-run strategy_returns"}
             return
-        _render_deployed_signal(pair_id, winner, _sig, _p2_range_hdr)
+        _render_deployed_signal(pair_id, winner, _sig, _p2_range_hdr, coverage_changes)
         st.session_state[f"se1_validation_{pair_id}"] = {"ok": True, "column": column, "display_name": display_name,
                                                          "threshold": winner.get("threshold_value"),
                                                          "is_probability": is_probability_signal,
