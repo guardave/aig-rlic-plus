@@ -34,7 +34,7 @@ from statsmodels.tsa.stattools import adfuller, grangercausalitytests, kpss
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
 import pair_spec_ism_mfg_spy as spec_mod  # noqa: E402
-from harness.artifacts import trade_log, winner_series  # noqa: E402
+from harness.artifacts import trade_log, winner_series, write_json  # noqa: E402
 from harness.evidence import write_evidence_facts  # noqa: E402
 from harness.run import run_pair  # noqa: E402
 
@@ -42,6 +42,7 @@ PAIR_ID = "ism_mfg_spy"
 DATE_TAG = "20261020"  # Phase B B1s post-Codex rerun: harness v2 (run_tag), null v4, templates; single track, grid L2..L13
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
+MAIN_SITE_TAG = "20260912"   # the run whose rule the main site shows (main branch; OOS-selected, legacy method, lead grid 0..12)
 EVIDENCE_SIGNAL = "ism_level"   # the PMI level: a bounded, stationary diffusion index, used as is by the descriptive tests
 DATA_DIR = REPO / "data"
 RES = REPO / "results" / PAIR_ID
@@ -123,6 +124,36 @@ def build_panel() -> pd.DataFrame:
     return df
 
 
+def main_site_rule() -> dict:
+    """The rule the main site shows: winner of run 20260912 (strategy_returns_20260912_meta.json winner key), its row
+    in tournament_results_20260912.csv (both restored byte-identical from main). That run selected on test-period
+    Sharpe over the lead grid {0,1,2,3,6,9,12} (lead 0 is below the current release-lag floor E2), so it is reported
+    as the main-site rule, not replayed as a selection rule."""
+    meta = json.loads((RES / f"strategy_returns_{MAIN_SITE_TAG}_meta.json").read_text())
+    sig, thr, dirn, lead = meta["winner_key"].split("|")
+    t = pd.read_csv(RES / f"tournament_results_{MAIN_SITE_TAG}.csv")
+    r = t[(t["signal"] == sig) & (t["threshold"] == thr) & (t["direction"] == dirn) & (t["lead_months"] == int(lead))]
+    if len(r) != 1:
+        raise ValueError(f"main-site rule {meta['winner_key']} not found once in tournament_results_{MAIN_SITE_TAG}")
+    r = r.iloc[0]
+    return {"signal": sig, "threshold": thr, "direction": dirn, "lead_value": int(lead),
+            "oos_sharpe": float(r["oos_sharpe"]), "tag": MAIN_SITE_TAG,
+            "source": f"tournament_results_{MAIN_SITE_TAG}.csv row {int(r.name)}, "
+                      f"strategy_returns_{MAIN_SITE_TAG}_meta.json winner_key",
+            "note": f"Rule shown on the main site (run {MAIN_SITE_TAG}), selected on its test-period Sharpe (legacy "
+                    "method); reference only, not a selection rule."}
+
+
+def record_main_site_rule() -> dict:
+    """Amend winner_summary.json with the main-site rule as selection.legacy_oos_selected_row (reference only; the
+    tournament, null and selection are untouched). Run after run_pair; the chart producer re-records the harness
+    charts on the amended summary."""
+    winner = json.loads((RES / "winner_summary.json").read_text())
+    winner["selection"]["legacy_oos_selected_row"] = main_site_rule()
+    write_json(RES / "winner_summary.json", winner, "winner_summary")
+    return winner
+
+
 def run_tournament(K: int = 100) -> tuple[pd.DataFrame, dict, dict]:
     out = run_pair(PAIR_ID, DATE_TAG, K=K, extra={
         "target_symbol": TARGET_SYMBOL, "cost_bps": COST_BPS,
@@ -133,7 +164,7 @@ def run_tournament(K: int = 100) -> tuple[pd.DataFrame, dict, dict]:
                  "public archive of past ISM values exists, so the results use today's values (revisions may add "
                  "hindsight) with release-calendar timing; still a search-selected rule. The 20261016 rule (raw IS "
                  "argmax on a common IS start, commit 1d06839f) is replayed exactly and kept as the previous rule."})
-    winner = json.loads((RES / "winner_summary.json").read_text())
+    winner = record_main_site_rule()
     tourn = pd.read_csv(RES / f"tournament_results_{DATE_TAG}.csv")
     tourn["valid"] = tourn["valid"].astype(bool)
     res = out["results"]["main"]

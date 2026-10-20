@@ -183,7 +183,17 @@
         "tag": "20261016",
         "selection": "raw in-sample Sharpe argmax, revised values, fixed lag"
       }
-    ]
+    ],
+    "legacy_oos_selected_row": {
+      "signal": "chg_12m",
+      "threshold": "T0_zero",
+      "direction": "procyclical",
+      "lead_value": 0,
+      "oos_sharpe": 1.4438181082170598,
+      "tag": "20260912",
+      "source": "tournament_results_20260912.csv row 91, strategy_returns_20260912_meta.json winner_key",
+      "note": "Rule shown on the main site (run 20260912), selected on its test-period Sharpe (legacy method); reference only, not a selection rule."
+    }
   },
   "tracks": {
     "main": {
