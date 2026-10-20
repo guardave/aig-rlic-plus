@@ -23,7 +23,7 @@ from _nber import RECESSIONS, add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
 
 PAIR = "umcsent_spy"
-DATE_TAG = "20261018"
+DATE_TAG = "20261020"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"

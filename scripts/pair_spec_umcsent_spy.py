@@ -105,6 +105,8 @@ LEGACY_SPEC = replace(
 )
 LEGACY_TAG = "20260912"
 LEGACY_REPLAY = "max_oos_valid"      # replayable: the published rule was OOS-selected (see module docstring)
+# the published 20260912 table's "is_sharpe" column holds OOS Sharpes (that run had no in-sample window): never published
+LEGACY_UNPUBLISHED = ("is_sharpe",)
 
 SIGNAL_DISPLAY = {
     "level": "Michigan Expected Business Conditions index (level)",

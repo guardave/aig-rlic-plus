@@ -587,9 +587,9 @@ STRATEGY_CONFIG = StrategyConfig()
 _DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator (today's values; no archive of earlier values exists) | Data Master workbook (sheet UoM_ExptdChgBinesCyle, University of Michigan Surveys of Consumers), pinned snapshot in data/release_calendar/snapshots/ | `UMICH_EXP_BUS_COND`, U. Michigan Expected Business Conditions (survey index; not the headline Consumer Sentiment index) | Monthly |
-| Release dates (timing only) | data/release_calendar/release_calendar.csv, series `UMCSENT` (FRED / ALFRED first-release dates of the survey's headline index, published in the same release) | first publication date per survey month | Monthly |
-| Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted month-end close | Monthly |
+| Indicator (today's values; no archive of earlier values exists) | Data Master workbook, University of Michigan Surveys of Consumers (pinned monthly snapshot) | `UMICH_EXP_BUS_COND`, U. Michigan Expected Business Conditions (survey index; not the headline Consumer Sentiment index) | Monthly |
+| Release dates (timing only) | Project release calendar, series `UMCSENT` (FRED / ALFRED first-release dates of the survey's headline index, published in the same release) | first publication date per survey month | Monthly |
+| Target | Yahoo Finance (pinned month-end closes) | SPY adjusted month-end close | Monthly |
 """)
 
 _INDICATOR_CONSTRUCTION_MD = (

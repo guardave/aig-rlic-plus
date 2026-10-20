@@ -41,7 +41,7 @@ from harness.evidence import write_evidence_facts  # noqa: E402
 from harness.run import run_pair  # noqa: E402
 
 PAIR_ID = "umcsent_spy"
-DATE_TAG = "20261018"  # Phase B B1s: harness, single track (revised, no archive), D9 plateau, grid L1..L13, null K=100, bootstrap
+DATE_TAG = "20261020"  # Phase B B1s: harness, single track (revised, no archive), D9 plateau, grid L1..L13, null K=100, bootstrap
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
 EVIDENCE_SIGNAL = "umcsent_level"   # the survey level: bounded and stationary, used as is by the descriptive tests
