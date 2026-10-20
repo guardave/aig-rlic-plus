@@ -76,8 +76,26 @@ def any_eligible(spec: PairSpec, ti: TrackInputs) -> bool:
     return bool((np.sum(~np.isnan(R) & pre_oos[:, None], axis=0) >= spec.min_is_n).any())
 
 
+def positions_for(spec: PairSpec, ti: TrackInputs, legacy: bool = False) -> tuple[list, np.ndarray]:
+    """(candidates, position matrix) of a track's inputs. Positions depend on the inputs only, never on the target
+    returns, so a calibration that re-scores one null draw on many synthetic return paths builds them once
+    (run_tournament(_positions=...); R7.1 calibration speed-up, side branch)."""
+    L = spec.legacy
+    cands = manifest(spec, legacy=legacy)
+    n = len(ti.index)
+    pre_oos = ~np.asarray(ti.index >= pd.Timestamp(spec.oos_start))
+    P = np.full((n, len(cands)), np.nan)
+    by_lead: dict[int, list[int]] = {}
+    for j, c in enumerate(cands):
+        by_lead.setdefault(c.lead, []).append(j)
+    for lead, cols in by_lead.items():
+        P[:, cols] = position_matrix(spec, ti.lagged[lead], [cands[j] for j in cols], pre_oos,
+                                     L.is_quantile if legacy else "expanding")
+    return cands, P
+
+
 def run_tournament(spec: PairSpec, ti: TrackInputs, legacy: bool = False, full_table: bool = True,
-                   _null_is_start: pd.Timestamp | None = None) -> TrackResult:
+                   _null_is_start: pd.Timestamp | None = None, _positions=None) -> TrackResult:
     """legacy=True replays the pre-harness pipeline (spec.legacy scoring, eligibility and tie rule, raw IS argmax);
     otherwise Phase B rules: R3.3 eligibility, deployable scoring, D9 plateau selection with a raw-argmax side row.
     _null_is_start (null draws only, internal; harness.null.run_null): score the draw on the REAL tournament's
@@ -87,18 +105,12 @@ def run_tournament(spec: PairSpec, ti: TrackInputs, legacy: bool = False, full_t
     equal in calendar terms, not in observed signal rows: draw_record reports defined_is_n and the leading-cash
     share (Codex null bundle P2-F1). The date must be on the index and before the OOS start."""
     L = spec.legacy
-    cands = manifest(spec, legacy=legacy)
     idx = ti.index
     n = len(idx)
     oos_mask = np.asarray(idx >= pd.Timestamp(spec.oos_start))
     pre_oos = ~oos_mask
-    P = np.full((n, len(cands)), np.nan)
-    by_lead: dict[int, list[int]] = {}
-    for j, c in enumerate(cands):
-        by_lead.setdefault(c.lead, []).append(j)
-    for lead, cols in by_lead.items():
-        P[:, cols] = position_matrix(spec, ti.lagged[lead], [cands[j] for j in cols], pre_oos,
-                                     L.is_quantile if legacy else "expanding")
+    # _positions: (cands, P) from positions_for() on THESE inputs (internal; calibration re-scoring)
+    cands, P = _positions if _positions is not None else positions_for(spec, ti, legacy)
     R = strategy_returns(P, ti.ret, spec.position_shift)
 
     first = M.first_valid(R)
