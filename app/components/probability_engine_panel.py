@@ -489,7 +489,9 @@ def _render_deployed_signal(pair_id: str, winner: dict, sig: pd.DataFrame, p2_ra
                                xanchor="right", yanchor="bottom", showarrow=False, font=dict(size=10, color="#666666"))
     fig.update_layout(template="plotly_white", height=420, margin=dict(t=40, b=40),
                       legend=dict(orientation="h", yanchor="top", y=-0.12, x=0),
-                      yaxis_title="Range position" if p2_range else short, xaxis_title=None,
+                      # QA permit_yoy F6: the raw code (zscore_60m) was the axis title; the display name instead
+                      yaxis_title=("Range position" if p2_range else name if len(name) <= 40 else "Signal value"),
+                      xaxis_title=None,
                       yaxis2=dict(title=f"{target} indexed price", overlaying="y", side="right", showgrid=False))
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     src = ("the reading published by each date" if basis.startswith("as known") else

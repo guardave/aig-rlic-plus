@@ -569,10 +569,10 @@ STRATEGY_CONFIG = StrategyConfig()
 _DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator (as known at the time) | ALFRED (FRB vintages, pinned: data/release_calendar/vintages/DRCCLACBN.csv.gz) | `DRCCLACBN`, every published vintage (archive from 2011-05) | Quarterly |
+| Indicator (as known at the time) | ALFRED (FRB vintages, pinned archive) | `DRCCLACBN`, every published vintage (archive from 2011-05) | Quarterly |
 | Indicator (as revised today) | Latest vintage of the same file | `DRCCLACBN` (delinquency rate on credit-card loans, all commercial banks, %, NSA) | Quarterly |
-| Release dates | data/release_calendar/release_calendar.csv | first publication date per quarter | Quarterly |
-| Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted quarter-end close | Quarterly |
+| Release dates | Release calendar (pinned) | first publication date per quarter | Quarterly |
+| Target | Yahoo Finance (pinned month-end extract) | SPY adjusted quarter-end close | Quarterly |
 
 QUARTERLY credit pair. The delinquency series is native quarterly, not seasonally adjusted (NSA), revised and lagging. No seasonal adjustment is applied in this pipeline.
 """)

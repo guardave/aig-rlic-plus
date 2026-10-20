@@ -244,7 +244,16 @@ def grid_edge_notes(pair_id: str) -> list[str]:
     for role, label in (("main", MAIN_LABEL), ("comparison", REV_LABEL)):
         rec = (ws.get("tracks") or {}).get(role) or {}
         plat = rec.get("plateau") or {}
-        if not rec.get("eligible") or not plat.get("grid_edge"):
+        if not rec.get("eligible"):
+            continue
+        # QA permit_yoy F4: the raw training-score maximum (reference row, not the selection rule) at a grid end
+        ra = rec.get("raw_argmax") or {}
+        rl = ra.get("lead")
+        if rl is not None and int(rl) in (lo, hi) and int(rl) != int(plat.get("winner_lead", -10 ** 6)):
+            out.append(f"{label}: the highest single training score in the grid (a reference row, not the selection "
+                       f"rule) is at lead L{rl}, the {'longest' if int(rl) == hi else 'shortest'} lead tested (grid "
+                       f"L{glo}-L{ghi} {unit}).")
+        if not plat.get("grid_edge"):
             continue
         wl = plat["winner_lead"]
         if int(wl) == hi:
@@ -265,9 +274,10 @@ def render_kpi_caption(ts: dict, ws: dict) -> None:
         return
     w = comp["winner"]
     gap = comp.get("sharpe_gap")
-    _w = comp["window"]
-    txt = (f"Winner on revised data: Sharpe {_num(comp['oos_sharpe'])} over "
-           f"{P.year(P.field_text(_w, 0))}-{P.year(P.field_text(_w, 1))} "
+    # the Sharpe is the TEST-period one: name that window, not the data span (QA permit_yoy F1: "over 1993-2026")
+    _w = ((ws.get("tracks") or {}).get("comparison") or {}).get("oos_window")
+    span = f" over {P.year(P.field_text(_w, 0))}-{P.year(P.field_text(_w, 1))}" if _w else ""
+    txt = (f"Winner on revised data: test-period Sharpe {_num(comp['oos_sharpe'])}{span} "
            "(hindsight; shown for comparison only).")
     if gap is not None:
         txt += f" The two differ by {abs(gap):.2f} Sharpe"
@@ -312,6 +322,10 @@ def render_vs_buy_hold(ts: dict, ws: dict) -> None:
     bh_sharpe = (ws.get("tracks", {}).get("main") or {}).get("bh_oos", {}).get("sharpe")
     with st.container(border=True):
         st.markdown("#### Compared with buy-and-hold")
+        a, b = P.field_text(ws, "oos_period_start"), P.field_text(ws, "oos_period_end")
+        if a and b:     # QA permit_yoy F2: the table carried no window or data basis of its own
+            st.caption(f"Test period {P.prefix(a, 7)} to {P.prefix(b, 7)}; the strategy's indicator "
+                       f"{BASIS.get(ts.get('track_state'), BASIS['both'])}.")
         rows = [("Test-period Sharpe", _num(main["oos_sharpe"]), _num(bh_sharpe),
                  _num(main["oos_sharpe"] - bh_sharpe) if bh_sharpe is not None else "n/a"),
                 ("Annual return", _pct(vb["ann_return"]["strat"]), _pct(vb["ann_return"]["bh"]),
@@ -340,9 +354,11 @@ def render_cross_eval_table(pair_id: str, ts: dict, ws: dict) -> None:
     """Four-row cross-evaluation table for the Performance tab (section 3)."""
     tracks = ws.get("tracks") or {}
     main, comp = tracks.get("main"), tracks.get("comparison")
-    st.markdown("### Each data track's winner, scored on both tracks")
     if ts["track_state"] in ("single_market", "single_no_archive") or not comp:
+        st.markdown("### The winner's own row")       # cement rerun: the two-track heading showed on one track
         st.caption("This pair has one data track, so only its own winner row applies.")
+    else:
+        st.markdown("### Each data track's winner, scored on both tracks")
     tag = P.run_tag(ws, _REPO / "results" / pair_id)
     ce = ts.get("cross_eval") or {}
 
@@ -428,7 +444,7 @@ def render_chance_check(pair_id: str, ts: dict) -> None:
                                  "with periods where a contest's rule has no position counted as cash)."
                                + oos_rank_note(nt)
                                + draws_note(nt) + coarse_note(pair_id, nt) + is_window_note(pair_id)
-                               + r71_note(pair_id) + comparison_chance_note(pair_id, ts)))
+                               + coverage_note(pair_id) + r71_note(pair_id) + comparison_chance_note(pair_id, ts)))
 
 
 def render_lead_plateau(pair_id: str, ts: dict, ws: dict) -> None:
@@ -505,6 +521,43 @@ def is_window_note(pair_id: str, track: str = "main") -> str:
     return (f" Training windows differ: the scrambled contests trained on {lo:.0f} to {hi:.0f} {unit} of in-sample "
             f"data, the real winner on {act:.0f}. A contest with a shorter window can reach a higher score by "
             "chance, so this comparison is not like-for-like.")
+
+
+def coverage_note(pair_id: str, track: str = "main") -> str:
+    """Null v4 scores every contest on the real winner's calendar training window, with months where the contest's
+    selected rule has no position counted as cash. When that happens, how much (QA rerun2 F2: import_price's
+    comparison contests had a median 177 of 254 defined months, up to 42% leading cash, and the page gave no
+    figures). From the current null file's defined_is_n / is_n / leading_cash_share; '' when every contest's rule
+    was defined throughout or the file predates null v4."""
+    stem = "null_tournament" if track == "main" else "hindsight_null_tournament"
+    try:
+        f = P.current_file(pair_id, stem)
+    except P.CurrentRunFileError as e:
+        return f" (The contest file is missing: {e}.)"
+    if f is None:
+        return ""
+    try:
+        df = P.csv_file(f)
+        ws = json.loads((Path(__file__).resolve().parents[2] / "results" / pair_id / "winner_summary.json").read_text())
+    except (OSError, ValueError):
+        return ""
+    if not {"defined_is_n", "is_n", "leading_cash_share"} <= set(df.columns):
+        return ""
+    short = P.count(df, "defined_is_n", "<", "is_n")
+    if int(short) == 0:
+        return ""
+    unit = _lead_unit(ws) or "periods"
+    n_win = P.count(df, "defined_is_n", ">=", 0)
+    med, lead_cash = P.colmedian(df, "defined_is_n"), P.colmax(df, "leading_cash_share")
+    lo, hi = P.colmin(df, "is_n"), P.colmax(df, "is_n")
+    of = f"of the {hi:.0f} training {unit}" if float(lo) == float(hi) else f"training {unit}"
+    low = P.colmin(df, "defined_is_n")
+    out = (f" In {short:.0f} of {n_win:.0f} contests the selected rule had no position for part of that window "
+           f"(counted as cash): a median of {med:.0f} (lowest {low:.0f}) {of} had a defined position")
+    if float(lead_cash) > 0:
+        out += (f"; in the most affected contest the first {lead_cash:.0%} of the window came before the rule's "
+                f"first position")
+    return out + "."
 
 
 NULL_TARGET_DRAWS = 100   # harness.null.run_null K
@@ -629,6 +682,7 @@ def comparison_chance_note(pair_id: str, ts: dict) -> str:
     pos = (f"is above all {hn['n_draws']:,}" if hn["winner_percentile"] >= 1 else
            f"ranks at the {_ordinal(round(hn['winner_percentile'] * 100))} percentile of {hn['n_draws']:,}")
     return (f" On data as revised today, that track's winner {pos} scrambled-signal contests."
+            + is_window_note(pair_id, "comparison") + coverage_note(pair_id, "comparison")
             + r71_note(pair_id, "comparison", "Calibration check (R7.1) on that track"))
 
 
@@ -661,7 +715,8 @@ def _hindsight_chance_text(pair_id: str, hn: dict) -> str:
             + ("" if p is None else " (no contest scored as high)" if float(p) == 0 else
                f" (share of contests scoring at least as high: {p:.2f})") + "."
             + oos_rank_note(hn, "hindsight winner") + draws_note(hn) + coarse_note(pair_id, hn, "comparison")
-            + is_window_note(pair_id, "comparison") + r71_note(pair_id, "comparison"))
+            + is_window_note(pair_id, "comparison") + coverage_note(pair_id, "comparison")
+            + r71_note(pair_id, "comparison"))
 
 
 def chance_fact(ts: dict, pair_id: str | None = None) -> str | None:

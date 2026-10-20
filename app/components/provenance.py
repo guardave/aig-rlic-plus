@@ -20,7 +20,8 @@ Source expressions (sentinel: S0 <source> U <unit> S1 <text> S2; unit 'pct' when
     mul(a,b) div(a,b) add(a,b) sub(a,b) neg(a) abs(a); const:<number> only as an operand of mul / div (unit
     constants) or add / sub (1), next to an artifact operand; never a root (Codex L2v2 F1)
     len(<container source>)  count(<csv source>,<column>,<op>,<number or column>)
-    min(<csv source>,<column>)  max(<csv source>,<column>)
+    min(<csv source>,<column>)  max(<csv source>,<column>)  median(<csv source>,<column>)  (optionally
+    ,<where column>,<value>: the rows where that column equals the value)
 Arithmetic on tagged numbers (x * 100, a - b) keeps a tag (it can be re-evaluated); a number computed any other
 way loses it, so it must come from the pipeline as an artifact (evidence_facts 'derived') instead.
 Definitions (threshold / signal descriptions of the declared search space) are wrapped with definitions():
@@ -432,6 +433,11 @@ def colmax(df: pd.DataFrame, col: str, where=None) -> _PNum:
     return _PNum(float(sub[col].astype(float).max()), f"max({df.attrs['src']},{_esc(col)}{w})")
 
 
+def colmedian(df: pd.DataFrame, col: str, where=None) -> _PNum:
+    sub, w = _where(df, where)
+    return _PNum(float(sub[col].astype(float).median()), f"median({df.attrs['src']},{_esc(col)}{w})")
+
+
 def colmaxabs(df: pd.DataFrame, col: str) -> _PNum:
     return _PNum(float(df[col].astype(float).abs().max()), f"maxabs({df.attrs['src']},{_esc(col)})")
 
@@ -601,7 +607,7 @@ def kind_of(src: str, pair: str | None = None) -> str:
         return kind_of(args[0], pair)
     if fn in ("len", "count"):
         return "count"
-    if fn in ("min", "max", "maxabs"):
+    if fn in ("min", "max", "maxabs", "median"):
         return leaf_kind(f"{args[0]}/{_unesc(args[1])}")
     if fn in ("key", "prefix"):
         return "label"
@@ -678,12 +684,13 @@ def evaluate(src: str, fields: dict | None = None, pair: str | None = None, _roo
         return -a if fn == "neg" else abs(a)
     if fn == "len":
         return len(ev(args[0]))
-    if fn in ("min", "max", "maxabs"):
+    if fn in ("min", "max", "maxabs", "median"):
         df = ev(args[0])
         if len(args) == 4:                        # min(src,col,where_col,value): the rows where where_col == value
             df = df[df[_unesc(args[2])].astype(str) == _unesc(args[3])]
         sr = df[_unesc(args[1])].astype(float)
-        return float(sr.min() if fn == "min" else sr.max() if fn == "max" else sr.abs().max())
+        return float(sr.min() if fn == "min" else sr.max() if fn == "max" else sr.median() if fn == "median"
+                     else sr.abs().max())
     if fn == "key":
         d = ev(args[0])
         k = _unesc(args[1])

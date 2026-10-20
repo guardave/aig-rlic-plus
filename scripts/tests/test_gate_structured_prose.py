@@ -220,3 +220,17 @@ def test_swapped_is_field_bound_when_values_coincide():
     # strategy value -> the swap is still reported
     f = {"oos_sharpe": 0.71, "bh_oos_sharpe": 0.95, "comparison_oos_sharpe": 0.95, "comparison_bh_oos_sharpe": 0.71}
     assert g.swapped("Sharpe 0.95 versus 0.71 for buy-and-hold.", f, "x")
+
+
+def test_banner_terms_are_legacy_cues():
+    # ism_mfg rerun: the mandated banner term "Earlier research run" did not count as a legacy cue
+    f = {"oos_sharpe": 0.417, "lead": 10, "_lead_unit": "months", "_objective": "max_is_sharpe_lead_plateau_w3",
+         "_legacy_oos_sharpe": [0.62], "_legacy_lead": []}
+    assert not [b for b in g.check_text("(earlier research run: test-period Sharpe 0.62)", f, "x")
+                if b.startswith("SHARPE")]
+    assert [lg for _c, lg in g._units("The earlier development run scored 0.62; the winner scores 0.417.")] == \
+        [True, False]
+    assert any(b.startswith("SHARPE") for b in g.check_text("the winner's test-period Sharpe is 0.62.", f, "x"))
+    # still clause-scoped: a stale number in a sibling clause about the current winner is caught
+    assert any(b.startswith("SHARPE") for b in g.check_text(
+        "The earlier research run scored Sharpe 0.62; the current winner earns Sharpe 0.62.", f, "x"))

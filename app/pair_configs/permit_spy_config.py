@@ -571,10 +571,10 @@ STRATEGY_CONFIG = StrategyConfig()
 _DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator (as known at the time) | ALFRED (FRED vintages, pinned in data/release_calendar/vintages/PERMIT.csv.gz) | `PERMIT`, new private housing units authorized by building permits, every published vintage | Monthly |
+| Indicator (as known at the time) | ALFRED (FRED vintages, pinned archive) | `PERMIT`, new private housing units authorized by building permits, every published vintage | Monthly |
 | Indicator (as revised today) | FRED (latest vintage of the same file) | `PERMIT` | Monthly |
-| Release dates | data/release_calendar/release_calendar.csv | first publication date per month | Monthly |
-| Target | Yahoo Finance (pinned: data/phaseB_inputs/spy_month_end_20261017.csv) | SPY adjusted month-end close | Monthly |
+| Release dates | Release calendar (pinned) | first publication date per month | Monthly |
+| Target | Yahoo Finance (pinned month-end extract) | SPY adjusted month-end close | Monthly |
 """)
 
 _INDICATOR_CONSTRUCTION_MD = (

@@ -67,7 +67,7 @@ EVIDENCE_EXEMPT = re.compile(
     r"sub-?period|quartile|\bQ[1-4]\b|concurrent|granger|correlation|p-value|\bp\s*[=<>]|regime|episode|"
     r"dot-com|\bgfc\b|covid|rate shock|stress (?:period|episode)|stationary block bootstrap|forward return|"
     r"local projection|quantile regression", re.I)
-LEGACY_LABEL = re.compile(r"legacy|previous(?:ly)?|earlier (?:version|run|rule|publication)|superseded|"
+LEGACY_LABEL = re.compile(r"legacy|previous(?:ly)?|earlier (?:research |development )?(?:version|run|rule|publication)|superseded|"
                           r"correct(?:ed|ion)|was published|old rule|pre-gh|oos-argmax|no longer", re.I)
 HINDSIGHT_LABEL = re.compile(r"hindsight|as revised|revised (?:values|data|today)|comparison track", re.I)
 RAW_LABEL = re.compile(r"isolated|raw|single-lead peak|argmax|not the selection rule", re.I)
@@ -558,8 +558,8 @@ CONFIG_MODULES = {"__future__", "json", "pathlib", "pandas", "numpy", "math", "r
                   "typing", "dataclasses"}
 CONFIG_COMPONENT_IMPORTS = {"components.page_templates": None,             # None: any *Config class
                             "components.winner_fields": {"load", "lead_grid"}}
-P_API = {"json_file", "csv_file", "col_dict", "colmin", "colmax", "colmaxabs", "length", "count", "lead_grid",
-         "year", "items", "prefix", "definitions", "definition_text"}
+P_API = {"json_file", "csv_file", "col_dict", "colmin", "colmax", "colmedian", "colmaxabs", "length", "count", "lead_grid",
+         "year", "items", "prefix", "definitions", "definition_text", "r71_calibration"}
 
 
 def provenance_api(cfg_path: Path) -> list[str]:

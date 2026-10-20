@@ -46,6 +46,7 @@ import re
 import sys
 import time
 from datetime import datetime, timezone
+from pathlib import Path
 
 from playwright.sync_api import sync_playwright  # type: ignore
 
@@ -518,6 +519,23 @@ def check_landing(text):
 # Main
 # ---------------------------------------------------------------------------
 
+def _phase_b_run_tag(pair_dir):
+    """run_tag of a Phase B pair (winner_summary with 'tracks'), else None (legacy pairs keep the any-file rule).
+    A Phase B summary without a run tag is reported as the tag 'missing', so the check fails."""
+    try:
+        ws = json.loads((Path(pair_dir) / "winner_summary.json").read_text())
+    except (OSError, ValueError):
+        return None
+    if "tracks" not in ws:
+        return None
+    if ws.get("run_tag"):                   # same resolution as components.provenance.run_tag
+        return str(ws["run_tag"])
+    try:
+        return str(ws["selection"]["raw_winner_row"]["source_tournament_file"]).split("_")[-1].removesuffix(".csv")
+    except (KeyError, TypeError, AttributeError):
+        return "missing"
+
+
 def gate29_parquet_preflight(pairs, project_root=None):
     """GATE-29 pre-flight: assert signals_*.parquet is committed in git for every pair.
 
@@ -544,9 +562,22 @@ def gate29_parquet_preflight(pairs, project_root=None):
             cwd=project_root,
             capture_output=True,
             text=True,
+            env={k: v for k, v in os.environ.items() if not k.startswith("GIT_")},   # the repo at project_root
         )
         matched = [line.strip() for line in result.stdout.splitlines() if line.strip()]
-        if not matched:
+        # Phase B (winner_summary with tracks): the CURRENT run's file must be committed; an older run's
+        # signals parquet is no evidence (QA permit_yoy F5: four tags listed, any one passed)
+        tag = _phase_b_run_tag(Path(project_root) / "results" / pair_id)
+        want = f"results/{pair_id}/signals_{tag}.parquet" if tag else None
+        if want and want not in matched:
+            failures.append({
+                "pair_id": pair_id,
+                "gate": "GATE-29",
+                "finding": f"current-run signals_{tag}.parquet not committed for {pair_id}",
+                "detail": f"winner_summary run_tag {tag}; committed: {matched or 'none'}. Rerun the pair pipeline "
+                          f"and commit {want}.",
+            })
+        elif not matched:
             failures.append({
                 "pair_id": pair_id,
                 "gate": "GATE-29",
@@ -834,6 +865,7 @@ def gate27_perceptual_png_preflight(pairs, project_root=None):
             cwd=project_root,
             capture_output=True,
             text=True,
+            env={k: v for k, v in os.environ.items() if not k.startswith("GIT_")},   # the repo at project_root
         )
         matched = [line.strip() for line in result.stdout.splitlines() if line.strip()]
         count = len(matched)

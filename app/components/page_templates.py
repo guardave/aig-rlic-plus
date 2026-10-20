@@ -153,7 +153,7 @@ def _trade_log_glossary(broker_df) -> str:
         return ""
     lines = ["**Columns in this pair's broker-style log:**"]
     for c in broker_df.columns:
-        meaning = _TRADE_LOG_COLUMN_DICT_DEFAULTS.get(c, {}).get("meaning", "(not described)")
+        meaning = _trade_col(c, broker_df.columns)["meaning"]
         lines.append(f"- `{c}` — {meaning}")
     return "\n".join(lines)
 
@@ -179,6 +179,19 @@ _TRADE_LOG_COLUMN_DICT_DEFAULTS: dict[str, dict[str, str]] = {
     "position_before": {"type": "float", "meaning": "Position before this trade as a fraction of capital (one = fully invested, zero = cash).",                    "example": ""},
     "position_after": {"type": "float",  "meaning": "Position after this trade as a fraction of capital.",                                                     "example": ""},
 }
+
+
+# Harness-built logs (they carry trade_size_pct) date a trade at the end of the period whose return the new
+# position earns; it is executed at the previous period's close (QA permit_yoy F9).
+_HARNESS_TRADE_DATE = ("End of the period whose return the new position earns; the trade is executed at the close "
+                       "of the previous period (the position is set before that period's return accrues).")
+
+
+def _trade_col(col: str, cols) -> dict:
+    row = dict(_TRADE_LOG_COLUMN_DICT_DEFAULTS.get(col, {"type": "", "meaning": "(not described)", "example": ""}))
+    if col == "trade_date" and "trade_size_pct" in list(cols):
+        row["meaning"] = _HARNESS_TRADE_DATE
+    return row
 
 
 # ---------------------------------------------------------------------------
@@ -2307,8 +2320,7 @@ def _render_trade_log_block(pair_id: str, config: Any) -> None:
             pass
     _cols = list(broker_df.columns) if broker_df is not None else list(_TRADE_LOG_COLUMN_DICT_DEFAULTS)
     for col_name in _cols:                       # the file's own columns, in its order (M4)
-        row = _TRADE_LOG_COLUMN_DICT_DEFAULTS.get(col_name, {"type": "", "meaning": "(not described)",
-                                                             "example": ""})
+        row = _trade_col(col_name, _cols)
         # Example values come from the pair's own trade log when it has the column (an illustrative number
         # must never be a made-up one); otherwise the config override; otherwise the default only when it
         # carries no number.

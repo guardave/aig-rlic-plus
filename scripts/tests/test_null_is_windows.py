@@ -228,3 +228,64 @@ def test_window_note_tags_carry_the_track_filter(tmp_path, monkeypatch):
         assert str(n) in clean
         for _a, _b, src, unit, shown in sents:
             assert g.verify_sentinel(src, unit, shown, {}, "toy_spy") is None, (track, src)
+
+
+def _cov_pair(tmp_path, monkeypatch, defined, lead_cash, is_n=254, stem="hindsight_null_tournament"):
+    d = tmp_path / "results" / "toy_spy"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "winner_summary.json").write_text('{"lead_unit": "months"}')
+    pd.DataFrame({"draw": range(len(defined)), "offset": range(10, 10 + len(defined)), "is_n": is_n,
+                  "defined_is_n": defined, "leading_cash_share": lead_cash}).to_csv(d / f"{stem}_20261017.csv",
+                                                                                     index=False)
+    monkeypatch.setattr(two_track, "__file__", str(tmp_path / "app" / "components" / "two_track.py"))
+    monkeypatch.setattr(P, "RESULTS", tmp_path / "results")
+
+
+def test_coverage_note_states_defined_months_and_leading_cash(tmp_path, monkeypatch):
+    # QA rerun2 F2: import_price comparison contests had a median 177 of 254 defined months, up to 42% leading cash
+    _cov_pair(tmp_path, monkeypatch, [254, 177, 119, 200, None], [0.0, 0.2, 0.417, 0.1, None])
+    note = two_track.coverage_note("toy_spy", "comparison")
+    assert "In 3 of 4 contests" in note and "a median of 188 (lowest 119) of the 254 training months" in note
+    assert "the first 42% of the window" in note
+    assert two_track.coverage_note("toy_spy", "main") == ""                       # no MAIN null file
+    monkeypatch.setenv("AIG_PROVENANCE_GATE", "1")
+    _clean, _k, _p, sents, _d = g.parse_markers(two_track.coverage_note("toy_spy", "comparison"))
+    assert len(sents) == 6
+    for _a, _b, src, unit, shown in sents:
+        assert g.verify_sentinel(src, unit, shown, {}, "toy_spy") is None, src
+
+
+def test_coverage_note_without_leading_cash_and_when_fully_defined(tmp_path, monkeypatch):
+    _cov_pair(tmp_path, monkeypatch, [81, 80, 81], [0.0, 0.0, 0.0], is_n=81, stem="null_tournament")
+    note = two_track.coverage_note("toy_spy")
+    assert "In 1 of 3 contests" in note and "(lowest 80) of the 81 training months" in note
+    assert "first" not in note
+    _cov_pair(tmp_path / "b", monkeypatch, [81, 81], [0.0, 0.0], is_n=81, stem="null_tournament")
+    assert two_track.coverage_note("toy_spy") == ""
+
+
+def test_comparison_chance_note_states_the_comparison_window(tmp_path, monkeypatch):
+    # QA rerun2 F1: the comparison track's training window appeared nowhere
+    import json
+    _pair(tmp_path, monkeypatch, [254, 254], 254)
+    d = tmp_path / "results" / "toy_spy"
+    df = pd.read_csv(d / "null_is_windows_20261017.csv")
+    df["track"] = "comparison"
+    df.to_csv(d / "null_is_windows_20261017.csv", index=False)
+    (d / "winner_summary.json").write_text(json.dumps({"run_tag": "20261017", "lead_unit": "months", "tracks": {
+        "comparison": {"null_tournament": {"n_draws": 100, "selection_stat_percentile": 0.85}}}}))
+    pd.DataFrame({"draw": [0, 1], "offset": [5, 6], "is_n": 254, "defined_is_n": [254, 200],
+                  "leading_cash_share": [0.0, 0.1]}).to_csv(d / "hindsight_null_tournament_20261017.csv", index=False)
+    note = two_track.comparison_chance_note("toy_spy", {"track_state": "both"})
+    assert "85th percentile" in note and "the same 254 months" in note and "In 1 of 2 contests" in note
+    (d / "hindsight_null_tournament_20261017.csv").unlink()                    # Phase B: a missing file is loud
+    assert "contest file is missing" in two_track.comparison_chance_note("toy_spy", {"track_state": "both"})
+
+
+def test_colmedian_tag_round_trips():
+    import json as _j
+    df = pd.DataFrame({"x": [1.0, 5.0, 2.0, None], "t": ["a", "a", "b", "a"]})
+    df.attrs["src"] = "art:toy_spy/f.csv"
+    assert float(P.colmedian(df, "x")) == 2.0 and float(P.colmedian(df, "x", ("t", "a"))) == 3.0
+    assert P.colmedian(df, "x", ("t", "a")).src == "median(art:toy_spy/f.csv,x,t,a)"
+    assert "r71_calibration" in __import__("gate_structured_prose").P_API and _j

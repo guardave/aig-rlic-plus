@@ -83,7 +83,8 @@ def lead_plateau(pair: str, tag: str, lead_unit: str) -> str | None:
                                  hovertext=[f"Lead {L}<br>Score {s:.2f} (hindsight)" for L, s in zip(hl, hind["is_sharpe"])],
                                  hoverinfo="text"))
     fig.add_trace(go.Scatter(x=[pos[wl]], y=[w["is_sharpe"]], mode="markers", name=f"Winner L{wl}",
-                             marker=dict(symbol="diamond-dot", size=16, color="white", line=dict(color=C_TEXT, width=2)),
+                             # open marker: a white fill hid the dashed revised line under it (QA permit_yoy F7)
+                             marker=dict(symbol="diamond-open", size=17, color=C_TEXT, line=dict(color=C_TEXT, width=2.5)),
                              hoverinfo="skip"))
     fig.add_annotation(x=pos[wl], y=w["is_sharpe"], text=f"Winner L{wl}", showarrow=True, arrowcolor=C_TEXT,
                        ax=0, ay=42, font=dict(color=C_TEXT), bgcolor="white")

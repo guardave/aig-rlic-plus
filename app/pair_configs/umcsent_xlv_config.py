@@ -583,11 +583,11 @@ STRATEGY_CONFIG = StrategyConfig()
 _DATA_SOURCES_MD = P.definition_text("""
 | Category | Source | Series | Frequency |
 |---|---|---|---|
-| Indicator (as known at the time) | ALFRED (FRED vintages, pinned in data/release_calendar/vintages/UMCSENT.csv.gz) | `UMCSENT`, University of Michigan consumer sentiment, every published vintage | Monthly |
+| Indicator (as known at the time) | ALFRED (FRED vintages, pinned archive) | `UMCSENT`, University of Michigan consumer sentiment, every published vintage | Monthly |
 | Indicator (as revised today) | FRED (latest vintage of the same file) | `UMCSENT` | Monthly |
-| Release dates | data/release_calendar/release_calendar.csv | first publication date per month | Monthly |
-| Target | Yahoo Finance (pinned: data/phaseB_inputs/xlv_month_end_20261017.csv) | XLV adjusted month-end close | Monthly |
-| Regression controls | FRED / Yahoo Finance (pinned in data/phaseB_inputs/umcsent_xlv_monthly_legacy_20261008.csv) | `UNRATE`, `DGS10`, VIX | Monthly |
+| Release dates | Release calendar (pinned) | first publication date per month | Monthly |
+| Target | Yahoo Finance (pinned month-end extract) | XLV adjusted month-end close | Monthly |
+| Regression controls | FRED / Yahoo Finance (pinned monthly extract of the earlier pipeline) | `UNRATE`, `DGS10`, VIX | Monthly |
 """)
 
 _INDICATOR_CONSTRUCTION_MD = (
