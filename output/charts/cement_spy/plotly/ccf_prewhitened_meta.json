@@ -1,7 +1,7 @@
 {
   "chart_name": "ccf_prewhitened",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-20T12:09:25.938591+00:00",
+  "generated_at": "2026-10-20T12:25:08.732504+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "Cross-correlation of the monthly change in year-over-year cement growth (first difference) with SPY returns; dashed lines are the 95% band.",
   "narrative_alignment_note": "Cross-correlation of the monthly change in year-over-year cement growth (first difference) with SPY returns; dashed lines are the 95% band.",

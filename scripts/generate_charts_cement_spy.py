@@ -96,7 +96,7 @@ def chart_hero() -> None:
                              hovertemplate="%{x|%Y-%m}<br>SPY: %{y:.2f}<extra></extra>"), secondary_y=True)
     nber_legend(fig)
     mark_break(fig)
-    fig.update_layout(title="Portland Cement Shipments (Texas, then U.S. Portland-Only; USGS) vs SPY", template="plotly_white",
+    fig.update_layout(title="Portland Cement Shipments (Texas, then U.S. portland-only) vs SPY", template="plotly_white",
                       height=560, hovermode="x unified",
                       legend=dict(orientation="h", x=0, y=-0.12, yanchor="top"), margin=dict(r=80, b=120))
     fig.update_yaxes(title_text="Shipments (metric tons)", secondary_y=False)

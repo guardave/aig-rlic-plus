@@ -1,7 +1,7 @@
 {
   "chart_name": "walk_forward",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-20T12:10:03.286998+00:00",
+  "generated_at": "2026-10-20T12:26:28.318202+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "Sharpe of the winner rule and of buy-and-hold SPY in each full calendar year of the test period.",
   "narrative_alignment_note": "Sharpe of the winner rule and of buy-and-hold SPY in each full calendar year of the test period.",

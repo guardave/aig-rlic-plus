@@ -1,7 +1,7 @@
 {
   "chart_name": "rolling_correlation",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-20T12:09:53.152801+00:00",
+  "generated_at": "2026-10-20T12:26:04.393006+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "Rolling 60-month correlation between year-over-year cement growth and the SPY monthly return.",
   "narrative_alignment_note": "Rolling 60-month correlation between year-over-year cement growth and the SPY monthly return.",

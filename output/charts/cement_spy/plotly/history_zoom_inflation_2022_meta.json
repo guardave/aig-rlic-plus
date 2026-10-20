@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_inflation_2022",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-20T12:10:14.078085+00:00",
+  "generated_at": "2026-10-20T12:26:54.604854+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "2022 Rate Shock and After: Cement Shipments and SPY, 2021-2025 (coverage change marked); gray bands are NBER recessions.",
   "narrative_alignment_note": "2022 Rate Shock and After: Cement Shipments and SPY, 2021-2025 (coverage change marked); gray bands are NBER recessions.",

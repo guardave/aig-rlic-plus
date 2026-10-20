@@ -1,7 +1,7 @@
 {
   "chart_name": "correlation_heatmap",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-20T12:09:22.774504+00:00",
+  "generated_at": "2026-10-20T12:25:02.871007+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "Pearson correlations of each cement growth transform with forward SPY returns; * marks a HAC p-value below 0.05 (lags at least horizon - 1).",
   "narrative_alignment_note": "Pearson correlations of each cement growth transform with forward SPY returns; * marks a HAC p-value below 0.05 (lags at least horizon - 1).",

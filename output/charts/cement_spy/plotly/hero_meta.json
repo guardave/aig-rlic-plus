@@ -1,7 +1,7 @@
 {
   "chart_name": "hero",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-20T12:09:15.769287+00:00",
+  "generated_at": "2026-10-20T12:24:53.273879+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "Shipment level and SPY with NBER recession bands. Through 2023-12 the series is Texas Portland cement shipments; the dotted line marks 2024-01, where it changes to the U.S. portland-only total (USGS MIS Table 2a).",
   "narrative_alignment_note": "Shipment level and SPY with NBER recession bands. Through 2023-12 the series is Texas Portland cement shipments; the dotted line marks 2024-01, where it changes to the U.S. portland-only total (USGS MIS Table 2a).",

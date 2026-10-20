@@ -1,7 +1,7 @@
 {
   "chart_name": "tournament_sharpe_dist",
   "pair_id": "cement_spy",
-  "generated_at": "2026-10-20T12:09:46.520734+00:00",
+  "generated_at": "2026-10-20T12:25:49.539529+00:00",
   "generated_by": "scripts/generate_charts_cement_spy.py",
   "caption": "Test-period Sharpe of the valid rules by lead (the winner is chosen on training data, not on this score).",
   "narrative_alignment_note": "Test-period Sharpe of the valid rules by lead (the winner is chosen on training data, not on this score).",
