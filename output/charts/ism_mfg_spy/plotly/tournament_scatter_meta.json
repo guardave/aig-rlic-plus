@@ -1,12 +1,12 @@
 {
   "chart_name": "tournament_scatter",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-18T11:16:25.365128+00:00",
+  "generated_at": "2026-10-20T11:47:17.056919+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
   "caption": "Alias for tournament scatter slot.",
   "narrative_alignment_note": "Alias for tournament scatter slot.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_ism_mfg_spy/results/ism_mfg_spy/tournament_results_20261018.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_ism_mfg_spy/results/ism_mfg_spy/tournament_results_20261020.csv"
   ]
 }

@@ -1,12 +1,12 @@
 {
   "chart_name": "equity_curves",
   "pair_id": "ism_mfg_spy",
-  "generated_at": "2026-10-18T11:16:16.269193+00:00",
+  "generated_at": "2026-10-20T11:46:58.865844+00:00",
   "generated_by": "scripts/generate_charts_ism_mfg_spy.py",
   "caption": "Winner strategy (today's ISM values; no archive of past values exists) equity curve compared with buy-and-hold SPY, both from the first training month.",
   "narrative_alignment_note": "Winner strategy (today's ISM values; no archive of past values exists) equity curve compared with buy-and-hold SPY, both from the first training month.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_ism_mfg_spy/results/ism_mfg_spy/strategy_returns_20261018.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_ism_mfg_spy/results/ism_mfg_spy/strategy_returns_20261020.csv"
   ]
 }

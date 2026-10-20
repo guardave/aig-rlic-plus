@@ -22,7 +22,7 @@ from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
 from pair_spec_ism_mfg_spy import PMI_NEUTRAL  # noqa: E402  (diffusion-index line between contraction and expansion)
 
 PAIR = "ism_mfg_spy"
-DATE_TAG = "20261018"
+DATE_TAG = "20261020"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 OUT = REPO / "output" / "charts" / PAIR / "plotly"
@@ -165,8 +165,9 @@ def chart_granger() -> None:
     fig.add_trace(go.Bar(x=gr["lag"], y=gr["p_value"], name="p-value (single lag)", marker_color=C_IND))
     fig.add_trace(go.Scatter(x=gr["lag"], y=gr["p_value_holm"], name="Holm-adjusted p-value (all lags)",
                              mode="markers", marker=dict(color=C_LINE, symbol="diamond", size=9)))
-    fig.add_hline(y=0.05, line_dash="dash", line_color=C_LINE, annotation_text="p = 0.05",
-                  annotation_position="top left")
+    # the 0.05 line is named in the legend, not by an in-plot label (no collision with the lag-1 bar)
+    fig.add_trace(go.Scatter(x=[gr["lag"].min() - 0.5, gr["lag"].max() + 0.5], y=[0.05, 0.05], mode="lines",
+                             line=dict(dash="dash", color=C_LINE), name="p = 0.05 line", hoverinfo="skip"))
     fig.update_layout(title="Granger Causality: Does the ISM PMI Help Forecast SPY?",
                       xaxis_title="Lag (months)", yaxis_title="p-value", template="plotly_white", height=430,
                       legend=dict(orientation="h", y=-0.2))
