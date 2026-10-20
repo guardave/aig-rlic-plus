@@ -1,6 +1,6 @@
 {
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-10-20T11:43:53.705758+00:00",
+  "generated_at": "2026-10-20T13:52:47.899539+00:00",
   "schema_version": "1.3.0",
   "run_tag": "20261020",
   "target_symbol": "SPY",
@@ -270,6 +270,17 @@
         "global_max_inside_plateau": true,
         "grid_edge": false,
         "single_window_grid": false,
+        "tie": {
+          "n_windows": 2,
+          "alternatives": [
+            [
+              6,
+              7,
+              8
+            ]
+          ],
+          "broken_by": "best_is_sharpe_in_window"
+        },
         "family": {
           "signal": "zscore_60m",
           "threshold": "T_roll_p50",
