@@ -1,7 +1,7 @@
 {
   "chart_name": "hero",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-18T10:22:58.109891+00:00",
+  "generated_at": "2026-10-20T11:12:11.295568+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
   "caption": "Year-over-year growth in building permits (PERMIT, revised) and SPY with NBER recessions; pink bands mark months when permits were below their year-earlier level.",
   "narrative_alignment_note": "Year-over-year growth in building permits (PERMIT, revised) and SPY with NBER recessions; pink bands mark months when permits were below their year-earlier level.",

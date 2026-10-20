@@ -1,8 +1,8 @@
 {
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-18T10:19:33.175798+00:00",
+  "generated_at": "2026-10-20T11:05:31.797619+00:00",
   "track": "main",
-  "source_tournament_file": "tournament_results_20261018.csv",
+  "source_tournament_file": "tournament_results_20261020.csv",
   "winner": {
     "signal": "zscore_60m",
     "threshold": "T_z_0",

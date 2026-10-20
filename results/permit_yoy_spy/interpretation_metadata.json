@@ -26,7 +26,7 @@
     ]
   },
   "last_updated_by": "evan",
-  "last_updated_at": "2026-10-18T10:15:33.218276+00:00",
+  "last_updated_at": "2026-10-20T10:59:39.141935+00:00",
   "indicator": "permit_yoy",
   "target": "spy",
   "expected_direction": "procyclical",
@@ -71,6 +71,6 @@
   "data_provenance": {
     "source": "FRED / ALFRED (U.S. Census Bureau / HUD, new residential construction)",
     "series_id": "PERMIT",
-    "accessed_at": "2026-10-18T10:15:33.218276+00:00"
+    "accessed_at": "2026-10-20T10:59:39.141935+00:00"
   }
 }

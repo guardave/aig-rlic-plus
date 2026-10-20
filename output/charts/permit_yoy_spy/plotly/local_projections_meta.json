@@ -1,12 +1,12 @@
 {
   "chart_name": "local_projections",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-18T10:23:31.607821+00:00",
+  "generated_at": "2026-10-20T11:12:51.908313+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
   "caption": "Estimated forward SPY return per percentage point of YoY growth in building permits, with Newey-West 95% intervals (lags at least horizon - 1).",
   "narrative_alignment_note": "Estimated forward SPY return per percentage point of YoY growth in building permits, with Newey-West 95% intervals (lags at least horizon - 1).",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/permit_yoy_spy/core_models_20261018/local_projections.csv"
+    "results/permit_yoy_spy/core_models_20261020/local_projections.csv"
   ]
 }

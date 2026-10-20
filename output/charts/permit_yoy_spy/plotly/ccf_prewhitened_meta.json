@@ -1,12 +1,12 @@
 {
   "chart_name": "ccf_prewhitened",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-18T10:23:18.481732+00:00",
+  "generated_at": "2026-10-20T11:12:37.378808+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
   "caption": "Cross-correlation between the monthly change in permits YoY growth and SPY returns; dashed lines are approximate 95% bands.",
   "narrative_alignment_note": "Cross-correlation between the monthly change in permits YoY growth and SPY returns; dashed lines are approximate 95% bands.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/permit_yoy_spy/core_models_20261018/ccf_prewhitened.csv"
+    "results/permit_yoy_spy/core_models_20261020/ccf_prewhitened.csv"
   ]
 }

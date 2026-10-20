@@ -3,7 +3,7 @@
   "track": "real_time",
   "role": "main",
   "winner_key": "zscore_60m|T_z_0|P1|procyclical|10",
-  "generated_at": "2026-10-18T10:19:33.087428+00:00",
+  "generated_at": "2026-10-20T11:05:31.521671+00:00",
   "vintage_policy": {
     "alignment": "realtime_vintage",
     "vintage_series": "PERMIT",

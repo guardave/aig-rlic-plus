@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_covid",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-18T10:24:50.183206+00:00",
+  "generated_at": "2026-10-20T11:14:15.660833+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
   "caption": "COVID Shock, 2018-2021: YoY growth in building permits and SPY; gray bands are NBER recessions and pink bands mark months when permits were below their year-earlier level.",
   "narrative_alignment_note": "COVID Shock, 2018-2021: YoY growth in building permits and SPY; gray bands are NBER recessions and pink bands mark months when permits were below their year-earlier level.",

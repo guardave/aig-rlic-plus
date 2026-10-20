@@ -1,12 +1,12 @@
 {
   "chart_name": "tournament_scatter",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-18T10:24:03.093692+00:00",
+  "generated_at": "2026-10-20T11:13:27.746790+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
   "caption": "Distribution of test-period Sharpe across valid tournament strategies by lead (as known at the time; the winner is chosen on training data, not on this score).",
   "narrative_alignment_note": "Distribution of test-period Sharpe across valid tournament strategies by lead (as known at the time; the winner is chosen on training data, not on this score).",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/permit_yoy_spy/tournament_results_20261018.csv"
+    "results/permit_yoy_spy/tournament_results_20261020.csv"
   ]
 }

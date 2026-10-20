@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_dotcom",
   "pair_id": "permit_yoy_spy",
-  "generated_at": "2026-10-18T10:24:36.646366+00:00",
+  "generated_at": "2026-10-20T11:14:04.206470+00:00",
   "generated_by": "scripts/generate_charts_permit_yoy_spy.py",
   "caption": "Dot-Com Bust, 1999-2003: YoY growth in building permits and SPY; gray bands are NBER recessions and pink bands mark months when permits were below their year-earlier level.",
   "narrative_alignment_note": "Dot-Com Bust, 1999-2003: YoY growth in building permits and SPY; gray bands are NBER recessions and pink bands mark months when permits were below their year-earlier level.",
