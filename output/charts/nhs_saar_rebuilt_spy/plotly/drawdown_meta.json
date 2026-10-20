@@ -1,7 +1,7 @@
 {
   "chart_name": "drawdown",
   "pair_id": "nhs_saar_rebuilt_spy",
-  "generated_at": "2026-10-18T07:06:20.231708+00:00",
+  "generated_at": "2026-10-20T09:52:59.355814+00:00",
   "generated_by": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
   "caption": "Drawdown comparison for the winner strategy (as known at the time) and SPY buy-and-hold.",
   "narrative_alignment_note": "Drawdown comparison for the winner strategy (as known at the time) and SPY buy-and-hold.",

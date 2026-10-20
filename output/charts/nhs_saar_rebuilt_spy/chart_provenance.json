@@ -3,21 +3,21 @@
   "chart_sha256": "ecdc0df97682a72c8c213ee9393c9c850b8efed61b80ec1be37f6d346342d494",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:06:02+00:00",
+  "recorded_at": "2026-10-20T09:52:20+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
    "results/nhs_saar_rebuilt_spy/core_models_20261018/ccf_prewhitened.csv": "2c8891afa76514e1c1c9757d2b95b18995eb24bbe304b83f0414d132e3599c86",
    "results/nhs_saar_rebuilt_spy/core_models_20261018/correlations.csv": "ea097fbbb593fbfae1da9cdaaa08d21866b91081be9aa7e0f227a990f83aaf9e",
    "results/nhs_saar_rebuilt_spy/regime_quartile_returns.csv": "7524f601da5db4a5626f6afc495e9a7327a91a270eeba98d0de95bc0c075e97c",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "chance_check": {
-  "chart_sha256": "5b696166b349184fc16700b0e433aea04f5d20ea0a71a4e2b5abd20b982dc35c",
+  "chart_sha256": "1c43e64599c9412b66f3c426c4c5809dcaa4de250721930bb4ae2b217d07b29a",
   "results_tag": "20261018",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T07:02:51+00:00",
+  "recorded_at": "2026-10-20T09:50:39+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/phaseB_inputs/nhs_saar_rebuilt_spy_monthly_legacy_20261015.csv": "2f7bbb1c1359842614d120c7a6dcdb824f0818ef838eb0d539211841d8269233",
@@ -25,34 +25,34 @@
    "data/release_calendar/release_calendar.csv": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
    "data/release_calendar/release_calendar_meta.json": "9c8ab4d3258bf7938b38557a99f8266b638943d34e95fbed963d581484dd3e96",
    "data/release_calendar/vintages/HSN1F.csv.gz": "0a45735e6f64253b58d21fbe013e4f853fe8677a225e0a70994209bf916f39b1",
-   "results/nhs_saar_rebuilt_spy/hindsight_lead_curve_20261018.csv": "c66d4607d68f246d0368266a511bfb1bfbd06aab5f99434997e26cfc2a226eac",
+   "results/nhs_saar_rebuilt_spy/hindsight_lead_curve_20261018.csv": "00273da2ca57fdc57df10da3e23215a591b548a47a46d1e92ec57fbe1eb2bc6b",
    "results/nhs_saar_rebuilt_spy/lead_curve_20261018.csv": "9cc8f59205aa153d1b592020f1dcda9accabf4fcece69c27e2509fd20770f698",
    "results/nhs_saar_rebuilt_spy/legacy_oos_selection_20261015.csv": "aa5217c41b4dd4e3094c04cae0f356da65ac7b1fb3db7a9dc7990a0c6b75fc0f",
-   "results/nhs_saar_rebuilt_spy/null_tournament_20261018.csv": "2f89846403cc87261cc92a6288ff2a4f7679e2ac16e819dbf9c3e5cd856ec508",
+   "results/nhs_saar_rebuilt_spy/null_tournament_20261018.csv": "84384d94fb22c760f1a00d8239a15c1b0284e377811a4f2baac06ef6d153faa6",
    "results/nhs_saar_rebuilt_spy/strategy_returns_20261015.csv": "0eae29ae2e853d557b88421bf97af05ef23261c49993fce47ee88b5335fb2356",
    "results/nhs_saar_rebuilt_spy/tournament_results_20261015.csv": "4737dc28664f0b5d5682dd54d0b0c9221224873d3c905d8f530d10b6966e5826",
-   "results/nhs_saar_rebuilt_spy/track_summary.json": "c9716917fb6c0d3875ef8355581a1c4d634608b38d12fc1d07ac78606529bb70",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/track_summary.json": "0fac693ff2048e379fe622f2b678a45a5b8d3b5d5b00068066295eb34d594e5a",
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "correlation_heatmap": {
   "chart_sha256": "e20c4c87d9cb7e53d9dc72eb2eaadc4f08a8f3100035c9eb3751881bfbfa771f",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:05:59+00:00",
+  "recorded_at": "2026-10-20T09:52:14+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
    "results/nhs_saar_rebuilt_spy/core_models_20261018/correlations.csv": "ea097fbbb593fbfae1da9cdaaa08d21866b91081be9aa7e0f227a990f83aaf9e",
    "results/nhs_saar_rebuilt_spy/regime_quartile_returns.csv": "7524f601da5db4a5626f6afc495e9a7327a91a270eeba98d0de95bc0c075e97c",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "drawdown": {
   "chart_sha256": "3853ed8ef4539f7cc544fe3565d93b72484ab4b3d89e880dbbe5b1f8b7674b51",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:06:17+00:00",
+  "recorded_at": "2026-10-20T09:52:53+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
@@ -64,14 +64,14 @@
    "results/nhs_saar_rebuilt_spy/core_models_20261018/quantile_regression.csv": "ac750cf32fc51bb0a65e3127707b0c8b358141f5c5a8763c7ad4eaa7d043cc66",
    "results/nhs_saar_rebuilt_spy/regime_quartile_returns.csv": "7524f601da5db4a5626f6afc495e9a7327a91a270eeba98d0de95bc0c075e97c",
    "results/nhs_saar_rebuilt_spy/strategy_returns_20261018.csv": "7593d682cbb83c49c01df235bc3751a2fcf8838f10bb82e593c340116e1d23ba",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "equity_curves": {
   "chart_sha256": "da78476f161feb9396c561c8e07ce16636170f807f307bc74fcfe3db7e729012",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:06:14+00:00",
+  "recorded_at": "2026-10-20T09:52:46+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
@@ -83,14 +83,14 @@
    "results/nhs_saar_rebuilt_spy/core_models_20261018/quantile_regression.csv": "ac750cf32fc51bb0a65e3127707b0c8b358141f5c5a8763c7ad4eaa7d043cc66",
    "results/nhs_saar_rebuilt_spy/regime_quartile_returns.csv": "7524f601da5db4a5626f6afc495e9a7327a91a270eeba98d0de95bc0c075e97c",
    "results/nhs_saar_rebuilt_spy/strategy_returns_20261018.csv": "7593d682cbb83c49c01df235bc3751a2fcf8838f10bb82e593c340116e1d23ba",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "granger_f_by_lag": {
-  "chart_sha256": "ab9e9da0cbde7648b89512fcaa3919a5c025fc30af5a5a9f21d88bac37b1117a",
+  "chart_sha256": "e077f9baa0d0c0bb177b0d968616baa483814a86de81efadb7b1d4dfc7c9f895",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:06:05+00:00",
+  "recorded_at": "2026-10-20T09:52:26+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
@@ -98,14 +98,14 @@
    "results/nhs_saar_rebuilt_spy/core_models_20261018/correlations.csv": "ea097fbbb593fbfae1da9cdaaa08d21866b91081be9aa7e0f227a990f83aaf9e",
    "results/nhs_saar_rebuilt_spy/core_models_20261018/granger_causality.csv": "d65ed0e6a52d2fff0aebc2dd7ad09871dac9ab9b93538f355ed7ffba6870310e",
    "results/nhs_saar_rebuilt_spy/regime_quartile_returns.csv": "7524f601da5db4a5626f6afc495e9a7327a91a270eeba98d0de95bc0c075e97c",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "hero": {
   "chart_sha256": "25922e174401ff4c6f37634f68e062a27eb836ace0020460f54d98f3e3686c13",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:05:52+00:00",
+  "recorded_at": "2026-10-20T09:52:03+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed"
@@ -115,7 +115,7 @@
   "chart_sha256": "430434f594e1377e0d24d708e37ff68d8da2ad67a57d31518cfef6b86998f2ab",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:06:42+00:00",
+  "recorded_at": "2026-10-20T09:53:56+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
@@ -131,14 +131,14 @@
    "results/nhs_saar_rebuilt_spy/structural_break_nhs_saar_rebuilt_spy.json": "c46bd43fd941d589c04500888300bb0b6944b46319d53eab4f1ff652b1d5b963",
    "results/nhs_saar_rebuilt_spy/subperiod_sharpe.csv": "1078110689785cf7811fa3b7e217074cc0bb985ef8bee22fd73629ec04f5fec0",
    "results/nhs_saar_rebuilt_spy/tournament_results_20261018.csv": "a47b1858e9ac3b730fc4dc01971208c1fb8c180f787adfcae8ba3abded793cbf",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "history_zoom_dotcom": {
   "chart_sha256": "9fe578edd90bb409fdc293a93d1d2732fa4e3f565db0c7dab227e3842bb2e1e0",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:06:37+00:00",
+  "recorded_at": "2026-10-20T09:53:43+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
@@ -154,14 +154,14 @@
    "results/nhs_saar_rebuilt_spy/structural_break_nhs_saar_rebuilt_spy.json": "c46bd43fd941d589c04500888300bb0b6944b46319d53eab4f1ff652b1d5b963",
    "results/nhs_saar_rebuilt_spy/subperiod_sharpe.csv": "1078110689785cf7811fa3b7e217074cc0bb985ef8bee22fd73629ec04f5fec0",
    "results/nhs_saar_rebuilt_spy/tournament_results_20261018.csv": "a47b1858e9ac3b730fc4dc01971208c1fb8c180f787adfcae8ba3abded793cbf",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "history_zoom_gfc": {
   "chart_sha256": "ecced6171b92043757302a3f3fa6913b3b79c86fbac4ce394a82d20ee81b08da",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:06:40+00:00",
+  "recorded_at": "2026-10-20T09:53:50+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
@@ -177,14 +177,14 @@
    "results/nhs_saar_rebuilt_spy/structural_break_nhs_saar_rebuilt_spy.json": "c46bd43fd941d589c04500888300bb0b6944b46319d53eab4f1ff652b1d5b963",
    "results/nhs_saar_rebuilt_spy/subperiod_sharpe.csv": "1078110689785cf7811fa3b7e217074cc0bb985ef8bee22fd73629ec04f5fec0",
    "results/nhs_saar_rebuilt_spy/tournament_results_20261018.csv": "a47b1858e9ac3b730fc4dc01971208c1fb8c180f787adfcae8ba3abded793cbf",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "history_zoom_inflation_2022": {
   "chart_sha256": "bb98a1f28539049a93dbe8cd620ba9686e2c7099473b01b1e0454b1de431f9dd",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:06:45+00:00",
+  "recorded_at": "2026-10-20T09:54:04+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
@@ -200,14 +200,14 @@
    "results/nhs_saar_rebuilt_spy/structural_break_nhs_saar_rebuilt_spy.json": "c46bd43fd941d589c04500888300bb0b6944b46319d53eab4f1ff652b1d5b963",
    "results/nhs_saar_rebuilt_spy/subperiod_sharpe.csv": "1078110689785cf7811fa3b7e217074cc0bb985ef8bee22fd73629ec04f5fec0",
    "results/nhs_saar_rebuilt_spy/tournament_results_20261018.csv": "a47b1858e9ac3b730fc4dc01971208c1fb8c180f787adfcae8ba3abded793cbf",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "lead_plateau": {
   "chart_sha256": "4aaf02ab2f974782c31ed9878b003e1d72f170acbacef9dbc21b39a229f49849",
   "results_tag": "20261018",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-18T07:02:49+00:00",
+  "recorded_at": "2026-10-20T09:50:29+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/phaseB_inputs/nhs_saar_rebuilt_spy_monthly_legacy_20261015.csv": "2f7bbb1c1359842614d120c7a6dcdb824f0818ef838eb0d539211841d8269233",
@@ -215,7 +215,7 @@
    "data/release_calendar/release_calendar.csv": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
    "data/release_calendar/release_calendar_meta.json": "9c8ab4d3258bf7938b38557a99f8266b638943d34e95fbed963d581484dd3e96",
    "data/release_calendar/vintages/HSN1F.csv.gz": "0a45735e6f64253b58d21fbe013e4f853fe8677a225e0a70994209bf916f39b1",
-   "results/nhs_saar_rebuilt_spy/hindsight_lead_curve_20261018.csv": "c66d4607d68f246d0368266a511bfb1bfbd06aab5f99434997e26cfc2a226eac",
+   "results/nhs_saar_rebuilt_spy/hindsight_lead_curve_20261018.csv": "00273da2ca57fdc57df10da3e23215a591b548a47a46d1e92ec57fbe1eb2bc6b",
    "results/nhs_saar_rebuilt_spy/lead_curve_20261018.csv": "9cc8f59205aa153d1b592020f1dcda9accabf4fcece69c27e2509fd20770f698",
    "results/nhs_saar_rebuilt_spy/legacy_oos_selection_20261015.csv": "aa5217c41b4dd4e3094c04cae0f356da65ac7b1fb3db7a9dc7990a0c6b75fc0f",
    "results/nhs_saar_rebuilt_spy/strategy_returns_20261015.csv": "0eae29ae2e853d557b88421bf97af05ef23261c49993fce47ee88b5335fb2356",
@@ -226,7 +226,7 @@
   "chart_sha256": "c2fde17326291d5378a1ca1d09830dd436ae9a59af21740e6c829c6db417faee",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:06:09+00:00",
+  "recorded_at": "2026-10-20T09:52:32+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
@@ -235,14 +235,14 @@
    "results/nhs_saar_rebuilt_spy/core_models_20261018/granger_causality.csv": "d65ed0e6a52d2fff0aebc2dd7ad09871dac9ab9b93538f355ed7ffba6870310e",
    "results/nhs_saar_rebuilt_spy/core_models_20261018/local_projections.csv": "67cf0a80106ead2435bd7e46698beb1fcf58853d84cfd1577d82bf96cd984c6e",
    "results/nhs_saar_rebuilt_spy/regime_quartile_returns.csv": "7524f601da5db4a5626f6afc495e9a7327a91a270eeba98d0de95bc0c075e97c",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "quantile_coef": {
   "chart_sha256": "5a3c3cc4db8a848eb0998fdb6005d2e2c30636dd29ff9c656e6fd1ba49183e94",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:06:11+00:00",
+  "recorded_at": "2026-10-20T09:52:40+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
@@ -253,24 +253,26 @@
    "results/nhs_saar_rebuilt_spy/core_models_20261018/quantile_equality_test.json": "66ded56dbb8dfdf9270525484f83b693650ebf8453accebc97aa88c997689027",
    "results/nhs_saar_rebuilt_spy/core_models_20261018/quantile_regression.csv": "ac750cf32fc51bb0a65e3127707b0c8b358141f5c5a8763c7ad4eaa7d043cc66",
    "results/nhs_saar_rebuilt_spy/regime_quartile_returns.csv": "7524f601da5db4a5626f6afc495e9a7327a91a270eeba98d0de95bc0c075e97c",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "regime_stats": {
   "chart_sha256": "41083c3402700df4dbbb80ee50ebaccc1ac1752f58ec9d2a9819bc84396d3ec2",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:22:28+00:00",
+  "recorded_at": "2026-10-20T09:52:07+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
-   "results/nhs_saar_rebuilt_spy/regime_quartile_returns.csv": "7524f601da5db4a5626f6afc495e9a7327a91a270eeba98d0de95bc0c075e97c"
+   "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
+   "results/nhs_saar_rebuilt_spy/regime_quartile_returns.csv": "7524f601da5db4a5626f6afc495e9a7327a91a270eeba98d0de95bc0c075e97c",
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "rolling_correlation": {
   "chart_sha256": "c6888dbebe22a929d4a98241fff32fc696d12d3e1bb0e83b29af898c23f8c01a",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:06:26+00:00",
+  "recorded_at": "2026-10-20T09:53:16+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
@@ -284,14 +286,14 @@
    "results/nhs_saar_rebuilt_spy/rolling_correlation_nhs_saar_rebuilt_spy.csv": "eb82c47bbdd63fc87dec9658faa31993b74195ff79831ab98103a53275d39168",
    "results/nhs_saar_rebuilt_spy/strategy_returns_20261018.csv": "7593d682cbb83c49c01df235bc3751a2fcf8838f10bb82e593c340116e1d23ba",
    "results/nhs_saar_rebuilt_spy/tournament_results_20261018.csv": "a47b1858e9ac3b730fc4dc01971208c1fb8c180f787adfcae8ba3abded793cbf",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "structural_break": {
   "chart_sha256": "13fe64f9e27008edae1f2daac20e09c49099fb93fe9d537cba06db5c395b329c",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:06:29+00:00",
+  "recorded_at": "2026-10-20T09:53:23+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
@@ -306,14 +308,14 @@
    "results/nhs_saar_rebuilt_spy/strategy_returns_20261018.csv": "7593d682cbb83c49c01df235bc3751a2fcf8838f10bb82e593c340116e1d23ba",
    "results/nhs_saar_rebuilt_spy/structural_break_nhs_saar_rebuilt_spy.json": "c46bd43fd941d589c04500888300bb0b6944b46319d53eab4f1ff652b1d5b963",
    "results/nhs_saar_rebuilt_spy/tournament_results_20261018.csv": "a47b1858e9ac3b730fc4dc01971208c1fb8c180f787adfcae8ba3abded793cbf",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "subperiod_sharpe": {
   "chart_sha256": "bf8d1f2ed045eea0367ba5565e57a3a12a981b16e34935f8d90bec6aa7c0eac8",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:06:31+00:00",
+  "recorded_at": "2026-10-20T09:53:30+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
@@ -329,14 +331,14 @@
    "results/nhs_saar_rebuilt_spy/structural_break_nhs_saar_rebuilt_spy.json": "c46bd43fd941d589c04500888300bb0b6944b46319d53eab4f1ff652b1d5b963",
    "results/nhs_saar_rebuilt_spy/subperiod_sharpe.csv": "1078110689785cf7811fa3b7e217074cc0bb985ef8bee22fd73629ec04f5fec0",
    "results/nhs_saar_rebuilt_spy/tournament_results_20261018.csv": "a47b1858e9ac3b730fc4dc01971208c1fb8c180f787adfcae8ba3abded793cbf",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "tournament_scatter": {
   "chart_sha256": "02ec64c88e3892edd6fc270de3a60daf1623a074499d3c17bdcbedc570348ea1",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:06:23+00:00",
+  "recorded_at": "2026-10-20T09:53:07+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
@@ -349,14 +351,14 @@
    "results/nhs_saar_rebuilt_spy/regime_quartile_returns.csv": "7524f601da5db4a5626f6afc495e9a7327a91a270eeba98d0de95bc0c075e97c",
    "results/nhs_saar_rebuilt_spy/strategy_returns_20261018.csv": "7593d682cbb83c49c01df235bc3751a2fcf8838f10bb82e593c340116e1d23ba",
    "results/nhs_saar_rebuilt_spy/tournament_results_20261018.csv": "a47b1858e9ac3b730fc4dc01971208c1fb8c180f787adfcae8ba3abded793cbf",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "tournament_sharpe_dist": {
   "chart_sha256": "02ec64c88e3892edd6fc270de3a60daf1623a074499d3c17bdcbedc570348ea1",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:06:20+00:00",
+  "recorded_at": "2026-10-20T09:52:59+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
@@ -369,14 +371,14 @@
    "results/nhs_saar_rebuilt_spy/regime_quartile_returns.csv": "7524f601da5db4a5626f6afc495e9a7327a91a270eeba98d0de95bc0c075e97c",
    "results/nhs_saar_rebuilt_spy/strategy_returns_20261018.csv": "7593d682cbb83c49c01df235bc3751a2fcf8838f10bb82e593c340116e1d23ba",
    "results/nhs_saar_rebuilt_spy/tournament_results_20261018.csv": "a47b1858e9ac3b730fc4dc01971208c1fb8c180f787adfcae8ba3abded793cbf",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  },
  "walk_forward": {
   "chart_sha256": "bf8d1f2ed045eea0367ba5565e57a3a12a981b16e34935f8d90bec6aa7c0eac8",
   "results_tag": "20261018",
   "producer": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
-  "recorded_at": "2026-10-18T07:06:34+00:00",
+  "recorded_at": "2026-10-20T09:53:36+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/nhs_saar_rebuilt_spy_monthly_latest.parquet": "fc702cc6f041d5254eeb0bc01f934624db35d6fbae4a494150ed515a482129ed",
@@ -392,7 +394,7 @@
    "results/nhs_saar_rebuilt_spy/structural_break_nhs_saar_rebuilt_spy.json": "c46bd43fd941d589c04500888300bb0b6944b46319d53eab4f1ff652b1d5b963",
    "results/nhs_saar_rebuilt_spy/subperiod_sharpe.csv": "1078110689785cf7811fa3b7e217074cc0bb985ef8bee22fd73629ec04f5fec0",
    "results/nhs_saar_rebuilt_spy/tournament_results_20261018.csv": "a47b1858e9ac3b730fc4dc01971208c1fb8c180f787adfcae8ba3abded793cbf",
-   "results/nhs_saar_rebuilt_spy/winner_summary.json": "be1e7be58a4891cf68aae601ab7a14d66bc91d43bdf2764f772d828665c47ea0"
+   "results/nhs_saar_rebuilt_spy/winner_summary.json": "71dd5a4688fe1b3036244f35d2f025372e9138f2ba23a616a89924e32108ec5e"
   }
  }
 }

@@ -1,7 +1,7 @@
 {
   "chart_name": "history_zoom_covid",
   "pair_id": "nhs_saar_rebuilt_spy",
-  "generated_at": "2026-10-18T07:06:45.760062+00:00",
+  "generated_at": "2026-10-20T09:54:04.177750+00:00",
   "generated_by": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
   "caption": "COVID Shock: Brief Collapse and Fast Rebound in Home Sales; gray bands are NBER recessions and pink bands mark new home sales below their year-earlier level.",
   "narrative_alignment_note": "COVID Shock: Brief Collapse and Fast Rebound in Home Sales; gray bands are NBER recessions and pink bands mark new home sales below their year-earlier level.",

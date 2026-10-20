@@ -5,7 +5,7 @@ winner_summary.json `winner_fields`, via components.winner_fields) or from the e
 evidence_facts; none is typed here (scripts/gate_structured_prose.py, scripts/gate_number_provenance.py).
 MAIN = as known at the time (real-time HSN1F vintages); COMPARISON = as revised today (hindsight). The previous
 rule of this page (20261015 run, commit 525922aa) was never merged to the main site; the harness replays it exactly
-and the correction banner names it from the previous_* fields. The sibling pair nhs_saar_spy is separate.
+and the "Earlier research run" banner names it from the previous_* fields. The sibling pair nhs_saar_spy is separate.
 """
 
 from __future__ import annotations
@@ -431,12 +431,12 @@ class StrategyConfig:
     )
 
     STATISTICAL_FRAMING_BANNER = (
-        f"Correction (2026-10-18). An earlier development version of this page reported the rule {W.previous_rule} "
-        f"(test-period Sharpe {W.previous_oos_sharpe}, run of {W.previous_tag}; that version was never published on "
-        "the main site). It was the single highest training Sharpe on revised data with fixed release lags. The "
-        "page now reports the rule selected on the training period from data as known at the time, with "
-        "point-in-time release dates and the stable-lead-range rule; today's revised data are shown for comparison "
-        "only."
+        f"Earlier research run. A research run of {W.previous_tag} on the branch spike261015_is_oos_floor reported "
+        f"the rule {W.previous_rule} (earlier research run: test-period Sharpe {W.previous_oos_sharpe}). That run was "
+        "never shown on the main site, and it is not the lead-floor branch's result for this pair. Its rule was the "
+        "single highest training Sharpe on revised data with fixed release lags. This page now reports the rule "
+        "selected on the training period from data as known at the time, with point-in-time release dates and the "
+        "stable-lead-range rule; today's revised data are shown for comparison only."
     )
 
     PLAIN_ENGLISH = (
@@ -460,7 +460,7 @@ class StrategyConfig:
             f"{W.ci_high}.",
             f"The rule selected on revised data {'is the same' if _SAME_RULE else 'differs'} (hindsight test-period "
             f"Sharpe {W.comparison_oos_sharpe}).",
-            f"The previous rule of this page ({W.previous_rule}) was the single highest training Sharpe on revised "
+            f"The earlier research run's rule ({W.previous_rule}) was the single highest training Sharpe on revised "
             "data with fixed lags.",
         ] + ([f"The stable lead range {W.plateau_range} reaches the top of the declared lead grid ({_GRID_RANGE} "
               "months); longer leads were not tested."] if _AT_TOP else []),
@@ -478,7 +478,7 @@ class StrategyConfig:
         {"label": "Tournament results (as known at the time)", "path": f"results/{PAIR}/tournament_results_{_TAG}.csv"},
         {"label": "Tournament results (as revised today, hindsight)",
          "path": f"results/{PAIR}/hindsight_tournament_results_{_TAG}.csv"},
-        {"label": f"Previous rule's tournament (run of {W.previous_tag}, replayed exactly)",
+        {"label": f"Earlier research run's tournament (run of {W.previous_tag}, replayed exactly)",
          "path": f"results/{PAIR}/tournament_results_{W.value('previous_tag')}.csv"},
         {"label": "Stationarity tests", "path": f"results/{PAIR}/stationarity_tests_{_TAG}.csv"},
     ]
@@ -539,7 +539,7 @@ This describes the backtested rule so it can be audited; it is not a trading rec
 
 - The result is marked `found_in_search`; it still needs a frozen-rule holdout confirmation.
 - The headline uses new-home-sales data as known at the time. On today's revised data the selected rule {'is the same' if _SAME_RULE else 'is different'} (test-period Sharpe {W.comparison_oos_sharpe}, hindsight).
-- The previous rule of this page ({W.previous_rule}, run of {W.previous_tag}, never published on the main site) was the single highest training Sharpe on revised data with fixed lags; the new framework replays it exactly and no longer selects it.
+- The earlier research run's rule ({W.previous_rule}; research run of {W.previous_tag} on the branch spike261015_is_oos_floor, never shown on the main site) was the single highest training Sharpe on revised data with fixed lags; the new framework replays that earlier research run exactly and no longer selects its rule.
 - Housing is one cycle among several; equity drawdowns that start elsewhere need not show up in home sales first.
 {_R71_CAVEAT}
 """
@@ -604,7 +604,7 @@ Grid: new-home-sales transforms x zero, z-score and rolling-percentile threshold
 - As revised today (hindsight): `{_RID_REVISED}`, training Sharpe {W.comparison_is_sharpe}, test-period Sharpe {W.comparison_oos_sharpe}.{_COMP_TAIL}
 - Cross-evaluation: the headline rule scored on revised data has test-period Sharpe {W.ce_main_on_revised_oos_sharpe}; the hindsight rule scored on data as known at the time has {W.ce_revised_on_main_oos_sharpe}.
 - Chance check: across {W.null_draws} contests run on circularly shifted home-sales data, {_CHANCE_TEXT}.
-- Previous rule of this page: `{W.previous_rule}` ({W.previous_selection}; run of {W.previous_tag}, never published on the main site), test-period Sharpe {W.previous_oos_sharpe}. The new framework replays that run exactly (same rows, same winner, same returns).
+- Earlier research run: `{W.previous_rule}` ({W.previous_selection}; research run of {W.previous_tag} on the branch spike261015_is_oos_floor, never shown on the main site; not the lead-floor branch's result). In that earlier research run its test-period Sharpe was {W.previous_oos_sharpe}. The new framework replays that earlier research run exactly (same rows, same winner, same returns).
 """
 
 _REFERENCES_MD = """
@@ -615,7 +615,7 @@ _REFERENCES_MD = """
 5. Jorda, O. (2005). "Estimation and Inference of Impulse Responses by Local Projections."
 6. Newey, W. K., and West, K. D. (1987). "A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix."
 7. Holm, S. (1979). "A Simple Sequentially Rejective Multiple Test Procedure."
-8. Politis, D. N., and Romano, J. P. (1994). "The Stationary Bootstrap."
+8. Politis, D. N., and Romano, J. P. (1992). "A Circular Block-Resampling Procedure for Stationary Data."
 """
 
 METHODOLOGY_CONFIG = MethodologyConfig(

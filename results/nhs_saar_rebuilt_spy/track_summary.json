@@ -1,7 +1,7 @@
 {
   "pair_id": "nhs_saar_rebuilt_spy",
   "schema_version": "1.0.0",
-  "generated_at": "2026-10-18T07:02:47.333081+00:00",
+  "generated_at": "2026-10-20T09:50:27.173532+00:00",
   "track_state": "both",
   "track_policy": "compute_twice",
   "main": {
@@ -43,19 +43,19 @@
       "lead": 14
     },
     "is_sharpe": 1.131004,
-    "oos_sharpe": 1.134193,
+    "oos_sharpe": 1.130633,
     "recessions_covered": [
       "2001 recession",
       "2008-09 recession",
       "2020 recession"
     ],
     "same_winner": false,
-    "sharpe_gap": 0.484553
+    "sharpe_gap": 0.480993
   },
   "cross_eval": {
     "main_winner_on_revised": {
       "is_sharpe": 1.0971725947751703,
-      "oos_sharpe": 0.6484588046532458,
+      "oos_sharpe": 0.6455577586094519,
       "valid": true,
       "is_eligible": true,
       "window": {
@@ -249,7 +249,7 @@
         1
       ]
     },
-    "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
+    "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; every draw scored on the real winner's calendar training window, rows where a draw's position is undefined scored as cash (defined rows and leading-cash share recorded per draw); distinct offsets; R7.1",
     "r71_pass": true,
     "edge_flag": false,
     "n_admissible_offsets": 195,

@@ -1,7 +1,7 @@
 {
   "chart_name": "tournament_scatter",
   "pair_id": "nhs_saar_rebuilt_spy",
-  "generated_at": "2026-10-18T07:06:26.048501+00:00",
+  "generated_at": "2026-10-20T09:53:16.266943+00:00",
   "generated_by": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
   "caption": "Alias for tournament scatter slot.",
   "narrative_alignment_note": "Alias for tournament scatter slot.",

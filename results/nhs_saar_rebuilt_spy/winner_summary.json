@@ -1,7 +1,8 @@
 {
   "pair_id": "nhs_saar_rebuilt_spy",
-  "generated_at": "2026-10-18T07:02:47.333081+00:00",
+  "generated_at": "2026-10-20T09:50:27.173532+00:00",
   "schema_version": "1.3.0",
+  "run_tag": "20261018",
   "target_symbol": "SPY",
   "track_policy": "compute_twice",
   "main_eligible": true,
@@ -43,7 +44,7 @@
   "is_period_end": "2016-12-31",
   "total_combos": 468,
   "valid_combos": 468,
-  "notes": "New home sales are an early housing-cycle indicator. Headline = as known at the time (real-time HSN1F vintages); still a search-selected rule. The 20261015 rule (raw IS argmax, never merged to main) is replayed exactly and kept as the previous rule.",
+  "notes": "New home sales are an early housing-cycle indicator. Headline = as known at the time (real-time HSN1F vintages); still a search-selected rule. The earlier research run's rule (20261015, branch spike261015_is_oos_floor, raw IS argmax, never on main) is replayed exactly and kept as the previous rule.",
   "selection": {
     "objective": "max_is_sharpe_lead_plateau_w3",
     "objective_formula": "D9: min IS Sharpe over 3 adjacent grid leads (edge-clamped); best window = plateau; winner = highest raw IS Sharpe inside it. IS = deployable returns on [common_is_start, oos_start); OOS never consulted",
@@ -352,7 +353,7 @@
         "n_admissible_offsets": 195,
         "span": 326,
         "max_usable_offset": 260,
-        "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
+        "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; every draw scored on the real winner's calendar training window, rows where a draw's position is undefined scored as cash (defined rows and leading-cash share recorded per draw); distinct offsets; R7.1",
         "seed_base": 20261016,
         "is_max_percentile": 0.91,
         "p_is": 0.09,
@@ -454,18 +455,18 @@
         "strategy_family": "P1_long_cash",
         "lead": 14,
         "is_sharpe": 1.131004,
-        "oos_sharpe": 1.134193,
-        "oos_sortino": 1.563575,
-        "oos_calmar": 1.383975,
-        "oos_ann_return": 0.121857,
-        "oos_ann_vol": 0.10676,
+        "oos_sharpe": 1.130633,
+        "oos_sortino": 1.525135,
+        "oos_calmar": 1.379664,
+        "oos_ann_return": 0.121477,
+        "oos_ann_vol": 0.106797,
         "oos_max_drawdown": -0.088049,
         "oos_win_rate": 0.444444,
         "oos_n_trades": 34,
-        "annual_turnover": 3.517241,
-        "oos_exposure": 0.594828,
+        "annual_turnover": 3.487179,
+        "oos_exposure": 0.598291,
         "source_row_index": 376,
-        "oos_sharpe_net_5bp": 1.117992
+        "oos_sharpe_net_5bp": 1.114972
       },
       "bh_is": {
         "sharpe": 0.677626,
@@ -525,7 +526,7 @@
         "direction": "procyclical",
         "lead": 13,
         "is_sharpe": 1.139278,
-        "oos_sharpe": 1.227728,
+        "oos_sharpe": 1.224689,
         "note": "highest single in-sample Sharpe in the grid; reference only, not the selection rule"
       },
       "runner_up": {
@@ -541,28 +542,28 @@
           13
         ],
         "is_sharpe": 1.097424,
-        "oos_sharpe": 0.848799
+        "oos_sharpe": 0.845848
       },
-      "spearman_is_oos": 0.531,
+      "spearman_is_oos": 0.5304,
       "vs_buy_hold": {
-        "observed": 0.1378,
-        "mean": 0.121,
+        "observed": 0.1342,
+        "mean": 0.1172,
         "ci_95": [
-          -0.4299,
-          0.66
+          -0.4357,
+          0.6586
         ],
-        "p_diff_le_0": 0.3336,
+        "p_diff_le_0": 0.3374,
         "block_length": 6,
         "draws": 5000,
         "seed": 42,
         "method": "paired circular block bootstrap of OOS Sharpe(strategy) - Sharpe(B&H)",
-        "sharpe_diff": 0.1378,
+        "sharpe_diff": 0.1342,
         "ann_return": {
-          "strat": 0.121857,
+          "strat": 0.121477,
           "bh": 0.151948
         },
         "ann_vol": {
-          "strat": 0.10676,
+          "strat": 0.106797,
           "bh": 0.154753
         },
         "max_dd": {
@@ -572,28 +573,19 @@
       },
       "hac": {
         "oos_strategy_mean": {
-          "t": 4.0501,
+          "t": 4.0382,
           "p_value": 0.0001,
           "nw_lag": 4,
           "n": 117
         },
         "oos_excess_mean": {
-          "t": -0.9466,
-          "p_value": 0.3439,
+          "t": -0.9565,
+          "p_value": 0.3388,
           "nw_lag": 4,
           "n": 117
         }
       },
-      "undefined_tail": {
-        "n_periods": 1,
-        "first_date": "2026-09-30",
-        "last_date": "2026-09-30",
-        "last_defined_position": 1.0,
-        "benchmark_return_over_tail": -0.003293,
-        "oos_sharpe_as_published": 1.134193,
-        "oos_sharpe_hold_last_position": 1.130633,
-        "rule": "undefined signal = cash (pre-registered fleet rule); the hold-last figure is a sensitivity"
-      },
+      "undefined_tail": null,
       "null_tournament": {
         "n_draws": 100,
         "n_unique_offsets": 100,
@@ -601,7 +593,7 @@
         "n_admissible_offsets": 337,
         "span": 560,
         "max_usable_offset": null,
-        "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
+        "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; every draw scored on the real winner's calendar training window, rows where a draw's position is undefined scored as cash (defined rows and leading-cash share recorded per draw); distinct offsets; R7.1",
         "seed_base": 20261016,
         "is_max_percentile": 0.88,
         "p_is": 0.12,
@@ -614,18 +606,18 @@
           0.9672,
           1.2083
         ],
-        "null_winner_oos_median": 0.8019,
+        "null_winner_oos_median": 0.8006,
         "edge_share": 0.11,
         "edge_share_uniform": 0.1538,
         "edge_share_bound": 0.2621,
         "edge_flag": false,
-        "timing_sharpe_mean": 0.0448,
-        "timing_sharpe_sd": 0.2636,
-        "timing_sharpe_se_dependent": 0.0425,
+        "timing_sharpe_mean": 0.0304,
+        "timing_sharpe_sd": 0.2618,
+        "timing_sharpe_se_dependent": 0.042,
         "timing_sharpe_se_bandwidth": 6,
-        "timing_sharpe_effective_draws": 38.5,
+        "timing_sharpe_effective_draws": 38.9,
         "r71_tolerance": 0.1,
-        "timing_sharpe_mean_all_valid_candidates": 0.0168,
+        "timing_sharpe_mean_all_valid_candidates": -0.0,
         "r71_pass": true,
         "null_scores_hist": {
           "bins": [
@@ -680,7 +672,7 @@
   "cross_eval": {
     "main_winner_on_revised": {
       "is_sharpe": 1.0971725947751703,
-      "oos_sharpe": 0.6484588046532458,
+      "oos_sharpe": 0.6455577586094519,
       "valid": true,
       "is_eligible": true,
       "window": {
@@ -951,16 +943,16 @@
       "text": "1.13"
     },
     "comparison_oos_sharpe": {
-      "value": 1.134193,
+      "value": 1.130633,
       "text": "1.13"
     },
     "comparison_oos_ann_return": {
-      "value": 0.121857,
-      "text": "12.2%"
+      "value": 0.121477,
+      "text": "12.1%"
     },
     "comparison_oos_sharpe_net_5bp": {
-      "value": 1.117992,
-      "text": "1.12"
+      "value": 1.114972,
+      "text": "1.11"
     },
     "comparison_oos_max_drawdown": {
       "value": -0.088049,
@@ -987,8 +979,8 @@
       "text": "-23.9%"
     },
     "comparison_sharpe_gap": {
-      "value": 0.13779600000000003,
-      "text": "0.14"
+      "value": 0.13423600000000002,
+      "text": "0.13"
     },
     "comparison_is_start": {
       "value": "1993-02-28",
@@ -1051,12 +1043,12 @@
       "text": "L12-L14"
     },
     "comparison_annual_turnover": {
-      "value": 3.517241,
-      "text": "3.52"
+      "value": 3.487179,
+      "text": "3.49"
     },
     "comparison_oos_exposure": {
-      "value": 0.594828,
-      "text": "59%"
+      "value": 0.598291,
+      "text": "60%"
     },
     "comparison_raw_argmax_lead": {
       "value": 13,
@@ -1079,36 +1071,16 @@
       "text": "a different rule from the winner"
     },
     "comparison_ci_low": {
-      "value": -0.4299,
-      "text": "-0.43"
+      "value": -0.4357,
+      "text": "-0.44"
     },
     "comparison_ci_high": {
-      "value": 0.66,
+      "value": 0.6586,
       "text": "0.66"
     },
     "comparison_p_diff_le_0": {
-      "value": 0.3336,
-      "text": "0.33"
-    },
-    "comparison_tail_n_periods": {
-      "value": 1,
-      "text": "1"
-    },
-    "comparison_tail_first_date": {
-      "value": "2026-09-30",
-      "text": "2026-09-30"
-    },
-    "comparison_tail_last_date": {
-      "value": "2026-09-30",
-      "text": "2026-09-30"
-    },
-    "comparison_tail_bh_return": {
-      "value": -0.003293,
-      "text": "-0.3%"
-    },
-    "comparison_tail_hold_last_sharpe": {
-      "value": 1.130633,
-      "text": "1.13"
+      "value": 0.3374,
+      "text": "0.34"
     },
     "comparison_null_percentile": {
       "value": 1.0,
@@ -1127,7 +1099,7 @@
       "text": "1.10"
     },
     "ce_main_on_revised_oos_sharpe": {
-      "value": 0.6484588046532458,
+      "value": 0.6455577586094519,
       "text": "0.65"
     },
     "ce_revised_on_main_is_sharpe": {

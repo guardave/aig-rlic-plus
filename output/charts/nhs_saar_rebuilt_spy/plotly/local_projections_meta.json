@@ -1,7 +1,7 @@
 {
   "chart_name": "local_projections",
   "pair_id": "nhs_saar_rebuilt_spy",
-  "generated_at": "2026-10-18T07:06:11.893195+00:00",
+  "generated_at": "2026-10-20T09:52:40.519028+00:00",
   "generated_by": "scripts/generate_charts_nhs_saar_rebuilt_spy.py",
   "caption": "Estimated forward SPY return per percentage point of 6-month new-home-sales growth (Newey-West errors).",
   "narrative_alignment_note": "Estimated forward SPY return per percentage point of 6-month new-home-sales growth (Newey-West errors).",
