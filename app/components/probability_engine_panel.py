@@ -77,23 +77,6 @@ def _load_target_price_overlay(pair_id: str, target_symbol: str) -> pd.Series | 
     return None
 
 
-def _load_winner_strategy_cumulative_return(pair_id: str) -> pd.Series | None:
-    """Best-effort winner strategy cumulative return from strategy_returns CSV."""
-    from components.provenance import resolve_current
-    f = resolve_current(pair_id, "strategy_returns")
-    if f is None:
-        return None
-    try:
-        df = pd.read_csv(f, parse_dates=["date"]).set_index("date")
-        if "strategy_equity" in df.columns:
-            return (df["strategy_equity"].astype(float) - 1.0) * 100.0
-        if "strategy_return" in df.columns:
-            return ((1.0 + df["strategy_return"].astype(float).fillna(0.0)).cumprod() - 1.0) * 100.0
-    except Exception:
-        return None
-    return None
-
-
 def _latest_signals_file(pair_dir: Path) -> Path | None:
     """The pair's current-run ``signals_<tag>.parquet`` (provenance.resolve_current; no superseded-run guess)."""
     from components.provenance import resolve_current
@@ -339,26 +322,6 @@ def _render_chart(
                 )
             )
 
-    if pair_id == "cement_spy":
-        strategy_cum_return = _load_winner_strategy_cumulative_return(pair_id)
-        if strategy_cum_return is not None:
-            aligned_strategy = strategy_cum_return.loc[
-                (strategy_cum_return.index >= series.index.min())
-                & (strategy_cum_return.index <= series.index.max())
-            ].dropna()
-            if len(aligned_strategy) > 1:
-                fig.add_trace(
-                    go.Scatter(
-                        x=aligned_strategy.index,
-                        y=aligned_strategy.values,
-                        mode="lines",
-                        name="Winner strategy cumulative return",
-                        line=dict(color="#D62728", width=1.5),
-                        yaxis="y2",
-                        hovertemplate="%{x|%Y-%m-%d}: %{y:.1f}%<extra></extra>",
-                    )
-                )
-
     # NBER recession shading when span > 5 years (APP-SE1 acceptance)
     span_years = (series.index.max() - series.index.min()).days / 365.25
     if span_years > 5:
@@ -404,11 +367,7 @@ def _render_chart(
         xaxis_title="Date",
         yaxis_title=str(display_name),
         yaxis2=dict(
-            title=(
-                "Indexed price / cumulative return"
-                if pair_id == "cement_spy"
-                else f"{target_symbol} indexed price"
-            ),
+            title=f"{target_symbol} indexed price",
             overlaying="y",
             side="right",
             showgrid=False,
@@ -555,7 +514,7 @@ def render_probability_engine_panel(pair_id: str) -> None:
     # "Signal Monitoring Panel" instead — what the chart actually shows is
     # the signal value vs threshold, not a probability.
     is_probability_signal = column.startswith(_PROBABILITY_PREFIXES)
-    show_near_threshold_zone = pair_id != "cement_spy"
+    show_near_threshold_zone = True
     # QA_VERIFY_B1 F2: a range-sized P2 rule (harness) has no decision threshold
     _p2_range_hdr = (str(winner.get("strategy_code") or winner.get("strategy_family", "")).startswith("P2")
                      and winner.get("threshold_value") is None and not is_probability_signal)

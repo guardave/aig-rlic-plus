@@ -586,16 +586,6 @@ def render_instructional_trigger_cards(pair_id: str) -> None:
             + (f" The rule reads the signal {winner.get('lead_value')} trading days back."
                if str(winner.get("lead_unit", "")).startswith("day") and winner.get("lead_value") else "")
         )
-    if pair_id == "cement_spy":
-        st.caption(
-            "Decisive crossing definition: because this is a monthly rule, "
-            "a BUY trigger requires the month-end cement-growth signal to move "
-            "from below the rolling threshold to at or above it. A REDUCE "
-            "trigger requires the signal to move from at or above the threshold "
-            "to below it. A value that only sits close to the threshold is a "
-            "hovering state, not a new trading trigger."
-        )
-
     cards = _card_specs_for_strategy(
         strategy, direction, None if _p2_range else threshold, signal_display, target_symbol, pair_id
     )
