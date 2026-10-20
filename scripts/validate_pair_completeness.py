@@ -402,12 +402,24 @@ def _check_chart_artifacts(pair_id: str) -> PageReport:
     return report
 
 
+def _exempt_episodes(pair_id: str) -> list[str]:
+    app_dir = str(_REPO_ROOT / "app")
+    if app_dir not in sys.path:
+        sys.path.insert(0, app_dir)
+    from components import episodes
+    return episodes.exempt_episodes(pair_id, _REPO_ROOT / "results" / pair_id)
+
+
 def _check_episode_zooms(pair_id: str, config_mod: Any | None) -> PageReport:
     report = PageReport("Story — Crisis Episode Zooms (DPS-EP1)")
     cdir = _CHARTS_DIR / pair_id / "plotly"
+    exempt = _exempt_episodes(pair_id)
+    for slug in exempt:            # rule-based (components.episodes): the indicator has no data over the episode
+        report.checks.append(CheckResult(f"history_zoom_{slug} (exempt)", "PASS",
+                                         "no indicator data for this episode: the pair's signals start after it"))
 
     # Check chart artifacts for all 4 mandatory slugs
-    for slug in MANDATORY_EPISODE_SLUGS:
+    for slug in [s for s in MANDATORY_EPISODE_SLUGS if s not in exempt]:
         json_path = cdir / f"history_zoom_{slug}.json"
         png_path = cdir / f"_perceptual_check_history_zoom_{slug}.png"
         report.checks.append(_check(
@@ -436,7 +448,7 @@ def _check_episode_zooms(pair_id: str, config_mod: Any | None) -> PageReport:
         return report
 
     declared_slugs = {ep.get("slug") for ep in episodes}
-    for slug in MANDATORY_EPISODE_SLUGS:
+    for slug in [s for s in MANDATORY_EPISODE_SLUGS if s not in exempt]:
         report.checks.append(_check(
             f"HISTORY_ZOOM_EPISODES — slug '{slug}' declared",
             slug in declared_slugs,

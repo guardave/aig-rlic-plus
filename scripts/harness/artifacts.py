@@ -135,6 +135,7 @@ def track_record(res: TrackResult, signal_display: dict, null_summary: dict | No
                     "global_max_inside_plateau": res.selection.get("family_max_inside_window"),
                     "grid_edge": res.selection.get("grid_edge"),
                     "single_window_grid": res.selection.get("single_window_grid"),
+                    "tie": res.selection.get("tie"),
                     "family": res.selection.get("family")},
         "raw_argmax": {"key": raw["key"], "signal": raw["signal"], "threshold": raw["threshold"],
                        "strategy": raw["strategy"], "direction": raw["direction"], "lead": int(raw["lead"]),

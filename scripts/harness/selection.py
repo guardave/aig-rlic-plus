@@ -95,6 +95,14 @@ def plateau_select(table: pd.DataFrame) -> dict | None:
 
     score, _raw, _o, fam, wleads, rows = wins[0]
     winner = window_winner(rows)
+    # an exact tie on J (QA rsxfs F3: L2-L4 and L3-L5 both 0.68165) is broken deterministically by the sort key:
+    # first the higher best valid in-sample Sharpe inside the window, then the earlier window in the search order
+    # (table order of the rule families, shorter leads first); the step used is recorded and stated on the page
+    tied = [t for t in wins[1:] if t[0] == score]
+    tie = None
+    if tied:
+        tie = {"n_windows": 1 + len(tied), "alternatives": [t[4] for t in tied],
+               "broken_by": "best_is_sharpe_in_window" if _raw > tied[0][1] else "search_order"}
     runner = None   # second-best D9 plateau winner: the next-ranked window whose winner is a different candidate
     for t in wins[1:]:
         cand = window_winner(t[5])
@@ -109,4 +117,4 @@ def plateau_select(table: pd.DataFrame) -> dict | None:
             "family_max_lead": int(table.loc[gmax, "lead"]),
             "family_max_inside_window": int(table.loc[gmax, "lead"]) in wleads,
             "grid_edge": int(table.loc[winner, "lead"]) in (int(famrows["lead"].min()), int(famrows["lead"].max())),
-            "single_window_grid": len(famrows) < 3}
+            "single_window_grid": len(famrows) < 3, "tie": tie}

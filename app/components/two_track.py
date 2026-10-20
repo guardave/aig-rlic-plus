@@ -241,7 +241,11 @@ def grid_edge_notes(pair_id: str) -> list[str]:
     ghi = next(g for g in grid if int(g) == hi)
     unit = _lead_unit(ws) or "periods"
     out = []
-    for role, label in (("main", MAIN_LABEL), ("comparison", REV_LABEL)):
+    # single-track pairs name their one track by its basis, never 'as known at' (ism_mfg rebase: the raw-argmax line
+    # said "As known at the time" on a no-archive pair)
+    main_label = {"single_revised_no_archive": "As revised today (no archive)",
+                  "single_market": "Market data"}.get(str(ws.get("track_policy")), MAIN_LABEL)
+    for role, label in (("main", main_label), ("comparison", REV_LABEL)):
         rec = (ws.get("tracks") or {}).get(role) or {}
         plat = rec.get("plateau") or {}
         if not rec.get("eligible"):
@@ -253,6 +257,15 @@ def grid_edge_notes(pair_id: str) -> list[str]:
             out.append(f"{label}: the highest single training score in the grid (a reference row, not the selection "
                        f"rule) is at lead L{rl}, the {'longest' if int(rl) == hi else 'shortest'} lead tested (grid "
                        f"L{glo}-L{ghi} {unit}).")
+        tie = plat.get("tie")
+        if tie and plat.get("leads"):          # QA rsxfs F3: an exact tie on the stable-range score is disclosed
+            lv = plat["leads"]
+            alt = "; ".join(f"L{x[0]}-L{x[-1]}" for x in tie["alternatives"] if x)
+            why = ("it has the higher best training Sharpe inside the range"
+                   if tie["broken_by"] == "best_is_sharpe_in_window" else
+                   "it comes first in the search order (rule families in table order, shorter leads first)")
+            out.append(f"{label}: the stable range L{lv[0]}-L{lv[-1]} tied exactly on its score with {alt}; the tie "
+                       f"went to L{lv[0]}-L{lv[-1]} because {why}.")
         if not plat.get("grid_edge"):
             continue
         wl = plat["winner_lead"]

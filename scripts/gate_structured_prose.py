@@ -125,6 +125,11 @@ def fields_from_summary(ws: dict) -> dict:
         if isinstance(ce.get(k), dict):
             f[f"_ce_{k}_is"] = ce[k].get("is_sharpe")
             f[f"_ce_{k}_oos"] = ce[k].get("oos_sharpe")
+    # leads of stable ranges that tied exactly with a track's winning range (plateau.tie, QA rsxfs F3): a lead may be
+    # named only in a sentence that says the ranges tied
+    f["_tie_leads"] = [int(x) for rec in (ws.get("tracks") or {}).values()
+                       for alt in ((((rec or {}).get("plateau") or {}).get("tie") or {}).get("alternatives") or [])
+                       for x in alt if isinstance(x, (int, float))]
     # null-tournament diagnostics (timing Sharpes of scrambled contests) are artifact facts the R7.1 caveat cites
     for role, rec in (ws.get("tracks") or {}).items():
         dg = ((rec or {}).get("null_tournament") or {}).get("r71_diagnosis") or {}
@@ -154,6 +159,8 @@ def _lead_values(f: dict, sent: str) -> set[int]:
         out |= set(f.get("_legacy_lead") or [])
     if re.search(r"runner[- ]up", sent, re.I):
         out.add(f.get("runner_up_lead"))
+    if re.search(r"\btied exactly\b", sent, re.I):
+        out |= set(f.get("_tie_leads") or [])
     return {int(x) for x in out if isinstance(x, (int, float)) and not isinstance(x, bool)}
 
 

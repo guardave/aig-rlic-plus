@@ -356,13 +356,27 @@ def resolve_current(pair_id: str, stem: str, ext: str = "csv", rdir=None) -> Pat
         return None
 
 
+def _must_exist(path) -> None:
+    """A missing artifact read by a page or a pair config fails with the standard current-run message (QA cement F6:
+    a config that loaded data_integrity_<tag>.json at import raised a bare FileNotFoundError). The error is a
+    FileNotFoundError subclass, so callers that tolerate a missing file still do."""
+    f = Path(path)
+    if f.is_file():
+        return
+    pair = f.parent.name if f.parent.parent.name == "results" else None
+    hint = f"; rebuild with python scripts/pair_pipeline_{pair}.py" if pair else ""
+    raise CurrentRunFileError(f"Current-run file missing: {f'results/{pair}/{f.name}' if pair else f}{hint}")
+
+
 def json_file(path) -> dict:
     """A JSON artifact with every number tagged art:<path>#<key path>."""
+    _must_exist(path)
     return _wrap(json.loads(Path(path).read_text()), f"art:{_rel(path)}#")
 
 
 def csv_file(path, **kw) -> pd.DataFrame:
     """A CSV artifact whose numeric cells are tagged art:<path>#r<row>/<column> (object columns)."""
+    _must_exist(path)
     df = pd.read_csv(path, **kw)
     src = f"art:{_rel(path)}#"
     for c in df.columns:

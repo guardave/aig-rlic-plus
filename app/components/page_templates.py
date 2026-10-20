@@ -967,6 +967,13 @@ def render_story_page(pair_id: str, config: Any | None = None) -> None:
                 ),
                 caption=ep_caption or None,
             )
+        # episodes the indicator does not cover (rule: its data start after the episode ends; QA cement F2)
+        from components import episodes as _ep
+        _declared = {e.get("slug") for e in history_episodes}
+        for _slug in _ep.exempt_episodes(pair_id):
+            if _slug not in _declared:
+                st.markdown(f"#### {_ep.EPISODES[_slug][0]}")
+                st.caption(f"{_ep.NO_DATA_TEXT[0].upper()}{_ep.NO_DATA_TEXT[1:]}.")
         st.markdown("---")
 
     # ------ 12. Narrative section 2 ------
@@ -2168,8 +2175,9 @@ def _render_tournament_leaderboard(tourn_path: Path, target: str, pair_id: str |
     if objective_known:
         valid_txt = ("(in-sample validity filters)" if _is_sel else _VALID_RULE_TXT)
         rank_txt = (f"ranked by {rank_label} of each combination; the winner is chosen by the stable lead range "
-                    "rule (the best run of adjacent leads of one rule, scored by its weakest in-sample Sharpe), "
-                    "not by this column" if _plateau else f"ranked by {rank_label}, this pair's selection objective")
+                    "rule (the best run of adjacent leads of one rule, scored by its weakest in-sample Sharpe; an exact tie "
+                    "goes to the run with the higher best in-sample Sharpe, then to the earlier run in the search "
+                    "order), not by this column" if _plateau else f"ranked by {rank_label}, this pair's selection objective")
     else:
         valid_txt = _VALID_RULE_TXT
         rank_txt = "ranked by OOS Sharpe (this pair's selection objective is not a single ranking column)"
