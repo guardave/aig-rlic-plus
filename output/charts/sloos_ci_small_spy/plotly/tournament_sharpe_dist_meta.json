@@ -1,13 +1,13 @@
 {
   "chart_name": "tournament_sharpe_dist",
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-18T07:17:12.421466+00:00",
+  "generated_at": "2026-10-20T11:19:38.510672+00:00",
   "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
   "caption": "Test-period Sharpe of the 120 valid rules by lead (data as known at the time); median 0.67 versus buy-and-hold 0.91. The winner is chosen on the training period, not on this score.",
   "narrative_alignment_note": "Test-period Sharpe of the 120 valid rules by lead (data as known at the time); median 0.67 versus buy-and-hold 0.91. The winner is chosen on the training period, not on this score.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/sloos_ci_small_spy/tournament_results_20261018.csv",
+    "results/sloos_ci_small_spy/tournament_results_20261020.csv",
     "results/sloos_ci_small_spy/winner_summary.json"
   ]
 }

@@ -1,12 +1,12 @@
 {
   "chart_name": "local_projections",
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-18T07:17:00.578640+00:00",
+  "generated_at": "2026-10-20T11:19:16.275911+00:00",
   "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
   "caption": "Forward SPY return per 10-point rise in the 4-quarter change in net tightening (HAC errors); p-values 0.48, 0.83, 0.61 at horizons 1, 2, 4 quarters.",
   "narrative_alignment_note": "Forward SPY return per 10-point rise in the 4-quarter change in net tightening (HAC errors); p-values 0.48, 0.83, 0.61 at horizons 1, 2, 4 quarters.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/sloos_ci_small_spy/core_models_20261018/local_projections.csv"
+    "results/sloos_ci_small_spy/core_models_20261020/local_projections.csv"
   ]
 }

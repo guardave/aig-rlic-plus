@@ -1,12 +1,12 @@
 {
   "chart_name": "drawdown",
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-18T07:17:09.499157+00:00",
+  "generated_at": "2026-10-20T11:19:30.361091+00:00",
   "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
   "caption": "Drawdown from the running peak since 2010-09-30: deepest -19.4% for the rule and -23.9% for buy-and-hold SPY (quarter-end data).",
   "narrative_alignment_note": "Drawdown from the running peak since 2010-09-30: deepest -19.4% for the rule and -23.9% for buy-and-hold SPY (quarter-end data).",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/sloos_ci_small_spy/strategy_returns_20261018.csv"
+    "results/sloos_ci_small_spy/strategy_returns_20261020.csv"
   ]
 }

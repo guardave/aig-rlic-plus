@@ -1,6 +1,6 @@
 {
   "pair_id": "sloos_ci_small_spy",
-  "tag": "20261018",
+  "tag": "20261020",
   "replay": {
     "pair_id": "sloos_ci_small_spy",
     "legacy_tag": "20261015",
@@ -237,7 +237,7 @@
       "n_admissible_offsets": 40,
       "span": 65,
       "max_usable_offset": 52,
-      "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
+      "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; every draw scored on the real winner's calendar training window, rows where a draw's position is undefined scored as cash (defined rows and leading-cash share recorded per draw); distinct offsets; R7.1",
       "seed_base": 20261016,
       "is_max_percentile": 0.0,
       "p_is": 1.0,
@@ -328,7 +328,7 @@
       "n_admissible_offsets": 87,
       "span": 146,
       "max_usable_offset": null,
-      "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
+      "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; every draw scored on the real winner's calendar training window, rows where a draw's position is undefined scored as cash (defined rows and leading-cash share recorded per draw); distinct offsets; R7.1",
       "seed_base": 20261016,
       "is_max_percentile": 0.8851,
       "p_is": 0.1149,

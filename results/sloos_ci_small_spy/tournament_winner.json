@@ -1,8 +1,8 @@
 {
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-18T07:07:32.964795+00:00",
+  "generated_at": "2026-10-20T11:17:27.756198+00:00",
   "track": "main",
-  "source_tournament_file": "tournament_results_20261018.csv",
+  "source_tournament_file": "tournament_results_20261020.csv",
   "winner": {
     "signal": "chg_4q",
     "threshold": "T_roll_p50",

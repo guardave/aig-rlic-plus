@@ -1,13 +1,13 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-18T07:17:03.905100+00:00",
+  "generated_at": "2026-10-20T11:19:20.624100+00:00",
   "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
   "caption": "Slope of the next-quarter SPY return on the 4-quarter change in net tightening at each return quantile; cross-quantile equality Wald p = 0.30 (not rejected).",
   "narrative_alignment_note": "Slope of the next-quarter SPY return on the 4-quarter change in net tightening at each return quantile; cross-quantile equality Wald p = 0.30 (not rejected).",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/sloos_ci_small_spy/core_models_20261018/quantile_regression.csv",
-    "results/sloos_ci_small_spy/core_models_20261018/quantile_equality_test.json"
+    "results/sloos_ci_small_spy/core_models_20261020/quantile_regression.csv",
+    "results/sloos_ci_small_spy/core_models_20261020/quantile_equality_test.json"
   ]
 }

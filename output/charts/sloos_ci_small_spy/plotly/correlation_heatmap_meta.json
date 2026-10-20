@@ -1,12 +1,12 @@
 {
   "chart_name": "correlation_heatmap",
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-18T07:16:47.781387+00:00",
+  "generated_at": "2026-10-20T11:19:01.859087+00:00",
   "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
   "caption": "Pearson correlations between the four net-tightening transforms and forward SPY returns; largest |r| 0.15, smallest HAC p 0.28.",
   "narrative_alignment_note": "Pearson correlations between the four net-tightening transforms and forward SPY returns; largest |r| 0.15, smallest HAC p 0.28.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/sloos_ci_small_spy/core_models_20261018/correlations.csv"
+    "results/sloos_ci_small_spy/core_models_20261020/correlations.csv"
   ]
 }

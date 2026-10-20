@@ -1,12 +1,12 @@
 {
   "chart_name": "ccf_prewhitened",
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-18T07:16:51.817398+00:00",
+  "generated_at": "2026-10-20T11:19:06.771890+00:00",
   "generated_by": "scripts/generate_charts_sloos_ci_small_spy.py",
   "caption": "Cross-correlation of the 4-quarter change in net tightening with SPY returns after AR(4) pre-whitening; offsets outside the 95% band: -4.",
   "narrative_alignment_note": "Cross-correlation of the 4-quarter change in net tightening with SPY returns after AR(4) pre-whitening; offsets outside the 95% band: -4.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/sloos_ci_small_spy/core_models_20261018/ccf_prewhitened.csv"
+    "results/sloos_ci_small_spy/core_models_20261020/ccf_prewhitened.csv"
   ]
 }

@@ -1,7 +1,8 @@
 {
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-18T07:07:32.964795+00:00",
+  "generated_at": "2026-10-20T11:17:27.756198+00:00",
   "schema_version": "1.3.0",
+  "run_tag": "20261020",
   "target_symbol": "SPY",
   "track_policy": "compute_twice",
   "main_eligible": true,
@@ -82,7 +83,7 @@
       "strategy": "P1",
       "lead_column": "lead_quarters",
       "lead_value": 3,
-      "source_tournament_file": "tournament_results_20261018.csv",
+      "source_tournament_file": "tournament_results_20261020.csv",
       "source_row_index": 77
     },
     "runner_up": {
@@ -175,7 +176,17 @@
         "tag": "20261015",
         "selection": "raw in-sample Sharpe argmax, revised values, fixed lag"
       }
-    ]
+    ],
+    "legacy_oos_selected_row": {
+      "signal": "level",
+      "threshold": "T0_zero",
+      "direction": "procyclical",
+      "lead_value": 3,
+      "oos_sharpe": 1.508512606588013,
+      "tag": "20260830",
+      "source": "tournament_results_20260830.csv row 8, strategy_returns_20260830_meta.json winner_key",
+      "note": "Rule shown on the main site (run 20260830), selected on its test-period Sharpe (legacy method); reference only, not a selection rule."
+    }
   },
   "tracks": {
     "main": {
@@ -344,7 +355,7 @@
         "n_admissible_offsets": 40,
         "span": 65,
         "max_usable_offset": 52,
-        "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
+        "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; every draw scored on the real winner's calendar training window, rows where a draw's position is undefined scored as cash (defined rows and leading-cash share recorded per draw); distinct offsets; R7.1",
         "seed_base": 20261016,
         "is_max_percentile": 0.0,
         "p_is": 1.0,
@@ -594,7 +605,7 @@
         "n_admissible_offsets": 87,
         "span": 146,
         "max_usable_offset": null,
-        "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
+        "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; every draw scored on the real winner's calendar training window, rows where a draw's position is undefined scored as cash (defined rows and leading-cash share recorded per draw); distinct offsets; R7.1",
         "seed_base": 20261016,
         "is_max_percentile": 0.8851,
         "p_is": 0.1149,

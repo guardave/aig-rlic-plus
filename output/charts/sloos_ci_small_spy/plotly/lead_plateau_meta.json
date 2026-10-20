@@ -1,13 +1,13 @@
 {
   "chart_name": "lead_plateau",
   "pair_id": "sloos_ci_small_spy",
-  "generated_at": "2026-10-18T07:07:34.734319+00:00",
+  "generated_at": "2026-10-20T11:17:39.018115+00:00",
   "generated_by": "scripts/harness/charts.py",
   "caption": "The winner L3 sits in a stable range L3-L5.",
   "narrative_alignment_note": "The winner L3 sits in a stable range L3-L5.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/sloos_ci_small_spy/lead_curve_20261018.csv",
-    "results/sloos_ci_small_spy/hindsight_lead_curve_20261018.csv"
+    "results/sloos_ci_small_spy/lead_curve_20261020.csv",
+    "results/sloos_ci_small_spy/hindsight_lead_curve_20261020.csv"
   ]
 }

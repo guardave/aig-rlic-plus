@@ -5,8 +5,10 @@ MIDDLE-MARKET firms (FRED DRTSCILM), not the small-firm series DRTSCIS that the 
 number is rendered from the structured winner fields (results/sloos_ci_small_spy/winner_summary.json
 `winner_fields`, via components.winner_fields) or from the evidence tables listed in evidence_facts; none is typed
 here (scripts/gate_structured_prose.py, scripts/gate_number_provenance.py). MAIN = as known at the time (real-time
-DRTSCILM vintages, archive from 2010); COMPARISON = as revised today (hindsight). The previously published rule was
-the raw in-sample Sharpe argmax on revised data with fixed lags; it replays through the harness.
+DRTSCILM vintages, archive from 2010); COMPARISON = as revised today (hindsight). The correction banner names the rule
+the main site shows (run 20260830, OOS-selected; winner_summary selection.legacy_oos_selected_row) and the earlier
+development run (20261015, raw in-sample Sharpe argmax, fixed lags; branch spike261015_is_oos_floor, never on the main
+site), which the harness replays exactly (previous_* fields).
 """
 
 from __future__ import annotations
@@ -48,6 +50,9 @@ _GRID = P.lead_grid(PAIR)
 _GRID_RANGE = f"L{_GRID[0]}-L{_GRID[-1]}"
 _VIN0 = P.year(_WS["tracks"]["main"]["sample"]["first_vintage"])  # first archived real-time vintage (year)
 _EDGE = bool(((_WS.get("tracks") or {}).get("main") or {}).get("plateau", {}).get("grid_edge"))
+# the rule the main site shows (run 20260830, chosen on its test-period Sharpe), recorded by the pipeline
+_MS = _WS["selection"]["legacy_oos_selected_row"]
+_MS_RULE = f"{_MS['signal']} / {_MS['threshold']} / L{_MS['lead_value']}"
 _HZ = list(_LP["horizon"])
 _HZ_TXT = ", ".join(str(h) for h in _HZ[:-1]) + f" and {_HZ[-1]}"
 _ANY_SIG = bool(_C_MINP < 0.05 or _G_MIN_HOLM < 0.05 or _LP_MINP < 0.05)
@@ -82,13 +87,43 @@ def _rid(prefix: str = "") -> str:
     return " / ".join([g("signal_code"), g("threshold_code"), g("strategy_family"), f"L{g('lead')}"])
 
 
+def _r71_disclosure() -> str:
+    """R7.1 construction-review disclosure (R71_CONSTRUCTION_REVIEW_sloos_main.md section 6), rendered only when the
+    calibrated reference for this run is on file (P.r71_calibration status ok); every number from an artifact: the
+    null record in winner_summary (T, draws, all-candidate mean, training quarters) and the calibration record (B,
+    p-value, block sensitivity, non-wrapping control)."""
+    st_, rec, _why = P.r71_calibration(PAIR, "main")
+    if st_ != "ok":
+        return ""
+    n = _WS["tracks"]["main"]["null_tournament"]
+    unit = str(_MAN["lead_unit"])                       # quarters (candidates manifest lead unit)
+    sens = rec["sensitivity"]
+    out = (f"In the scrambled contests, the selected rules average a test-period timing Sharpe of "
+           f"{n['timing_sharpe_mean']:.3f} over {n['n_draws']} offsets. Under a dependence-preserving bootstrap of "
+           f"SPY returns ({rec['B']:.0f} paths), a value this far from the reference centre has probability "
+           f"{rec['p_value']:.3f} ({sens['p_value']:.3f} with {sens['block']}-{unit.rstrip('s')} blocks). Averaged over "
+           f"all candidates in each contest the figure is {n['timing_sharpe_mean_all_valid_candidates']:.4f}")
+    nw = rec.get("nonwrap_control")
+    if nw:
+        out += (f"; when the scramble does not wrap the {nw['wrapped_from_year']}-{nw['wrapped_to_year']} survey "
+                f"readings into the {W.is_n} training quarters it is {nw['T']:.3f}")
+    return out + (". A review of release dates, data truncation and perturbation of later data found no use of a "
+                  "reading before its publication date, apart from the readings the circular scramble wraps by "
+                  "design.")
+
+
 def _r71_caveat() -> str:
-    """R7.1 failures flagged in the caveats from the null diagnosis flags; the numbers (pass or fail) are stated on
-    the chance-check panel by components.two_track.r71_note."""
+    """R7.1 failures flagged in the caveats: the construction-review disclosure when the calibrated reference is on
+    file, else the diagnosis flags; the numbers (pass or fail) are also stated on the chance-check panel by
+    components.two_track.r71_note."""
     out = []
     for lbl, key in (("as known at the time", "main"), ("as revised today", "comparison")):
         n = (_WS["tracks"].get(key) or {}).get("null_tournament") or {}
         if n.get("r71_pass") is not False:
+            continue
+        disclosure = _r71_disclosure() if key == "main" else ""
+        if disclosure:
+            out.append(f"on data {lbl} they do not meet it. {disclosure}")
             continue
         d = n.get("r71_diagnosis") or {}
         sign = "negative" if str(n.get("timing_sharpe_mean")).startswith("-") else "positive"
@@ -101,7 +136,7 @@ def _r71_caveat() -> str:
     if not out:
         return ""
     return ("6. **Chance-check calibration.** The scrambled contests should show no timing skill on average (the R7.1 "
-            "check); " + "; ".join(out) + ".\n")
+            "check); " + "; ".join(out) + ("" if out[-1].endswith(".") else ".") + "\n")
 
 
 _RULE = _rule()
@@ -478,11 +513,15 @@ class StrategyConfig:
     )
 
     STATISTICAL_FRAMING_BANNER = (
-        f"Correction (2026-10-18). This page previously reported the rule {W.previous_rule} (training Sharpe "
-        f"{W.previous_is_sharpe}, test-period Sharpe {W.previous_oos_sharpe}, published {W.previous_tag}), which "
-        "was the single highest training Sharpe on revised data with fixed lags, using the survey figures as "
-        "downloaded for that run. It now reports the rule selected on data as known at the time, with point-in-time "
-        "release dates and the stable-lead-range rule; today's revised data are shown for comparison only."
+        f"Correction (2026-10-20). The main site shows the rule {_MS_RULE} ({_MS['direction']}), which the legacy "
+        f"method chose by its test-period Sharpe of {_MS['oos_sharpe']:.2f}, so that legacy test-period result was not "
+        "a held-out result. "
+        f"An earlier run (a development run of {W.previous_tag} on the research branch spike261015_is_oos_floor, "
+        f"never published on the main site) reported the rule {W.previous_rule} ({W.previous_selection}: earlier-run "
+        f"training Sharpe {W.previous_is_sharpe}, earlier-run test-period Sharpe {W.previous_oos_sharpe}), the single "
+        "highest training Sharpe in its grid on the survey figures as downloaded for that run. The page now reports "
+        "the rule selected on data as known at the time, with point-in-time release dates and the stable-lead-range "
+        "rule; today's revised data are shown for comparison only."
     )
 
     PLAIN_ENGLISH = (
@@ -510,6 +549,7 @@ class StrategyConfig:
             "recession in it.",
             f"Test-period Sharpe difference versus buy-and-hold {W.sharpe_gap}, 95% interval {W.ci_low} to {W.ci_high}.",
             f"The orientation is {LEAN.get(_DIR, _DIR)}.",
+            f"The rule shown on the main site ({_MS_RULE}) was chosen by the legacy method on its test-period score.",
             f"The rule selected on revised data {'is the same' if _SAME_RULE else 'differs'} (hindsight test-period "
             f"Sharpe {W.comparison_oos_sharpe}, 95% interval {W.comparison_ci_low} to {W.comparison_ci_high}).",
         ] + ([f"The winner's training Sharpe ({W.is_sharpe}) is below buy-and-hold's over the same training quarters "
@@ -530,7 +570,9 @@ class StrategyConfig:
         {"label": "Tournament results (as known at the time)", "path": f"results/{PAIR}/tournament_results_{_TAG}.csv"},
         {"label": "Tournament results (as revised today, hindsight)",
          "path": f"results/{PAIR}/hindsight_tournament_results_{_TAG}.csv"},
-        {"label": "Previously published tournament", "path": f"results/{PAIR}/tournament_results_20261015.csv"},
+        {"label": f"Earlier run tournament (development run, {W.previous_tag})",
+         "path": f"results/{PAIR}/tournament_results_20261015.csv"},
+        {"label": "Main-site run tournament (legacy method)", "path": f"results/{PAIR}/tournament_results_20260830.csv"},
         {"label": "Bootstrap validation", "path": f"results/{PAIR}/tournament_validation_{_TAG}/bootstrap.csv"},
         {"label": "Stationarity tests", "path": f"results/{PAIR}/stationarity_tests_{_TAG}.csv"},
         {"label": "Winner trade log (broker style)", "path": f"results/{PAIR}/winner_trades_broker_style.csv"},
@@ -674,7 +716,8 @@ Grid: {P.length(_MAN['signals'])} signal transforms x threshold schemes x long/c
 - As revised today (hindsight): `{_RID_REVISED}`, training Sharpe {W.comparison_is_sharpe} ({W.comparison_is_start} to {W.comparison_is_end}), test-period Sharpe {W.comparison_oos_sharpe}.
 - Cross-evaluation: the headline rule scored on revised data has test-period Sharpe {W.ce_main_on_revised_oos_sharpe}; the hindsight rule scored on data as known at the time has {W.ce_revised_on_main_oos_sharpe}.
 - Chance check: across {W.null_draws} contests run on circularly shifted survey data, {_CHANCE_TEXT}.
-- Previously published rule: `{W.previous_rule}` ({W.previous_selection}), training Sharpe {W.previous_is_sharpe}, test-period Sharpe {W.previous_oos_sharpe}; the harness replays it exactly from the published panel.
+- Rule shown on the main site (legacy method): `{_MS_RULE}` ({_MS['direction']}), chosen by its legacy test-period Sharpe of {_MS['oos_sharpe']:.2f}; not replayed as a selection rule because it consulted the test period.
+- Earlier run (a development run of {W.previous_tag}, never on the main site): `{W.previous_rule}` ({W.previous_selection}), earlier-run training Sharpe {W.previous_is_sharpe}, earlier-run test-period Sharpe {W.previous_oos_sharpe}; the harness replays it exactly from that run's own panel.
 
 **Reproducibility notes.** Producer script: `scripts/pair_pipeline_{PAIR}.py` (harness spec `scripts/pair_spec_{PAIR}.py`), deterministic with fixed seeds. Charts: `scripts/generate_charts_{PAIR}.py`.
 """

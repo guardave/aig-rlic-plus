@@ -3,7 +3,7 @@
   "track": "revised",
   "role": "comparison",
   "winner_key": "level|T_roll_p50|P1|countercyclical|2",
-  "generated_at": "2026-10-18T07:07:32.961837+00:00",
+  "generated_at": "2026-10-20T11:17:27.753859+00:00",
   "vintage_policy": {
     "alignment": "pit_asof",
     "release_series": "DRTSCILM",
