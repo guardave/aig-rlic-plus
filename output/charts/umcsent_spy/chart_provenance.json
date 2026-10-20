@@ -3,7 +3,7 @@
   "chart_sha256": "6a530401e00ab848ab1781959b18f4cbdaa1fc84b3051a4584e618ab3efed961",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:53:56+00:00",
+  "recorded_at": "2026-10-20T14:47:53+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -17,7 +17,7 @@
   "chart_sha256": "e2e2057d78491f85c930da0dd66c8d4272ae00863db5398b01be4161bc1eb7e1",
   "results_tag": "20261020",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-20T13:54:55+00:00",
+  "recorded_at": "2026-10-20T14:48:54+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -40,10 +40,10 @@
   }
  },
  "correlation_heatmap": {
-  "chart_sha256": "7942ba06593922130ff2bc5955053c9f83d46c4c2633425c1acf599121b1411e",
+  "chart_sha256": "d672ea246bb9b5a122fc7eda06c3a401f75c9811d5c1ad3f80302f2c90976f79",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:53:52+00:00",
+  "recorded_at": "2026-10-20T14:47:48+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -56,7 +56,7 @@
   "chart_sha256": "1c7bd91f30301aaf046bf45c6d566cd4df3fa0259a3115b2c8f505a6a734768e",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:54:13+00:00",
+  "recorded_at": "2026-10-20T14:48:11+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -75,7 +75,7 @@
   "chart_sha256": "6936d1d4c5a9a73ab07710c161070d51280d9f29657d99c6361e569494aebe16",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:54:09+00:00",
+  "recorded_at": "2026-10-20T14:48:07+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -94,7 +94,7 @@
   "chart_sha256": "7622903d233c453a5fe4e77c627ad38ed94afaefaabb558575abaab04b21b534",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:53:59+00:00",
+  "recorded_at": "2026-10-20T14:47:56+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -106,20 +106,20 @@
   }
  },
  "hero": {
-  "chart_sha256": "d9dd947ae74db76ece42864d9da7ea7bfcf91011e98eef9976be2ac15aa1eb09",
+  "chart_sha256": "0867c53d172e30b10f242646599e5f5aa3a03f15529f35e60d7c14fea59365ca",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:53:45+00:00",
+  "recorded_at": "2026-10-20T14:47:41+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce"
   }
  },
  "history_zoom_covid": {
-  "chart_sha256": "01f609dd60293ee19f3e5a8ee411ffcc56a0afe2b50feee1474d7e0d50652beb",
+  "chart_sha256": "2c022676ac83e71e4f64dab3ba7294bbc6bf451cec1ea0d0d17be4dbe76ceea1",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:54:44+00:00",
+  "recorded_at": "2026-10-20T14:48:44+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -139,10 +139,10 @@
   }
  },
  "history_zoom_dotcom": {
-  "chart_sha256": "b6368f8afcf99ed1d250f03f093694bb40e60c8bbdb0f4a71acae4eddad0628e",
+  "chart_sha256": "40d001d962c587910fd26ddef008384231a2377bd5f70d2bd0abf0ff0ec3ca95",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:54:36+00:00",
+  "recorded_at": "2026-10-20T14:48:37+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -162,10 +162,10 @@
   }
  },
  "history_zoom_gfc": {
-  "chart_sha256": "124af81eff5a5ceb78b87789465c263d57a4d0bcfbe758373cdfb56de14e5a29",
+  "chart_sha256": "a1237469f0f2fec04d7238dd5741b9635c7d2ce59071f7213fc9c419e3b6706c",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:54:40+00:00",
+  "recorded_at": "2026-10-20T14:48:40+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -185,10 +185,10 @@
   }
  },
  "history_zoom_inflation_2022": {
-  "chart_sha256": "08d3f04cf3632156033793aaf7b8dd123ba8de977103966190ca9aaf93d29fc6",
+  "chart_sha256": "dc3b0eec35835b969803da897003a53a63c5f0e4bc516aeeb2db0c123931b417",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:54:48+00:00",
+  "recorded_at": "2026-10-20T14:48:47+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -211,7 +211,7 @@
   "chart_sha256": "a3377d526f2d278f835a116be0678256e0ebe9726577e16151a2f20bf67d1936",
   "results_tag": "20261020",
   "producer": "scripts/harness/charts.py",
-  "recorded_at": "2026-10-20T13:54:51+00:00",
+  "recorded_at": "2026-10-20T14:48:50+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -232,10 +232,10 @@
   }
  },
  "local_projections": {
-  "chart_sha256": "13458819b7c7008dca49f6a9617f05a2f3f12fc1f53e852e2166c5f174f8fc32",
+  "chart_sha256": "d89aa1c9cd44c8d635d2d7b36f0c8cf8b83a6cdc35ed660ab362b1bf30f52213",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:54:02+00:00",
+  "recorded_at": "2026-10-20T14:47:59+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -248,10 +248,10 @@
   }
  },
  "quantile_coef": {
-  "chart_sha256": "b6334fa8585e31e8f08a83d0f443910b196a20dfd734ca279ace7991bdb5a92d",
+  "chart_sha256": "c99f56385a526d41544f5a2bd598aa0212353da51dad9023ceba54a10d0c08a7",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:54:06+00:00",
+  "recorded_at": "2026-10-20T14:48:03+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -266,10 +266,10 @@
   }
  },
  "regime_stats": {
-  "chart_sha256": "816e72828cb436a39a4dcd989fdf443b69a75b229b16d87b267759b63059b65f",
+  "chart_sha256": "18f5cf1cce27e1f8aafe820906f5a374aedc44ee6d83eda5d21aaa0da66fc08e",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:53:48+00:00",
+  "recorded_at": "2026-10-20T14:47:45+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -281,7 +281,7 @@
   "chart_sha256": "ad03133b5c000801b4fad82fe9bb781c70599ba821da1ae8e0ec4a47dd814ea1",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:54:23+00:00",
+  "recorded_at": "2026-10-20T14:48:22+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -302,7 +302,7 @@
   "chart_sha256": "09ca7274760c49bf326a8e98d2fda2d335f1c1405f330d91ad0a82c0c7805a40",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:54:26+00:00",
+  "recorded_at": "2026-10-20T14:48:26+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -324,7 +324,7 @@
   "chart_sha256": "5ebe60f3cc03201f4f93d11e1ca03e4bc8e7dbae04c86fc1542300b747d4ac67",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:54:30+00:00",
+  "recorded_at": "2026-10-20T14:48:30+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -347,7 +347,7 @@
   "chart_sha256": "650a38695e301c645c60edaa1760bc9473d34e536bd410bc0861b4d882db38f5",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:54:19+00:00",
+  "recorded_at": "2026-10-20T14:48:18+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -367,7 +367,7 @@
   "chart_sha256": "650a38695e301c645c60edaa1760bc9473d34e536bd410bc0861b4d882db38f5",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:54:16+00:00",
+  "recorded_at": "2026-10-20T14:48:15+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",
@@ -387,7 +387,7 @@
   "chart_sha256": "5ebe60f3cc03201f4f93d11e1ca03e4bc8e7dbae04c86fc1542300b747d4ac67",
   "results_tag": "20261020",
   "producer": "scripts/generate_charts_umcsent_spy.py",
-  "recorded_at": "2026-10-20T13:54:33+00:00",
+  "recorded_at": "2026-10-20T14:48:33+00:00",
   "recorder": "entry-point:scripts/_cp_boot.py",
   "inputs": {
    "data/umcsent_spy_monthly_latest.parquet": "5214456a99418fa837e7a467354b51f760054bbb98223c105486ae60046333ce",

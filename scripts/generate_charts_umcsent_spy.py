@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Chart generation for the University of Michigan Expected Business Conditions x SPY (Phase B, single track:
-today's values from Data Master, no archive of past values). The series is the Michigan survey's expected business
-conditions index, not the headline Consumer Sentiment index (UMCSENT). Only NBER recession shading is used.
+today's values from Data Master, no archive of past values). The series is the share of Michigan survey respondents
+expecting better business conditions (percent; not a balance or diffusion index, not the headline Consumer Sentiment
+index UMCSENT). Only NBER recession shading is used.
 Captions carry no typed results: every number in a caption is read from the pipeline artifacts."""
 
 from __future__ import annotations
@@ -35,7 +36,14 @@ C_STRAT = "#009E73"
 C_BENCH = "#6C7A89"
 C_LINE = "#4D4D4D"
 C_STRESS = "#CC79A7"
-IND_NAME = "Michigan Expected Business Conditions"
+IND_NAME = "Michigan Expected Business Conditions (% expecting better)"
+IND_UNIT = "% of respondents expecting better business conditions"
+SIGNAL_LABEL = {   # heatmap rows: display names, not raw column ids (QA F4)
+    "umcsent_level": "Share expecting better (level)",
+    "umcsent_diff_1m": "Month-on-month change",
+    "umcsent_chg_12m": "12-month change",
+    "umcsent_zscore_60m": "60-month z-score",
+}
 
 
 def load_monthly() -> pd.DataFrame:
@@ -81,16 +89,16 @@ def chart_hero() -> None:
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     add_nber_shading(fig, x_min=df.index.min(), x_max=df.index.max())
     fig.add_trace(go.Scatter(x=df.index, y=df["umcsent"], name=IND_NAME, line=dict(color=C_IND, width=2),
-                             hovertemplate="%{x|%Y-%m}<br>Index: %{y:.0f}<extra></extra>"), secondary_y=False)
+                             hovertemplate="%{x|%Y-%m}<br>%{y:.0f}% expecting better<extra></extra>"), secondary_y=False)
     fig.add_trace(go.Scatter(x=df.index, y=df["spy"], name="SPY price", line=dict(color=C_TGT, width=1.6),
                              hovertemplate="%{x|%Y-%m}<br>SPY: %{y:.2f}<extra></extra>"), secondary_y=True)
     nber_legend(fig)
     fig.update_layout(title="Michigan Expected Business Conditions vs SPY", template="plotly_white", height=520,
                       hovermode="x unified", legend=dict(orientation="v", x=1.05, y=1), margin=dict(r=250))
-    fig.update_yaxes(title_text="Expected Business Conditions (survey index)", secondary_y=False)
+    fig.update_yaxes(title_text=IND_UNIT, secondary_y=False)
     fig.update_yaxes(title_text="SPY price", secondary_y=True)
-    save("hero", fig, "University of Michigan Expected Business Conditions index (Data Master; not the headline "
-         "Consumer Sentiment index) and SPY, with NBER recessions shaded. Values as revised today (no archive of "
+    save("hero", fig, "University of Michigan Expected Business Conditions, the share of respondents expecting "
+         "better business conditions (Data Master; not the headline Consumer Sentiment index), and SPY, with NBER recessions shaded. Values as revised today (no archive of "
          "past values).", [f"data/{PAIR}_monthly_latest.parquet"])
 
 
@@ -99,7 +107,7 @@ def chart_regime_stats() -> None:
     labels = ["Q1<br>lowest", "Q2", "Q3", "Q4<br>highest"]
     fig = make_dual_panel_regime_chart(
         labels, q["sharpe"].astype(float).tolist(), (q["mean_return"].astype(float) * 12 * 100).tolist(),
-        signal_label="index level", x_axis_title="Quartile of the Expected Business Conditions level",
+        signal_label="share expecting better", x_axis_title="Quartile of the share expecting better business conditions",
         axis_noun="", sample_sizes=q["n"].astype(int).tolist())
     fig.update_layout(title=dict(text="SPY Returns by Expected Business Conditions Regime", y=0.98), margin=dict(t=150))
     save("regime_stats", fig, "SPY performance in the same month across quartiles of the Michigan Expected Business "
@@ -109,7 +117,7 @@ def chart_regime_stats() -> None:
 def chart_correlation_heatmap() -> None:
     corr = pd.read_csv(CORE / "correlations.csv")
     sub = corr[corr["metric"] == "pearson"].copy()
-    sub["signal"] = sub["pair_name"].str.replace(r"_to_spy_fwd_\d+m", "", regex=True)
+    sub["signal"] = sub["pair_name"].str.replace(r"_to_spy_fwd_\d+m", "", regex=True).map(SIGNAL_LABEL)
     sub["h"] = sub["pair_name"].str.extract(r"fwd_(\d+)m")[0].astype(int)
     piv = sub.pivot_table(index="signal", columns="h", values="value", aggfunc="first").sort_index(axis=1)
     fig = go.Figure(go.Heatmap(z=piv.values, x=[f"{h}m" for h in piv.columns], y=piv.index, colorscale="RdBu",
@@ -160,9 +168,9 @@ def chart_local_projections() -> None:
                            error_y=dict(type="data", array=half, visible=True, thickness=1.5, color=C_LINE)))
     fig.add_hline(y=0, line_color=C_LINE)
     fig.update_layout(title="Local Projection: SPY Response to Higher Expected Conditions", xaxis_title="Forward horizon",
-                      yaxis_title="Coefficient (95% HAC CI whiskers)", template="plotly_white", height=430)
-    save("local_projections", fig, "Estimated forward SPY return per index point of Michigan Expected Business "
-         "Conditions (Newey-West errors).", [str(CORE / "local_projections.csv")])
+                      yaxis_title="Forward return per percentage point (95% HAC CI)", template="plotly_white", height=430)
+    save("local_projections", fig, "Estimated forward SPY return per percentage point of respondents expecting better "
+         "business conditions (Newey-West errors).", [str(CORE / "local_projections.csv")])
 
 
 def chart_quantile() -> None:
@@ -180,7 +188,7 @@ def chart_quantile() -> None:
                        xref="paper", yref="paper", x=0, y=1.14, showarrow=False, font=dict(size=11), align="left")
     fig.update_layout(margin=dict(t=110), title=dict(text="Quantile Regression Coefficient", y=0.97),
                       xaxis_title="Quantile of 3-month forward SPY return",
-                      yaxis_title="Index level coefficient (95% CI whiskers)", template="plotly_white", height=430)
+                      yaxis_title="Coefficient per percentage point (95% CI whiskers)", template="plotly_white", height=430)
     save("quantile_coef", fig, "Expected Business Conditions level coefficient across quantiles of 3-month forward SPY "
          "returns.", [str(CORE / "quantile_regression.csv"), str(CORE / "quantile_equality_test.json")])
 
@@ -286,7 +294,7 @@ def chart_history_zoom(slug: str, title: str, start: str, end: str) -> None:
     if any(pd.Timestamp(a) <= pd.Timestamp(end) and pd.Timestamp(b) >= pd.Timestamp(start) for a, b in RECESSIONS):
         nber_legend(fig)
     fig.update_layout(title=title, template="plotly_white", height=430, hovermode="x unified")
-    fig.update_yaxes(title_text="Expected conditions", secondary_y=False)
+    fig.update_yaxes(title_text="% expecting better", secondary_y=False)
     fig.update_yaxes(title_text="SPY", secondary_y=True)
     from harness.charts import zoom_dual_panel  # VIZ-V1: indicator and target in stacked panels
     fig = zoom_dual_panel(fig)

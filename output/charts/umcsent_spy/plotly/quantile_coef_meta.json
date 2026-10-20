@@ -1,7 +1,7 @@
 {
   "chart_name": "quantile_coef",
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-10-20T11:45:55.444581+00:00",
+  "generated_at": "2026-10-20T14:48:07.587670+00:00",
   "generated_by": "scripts/generate_charts_umcsent_spy.py",
   "caption": "Expected Business Conditions level coefficient across quantiles of 3-month forward SPY returns.",
   "narrative_alignment_note": "Expected Business Conditions level coefficient across quantiles of 3-month forward SPY returns.",

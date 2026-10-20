@@ -1,7 +1,7 @@
 {
   "chart_name": "correlation_heatmap",
   "pair_id": "umcsent_spy",
-  "generated_at": "2026-10-20T11:45:37.194818+00:00",
+  "generated_at": "2026-10-20T14:47:53.157035+00:00",
   "generated_by": "scripts/generate_charts_umcsent_spy.py",
   "caption": "Pearson correlations between Michigan Expected Business Conditions signals and forward SPY returns.",
   "narrative_alignment_note": "Pearson correlations between Michigan Expected Business Conditions signals and forward SPY returns.",
