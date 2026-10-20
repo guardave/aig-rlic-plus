@@ -1,8 +1,0 @@
-{
-  "method": "block-bootstrap Wald (block 6, 999 draws, seed 42)",
-  "stat": 10.263358847757363,
-  "df": 4,
-  "p_value": 0.03621757635025868,
-  "reject_equality": true,
-  "n": 402
-}

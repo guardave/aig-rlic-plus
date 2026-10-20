@@ -7,8 +7,8 @@ The tournament runs on scripts/harness (spec: scripts/pair_spec_consumer_sentime
   * COMPARISON, "As revised today (hindsight)": today's revised values with point-in-time release timing.
 Each track selects its own winner on in-sample data by the D9 lead-plateau rule over the registry grid L1..L13
 (position.shift(1): effective lag >= 2 months); null tournament K=100, paired block bootstrap vs buy-and-hold SPY,
-leak tests. The published 20261015 run (raw IS-Sharpe argmax, fixed lags, no position shift) is replayed exactly
-by the harness (LEGACY_SPEC).
+leak tests. The earlier development run 20261015 (raw IS-Sharpe argmax, fixed lags, no position shift; never on the
+main site) is replayed exactly by the harness (LEGACY_SPEC); the main-site rule (run 20261009) is recorded for reference.
 
 The headline sentiment index (FRED UMCSENT, range ~50-112) is NOT the expected-business-conditions diffusion used
 by umcsent_spy; umcsent_xlv uses the same series against XLV.
@@ -37,12 +37,14 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
 import pair_spec_consumer_sentiment_spy as spec_mod  # noqa: E402
-from harness.artifacts import trade_log, winner_series  # noqa: E402
+from harness.artifacts import trade_log, winner_series, write_json  # noqa: E402
 from harness.evidence import evidence_path, write_evidence_facts  # noqa: E402
 from harness.run import run_pair  # noqa: E402
 
 PAIR_ID = "consumer_sentiment_spy"
-DATE_TAG = "20261018"  # Phase B B1: harness, two tracks, D9 plateau, registry grid L1..L13, null K=100, bootstrap
+DATE_TAG = "20261020"  # Phase B B1 post-Codex rerun: harness v2 (run_tag), data.py last-row fix, null v4
+MAIN_SITE_TAG = "20261009"  # the run whose rule the main site shows (OOS-selected, legacy method)
+TROUGH_EPISODES = {"gfc": ("2007-01-31", "2010-12-31"), "rates_2022": ("2021-06-30", "2023-12-31")}
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
 EXPECTED_DIRECTION = "procyclical"
@@ -134,6 +136,25 @@ def trade_reason(winner: dict) -> str:
     return f"{winner['signal_code']} {winner['direction']} rule crossed {winner['threshold_code']}"
 
 
+def main_site_rule() -> dict:
+    """The rule shown on the main site: winner of run 20261009 (strategy_returns_20261009_meta.json winner key),
+    its row in tournament_results_20261009.csv. That run selected on test-period Sharpe (its is_sharpe column
+    holds the OOS values), so it is reported as the main-site rule, not replayed as a selection rule."""
+    meta = json.loads((RES / f"strategy_returns_{MAIN_SITE_TAG}_meta.json").read_text())
+    sig, thr, dirn, lead = meta["winner_key"].split("|")
+    t = pd.read_csv(RES / f"tournament_results_{MAIN_SITE_TAG}.csv")
+    r = t[(t["signal"] == sig) & (t["threshold"] == thr) & (t["direction"] == dirn) & (t["lead_months"] == int(lead))]
+    if len(r) != 1:
+        raise ValueError(f"main-site rule {meta['winner_key']} not found once in tournament_results_{MAIN_SITE_TAG}")
+    r = r.iloc[0]
+    return {"signal": sig, "threshold": thr, "direction": dirn, "lead_value": int(lead),
+            "oos_sharpe": float(r["oos_sharpe"]), "tag": MAIN_SITE_TAG,
+            "source": f"tournament_results_{MAIN_SITE_TAG}.csv row {int(r.name)}, "
+                      f"strategy_returns_{MAIN_SITE_TAG}_meta.json winner_key",
+            "note": "Rule shown on the main site (run 20261009), selected on its test-period Sharpe (legacy method); "
+                    "reference only, not a selection rule."}
+
+
 def run_tournament() -> tuple[pd.DataFrame, dict, dict]:
     out = run_pair(PAIR_ID, DATE_TAG, K=100, extra={
         "target_symbol": TARGET_SYMBOL, "cost_bps": COST_BPS,
@@ -141,9 +162,17 @@ def run_tournament() -> tuple[pd.DataFrame, dict, dict]:
         "strategy_description": "Hold SPY when the lagged consumer-sentiment signal is on the favorable side of "
                                 "its threshold; otherwise cash (long/cash).",
         "notes": "Headline U. Michigan consumer sentiment is a monthly household survey. Headline = as known at the "
-                 "time (real-time vintages); still a search-selected rule. The published 20261015 rule (raw "
-                 "in-sample Sharpe argmax, fixed lags) is replayed exactly and kept as the previous rule."})
+                 "time (real-time vintages); still a search-selected rule. The main site shows the 20261009 rule "
+                 "(OOS-selected, legacy method); the earlier development run 20261015 (raw in-sample Sharpe argmax, "
+                 "fixed lags, never on the main site) is replayed exactly and kept as the previous rule."})
     winner = json.loads((RES / "winner_summary.json").read_text())
+    # the rule the main site still shows (run 20261009, OOS-selected): recorded next to the selection as the
+    # legacy_oos_selected_row, read from that run's immutable files; reference only, never a selection rule
+    winner["selection"]["legacy_oos_selected_row"] = main_site_rule()
+    write_json(RES / "winner_summary.json", winner, "winner_summary")
+    from harness import charts as HC            # re-record the harness charts on the amended summary (provenance)
+    HC.lead_plateau(PAIR_ID, DATE_TAG, spec_mod.SPEC.lead_unit)
+    HC.chance_check(PAIR_ID, DATE_TAG)
     tourn = pd.read_csv(RES / f"tournament_results_{DATE_TAG}.csv")
     tourn["valid"] = tourn["valid"].astype(bool)
     res = out["results"]["main"]
@@ -337,7 +366,7 @@ def write_metadata(winner: dict, elapsed: float) -> None:
         "confidence": "low",
         "key_finding": f"As known at the time (real-time UMCSENT vintages), the rule selected on in-sample data uses "
                        f"{winner['signal_code']} / {winner['threshold_code']} at L{winner['lead_value']} "
-                       f"(IS Sharpe {winner['is_sharpe']:.2f}); held-out OOS Sharpe {winner['oos_sharpe']:.2f} "
+                       f"(IS Sharpe {winner['is_sharpe']:.2f}); test-period Sharpe {winner['oos_sharpe']:.2f} "
                        f"versus buy-and-hold SPY {winner['bh_sharpe']:.2f}.",
         "caveats": [
             "The strategy is search-selected and needs a frozen-rule holdout confirmation.",
@@ -415,7 +444,7 @@ def write_metadata(winner: dict, elapsed: float) -> None:
             "signal_name": "Lead robustness", "proposed_by": "evan", "source": "FRED",
             "observation": f"The rule selected on in-sample data uses a lead of {winner['lead_value']} months on the "
                            f"{winner['signal_display_name'].lower()} ({winner['direction']}, "
-                           f"{winner['threshold_code']}); held-out OOS max drawdown {winner['oos_max_drawdown']:.1%} "
+                           f"{winner['threshold_code']}); test-period max drawdown {winner['oos_max_drawdown']:.1%} "
                            f"vs buy-and-hold {winner['bh_max_drawdown']:.1%}.",
             "rationale": "Sentiment cycles in the sample are few, so the lead needs adjacent-lead durability on new data.",
             "possible_use_case": "robustness check",
@@ -431,6 +460,15 @@ NARRATIVE_SOURCES = ["regime_quartile_returns.csv", "granger_by_lag.csv", "subpe
                      f"core_models_{DATE_TAG}/quantile_equality_test.json",
                      f"core_models_{DATE_TAG}/local_projections.csv",
                      f"core_models_{DATE_TAG}/ccf_prewhitened.csv"]
+
+
+def _troughs(df: pd.DataFrame, start: str, end: str) -> dict:
+    """Month of the lowest sentiment reading and of the lowest SPY month-end close in an episode window (revised
+    panel), and the months by which the sentiment low came first."""
+    w = df.loc[start:end]
+    s, p = w["umcsent"].idxmin(), w["spy"].idxmin()
+    return {"sentiment_low": s.strftime("%Y-%m"), "spy_low": p.strftime("%Y-%m"),
+            "trough_lead": int((p.year - s.year) * 12 + p.month - s.month)}
 
 
 def write_narrative_provenance(df: pd.DataFrame) -> None:
@@ -461,6 +499,7 @@ def write_narrative_provenance(df: pd.DataFrame) -> None:
         "ccf_sentiment_first": {"lag": [int(v) for v in ccf.loc[ccf["significant"] & (ccf["lag"] > 0), "lag"]]},
         "ccf_spy_first": {"lag": [int(-v) for v in ccf.loc[ccf["significant"] & (ccf["lag"] < 0), "lag"]]},
         "panel_first_month": df["umcsent"].first_valid_index().strftime("%Y-%m"),
+        **{f"trough_{k}": _troughs(df, a, b) for k, (a, b) in TROUGH_EPISODES.items()},
     })
 
 

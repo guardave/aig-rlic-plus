@@ -4,8 +4,9 @@ Phase B: every result number is rendered from the structured winner fields (resu
 winner_summary.json `winner_fields`, via components.winner_fields), the track summary, or the evidence tables and
 derived facts declared in evidence_facts_<tag>.json; none is typed here (scripts/gate_structured_prose.py,
 scripts/gate_number_provenance.py). MAIN = as known at the time (real-time UMCSENT vintages); COMPARISON = as
-revised today (hindsight). The previously published rule (raw in-sample Sharpe argmax, fixed lags, 20261015) is
-replayed exactly by the harness; the correction banner names it from the previous_* fields.
+revised today (hindsight). The correction banner names the rule the main site shows (run 20261009, OOS-selected;
+winner_summary selection.legacy_oos_selected_row) and the earlier development run (20261015, raw in-sample Sharpe
+argmax, fixed lags; never on the main site), which the harness replays exactly (previous_* fields).
 """
 
 from __future__ import annotations
@@ -44,6 +45,11 @@ _GRID_RANGE = f"L{_GRID[0]}-L{_GRID[-1]}"
 _EDGE = bool(((_WS.get("tracks") or {}).get("main") or {}).get("plateau", {}).get("grid_edge"))
 _CCF_LEAD = _EV["ccf_sentiment_first"]["lag"]
 _CCF_LAG = _EV["ccf_spy_first"]["lag"]
+_TR_GFC = _EV["trough_gfc"]
+_TR_22 = _EV["trough_rates_2022"]
+# the rule the main site shows (run 20261009, chosen on its test-period Sharpe), recorded by the pipeline
+_MS = _WS["selection"]["legacy_oos_selected_row"]
+_MS_RULE = f"{_MS['signal']} / {_MS['threshold']} / L{_MS['lead_value']}"
 
 
 def _lags(v) -> str:
@@ -142,13 +148,13 @@ class StoryConfig:
 
     ONE_SENTENCE_THESIS = (
         f"On data as known at the time, the rule selected on the training period is to {_RULE}; in the test period "
-        f"it scored Sharpe {W.oos_sharpe}, and buy-and-hold SPY scored {W.bh_oos_sharpe}."
+        f"it scored Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold SPY."
     )
 
     KPI_CAPTION = (
         f"Winner selected on training data ({W.is_start} to {W.is_end}) by {W.selection_objective}: "
-        f"{_SIG}, {W.threshold_code}, long/cash, lead {W.lead_text}. Test-period Sharpe {W.oos_sharpe}; "
-        f"buy-and-hold SPY {W.bh_oos_sharpe} ({W.oos_start} to {W.oos_end})."
+        f"{_SIG}, {W.threshold_code}, long/cash, lead {W.lead_text}. Test-period Sharpe {W.oos_sharpe} "
+        f"versus {W.bh_oos_sharpe} for buy-and-hold SPY ({W.oos_start} to {W.oos_end})."
     )
 
     HERO_TITLE = "U. Michigan Consumer Sentiment vs the S&P 500 (SPY)"
@@ -204,10 +210,10 @@ Sentiment reacts to the same news that moves stock prices, often in the same mon
          "caption": "2022: very low sentiment during the rate shock."},
     ]
 
-    NARRATIVE_SECTION_2 = """
+    NARRATIVE_SECTION_2 = f"""
 ### What History Shows
 
-In these episodes sentiment mostly moved with, rather than ahead of, the equity drawdowns, and after the 2020 and 2022 declines it recovered more slowly than SPY. They are context for reading the strategy result, not evidence that the rule adds value; the test-period comparison with buy-and-hold is on the Strategy page.
+In the financial crisis and the 2022 rate shock the sentiment low came before the SPY low: {_TR_GFC['sentiment_low']} versus {_TR_GFC['spy_low']} ({_TR_GFC['trough_lead']} months apart), and {_TR_22['sentiment_low']} versus {_TR_22['spy_low']} ({_TR_22['trough_lead']} months apart). In the dot-com bust sentiment stayed high into the equity decline, and after the 2020 and 2022 declines it recovered more slowly than SPY. These episodes are context for reading the strategy result, not evidence that the rule adds value; the test-period comparison with buy-and-hold is on the Strategy page.
 """
 
     TRANSITION_TEXT = (
@@ -372,10 +378,13 @@ class StrategyConfig:
     )
 
     STATISTICAL_FRAMING_BANNER = (
-        f"Correction (2026-10-18). This page previously reported the rule {W.previous_rule} ({W.previous_selection}: "
-        f"test-period Sharpe {W.previous_oos_sharpe}, published {W.previous_tag}). That rule was the single highest "
-        "training-period Sharpe in its grid, on consumer-sentiment data as downloaded for that run, with each "
-        "position earning the same month's return. The page now reports the rule selected on the training period "
+        f"Correction (2026-10-20). The main site shows the rule {_MS_RULE} ({_MS['direction']}), "
+        f"which the legacy method chose by its test-period Sharpe of {_MS['oos_sharpe']:.2f}, so that legacy "
+        "test-period result was not a held-out result. "
+        f"An earlier run (a development run of {W.previous_tag}, never published on the main site) reported the "
+        f"rule {W.previous_rule} ({W.previous_selection}: earlier-run test-period Sharpe {W.previous_oos_sharpe}). "
+        "That earlier run's rule was the single highest training-period Sharpe in its grid, on consumer-sentiment "
+        "data as downloaded for that run, with each position earning the same month's return. The page now reports the rule selected on the training period "
         "from data as known at the time, with point-in-time release dates, each position applied to the following "
         "month's return and the stable-lead-range rule; today's revised data are shown for comparison only."
     )
@@ -397,12 +406,13 @@ class StrategyConfig:
             f"Test-period Sharpe difference versus buy-and-hold {W.sharpe_gap}, 95% interval {W.ci_low} to {W.ci_high}.",
             f"The rule selected on revised data {'is the same' if _SAME_RULE else 'differs'} (hindsight test-period "
             f"Sharpe {W.comparison_oos_sharpe}).",
-            f"The previously published rule ({W.previous_rule}) used a lag not in the current grid (each position "
+            f"The rule shown on the main site ({_MS_RULE}) was chosen by the legacy method on its test-period score.",
+            f"The earlier run's rule ({W.previous_rule}, a development run never on the main site) used a lag not in the current grid (each position "
             "earned the same month's return).",
         ] + ([f"The stable lead range {W.plateau_range} sits at the edge of the declared lead grid ({_GRID_RANGE} "
               "months); leads beyond the grid were not tested."] if _EDGE else []),
         conclusion=(
-            f"Rule {_RID}: test-period Sharpe {W.oos_sharpe} (buy-and-hold SPY: {W.bh_oos_sharpe}; {W.oos_start} "
+            f"Rule {_RID}: test-period Sharpe {W.oos_sharpe} versus {W.bh_oos_sharpe} for buy-and-hold SPY ({W.oos_start} "
             f"to {W.oos_end}), maximum drawdown {W.oos_max_drawdown} versus {W.bh_oos_max_drawdown}, on "
             "consumer-sentiment data as known at the time."
         ),
@@ -414,7 +424,7 @@ class StrategyConfig:
         {"label": "Tournament results (as known at the time)", "path": f"results/{PAIR}/tournament_results_{_TAG}.csv"},
         {"label": "Tournament results (as revised today, hindsight)",
          "path": f"results/{PAIR}/hindsight_tournament_results_{_TAG}.csv"},
-        {"label": f"Previously published tournament ({W.previous_tag})",
+        {"label": f"Earlier run tournament (development run, {W.previous_tag})",
          "path": f"results/{PAIR}/tournament_results_{W.value('previous_tag')}.csv"},
         {"label": "Stationarity tests", "path": f"results/{PAIR}/stationarity_tests_{_TAG}.csv"},
     ]
@@ -472,11 +482,12 @@ This describes the backtested rule so it can be audited; it is not a trading rec
     CAVEATS_MD = f"""
 **Main caveats:**
 
-- The result is marked `found_in_search`; it still needs a frozen-rule holdout confirmation.
+- The result is marked as found in the search; it still needs a frozen-rule holdout confirmation.
 - The headline uses sentiment data as known at the time. On today's revised data the selected rule {'is the same' if _SAME_RULE else 'is different'} (test-period Sharpe {W.comparison_oos_sharpe}, hindsight).
-- The previously published rule ({W.previous_rule}, {W.previous_selection}) is replayed exactly on the new framework.
-- The previously published rule used a signal lag of {W.previous_lead_text} with the position earning the same month's return, which is outside the current grid.
-- The test window was seen by the previously published run, so it is not a frozen hold-out.
+- The main site shows the legacy rule {_MS_RULE}, chosen by the legacy method on its test-period Sharpe; it is not replayed as a selection rule because it consulted the test period.
+- The earlier run's rule ({W.previous_rule}, {W.previous_selection}; a development run of {W.previous_tag}, never on the main site) is replayed exactly on the new framework.
+- The earlier run's rule used a signal lag of {W.previous_lead_text} with the position earning the same month's return, which is outside the current grid.
+- The test window was seen by the earlier runs, so it is not a frozen hold-out.
 - Sentiment reacts to the same news as equities; much of its movement is concurrent with, not ahead of, the market.
 {_R71_CAVEAT}
 """
@@ -540,7 +551,8 @@ Grid: sentiment transforms x zero, fixed z-score and rolling-percentile threshol
 - As revised today (hindsight): `{_RID_REVISED}`, training Sharpe {W.comparison_is_sharpe}, test-period Sharpe {W.comparison_oos_sharpe}.
 - Cross-evaluation: the headline rule scored on revised data has test-period Sharpe {W.ce_main_on_revised_oos_sharpe}; the hindsight rule scored on data as known at the time has {W.ce_revised_on_main_oos_sharpe}.
 - Chance check: across {W.null_draws} contests run on circularly shifted sentiment data, {_CHANCE_TEXT}.
-- Previously published rule: `{W.previous_rule}` ({W.previous_selection}), test-period Sharpe {W.previous_oos_sharpe}; replayed exactly on the new framework from the published run's own data.
+- Rule shown on the main site (legacy method): `{_MS_RULE}` ({_MS['direction']}), chosen by its legacy test-period Sharpe of {_MS['oos_sharpe']:.2f}; not replayed as a selection rule because it consulted the test period.
+- Earlier run (a development run of {W.previous_tag}, never on the main site): `{W.previous_rule}` ({W.previous_selection}), earlier-run test-period Sharpe {W.previous_oos_sharpe}; replayed exactly on the new framework from that run's own data.
 """
 
 _REFERENCES_MD = """

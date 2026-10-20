@@ -24,7 +24,7 @@ from _nber import RECESSIONS, add_nber_shading  # noqa: E402
 from _quartile_chart import make_dual_panel_regime_chart  # noqa: E402
 
 PAIR = "consumer_sentiment_spy"
-DATE_TAG = "20261018"
+DATE_TAG = "20261020"
 RES = REPO / "results" / PAIR
 CORE = RES / f"core_models_{DATE_TAG}"
 PANEL = "data/consumer_sentiment_spy_monthly_latest.parquet"
@@ -133,8 +133,9 @@ def chart_correlation_heatmap() -> None:
     fig.update_layout(title="Correlation: Consumer-Sentiment Signals vs Forward SPY Returns", template="plotly_white",
                       height=520, xaxis_title="Forward SPY return horizon",
                       annotations=[dict(text=f"* HAC (Newey-West) p < {a}, lags at least horizon - 1", xref="paper",
-                                        yref="paper", x=0, y=-0.16, showarrow=False, font=dict(size=11))],
-                      margin=dict(b=110))
+                                        yref="paper", x=0, y=-0.27, xanchor="left", showarrow=False,
+                                        font=dict(size=11))],
+                      margin=dict(b=130))
     save("correlation_heatmap", fig, "Pearson correlations between consumer-sentiment transforms and forward SPY "
          "returns; stars mark HAC p-values below the significance level.", [rel(CORE / "correlations.csv"), rel(FACTS)])
 
@@ -306,6 +307,12 @@ def chart_history_zoom(slug: str, title: str, start: str, end: str) -> None:
 
 
 def main() -> None:
+    # harness charts (lead plateau, chance check) re-recorded on the final winner_summary, which the pipeline
+    # amends after run_pair (main-site rule record)
+    from harness import charts as HC
+    import pair_spec_consumer_sentiment_spy as spec_mod
+    HC.lead_plateau(PAIR, DATE_TAG, spec_mod.SPEC.lead_unit)
+    HC.chance_check(PAIR, DATE_TAG)
     chart_hero()
     chart_regime_stats()
     chart_correlation_heatmap()

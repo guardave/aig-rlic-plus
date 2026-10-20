@@ -2,9 +2,10 @@
 
 Signals are functions of the UMCSENT level only, so the same code runs on the revised panel and inside every
 ALFRED vintage. Signal formulas, threshold families, the long/cash position rule and both orientations follow the
-published pipeline (scripts/pair_pipeline_consumer_sentiment_spy.py at 3433194c, run 20261015).
+earlier development pipeline (scripts/pair_pipeline_consumer_sentiment_spy.py at 3433194c, run 20261015;
+never merged to the main site, which shows the OOS-selected 20261009 rule).
 
-Legacy = that published 20261015 run. It selected its rule by raw IN-SAMPLE Sharpe argmax on a common IS start
+Legacy = that 20261015 development run. It selected its rule by raw IN-SAMPLE Sharpe argmax on a common IS start
 (latest first-valid return over the whole grid), NaN returns dropped, IS validity = >= 60 returns, exposure in
 [0.05, 0.95], sd > 0; positions = fixed shift(lead) of the revised series with NO extra position shift (the
 position of row t earns the return of row t). LEGACY_SPEC replays exactly that (Legacy.selection "is_argmax",
@@ -74,7 +75,7 @@ LEGACY_SPEC = replace(
                   ann_return="geometric", round_table=None, selection="is_argmax", is_window="common"),
 )
 LEGACY_TAG = "20261015"
-LEGACY_REPLAY = "is_argmax"          # replayable: the published rule was IS-selected (see module docstring)
+LEGACY_REPLAY = "is_argmax"          # replayable: the 20261015 rule was IS-selected (see module docstring)
 
 SIGNAL_DISPLAY = {
     "level": "Consumer sentiment level",
@@ -103,6 +104,6 @@ def target_return(index: pd.DatetimeIndex):
 
 
 def legacy_panel() -> tuple[pd.DataFrame, pd.Series]:
-    """The published 20261015 run's own panel (UMCSENT as downloaded on 2026-10-15, its SPY pull) and returns."""
+    """The 20261015 development run's own panel (UMCSENT as downloaded on 2026-10-15, its SPY pull) and returns."""
     df = load_pinned("consumer_sentiment_spy_monthly_legacy_20261015.csv")
     return df[["umcsent"]], df["spy_ret"]
