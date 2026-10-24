@@ -1,0 +1,5 @@
+regime,n_months,mean_monthly_ret_pct,ann_return_pct,ann_vol_pct,sharpe,skewness,kurtosis,min_monthly_pct,max_monthly_pct
+Q1_low,83,0.465,5.58,17.93,0.311,-0.208,0.353,-14.48,12.59
+Q2,83,1.266,15.19,12.73,1.194,-0.403,-0.002,-8.11,9.06
+Q3,83,0.665,7.98,13.74,0.581,-0.251,-0.089,-9.35,9.02
+Q4_high,83,0.702,8.42,11.69,0.72,-0.259,0.058,-7.96,9.3

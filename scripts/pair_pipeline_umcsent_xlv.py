@@ -41,7 +41,7 @@ from harness.run import run_pair  # noqa: E402
 PAIR_ID = "umcsent_xlv"
 INDICATOR_NAME = "University of Michigan Consumer Sentiment"
 TARGET_NAME = "Health Care Select Sector (XLV)"
-DATE_TAG = "20261017"  # Phase B B1: harness, two tracks, D9 plateau, registry grid L1..L13, null K=100, bootstrap
+DATE_TAG = "20261020"  # Phase B B1: harness, two tracks, D9 plateau, registry grid L1..L13, null K=100, bootstrap
 TARGET_SYMBOL = "XLV"
 COST_BPS = 5
 EXPECTED_DIRECTION = "procyclical"
@@ -982,7 +982,7 @@ def write_metadata(model_results: dict, winner: dict, elapsed: float) -> None:
             "canonical_column": "xlv", "display_name": "Health Care Select Sector (XLV)",
             "derivatives": [
                 der("xlv", "XLV adjusted month-end close (dividends and splits).",
-                    "pinned: data/phaseB_inputs/xlv_month_end_20261017.csv", "raw",
+                    "pinned month-end extract", "raw",
                     ["hero", "history_zoom_dotcom", "history_zoom_gfc", "history_zoom_covid",
                      "history_zoom_inflation_2022"]),
                 der("xlv_ret", "XLV monthly return.", "xlv.pct_change()", "derivative",

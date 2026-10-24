@@ -27,7 +27,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 BASE_DIR = str(Path(__file__).resolve().parents[1])
 PAIR_ID = "umcsent_xlv"
-DATE_TAG = "20261017"
+DATE_TAG = "20261020"
 EXPECTED_DIRECTION = "procyclical"
 RESULTS_DIR = os.path.join(BASE_DIR, "results", PAIR_ID)
 EXPLORE_DIR = os.path.join(RESULTS_DIR, f"exploratory_{DATE_TAG}")

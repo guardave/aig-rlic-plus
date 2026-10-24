@@ -12,9 +12,9 @@
   "narrative_alignment_note": "Rendered from the harness MAIN-track strategy returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/umcsent_xlv/strategy_returns_20261017.csv",
+    "results/umcsent_xlv/strategy_returns_20261020.csv",
     "results/umcsent_xlv/winner_summary.json"
   ],
-  "generated_at": "2026-10-18T00:33:43.651518+00:00",
+  "generated_at": "2026-10-24T11:17:55.040228+00:00",
   "generated_by": "Viz Vera - scripts/generate_charts_umcsent_xlv.py"
 }

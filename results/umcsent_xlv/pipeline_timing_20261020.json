@@ -1,0 +1,14 @@
+{
+  "pair_id": "umcsent_xlv",
+  "elapsed_seconds": 545.6934018135071,
+  "stage_times": {
+    "1_2_panel": 0.1,
+    "3_stationarity_and_quality": 0.8,
+    "4_exploratory": 0.6,
+    "5_core_models": 109.2,
+    "5b_rolling_stability": 9.2,
+    "6_tournament_harness": 425.7,
+    "7_validation": 0.0
+  },
+  "generated_at": "2026-10-20T15:51:47.713662+00:00"
+}

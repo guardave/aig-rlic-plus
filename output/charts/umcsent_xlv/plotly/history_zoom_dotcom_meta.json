@@ -11,6 +11,6 @@
   "source_artifacts": [
     "data/umcsent_xlv_monthly_latest.parquet"
   ],
-  "generated_at": "2026-10-18T00:34:28.550110+00:00",
+  "generated_at": "2026-10-24T11:18:40.406870+00:00",
   "generated_by": "Viz Vera - scripts/generate_charts_umcsent_xlv.py"
 }
