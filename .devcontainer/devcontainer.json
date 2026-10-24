@@ -32,7 +32,7 @@
 	// Ensure every bind-mount source exists on the host before the mount runs —
 	// Docker would otherwise create a root-owned directory in its place.
 	// Uses python for cross-platform compatibility (macOS, Linux, Windows/WSL2).
-	"initializeCommand": "python3 -c \"import pathlib; h=pathlib.Path.home(); [ (h/d).mkdir(parents=True,exist_ok=True) for d in ['.claude','.codex','.agents','.oci','.config/gh','.config/tmux'] ]; (h/'.claude.json').touch(exist_ok=True); (h/'.gitconfig').touch(exist_ok=True)\" || python -c \"import pathlib; h=pathlib.Path.home(); [ (h/d).mkdir(parents=True,exist_ok=True) for d in ['.claude','.codex','.agents','.oci','.config/gh','.config/tmux'] ]; (h/'.claude.json').touch(exist_ok=True); (h/'.gitconfig').touch(exist_ok=True)\"",
+	"initializeCommand": "python3 -c \"import pathlib; h=pathlib.Path.home(); [ (h/d).mkdir(parents=True,exist_ok=True) for d in ['.claude','.codex','.agents','.oci','.config/gh','.config/tmux','claude-tmp'] ]; (h/'.claude.json').touch(exist_ok=True); (h/'.gitconfig').touch(exist_ok=True)\" || python -c \"import pathlib; h=pathlib.Path.home(); [ (h/d).mkdir(parents=True,exist_ok=True) for d in ['.claude','.codex','.agents','.oci','.config/gh','.config/tmux','claude-tmp'] ]; (h/'.claude.json').touch(exist_ok=True); (h/'.gitconfig').touch(exist_ok=True)\"",
 
 	// Bind-mount host config directly into the container.
 	// Changes inside the container persist to the host and vice versa.
@@ -61,7 +61,10 @@
 		"source=${localEnv:HOME}/.codex,target=/home/david/.codex,type=bind,consistency=cached",
 		"source=${localEnv:HOME}/.agents,target=/home/david/.agents,type=bind,consistency=cached",
 		"source=${localEnv:HOME}/.config/gh,target=/home/david/.config/gh,type=bind,consistency=cached",
-		"source=${localEnv:HOME}/.config/tmux,target=/home/david/.config/tmux,type=bind,consistency=cached"
+		"source=${localEnv:HOME}/.config/tmux,target=/home/david/.config/tmux,type=bind,consistency=cached",
+		// Claude session scratch + git worktrees live under /tmp/claude-1002. Bind it to the host so a
+		// rebuild or container rm does not destroy them, and the host's nightly backup covers them.
+		"source=${localEnv:HOME}/claude-tmp,target=/tmp/claude-1002,type=bind"
 	],
 
 	// Install Python packages + configure MCP servers & agent teams.
