@@ -60,3 +60,17 @@ def test_decide_uses_q_level(monkeypatch):
     assert C.decide(0.0, s, c)["critical_value"] == round(float(np.quantile(dev, C.Q_LEVEL)), 4)
     monkeypatch.setattr(C, "Q_LEVEL", 0.90)
     assert C.decide(0.0, s, c)["critical_value"] == round(float(np.quantile(dev, 0.90)), 4)
+
+
+def test_block_unit_follows_the_track_when_winner_summary_has_no_top_level_unit(tmp_path, monkeypatch):
+    """No-MAIN pairs (retail) carry lead_unit per track only: the note said 'blocks averaging 6 periods'."""
+    d = tmp_path / "results" / "toy_spy"
+    d.mkdir(parents=True)
+    nt = {"timing_sharpe_mean": 0.07, "timing_sharpe_se_dependent": 0.03, "r71_tolerance": 0.1, "r71_pass": True}
+    tracks = {t: {"lead_unit": "months", "null_tournament": nt} for t in ("main", "comparison")}
+    (d / "winner_summary.json").write_text(json.dumps({"tracks": tracks}))
+    monkeypatch.setattr(two_track, "__file__", str(tmp_path / "app" / "components" / "two_track.py"))
+    monkeypatch.setattr(P, "RESULTS", tmp_path / "results")
+    monkeypatch.setattr(P, "r71_calibration", lambda pair, track: ("ok", CAL, None))
+    note = two_track.r71_note("toy_spy", "comparison")
+    assert "blocks averaging 12 months" in note and "periods" not in note
