@@ -31,3 +31,6 @@ playwright
 # Loads repo-root .env so FRED/data pipelines read the API key from there instead of a
 # hardcoded fallback. Local-only: app/ never calls FRED at runtime (reads pre-built parquet).
 python-dotenv
+# Test runner for scripts/tests (META-CMP gates, harness, research tests). Local-only: Cloud never runs tests.
+# Was hand-installed and lost on the 2026-10-24 move to the aig-rlic host.
+pytest
