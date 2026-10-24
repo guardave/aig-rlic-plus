@@ -32,23 +32,23 @@
      "model": {
       "n": 237,
       "positives": 42,
-      "brier": 0.20982,
-      "mean_log_score": -0.77171,
+      "brier": 0.2098,
+      "mean_log_score": -0.77175,
       "calibration_slope": 0.146
      },
      "term_only_same_rows": {
       "n": 237,
       "positives": 42,
-      "brier": 0.22934,
-      "mean_log_score": -0.72041,
+      "brier": 0.22936,
+      "mean_log_score": -0.72051,
       "calibration_slope": 0.182
      },
      "term_only_full_history": {
       "n": 237,
       "positives": 42,
-      "brier": 0.17983,
-      "mean_log_score": -0.56476,
-      "calibration_slope": -0.01
+      "brier": 0.17984,
+      "mean_log_score": -0.56478,
+      "calibration_slope": -0.009
      },
      "B1_base_rate": {
       "n": 237,
@@ -60,15 +60,15 @@
      "B2a_best_single": {
       "n": 237,
       "positives": 42,
-      "brier": 0.22096,
-      "mean_log_score": -0.69593,
+      "brier": 0.22098,
+      "mean_log_score": -0.69601,
       "calibration_slope": 0.22
      },
      "B3_naive_composite": {
       "n": 237,
       "positives": 42,
-      "brier": 0.20726,
-      "mean_log_score": -0.79168,
+      "brier": 0.20722,
+      "mean_log_score": -0.79149,
       "calibration_slope": 0.115
      },
      "B4_sma_flag_subwindow": {
@@ -79,15 +79,15 @@
       "calibration_slope": 0.741
      }
     },
-    "bss_vs_term_same_rows": 0.0851,
-    "bss_vs_term_full_history": -0.1668,
-    "bss_vs_B2a": 0.0504,
-    "bss_vs_B3": -0.0124,
-    "bss_vs_B1": -0.3877,
-    "p_block_bootstrap_one_sided": 0.3285,
+    "bss_vs_term_same_rows": 0.0853,
+    "bss_vs_term_full_history": -0.1666,
+    "bss_vs_B2a": 0.0506,
+    "bss_vs_B3": -0.0125,
+    "bss_vs_B1": -0.3876,
+    "p_block_bootstrap_one_sided": 0.3275,
     "episode_log_score_gain_vs_term": {
-     "2007-12": -35.873,
-     "2020-02": 0.285
+     "2007-12": -35.849,
+     "2020-02": 0.29
     }
    },
    "ex2020": {
@@ -101,23 +101,23 @@
      "model": {
       "n": 158,
       "positives": 29,
-      "brier": 0.15038,
-      "mean_log_score": -0.64251,
+      "brier": 0.15032,
+      "mean_log_score": -0.64234,
       "calibration_slope": 0.187
      },
      "term_only_same_rows": {
       "n": 158,
       "positives": 29,
-      "brier": 0.21384,
-      "mean_log_score": -0.72008,
+      "brier": 0.21385,
+      "mean_log_score": -0.72016,
       "calibration_slope": 0.178
      },
      "term_only_full_history": {
       "n": 158,
       "positives": 29,
-      "brier": 0.15981,
-      "mean_log_score": -0.5365,
-      "calibration_slope": 0.011
+      "brier": 0.1598,
+      "mean_log_score": -0.53644,
+      "calibration_slope": 0.012
      },
      "B1_base_rate": {
       "n": 158,
@@ -129,15 +129,15 @@
      "B2a_best_single": {
       "n": 158,
       "positives": 29,
-      "brier": 0.21384,
-      "mean_log_score": -0.72008,
+      "brier": 0.21385,
+      "mean_log_score": -0.72016,
       "calibration_slope": 0.178
      },
      "B3_naive_composite": {
       "n": 158,
       "positives": 29,
-      "brier": 0.15965,
-      "mean_log_score": -0.74006,
+      "brier": 0.15957,
+      "mean_log_score": -0.73966,
       "calibration_slope": 0.133
      },
      "B4_sma_flag_subwindow": {
@@ -148,20 +148,20 @@
       "calibration_slope": 1.243
      }
     },
-    "bss_vs_term_same_rows": 0.2968,
-    "bss_vs_term_full_history": 0.059,
-    "bss_vs_B2a": 0.2968,
-    "bss_vs_B3": 0.0581,
-    "bss_vs_B1": 0.0496,
-    "p_block_bootstrap_one_sided": 0.111,
+    "bss_vs_term_same_rows": 0.2971,
+    "bss_vs_term_full_history": 0.0593,
+    "bss_vs_B2a": 0.2971,
+    "bss_vs_B3": 0.058,
+    "bss_vs_B1": 0.0499,
+    "p_block_bootstrap_one_sided": 0.1105,
     "episode_log_score_gain_vs_term": {
-     "2007-12": -35.873
+     "2007-12": -35.849
     },
     "null_bss_percentile": 98.6,
     "null_bss_quantiles": {
-     "5": -0.6831,
-     "50": -0.11,
-     "95": 0.1988
+     "5": -0.6834,
+     "50": -0.1091,
+     "95": 0.1987
     }
    },
    "B2a_choices": {
@@ -189,9 +189,9 @@
    },
    "null_bss_percentile_full": 90.4,
    "null_bss_quantiles": {
-    "5": -0.3917,
-    "50": -0.121,
-    "95": 0.215
+    "5": -0.3926,
+    "50": -0.1216,
+    "95": 0.2144
    }
   },
   "H2": {
@@ -214,23 +214,23 @@
      "model": {
       "n": 453,
       "positives": 80,
-      "brier": 0.19349,
-      "mean_log_score": -0.67783,
-      "calibration_slope": 0.129
+      "brier": 0.19354,
+      "mean_log_score": -0.67812,
+      "calibration_slope": 0.13
      },
      "term_only_same_rows": {
       "n": 453,
       "positives": 80,
-      "brier": 0.16615,
-      "mean_log_score": -0.51472,
-      "calibration_slope": 0.282
+      "brier": 0.16618,
+      "mean_log_score": -0.51475,
+      "calibration_slope": 0.283
      },
      "term_only_full_history": {
       "n": 453,
       "positives": 80,
-      "brier": 0.16615,
-      "mean_log_score": -0.51472,
-      "calibration_slope": 0.282
+      "brier": 0.16618,
+      "mean_log_score": -0.51475,
+      "calibration_slope": 0.283
      },
      "B1_base_rate": {
       "n": 453,
@@ -242,15 +242,15 @@
      "B2a_best_single": {
       "n": 453,
       "positives": 80,
-      "brier": 0.18099,
-      "mean_log_score": -0.60014,
+      "brier": 0.18103,
+      "mean_log_score": -0.60022,
       "calibration_slope": -0.186
      },
      "B3_naive_composite": {
       "n": 453,
       "positives": 80,
-      "brier": 0.17019,
-      "mean_log_score": -0.61001,
+      "brier": 0.17022,
+      "mean_log_score": -0.61067,
       "calibration_slope": 0.202
      },
      "B4_sma_flag_subwindow": {
@@ -264,14 +264,14 @@
     "bss_vs_term_same_rows": -0.1646,
     "bss_vs_term_full_history": -0.1646,
     "bss_vs_B2a": -0.0691,
-    "bss_vs_B3": -0.1369,
-    "bss_vs_B1": -0.2705,
-    "p_block_bootstrap_one_sided": 0.87,
+    "bss_vs_B3": -0.137,
+    "bss_vs_B1": -0.2708,
+    "p_block_bootstrap_one_sided": 0.869,
     "episode_log_score_gain_vs_term": {
-     "1990-07": -27.36,
-     "2001-03": -0.601,
-     "2007-12": 15.482,
-     "2020-02": 1.32
+     "1990-07": -27.174,
+     "2001-03": -0.589,
+     "2007-12": 15.49,
+     "2020-02": 1.33
     }
    },
    "ex2020": {
@@ -288,21 +288,21 @@
       "n": 374,
       "positives": 67,
       "brier": 0.15172,
-      "mean_log_score": -0.48531,
+      "mean_log_score": -0.48512,
       "calibration_slope": 0.402
      },
      "term_only_same_rows": {
       "n": 374,
       "positives": 67,
-      "brier": 0.1548,
-      "mean_log_score": -0.49221,
+      "brier": 0.15483,
+      "mean_log_score": -0.49222,
       "calibration_slope": 0.37
      },
      "term_only_full_history": {
       "n": 374,
       "positives": 67,
-      "brier": 0.1548,
-      "mean_log_score": -0.49221,
+      "brier": 0.15483,
+      "mean_log_score": -0.49222,
       "calibration_slope": 0.37
      },
      "B1_base_rate": {
@@ -315,16 +315,16 @@
      "B2a_best_single": {
       "n": 374,
       "positives": 67,
-      "brier": 0.17278,
-      "mean_log_score": -0.59568,
+      "brier": 0.17281,
+      "mean_log_score": -0.59574,
       "calibration_slope": -0.231
      },
      "B3_naive_composite": {
       "n": 374,
       "positives": 67,
       "brier": 0.13501,
-      "mean_log_score": -0.42999,
-      "calibration_slope": 0.57
+      "mean_log_score": -0.43045,
+      "calibration_slope": 0.566
      },
      "B4_sma_flag_subwindow": {
       "n": 182,
@@ -334,22 +334,22 @@
       "calibration_slope": 0.946
      }
     },
-    "bss_vs_term_same_rows": 0.0199,
-    "bss_vs_term_full_history": 0.0199,
-    "bss_vs_B2a": 0.1219,
+    "bss_vs_term_same_rows": 0.0201,
+    "bss_vs_term_full_history": 0.0201,
+    "bss_vs_B2a": 0.122,
     "bss_vs_B3": -0.1238,
     "bss_vs_B1": 0.0243,
-    "p_block_bootstrap_one_sided": 0.4455,
+    "p_block_bootstrap_one_sided": 0.4465,
     "episode_log_score_gain_vs_term": {
-     "1990-07": -27.36,
-     "2001-03": -0.601,
-     "2007-12": 15.482
+     "1990-07": -27.174,
+     "2001-03": -0.589,
+     "2007-12": 15.49
     },
     "null_bss_percentile": 96.4,
     "null_bss_quantiles": {
-     "5": -0.4827,
-     "50": -0.1591,
-     "95": 0.0023
+     "5": -0.4831,
+     "50": -0.159,
+     "95": 0.0024
     }
    },
    "B2a_choices": {
@@ -393,9 +393,9 @@
     "2025-01-31": "term",
     "2026-01-31": "term"
    },
-   "null_bss_percentile_full": 39.6,
+   "null_bss_percentile_full": 39.4,
    "null_bss_quantiles": {
-    "5": -0.3865,
+    "5": -0.3864,
     "50": -0.1301,
     "95": 0.0146
    }
@@ -420,23 +420,23 @@
      "model": {
       "n": 237,
       "positives": 42,
-      "brier": 0.1605,
-      "mean_log_score": -0.73693,
+      "brier": 0.16049,
+      "mean_log_score": -0.73689,
       "calibration_slope": 0.228
      },
      "term_only_same_rows": {
       "n": 237,
       "positives": 42,
-      "brier": 0.22934,
-      "mean_log_score": -0.72041,
+      "brier": 0.22936,
+      "mean_log_score": -0.72051,
       "calibration_slope": 0.182
      },
      "term_only_full_history": {
       "n": 237,
       "positives": 42,
-      "brier": 0.17983,
-      "mean_log_score": -0.56476,
-      "calibration_slope": -0.01
+      "brier": 0.17984,
+      "mean_log_score": -0.56478,
+      "calibration_slope": -0.009
      },
      "B1_base_rate": {
       "n": 237,
@@ -448,15 +448,15 @@
      "B2a_best_single": {
       "n": 237,
       "positives": 42,
-      "brier": 0.18302,
-      "mean_log_score": -0.76332,
-      "calibration_slope": 0.189
+      "brier": 0.18304,
+      "mean_log_score": -0.7634,
+      "calibration_slope": 0.188
      },
      "B3_naive_composite": {
       "n": 237,
       "positives": 42,
-      "brier": 0.14455,
-      "mean_log_score": -0.68937,
+      "brier": 0.14454,
+      "mean_log_score": -0.68932,
       "calibration_slope": 0.295
      },
      "B4_sma_flag_subwindow": {
@@ -467,15 +467,15 @@
       "calibration_slope": 0.741
      }
     },
-    "bss_vs_term_same_rows": 0.3002,
-    "bss_vs_term_full_history": 0.1075,
-    "bss_vs_B2a": 0.123,
-    "bss_vs_B3": -0.1103,
-    "bss_vs_B1": -0.0615,
+    "bss_vs_term_same_rows": 0.3003,
+    "bss_vs_term_full_history": 0.1076,
+    "bss_vs_B2a": 0.1232,
+    "bss_vs_B3": -0.1104,
+    "bss_vs_B1": -0.0614,
     "p_block_bootstrap_one_sided": 0.1115,
     "episode_log_score_gain_vs_term": {
-     "2007-12": 32.21,
-     "2020-02": -64.954
+     "2007-12": 32.235,
+     "2020-02": -64.961
     }
    },
    "ex2020": {
@@ -489,23 +489,23 @@
      "model": {
       "n": 158,
       "positives": 29,
-      "brier": 0.05363,
-      "mean_log_score": -0.17653,
+      "brier": 0.05364,
+      "mean_log_score": -0.17656,
       "calibration_slope": 0.607
      },
      "term_only_same_rows": {
       "n": 158,
       "positives": 29,
-      "brier": 0.21384,
-      "mean_log_score": -0.72008,
+      "brier": 0.21385,
+      "mean_log_score": -0.72016,
       "calibration_slope": 0.178
      },
      "term_only_full_history": {
       "n": 158,
       "positives": 29,
-      "brier": 0.15981,
-      "mean_log_score": -0.5365,
-      "calibration_slope": 0.011
+      "brier": 0.1598,
+      "mean_log_score": -0.53644,
+      "calibration_slope": 0.012
      },
      "B1_base_rate": {
       "n": 158,
@@ -517,15 +517,15 @@
      "B2a_best_single": {
       "n": 158,
       "positives": 29,
-      "brier": 0.1823,
-      "mean_log_score": -0.84362,
+      "brier": 0.18234,
+      "mean_log_score": -0.84374,
       "calibration_slope": 0.221
      },
      "B3_naive_composite": {
       "n": 158,
       "positives": 29,
-      "brier": 0.07828,
-      "mean_log_score": -0.52548,
+      "brier": 0.07827,
+      "mean_log_score": -0.52543,
       "calibration_slope": 0.409
      },
      "B4_sma_flag_subwindow": {
@@ -537,19 +537,19 @@
      }
     },
     "bss_vs_term_same_rows": 0.7492,
-    "bss_vs_term_full_history": 0.6644,
+    "bss_vs_term_full_history": 0.6643,
     "bss_vs_B2a": 0.7058,
-    "bss_vs_B3": 0.3149,
+    "bss_vs_B3": 0.3147,
     "bss_vs_B1": 0.661,
     "p_block_bootstrap_one_sided": 0.003,
     "episode_log_score_gain_vs_term": {
-     "2007-12": 32.21
+     "2007-12": 32.235
     },
     "null_bss_percentile": 100.0,
     "null_bss_quantiles": {
-     "5": -1.0639,
-     "50": -0.4083,
-     "95": 0.1049
+     "5": -1.0635,
+     "50": -0.4086,
+     "95": 0.105
     }
    },
    "B2a_choices": {
@@ -577,9 +577,9 @@
    },
    "null_bss_percentile_full": 100.0,
    "null_bss_quantiles": {
-    "5": -0.8755,
-    "50": -0.2582,
-    "95": 0.1008
+    "5": -0.8752,
+    "50": -0.2578,
+    "95": 0.1003
    }
   }
  },
@@ -590,7 +590,7 @@
  },
  "holm_adjusted_p_ex2020_posthoc": {
   "H3": 0.021,
-  "H1": 0.666,
+  "H1": 0.663,
   "H2": 1.0
  }
 }

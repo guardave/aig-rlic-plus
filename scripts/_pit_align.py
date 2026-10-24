@@ -28,7 +28,9 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from pandas.tseries.holiday import AbstractHolidayCalendar, GoodFriday, USFederalHolidayCalendar
+from pandas.tseries.holiday import (AbstractHolidayCalendar, GoodFriday, Holiday, USLaborDay, USMartinLutherKingJr,
+                                    USMemorialDay, USPresidentsDay, USThanksgivingDay, nearest_workday,
+                                    sunday_to_monday)
 from pandas.tseries.offsets import CustomBusinessDay
 
 REPO = Path(__file__).resolve().parents[1]
@@ -36,9 +38,24 @@ CALENDAR = REPO / "data" / "release_calendar" / "release_calendar.csv"
 MAX_EXTRA = 24  # periods searched beyond the nominal lead before giving up (NaN)
 
 
+# Unscheduled full-day NYSE closures since 1980 (weather, national mourning, 9/11).
+_NYSE_SPECIAL_CLOSURES = ["1985-09-27", "1994-04-27", "2001-09-11", "2001-09-12", "2001-09-13", "2001-09-14",
+                          "2004-06-11", "2007-01-02", "2012-10-29", "2012-10-30", "2018-12-05", "2025-01-09"]
+
+
 class _TradingHolidays(AbstractHolidayCalendar):
-    """NYSE approximation: federal holidays minus Columbus / Veterans Day, plus Good Friday."""
-    rules = [r for r in USFederalHolidayCalendar.rules if r.name not in ("Columbus Day", "Veterans Day")] + [GoodFriday]
+    """NYSE full-day closures. Differs from the federal calendar: New Year's Day on a Saturday is NOT observed on the
+    prior Friday (NYSE Rule 7.2; e.g. 2004-12-31, 2010-12-31 and 2021-12-31 were trading days); MLK Day from 1998;
+    Juneteenth from 2022; Good Friday; no Columbus / Veterans Day; plus the unscheduled closures above."""
+    rules = [Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
+             Holiday("Martin Luther King Jr. Day", month=1, day=1, offset=USMartinLutherKingJr.offset,
+                     start_date="1998-01-01"),
+             USPresidentsDay, GoodFriday, USMemorialDay,
+             Holiday("Juneteenth", month=6, day=19, observance=nearest_workday, start_date="2022-01-01"),
+             Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
+             USLaborDay, USThanksgivingDay,
+             Holiday("Christmas Day", month=12, day=25, observance=nearest_workday)] + [
+        Holiday(f"NYSE closure {d}", year=int(d[:4]), month=int(d[5:7]), day=int(d[8:])) for d in _NYSE_SPECIAL_CLOSURES]
 
 
 TRADING_DAY = CustomBusinessDay(calendar=_TradingHolidays())

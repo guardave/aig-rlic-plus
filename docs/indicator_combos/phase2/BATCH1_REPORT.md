@@ -51,6 +51,9 @@ D1-12.H2, D1-12.H3, D2-06.H2) the median MDE sits exactly at 2 × margin, and on
 more. Those rows are labelled "MDE ≤ 2 × margin" at the median and "underpowered" at the highest seed. The two
 counts are therefore **16 / 20 at the median, and 11 / 25 if every seed-sensitive row is counted as underpowered**.
 (The first version used a single stream of 1,500 simulations and reported 13 / 23.)
+CVaR rows outside these 5 can also move by one grid step under other seeds, without changing their label. For
+example, D1-12.H5 is 0.25 at all 3 seeds used here, but the QA recheck got 0.225 with different seeds. `budget.csv`
+gives each row's minimum and maximum over the 3 seeds used.
 
 **Facts behind the labels:**
 - **No hypothesis reaches an MDE at or below its own margin** (0 of the 36 rows with an MDE).

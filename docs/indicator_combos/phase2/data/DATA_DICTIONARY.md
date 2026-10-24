@@ -19,3 +19,9 @@ All Phase 2 inputs are point-in-time. They are read through `scripts/p2data.py`.
 | `sma_flag` | SPY dividend-adjusted month-end closes, `feat261017_phaseB_harness:data/phaseB_inputs/spy_month_end_20261017.csv` (read with `git show`, GIT_* variables unset) | close below its 10-month SMA at the close | 1993-10 |
 | NBER recession months | `scripts/_nber.RECESSIONS` (1990+) plus 1980-01..1980-07 and 1981-07..1982-11 (NBER peak/trough dates) | ex-post label only. Training uses a row's label only 12 + 24 months after the row (label window plus a conservative allowance for NBER announcement lags) | 1980 |
 | SPY monthly return | the same SPY file, `pct_change` of the adjusted close | return of month t | 1993-02 |
+
+## D2-09 budget end months for the daily local series
+
+`scripts/d2_09_budget.py` (`END`) ends HY_IG_OAS, HY_OAS, VIX and FEDFUNDS at **2026-03** (previously 2026-04). All
+four come from `data/hy_ig_spy_daily_20000101_20260422.parquet`, which ends 2026-04-22, before the 2026-04 month-end
+close, so 2026-03 is the last month-end with a value. VIX3M was already 2026-03; GOLD_COPPER stays 2026-05.

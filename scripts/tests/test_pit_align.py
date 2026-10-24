@@ -240,3 +240,19 @@ def test_realtime_apply_after_close_vintage_not_visible_on_its_posting_date():
     assert pa.visible_on("2005-02-10", "2021-02-23") == pd.Timestamp("2005-02-09")
     assert pa.after_close_rule("BUSLOANS") is True and pa.after_close_rule("M2SL") == "2021-02-23"
     assert pa.after_close_rule("UNRATE") is False
+
+
+@pytest.mark.parametrize("year_end", ["2004-12-31", "2010-12-31", "2021-12-31"])
+def test_nyse_saturday_new_year_not_observed_on_friday(year_end):
+    """NYSE (unlike the federal calendar) trades on Friday 31 Dec when 1 Jan falls on a Saturday."""
+    d = pd.Timestamp(year_end)
+    assert pa.TRADING_DAY.is_on_offset(d)
+    assert pa.last_trading_day(pd.DatetimeIndex([d]))[0] == d
+
+
+def test_nyse_calendar_closures_and_open_days():
+    closed = ["2022-01-17", "2021-04-02", "2022-06-20", "2021-12-24", "2012-10-29", "2001-09-11", "2025-01-09",
+              "2017-01-02"]
+    opened = ["2021-06-18", "2021-10-11", "2021-11-11", "1997-01-20"]
+    assert not any(pa.TRADING_DAY.is_on_offset(pd.Timestamp(x)) for x in closed)
+    assert all(pa.TRADING_DAY.is_on_offset(pd.Timestamp(x)) for x in opened)
