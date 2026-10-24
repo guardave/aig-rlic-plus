@@ -65,7 +65,7 @@
 	],
 
 	// Install Python packages + configure MCP servers & agent teams.
-	// API keys are read from Codespaces secrets / environment variables:
+	// API keys are read by setup.sh from the repo-root .env (gitignored):
 	//   ALPHAVANTAGE_API_KEY, FRED_API_KEY
 	"postCreateCommand": "bash setup.sh",
 
@@ -74,11 +74,13 @@
 		"CODEX_HOME": "/home/david/.codex"
 	},
 
+	// API keys come from the repo-root .env (setup.sh), not from the host environment.
 	"remoteEnv": {
-		"ALPHAVANTAGE_API_KEY": "${localEnv:ALPHAVANTAGE_API_KEY}",
-		"FRED_API_KEY": "${localEnv:FRED_API_KEY}",
 		"CODEX_HOME": "/home/david/.codex"
 	},
+
+	// Resource caps so the host (2 OCPU / 12 GB) keeps headroom for sshd.
+	"runArgs": ["--memory=10g", "--cpus=2", "--pids-limit=4096"],
 
 	"customizations": {
 		"vscode": {
