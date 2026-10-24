@@ -1,12 +1,12 @@
 {
   "chart_name": "structural_break",
   "pair_id": "unrate_spy",
-  "generated_at": "2026-10-17T23:27:40.522104+00:00",
+  "generated_at": "2026-10-24T11:13:50.740128+00:00",
   "generated_by": "scripts/generate_charts_unrate_spy.py",
   "caption": "Proxy check for large changes in the UNRATE-SPY relationship.",
   "narrative_alignment_note": "Proxy check for large changes in the UNRATE-SPY relationship.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_harness/results/unrate_spy/structural_break_unrate_spy.json"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_pilots/results/unrate_spy/structural_break_unrate_spy.json"
   ]
 }

@@ -1,7 +1,7 @@
 {
   "pair_id": "unrate_spy",
   "schema_version": "1.0.0",
-  "generated_at": "2026-10-18T04:26:06.974363+00:00",
+  "generated_at": "2026-10-20T15:40:21.712807+00:00",
   "track_state": "both",
   "track_policy": "compute_twice",
   "main": {
@@ -241,7 +241,7 @@
         2
       ]
     },
-    "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; distinct offsets; R7.1",
+    "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; every draw scored on the real winner's calendar training window, rows where a draw's position is undefined scored as cash (defined rows and leading-cash share recorded per draw); distinct offsets; R7.1",
     "r71_pass": true,
     "edge_flag": false,
     "n_admissible_offsets": 243,
@@ -249,14 +249,14 @@
     "revised_winner_percentile": 0.89,
     "revised_r71_pass": false,
     "revised_r71_diagnosis": {
-      "timing_mean_selected_winner": 0.1244,
+      "timing_mean_selected_winner": 0.1225,
       "timing_mean_all_valid_candidates": 0.0005,
       "timing_mean_selected_winner_returns_permuted": 0.0014,
       "returns_permuted_se": 0.054,
       "returns_permuted_draws": 30,
       "bias_only_in_selected_winners_on_real_returns": true,
       "cause": "unproven",
-      "reading": "Selected winners average a timing Sharpe of 0.1244 in the null; all valid candidates average 0.0005; with the returns permuted the selected winners average 0.0014 (SE 0.054). The bias appears only in the selected winners on the real return path, not in unselected candidates or without the return path. Cause unproven; open flag. The leak tests are reported separately."
+      "reading": "Selected winners average a timing Sharpe of 0.1225 in the null; all valid candidates average 0.0005; with the returns permuted the selected winners average 0.0014 (SE 0.054). The bias appears only in the selected winners on the real return path, not in unselected candidates or without the return path. Cause unproven; open flag. The leak tests are reported separately."
     }
   },
   "vs_buy_hold": {

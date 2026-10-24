@@ -1,8 +1,8 @@
 {
   "pair_id": "unrate_spy",
-  "generated_at": "2026-10-18T04:26:06.974363+00:00",
+  "generated_at": "2026-10-20T15:40:21.712807+00:00",
   "track": "main",
-  "source_tournament_file": "tournament_results_20261017.csv",
+  "source_tournament_file": "tournament_results_20261020.csv",
   "winner": {
     "signal": "sahm",
     "threshold": "T_roll_p75",

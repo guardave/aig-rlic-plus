@@ -1,12 +1,12 @@
 {
   "chart_name": "tournament_sharpe_dist",
   "pair_id": "unrate_spy",
-  "generated_at": "2026-10-17T23:27:28.723233+00:00",
+  "generated_at": "2026-10-24T11:13:37.579330+00:00",
   "generated_by": "scripts/generate_charts_unrate_spy.py",
   "caption": "Distribution of OOS Sharpe across valid tournament strategies by lead (as known at the time; the winner is chosen on training data, not on this OOS score).",
   "narrative_alignment_note": "Distribution of OOS Sharpe across valid tournament strategies by lead (as known at the time; the winner is chosen on training data, not on this OOS score).",
   "disposition": "consumed",
   "source_artifacts": [
-    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_harness/results/unrate_spy/tournament_results_20261017.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_pilots/results/unrate_spy/tournament_results_20261020.csv"
   ]
 }
