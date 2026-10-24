@@ -54,6 +54,7 @@ METHOD = ("stationary bootstrap of the target returns (Politis-Romano), resample
           "blocks separately, shared by all draws of a path; null v4 calendar window")
 SENS_METHOD = "circular moving-block bootstrap, fixed blocks of 2L (sensitivity)"
 BLOCK_RULE = "Politis-White stationary block length of squared target returns, floor 3, cap OOS/4"
+Q_LEVEL = 0.95                # quantile of |T* - centre| that sets the critical value (the note's "95% half-width")
 SCREEN = 0.10                 # fixed screening threshold on |T| (option C): diagnostic, never part of the decision
 ESCALATE_MARGIN = 0.20
 L_FLOOR = 3
@@ -125,7 +126,7 @@ def decide(T: float, s: np.ndarray, c: np.ndarray) -> dict:
     Ts = np.asarray(s, float) / c
     centre = float(np.median(Ts))
     dev = np.abs(Ts - centre)
-    q = float(np.quantile(dev, 0.95))
+    q = float(np.quantile(dev, Q_LEVEL))
     d = abs(T - centre)
     vals, freq = np.unique(c, return_counts=True)
     return {"centre": round(centre, 4), "critical_value": round(q, 4), "pass": bool(d <= q),
