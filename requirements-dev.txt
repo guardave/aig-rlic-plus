@@ -34,3 +34,6 @@ python-dotenv
 # Test runner for scripts/tests (META-CMP gates, harness, research tests). Local-only: Cloud never runs tests.
 # Was hand-installed and lost on the 2026-10-24 move to the aig-rlic host.
 pytest
+# Causal HMM regime signals (scripts/harness regime_causal, hy_ig and other HMM pipelines). Local-only:
+# app/ reads pre-built parquet. Pinned so regenerated HMM signals match committed results.
+hmmlearn==0.3.3

@@ -200,6 +200,18 @@ if [ -f "$WORKSPACE_DIR/requirements-dev.txt" ]; then
   fi
 fi
 
+# kaleido (plotly static export) finds Chrome via BROWSER_PATH. The image has no system Chrome, and
+# without it every chart producer silently skips its PNGs (GATE-27 only checks that the files exist).
+# Point it at the Playwright chromium installed above; persisted to ~/.bashrc for all shells.
+PW_CHROME="$(ls -d "$HOME"/.cache/ms-playwright/chromium-*/chrome-linux*/chrome 2>/dev/null | sort -V | tail -1)"
+if [ -n "$PW_CHROME" ] && [ -x "$PW_CHROME" ]; then
+  sed -i "/^export BROWSER_PATH=/d" "$HOME/.bashrc" 2>/dev/null || true
+  echo "export BROWSER_PATH=\"$PW_CHROME\"" >> "$HOME/.bashrc"
+  echo "  -> BROWSER_PATH set for kaleido: $PW_CHROME"
+else
+  echo "  -> WARNING: no Playwright chromium found; kaleido PNG export will be skipped."
+fi
+
 # --------------------------------------------------------------------------
 # 3. MCP Servers (8 total — budget max 10)
 # --------------------------------------------------------------------------
