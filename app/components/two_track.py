@@ -663,7 +663,8 @@ def r71_note(pair_id: str, track: str = "main", label: str = "Calibration check 
     on_track = "" if track == "main" else " on that track"
     st_, cal, _why = P.r71_calibration(pair_id, track)
     if st_ == "ok":          # calibrated reference on file for this run (r71_calibration_<tag>.json)
-        unit = {"months": "months", "quarters": "quarters", "days": "trading days"}.get(ws.get("lead_unit"), "periods")
+        lu = ws["tracks"][track].get("lead_unit") or ws.get("lead_unit")   # no-MAIN pairs carry it per track only
+        unit = {"months": "months", "quarters": "quarters", "days": "trading days"}.get(lu, "periods")
         sn = cal.get("sensitivity") or {}
         out = (f" {label} against a calibrated reference: {cal['B']:.0f} simulated return paths, each a stationary "
                f"bootstrap of the target returns resampled separately within the training and the test period, "
