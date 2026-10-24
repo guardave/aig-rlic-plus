@@ -187,10 +187,23 @@ def test_r71_calibration_artifact_status(tmp_path):
     assert P.r71_calibration("toy_spy", "main", d2)[0] == "pending"
 
 
-def test_r71_note_pending_text_on_the_pilots():
-    note = two_track.r71_note("unrate_spy")
+def test_r71_note_pending_text_without_a_calibration(tmp_path, monkeypatch):
+    d, _ws = _cal_note(tmp_path, monkeypatch)
+    (d / f"r71_calibration_{TAG}.json").unlink()                            # no artifact: Bartlett + pending note
+    note = two_track.r71_note("toy_spy")
     assert "understates the spread of the null mean" in note and "calibrated reference is pending" in note
     assert "\n\n" + two_track.R71_SCREEN_LABEL + ": " in note          # option C: the screen is stated while pending
+
+
+def test_r71_note_on_the_unrate_pilot_follows_its_artifact():
+    # pilots were pending until their fleet calibration (unrate 2026-10-24); the live page follows the file on disk
+    note = two_track.r71_note("unrate_spy")
+    st_, _cal, _why = P.r71_calibration("unrate_spy", "main")
+    if st_ == "ok":
+        assert "against a calibrated reference" in note and "pending" not in note
+    else:
+        assert "calibrated reference is pending" in note
+    assert "\n\n" + two_track.R71_SCREEN_LABEL + ": " in note
 
 
 def _cal_note(tmp_path, monkeypatch, **kw):
