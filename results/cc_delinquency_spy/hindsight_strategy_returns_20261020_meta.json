@@ -1,0 +1,14 @@
+{
+  "pair_id": "cc_delinquency_spy",
+  "track": "revised",
+  "role": "comparison",
+  "winner_key": "zscore_20q|T_z_0|P1|countercyclical|2",
+  "generated_at": "2026-10-20T15:41:29.663127+00:00",
+  "vintage_policy": {
+    "alignment": "pit_asof",
+    "release_series": "DRCCLACBN",
+    "harsh": false
+  },
+  "calendar_sha256": "24c4243fdd13041b7902401a85a7166ed684ebecf4f0282e8166f8ad80a38064",
+  "vintage_file_sha256": "18d90bfb4a3699c2c239c69bed80fd30821bd8fbf7603762f648381b82a20662"
+}

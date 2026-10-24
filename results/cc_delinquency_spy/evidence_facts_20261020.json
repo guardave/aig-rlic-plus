@@ -1,0 +1,22 @@
+{
+  "pair_id": "cc_delinquency_spy",
+  "date_tag": "20261020",
+  "sources": [
+    "core_models_20261020/ccf_prewhitened.csv",
+    "core_models_20261020/correlations.csv",
+    "core_models_20261020/local_projections.csv",
+    "core_models_20261020/quantile_equality_test.json",
+    "granger_by_lag.csv",
+    "regime_quartile_returns.csv",
+    "stationarity_tests_20261020.csv",
+    "structural_break_cc_delinquency_spy.json"
+  ],
+  "derived": {
+    "regime_quartile_ann_return_pct": {
+      "Q1": 15.270962,
+      "Q2": 14.750133,
+      "Q3": 7.365947,
+      "Q4": 9.299775
+    }
+  }
+}

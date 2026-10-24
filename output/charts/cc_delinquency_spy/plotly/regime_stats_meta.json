@@ -1,7 +1,7 @@
 {
   "chart_name": "regime_stats",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-17T23:28:06.437240+00:00",
+  "generated_at": "2026-10-24T11:14:29.056010+00:00",
   "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
   "caption": "Concurrent SPY performance across quartiles of the 4-quarter change in credit-card delinquency: Sharpe 1.18 in Q1 (fastest fall) and 0.51 in Q4 (fastest rise).",
   "narrative_alignment_note": "Concurrent SPY performance across quartiles of the 4-quarter change in credit-card delinquency: Sharpe 1.18 in Q1 (fastest fall) and 0.51 in Q4 (fastest rise).",

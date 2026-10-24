@@ -1,12 +1,12 @@
 {
   "chart_name": "equity_curves",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-17T23:28:23.867599+00:00",
+  "generated_at": "2026-10-24T11:14:56.752809+00:00",
   "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
   "caption": "Winner strategy (as known at the time: real-time delinquency vintages, from 2011) equity curve vs buy-and-hold SPY; found-in-search candidate, OOS from 2017-09.",
   "narrative_alignment_note": "Winner strategy (as known at the time: real-time delinquency vintages, from 2011) equity curve vs buy-and-hold SPY; found-in-search candidate, OOS from 2017-09.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cc_delinquency_spy/strategy_returns_20261017.csv"
+    "results/cc_delinquency_spy/strategy_returns_20261020.csv"
   ]
 }

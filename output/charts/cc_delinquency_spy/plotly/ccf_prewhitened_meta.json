@@ -1,12 +1,12 @@
 {
   "chart_name": "ccf_prewhitened",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-17T23:28:12.010579+00:00",
+  "generated_at": "2026-10-24T11:14:37.831289+00:00",
   "generated_by": "scripts/generate_charts_cc_delinquency_spy.py",
   "caption": "Pre-whitened cross-correlation between credit-card delinquency and SPY returns; offsets outside the band: -4, -3, -2.",
   "narrative_alignment_note": "Pre-whitened cross-correlation between credit-card delinquency and SPY returns; offsets outside the band: -4, -3, -2.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_harness/results/cc_delinquency_spy/core_models_20261017/ccf_prewhitened.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_pilots/results/cc_delinquency_spy/core_models_20261020/ccf_prewhitened.csv"
   ]
 }

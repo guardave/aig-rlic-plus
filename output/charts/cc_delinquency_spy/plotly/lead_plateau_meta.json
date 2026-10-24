@@ -1,13 +1,13 @@
 {
   "chart_name": "lead_plateau",
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-18T01:53:38.055202+00:00",
+  "generated_at": "2026-10-24T12:32:49.824462+00:00",
   "generated_by": "scripts/harness/charts.py",
   "caption": "The winner L2 sits in a stable range L2-L4.",
   "narrative_alignment_note": "The winner L2 sits in a stable range L2-L4.",
   "disposition": "consumed",
   "source_artifacts": [
-    "results/cc_delinquency_spy/lead_curve_20261017.csv",
-    "results/cc_delinquency_spy/hindsight_lead_curve_20261017.csv"
+    "results/cc_delinquency_spy/lead_curve_20261020.csv",
+    "results/cc_delinquency_spy/hindsight_lead_curve_20261020.csv"
   ]
 }

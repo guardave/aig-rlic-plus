@@ -1,8 +1,8 @@
 {
   "pair_id": "cc_delinquency_spy",
-  "generated_at": "2026-10-18T04:32:44.887370+00:00",
+  "generated_at": "2026-10-20T15:41:29.665438+00:00",
   "track": "main",
-  "source_tournament_file": "tournament_results_20261017.csv",
+  "source_tournament_file": "tournament_results_20261020.csv",
   "winner": {
     "signal": "chg_4q",
     "threshold": "T_roll_p50",
