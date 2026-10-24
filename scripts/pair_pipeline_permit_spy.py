@@ -35,7 +35,7 @@ from harness.evidence import write_evidence_facts  # noqa: E402
 from harness.run import run_pair  # noqa: E402
 
 PAIR_ID = "permit_spy"
-DATE_TAG = "20261017"  # Phase B B1: harness, two tracks, D9 plateau, null K=100, bootstrap
+DATE_TAG = "20261020"  # Phase B B1: harness, two tracks, D9 plateau, null K=100, bootstrap
 TARGET_SYMBOL = "SPY"
 COST_BPS = 5
 EVIDENCE_SIGNAL = "permit_yoy"   # year-over-year change: the smooth transform used by the descriptive tests

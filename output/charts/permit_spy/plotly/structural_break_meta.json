@@ -1,12 +1,12 @@
 {
   "chart_name": "structural_break",
   "pair_id": "permit_spy",
-  "generated_at": "2026-10-18T06:14:25.862700+00:00",
+  "generated_at": "2026-10-24T11:16:48.306200+00:00",
   "generated_by": "scripts/generate_charts_permit_spy.py",
   "caption": "Proxy check for large changes in the PERMIT-SPY relationship.",
   "narrative_alignment_note": "Proxy check for large changes in the PERMIT-SPY relationship.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_permit_spy/results/permit_spy/structural_break_permit_spy.json"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_pilots/results/permit_spy/structural_break_permit_spy.json"
   ]
 }

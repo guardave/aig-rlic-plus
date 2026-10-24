@@ -1,0 +1,499 @@
+{
+  "pair_id": "permit_spy",
+  "tag": "20261020",
+  "replay": {
+    "pair_id": "permit_spy",
+    "legacy_tag": "20260314",
+    "status": "not_replayable",
+    "pass": null,
+    "reason": "The published rule was selected by the legacy OOS method (max OOS Sharpe among rows with OOS Sharpe > 0 and full-sample turnover < 24) on tournament_results_20260314.csv, which has OOS columns only (4 dp). The legacy pipeline never wrote a strategy_returns file or a legacy selection record, so there is nothing to replay against; the harness legacy mode also selects by in-sample Sharpe, not OOS.",
+    "missing_files": [
+      "legacy_oos_selection_20260314.csv",
+      "strategy_returns_20260314.csv"
+    ],
+    "published": {
+      "key": "S3_mom|T1_p25|P3|procyclical|6",
+      "signal": "S3_mom",
+      "threshold": "T1_p25",
+      "strategy": "P3",
+      "direction": "procyclical",
+      "lead": 6,
+      "oos_sharpe": 1.4454,
+      "is_sharpe": null,
+      "tag": "20260314",
+      "selection": "published (OOS-selected, legacy method)",
+      "selection_method": "max OOS Sharpe over valid rows (OOS Sharpe > 0, full-sample annual turnover < 24); lead grid {0,1,2,3,6}; fixed shift(lead) plus pos.shift(1); revised values",
+      "source": "results/permit_spy/winner_summary.json 1.1.0 (tournament_results_20260314.csv row 281)"
+    },
+    "definitional_differences": [
+      "Selection: legacy = max OOS Sharpe (OOS consulted); harness = D9 plateau on in-sample Sharpe (OOS never consulted).",
+      "Valid flag: legacy = OOS Sharpe > 0 and full-sample turnover < 24; harness = R3.3 eligibility, IS exposure within [0.05, 0.95], IS sd > 0.",
+      "Undefined signal or threshold: legacy treats a null comparison as bearish (P1 = 0 cash, P3 = -1 short); harness leaves the position undefined (held as cash on deployable returns).",
+      "IS-quantile thresholds (T1): legacy = one quantile over all IS rows applied to every row; harness = expanding quantile of earlier IS readings, frozen at the IS end.",
+      "Timing: legacy = fixed shift(lead) on month-end stamps with revised values; harness = release-calendar as-of timing (revised track) or ALFRED vintages (real-time track).",
+      "Grid: legacy published grid {0,1,2,3,6}, procyclical only, P2 repeated per threshold; harness = registry grid 1..13, both directions, P2 once per signal/direction/lead, contraction flag with one 0.5 threshold.",
+      "Scoring: legacy = dropna returns; harness = deployable returns (undefined position = cash)."
+    ],
+    "legacy_reproduction": {
+      "pair_id": "permit_spy",
+      "legacy_tag": "20260314",
+      "code": "scripts/legacy_repro/permit_spy.py (stage_derived + stage_tournament of git e1c44555, adaptations listed in its docstring)",
+      "panel": "data/phaseB_inputs/permit_spy_monthly_legacy_20260314.csv",
+      "panel_note": "PERMIT = ALFRED vintage as of 2026-03-14 (the published run's date); SPY = the legacy pipeline's own yfinance month-end adjusted closes (2026-10-08 pull)",
+      "published_file": "results/permit_spy/tournament_results_20260314.csv",
+      "lead_grid": [
+        0,
+        1,
+        2,
+        3,
+        6
+      ],
+      "rows_published": 855,
+      "rows_reproduced": 855,
+      "rows_only_published": 0,
+      "rows_only_reproduced": 0,
+      "columns": {
+        "oos_sharpe": {
+          "max_abs_diff": 0.0001,
+          "n_rows_beyond_published_precision": 0,
+          "n_rows_last_digit": 2,
+          "published_precision": 0.0001
+        },
+        "oos_ann_return": {
+          "max_abs_diff": 0.01,
+          "n_rows_beyond_published_precision": 0,
+          "n_rows_last_digit": 1,
+          "published_precision": 0.01
+        },
+        "max_drawdown": {
+          "max_abs_diff": 0.01,
+          "n_rows_beyond_published_precision": 0,
+          "n_rows_last_digit": 3,
+          "published_precision": 0.01
+        },
+        "annual_turnover": {
+          "max_abs_diff": 0.0,
+          "n_rows_beyond_published_precision": 0,
+          "n_rows_last_digit": 0,
+          "published_precision": 0.01
+        },
+        "oos_n": {
+          "max_abs_diff": 0.0,
+          "n_rows_beyond_published_precision": 0,
+          "n_rows_last_digit": 0,
+          "published_precision": 0
+        }
+      },
+      "oos_sharpe_rows_differing": 2,
+      "oos_sharpe_rounding_ties": 2,
+      "valid_flag_mismatches": 0,
+      "n_valid_published": 674,
+      "n_valid_reproduced": 674,
+      "bh_oos_sharpe": {
+        "published": 0.8998,
+        "reproduced": 0.8998
+      },
+      "published_rule": {
+        "key": "S3_mom|T1_p25|P3|6",
+        "published": {
+          "oos_sharpe": 1.4454,
+          "oos_ann_return": 22.66,
+          "max_drawdown": -19.42,
+          "annual_turnover": 9.06,
+          "oos_n": 96.0
+        },
+        "reproduced": {
+          "oos_sharpe": 1.4454,
+          "oos_ann_return": 22.66,
+          "max_drawdown": -19.42,
+          "annual_turnover": 9.06,
+          "oos_n": 96.0
+        },
+        "oos_sharpe_unrounded": 1.4453997960745224
+      },
+      "reproduced_oos_selected_winner": {
+        "signal": "S3_mom",
+        "threshold": "T1_p25",
+        "strategy": "P3",
+        "lead": 6,
+        "oos_sharpe": 1.4454,
+        "n_valid": 674
+      },
+      "published_rule_reproduces": true,
+      "floor_grid_check": {
+        "lead_grid": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "winner": {
+          "signal": "S3_mom",
+          "threshold": "T1_p25",
+          "strategy": "P3",
+          "lead": 6,
+          "oos_sharpe": 1.4454,
+          "n_valid": 1745
+        },
+        "note": "legacy code on the #255 floored grid L1..13 of c64a609a (registry note: winner unchanged); never published"
+      },
+      "sensitivity": [
+        {
+          "panel": "2026-10-08 FRED PERMIT + 2026-10-08 yfinance SPY (data/permit_spy_monthly_20261008.parquet)",
+          "result": "same 856 rows; 757 OOS Sharpe values differ beyond 4 dp (max 0.43), 17 valid flags differ; OOS-selected winner still S3_mom/T1_p25/P3/L6 at 1.3796",
+          "cause": "PERMIT revisions between 2026-03-14 and 2026-10-08 (annual seasonal-factor revision)"
+        },
+        {
+          "panel": "PERMIT vintage 2026-03-14 + SPY pinned 2026-10-17 (data/phaseB_inputs/spy_month_end_20261017.csv)",
+          "result": "644 OOS Sharpe values differ beyond 4 dp (max 0.018), valid flags equal; winner S3_mom/T1_p25/P3/L6 at 1.4387",
+          "cause": "dividend-adjustment drift between yfinance pulls"
+        }
+      ],
+      "exact_at_published_precision": true,
+      "gaps": "2 OOS Sharpe values differ from the published 4-dp value by 1e-4; all 2 are rounding ties (the unrounded reproduced value lies within 1e-4 of the published value); 1 annual-return and 3 drawdown values differ by one unit in the second decimal (percent). Both are consistent with tiny float differences in the adjusted SPY closes. The published panel itself (data/permit_spy_monthly_20260314.parquet) was never committed, so the PERMIT values are the ALFRED vintage of the publication date and the SPY closes are a later pull of the same yfinance series; with these the published table reproduces at its printed precision. IS Sharpe was never published (the legacy table has OOS columns only), so no IS value can be compared."
+    },
+    "acceptance_4_1": {
+      "pass": true,
+      "rule": "not replayable + documented legacy-code reproduction (gaps explained)"
+    }
+  },
+  "tracks": {
+    "main": {
+      "candidate": "S5_z|-|P2|procyclical|13",
+      "is_frozen_object": false,
+      "cuts": {
+        "oos_start": {
+          "cut": "2018-01-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 301,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 301,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "oos_50pct": {
+          "cut": "2022-05-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 353,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 353,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "end_minus_1y": {
+          "cut": "2025-09-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 393,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 393,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_33pct": {
+          "cut": "2001-05-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 101,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 101,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_66pct": {
+          "cut": "2009-09-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 201,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 201,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        }
+      },
+      "pass": true
+    },
+    "comparison": {
+      "candidate": "S5_z|-|P2|procyclical|8",
+      "is_frozen_object": false,
+      "cuts": {
+        "oos_start": {
+          "cut": "2018-01-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 301,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 301,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "oos_50pct": {
+          "cut": "2022-05-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 353,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 353,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "end_minus_1y": {
+          "cut": "2025-09-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 393,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 393,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_33pct": {
+          "cut": "2001-05-31",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 101,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 101,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        },
+        "is_66pct": {
+          "cut": "2009-09-30",
+          "exempt_is_frozen": false,
+          "truncation": {
+            "rows_checked": 201,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "perturbation": {
+            "rows_checked": 201,
+            "rows_differing": 0,
+            "first_difference": null
+          },
+          "pass": true
+        }
+      },
+      "pass": true
+    }
+  },
+  "null": {
+    "main": {
+      "n_draws": 100,
+      "n_unique_offsets": 100,
+      "n_draws_without_winner": 0,
+      "n_admissible_offsets": 195,
+      "span": 326,
+      "max_usable_offset": 260,
+      "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; every draw scored on the real winner's calendar training window, rows where a draw's position is undefined scored as cash (defined rows and leading-cash share recorded per draw); distinct offsets; R7.1",
+      "seed_base": 20261016,
+      "is_max_percentile": 1.0,
+      "p_is": 0.0,
+      "selection_stat_percentile": 1.0,
+      "p_selection_stat": 0.0,
+      "winner_oos_percentile": 0.24,
+      "p_oos": 0.76,
+      "null_is_max_p5_p50_p95": [
+        1.0152,
+        1.1533,
+        1.2993
+      ],
+      "null_winner_oos_median": 0.6652,
+      "edge_share": 0.15,
+      "edge_share_uniform": 0.1538,
+      "edge_share_bound": 0.2621,
+      "edge_flag": false,
+      "timing_sharpe_mean": -0.0735,
+      "timing_sharpe_sd": 0.1919,
+      "timing_sharpe_se_dependent": 0.0289,
+      "timing_sharpe_se_bandwidth": 12,
+      "timing_sharpe_effective_draws": 44.0,
+      "r71_tolerance": 0.1,
+      "timing_sharpe_mean_all_valid_candidates": -0.0001,
+      "r71_pass": true,
+      "null_scores_hist": {
+        "bins": [
+          0.8049,
+          0.8182,
+          0.8315,
+          0.8448,
+          0.858,
+          0.8713,
+          0.8846,
+          0.8979,
+          0.9111,
+          0.9244,
+          0.9377,
+          0.951,
+          0.9642,
+          0.9775,
+          0.9908,
+          1.0041,
+          1.0173,
+          1.0306,
+          1.0439,
+          1.0572,
+          1.0705
+        ],
+        "counts": [
+          2,
+          2,
+          3,
+          5,
+          2,
+          0,
+          9,
+          6,
+          7,
+          9,
+          6,
+          6,
+          5,
+          7,
+          7,
+          10,
+          2,
+          6,
+          2,
+          4
+        ]
+      }
+    },
+    "comparison": {
+      "n_draws": 100,
+      "n_unique_offsets": 100,
+      "n_draws_without_winner": 0,
+      "n_admissible_offsets": 337,
+      "span": 560,
+      "max_usable_offset": null,
+      "method": "circular shift of the raw indicator (revised/market: level series; real-time: reference-period point-in-time inputs built as in the real tournament, then one constant circular roll of k rows of all inputs together over one common span, wrapping once), pipeline rebuilt per draw (revised/market) / inputs rolled (real-time), same selection rule; every draw scored on the real winner's calendar training window, rows where a draw's position is undefined scored as cash (defined rows and leading-cash share recorded per draw); distinct offsets; R7.1",
+      "seed_base": 20261016,
+      "is_max_percentile": 0.84,
+      "p_is": 0.16,
+      "selection_stat_percentile": 0.97,
+      "p_selection_stat": 0.03,
+      "winner_oos_percentile": 0.56,
+      "p_oos": 0.44,
+      "null_is_max_p5_p50_p95": [
+        0.9108,
+        1.0059,
+        1.2017
+      ],
+      "null_winner_oos_median": 0.7933,
+      "edge_share": 0.13,
+      "edge_share_uniform": 0.1538,
+      "edge_share_bound": 0.2621,
+      "edge_flag": false,
+      "timing_sharpe_mean": 0.0265,
+      "timing_sharpe_sd": 0.2303,
+      "timing_sharpe_se_dependent": 0.0381,
+      "timing_sharpe_se_bandwidth": 6,
+      "timing_sharpe_effective_draws": 36.5,
+      "r71_tolerance": 0.1,
+      "timing_sharpe_mean_all_valid_candidates": 0.0,
+      "r71_pass": true,
+      "null_scores_hist": {
+        "bins": [
+          0.718,
+          0.7383,
+          0.7586,
+          0.7788,
+          0.7991,
+          0.8193,
+          0.8396,
+          0.8598,
+          0.8801,
+          0.9003,
+          0.9206,
+          0.9408,
+          0.9611,
+          0.9814,
+          1.0016,
+          1.0219,
+          1.0421,
+          1.0624,
+          1.0826,
+          1.1029,
+          1.1231
+        ],
+        "counts": [
+          3,
+          1,
+          8,
+          7,
+          7,
+          4,
+          12,
+          11,
+          10,
+          8,
+          4,
+          2,
+          5,
+          7,
+          0,
+          8,
+          0,
+          0,
+          0,
+          3
+        ]
+      }
+    }
+  }
+}

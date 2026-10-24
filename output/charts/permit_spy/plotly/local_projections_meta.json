@@ -1,12 +1,12 @@
 {
   "chart_name": "local_projections",
   "pair_id": "permit_spy",
-  "generated_at": "2026-10-18T06:14:03.131376+00:00",
+  "generated_at": "2026-10-24T11:16:15.815769+00:00",
   "generated_by": "scripts/generate_charts_permit_spy.py",
   "caption": "Estimated forward SPY return per percentage point of year-over-year permit growth.",
   "narrative_alignment_note": "Estimated forward SPY return per percentage point of year-over-year permit growth.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_permit_spy/results/permit_spy/core_models_20261017/local_projections.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_pilots/results/permit_spy/core_models_20261020/local_projections.csv"
   ]
 }

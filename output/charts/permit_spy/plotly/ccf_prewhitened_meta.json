@@ -1,12 +1,12 @@
 {
   "chart_name": "ccf_prewhitened",
   "pair_id": "permit_spy",
-  "generated_at": "2026-10-18T06:13:56.469037+00:00",
+  "generated_at": "2026-10-24T11:16:05.987778+00:00",
   "generated_by": "scripts/generate_charts_permit_spy.py",
   "caption": "Cross-correlation between the monthly change in year-over-year permit growth and SPY returns.",
   "narrative_alignment_note": "Cross-correlation between the monthly change in year-over-year permit growth and SPY returns.",
   "disposition": "consumed",
   "source_artifacts": [
-    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_b1_permit_spy/results/permit_spy/core_models_20261017/ccf_prewhitened.csv"
+    "/tmp/claude-1002/-workspaces-aig-rlic-plus/418de3c4-7a8d-42d5-8be4-f1853693154d/scratchpad/wt_pilots/results/permit_spy/core_models_20261020/ccf_prewhitened.csv"
   ]
 }

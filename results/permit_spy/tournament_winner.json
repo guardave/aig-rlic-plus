@@ -1,8 +1,8 @@
 {
   "pair_id": "permit_spy",
-  "generated_at": "2026-10-18T06:13:00.586536+00:00",
+  "generated_at": "2026-10-20T15:50:54.235048+00:00",
   "track": "main",
-  "source_tournament_file": "tournament_results_20261017.csv",
+  "source_tournament_file": "tournament_results_20261020.csv",
   "winner": {
     "signal": "S5_z",
     "threshold": "-",
