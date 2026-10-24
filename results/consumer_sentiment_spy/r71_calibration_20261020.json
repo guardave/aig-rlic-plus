@@ -1,0 +1,127 @@
+{
+  "pair_id": "consumer_sentiment_spy",
+  "run_tag": "20261020",
+  "tracks": {
+    "main": {
+      "null_file": "null_tournament_20261020.csv",
+      "null_sha256": "5808470f7a01e1a80e6410dc8430876ec45c25cf1677dcf2ce489163a45a6a02",
+      "T": -0.0976,
+      "K": 100,
+      "method": "stationary bootstrap of the target returns (Politis-Romano), resampled within the training and test blocks separately, shared by all draws of a path; null v4 calendar window",
+      "B": 199,
+      "block_rule": "Politis-White stationary block length of squared target returns, floor 3, cap OOS/4",
+      "L": 6,
+      "L_raw": 6.085,
+      "L_floor": 3,
+      "L_cap": 25,
+      "seed": 595672346,
+      "centre": 0.0041,
+      "critical_value": 0.1324,
+      "pass": true,
+      "p_value": 0.13,
+      "sd": 0.0702,
+      "p_resolution": 0.005,
+      "tail_paths": 10,
+      "margin_ratio": 0.2316,
+      "selected_draws": {
+        "min": 100,
+        "max": 100,
+        "distribution": {
+          "100": 199
+        }
+      },
+      "sensitivity": {
+        "method": "circular moving-block bootstrap, fixed blocks of 2L (sensitivity)",
+        "B": 99,
+        "B_default": 99,
+        "block": 12,
+        "seed": 595672347,
+        "escalation_triggered": false,
+        "escalated": false,
+        "escalation_reason": null,
+        "centre": -0.003,
+        "critical_value": 0.132,
+        "pass": true,
+        "p_value": 0.18,
+        "sd": 0.0649,
+        "p_resolution": 0.01,
+        "tail_paths": 5,
+        "margin_ratio": 0.2831,
+        "selected_draws": {
+          "min": 100,
+          "max": 100,
+          "distribution": {
+            "100": 99
+          }
+        }
+      },
+      "escalation_rule": "sensitivity B=99 by default, extended to 199 (the next 100 paths of the same seeded stream) when the primary and the sensitivity disagree or when ||T - c| - q| / q < 0.2 on either; fixed before the fleet run (Lead 2026-10-20, Codex option-C review)",
+      "screening_threshold": 0.1,
+      "screening_flag": false,
+      "screening_note": "diagnostic only, never part of the pass / fail; raised -> construction review",
+      "harness_commit": "2a543b6877d7867045859025139cf5bd0310498c",
+      "seconds": 2685.5
+    },
+    "comparison": {
+      "null_file": "hindsight_null_tournament_20261020.csv",
+      "null_sha256": "b95d2c379f2d38ab2c9ca5173b7c577bff32deeb595325ac5b8d7c84122bcb99",
+      "T": 0.042,
+      "K": 100,
+      "method": "stationary bootstrap of the target returns (Politis-Romano), resampled within the training and test blocks separately, shared by all draws of a path; null v4 calendar window",
+      "B": 199,
+      "block_rule": "Politis-White stationary block length of squared target returns, floor 3, cap OOS/4",
+      "L": 6,
+      "L_raw": 6.085,
+      "L_floor": 3,
+      "L_cap": 25,
+      "seed": 596884423,
+      "centre": 0.0035,
+      "critical_value": 0.1591,
+      "pass": true,
+      "p_value": 0.59,
+      "sd": 0.0822,
+      "p_resolution": 0.005,
+      "tail_paths": 10,
+      "margin_ratio": 0.7581,
+      "selected_draws": {
+        "min": 100,
+        "max": 100,
+        "distribution": {
+          "100": 199
+        }
+      },
+      "sensitivity": {
+        "method": "circular moving-block bootstrap, fixed blocks of 2L (sensitivity)",
+        "B": 99,
+        "B_default": 99,
+        "block": 12,
+        "seed": 596884424,
+        "escalation_triggered": false,
+        "escalated": false,
+        "escalation_reason": null,
+        "centre": 0.0008,
+        "critical_value": 0.1224,
+        "pass": true,
+        "p_value": 0.5,
+        "sd": 0.0644,
+        "p_resolution": 0.01,
+        "tail_paths": 5,
+        "margin_ratio": 0.6637,
+        "selected_draws": {
+          "min": 100,
+          "max": 100,
+          "distribution": {
+            "100": 99
+          }
+        }
+      },
+      "escalation_rule": "sensitivity B=99 by default, extended to 199 (the next 100 paths of the same seeded stream) when the primary and the sensitivity disagree or when ||T - c| - q| / q < 0.2 on either; fixed before the fleet run (Lead 2026-10-20, Codex option-C review)",
+      "screening_threshold": 0.1,
+      "screening_flag": false,
+      "screening_note": "diagnostic only, never part of the pass / fail; raised -> construction review",
+      "harness_commit": "2a543b6877d7867045859025139cf5bd0310498c",
+      "seconds": 2756.6
+    }
+  },
+  "generated_at": "2026-10-21T05:59:30+00:00"
+}
