@@ -1131,6 +1131,7 @@ def stage_winner_artifacts(tourn: pd.DataFrame, vinfo: dict):
                          "bh_sharpe": (round(ann_metrics(work.loc[pm, "spy_ret"])["sharpe"], 4)
                                        if a["n"] >= 126 else np.nan)})
     pd.DataFrame(sub_rows).to_csv(os.path.join(RESULTS_DIR, "subperiod_sharpe.csv"), index=False)
+    sig_l = winner_lagged_signal(sig_name, tname, strat, lead)
     sig_lag1 = sig_l.shift(1).rename("sig")
     rc = sig_lag1.rolling(504, min_periods=252).corr(work["spy_ret"]).dropna()
     pd.DataFrame({"date": rc.index.strftime("%Y-%m-%d"), "rolling_corr_24m": rc.values}).to_csv(
@@ -1604,6 +1605,20 @@ def stage_narrative_provenance():
                                      "n_above_bh": int((wf["oos_sharpe"] > wf["bh_sharpe"]).sum())}
     write_evidence_facts(PAIR_ID, DATE_TAG, sources=NARRATIVE_SOURCES, derived=derived)
     print("  narrative provenance: evidence_facts sources + derived written")
+
+
+def winner_lagged_signal(sig_name: str, tname: str, strat: str, lead: int) -> pd.Series:
+    """The winner's reading at `lead` from the harness as-of panel (next-business-day release, lead floor), the
+    same column position_matrix trades on; pos.shift(1) * spy_ret pairs it with the return one row later. No
+    fixed-shift fallback: a missing column is an error (it would bypass the release calendar)."""
+    from harness.candidates import x_col
+    if lead not in _H.get("lag", {}):
+        harness_replay(sig_name, tname, strat, lead)
+    xname = spec_mod.SPEC.rules(sig_name)[tname].x_name if strat != "P2" else "raw"
+    col = x_col(sig_name, xname)
+    if col not in _H["lag"][lead]:
+        raise KeyError(f"{col} not in the harness lag panel at lead {lead}")
+    return _H["lag"][lead][col]
 
 
 def write_trade_logs(reason: str) -> int:
