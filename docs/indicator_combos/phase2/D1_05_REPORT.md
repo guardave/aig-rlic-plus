@@ -48,15 +48,15 @@ Script: `phase2/scripts/d1_05_term_credit.py`; its header holds the full design 
 
 | | H1 SPY, levels | H2 SPY, joint dummy | H3 Treasury, levels | H4 Treasury, joint dummy |
 |---|---:|---:|---:|---:|
-| d (pp per month) | −0.872 | +1.104 | +0.305 | −0.591 |
+| d (pp per month) | −0.872 | +1.104 | +0.305 | −0.590 |
 | Matches the sign tested | yes | no (sign inferred) | yes | no |
 | \|d\| / margin | 3.49 | 2.21 | 3.05 | 2.95 |
 | HAC t (NW 6) | −2.06 | 0.71 | 0.84 | −0.93 |
-| One-sided HAC p | 0.020 | 0.762 | 0.202 | 0.824 |
-| One-sided stationary-bootstrap p | 0.035 | 0.777 | 0.205 | 0.824 |
-| **Romano-Wolf adjusted p (over 4, registered)** | **0.145** | **0.962** | **0.454** | **0.962** |
-| Holm adjusted p (over 4, larger of the two p) | 0.138 | 1.00 | 0.614 | 1.00 |
-| N1 null percentile of the sign-aligned **HC0** t, all 243 offsets (null 5th / 50th / 95th) | 98.4 (−2.02 / −0.11 / 1.72) | 18.1 (−1.52 / 0.10 / 1.81) | 76.5 (−1.71 / 0.09 / 1.73) | 19.3 (−1.63 / −0.09 / 1.60) |
+| One-sided HAC p | 0.020 | 0.762 | 0.201 | 0.824 |
+| One-sided stationary-bootstrap p | 0.035 | 0.777 | 0.203 | 0.825 |
+| **Romano-Wolf adjusted p (over 4, registered)** | **0.145** | **0.962** | **0.453** | **0.962** |
+| Holm adjusted p (over 4, larger of the two p) | 0.140 | 1.00 | 0.608 | 1.00 |
+| N1 null percentile of the sign-aligned **HC0** t, all 243 offsets (null 5th / 50th / 95th) | 98.4 (−2.03 / −0.11 / 1.72) | 18.1 (−1.52 / 0.10 / 1.81) | 76.5 (−1.71 / 0.10 / 1.75) | 19.3 (−1.58 / −0.09 / 1.62) |
 | R² | 0.018 | 0.007 | 0.025 | 0.008 |
 | Joint-distress months / episodes | — | 30 / 10 | — | 30 / 10 |
 
@@ -66,7 +66,7 @@ offsets (36 .. n − 37); all of them are used, so the null is exhaustive and ha
 
 **Reading the table:**
 - **H1, family-level.** After the registered exploratory correction, the H1 p is **0.145 (Romano-Wolf over 4)**;
-  Holm gives 0.138. At the single-test level, both one-sided p are ≤ 0.05, the sign matches, and |d| = 3.5 × margin.
+  Holm gives 0.140. At the single-test level, both one-sided p are ≤ 0.05, the sign matches, and |d| = 3.5 × margin.
   That single-test rule is the registry's confirmatory (V-C) correction; it is not the one that applies to this
   exploratory run.
 - **N1** puts the H1 HC0 t at the 98.4th percentile of the 243 shifts.
@@ -92,9 +92,9 @@ those months.
 
 | Quadrant (sign of z, primary window) | Months | Mean next-month SPY excess (pp) | Mean next-month Treasury-proxy excess (pp) | Sign of z(term) × z(credit) |
 |---|---:|---:|---:|:-:|
-| flat, tight | 158 | 0.75 | −0.17 | + |
+| flat, tight | 159 | 0.73 | −0.17 | + |
 | flat, wide | 12 | **4.28** | 0.85 | − |
-| steep, tight | 73 | 0.47 | 0.45 | − |
+| steep, tight | 72 | 0.51 | 0.44 | − |
 | steep, wide | 36 | 0.67 | 0.25 | + |
 
 - "Flat" means below the expanding mean of T10Y3M (about 1.5–2 pp). It does not mean an inverted curve.
@@ -103,8 +103,8 @@ those months.
   with wide spreads worse"). The H1 result does not support that story.
 - **The pattern rests on those 12 months:** 6 in 2016, 4 in 2020, 1 in 2011 and 1 in 2022. Without them
   (post-hoc, descriptive; the months are chosen on the signals, not on the returns), d = −0.29 with HAC t −0.63.
-- **The other negative-product quadrant does not show the pattern.** Steep-and-tight months average 0.47 pp,
-  which is below flat-and-tight months (0.75 pp, positive product).
+- **The other negative-product quadrant does not show the pattern.** Steep-and-tight months average 0.51 pp,
+  which is below flat-and-tight months (0.73 pp, positive product).
 - **Erratum.** The registry wording misstates its own sign for H1, and likewise for H3 ("flight to quality"). This
   was found after the data were viewed. It is recorded as a dated erratum in `KNOWN_LIMITS.md` § 7 (Lead ruling,
   2026-10-20). The frozen registry is not edited.
@@ -115,9 +115,9 @@ those months.
 
 | | Window | Months | d | HAC t | Bootstrap p |
 |---|---|---:|---:|---:|---:|
-| H1 | 2002-12 .. 2026-03 | 280 | −0.880 | −2.09 | 0.041 |
+| H1 | 2002-12 .. 2026-03 | 280 | −0.880 | −2.09 | 0.042 |
 | H2 | 2000-07 .. 2026-03 | 309 | +0.156 | 0.11 | 0.551 |
-| H3 | 2002-12 .. 2026-02 | 279 | +0.305 | 0.84 | 0.195 |
+| H3 | 2002-12 .. 2026-02 | 279 | +0.305 | 0.84 | 0.194 |
 | H4 | 2000-07 .. 2026-02 | 308 | −0.323 | −0.55 | 0.715 |
 
 The joint-dummy coefficients depend heavily on whether 2000-07..2002-11 is included (H2: +1.10 vs +0.16).
@@ -126,16 +126,16 @@ The joint-dummy coefficients depend heavily on whether 2000-07..2002-11 is inclu
 Credit is replaced by each of 5 other unrevised market series (VIX, DXY, log gold/copper, effective fed funds, log
 IWM/SPY), using the continuous design, on their common window (2003-07 .. 2026-03).
 - **H1** (273 months): credit has the largest sign-aligned HC0 t of the 6, 1.92; next is VIX, 1.47.
-- **H3** (272 months): credit is again first, 0.98; next is IWM/SPY, 0.96.
+- **H3** (272 months): credit is again first, 0.98; next is IWM/SPY, 0.95.
 - With only 5 alternatives, rank 1 of 6 has a 1-in-6 chance under exchangeability.
 
 **Post-hoc, descriptive (no p-values):** d with blocks of rows removed, one at a time.
 
 | | Drop 2008-07..2009-06 (267 months) | Drop 2020-02..2020-06 (274 months) | Drop the 12 flat-and-wide months (267 months) |
 |---|---|---|---|
-| H1 | −0.874 (HAC t −2.23) | −0.628 (−1.51) | −0.286 (−0.63) |
+| H1 | −0.876 (HAC t −2.24) | −0.628 (−1.51) | −0.287 (−0.63) |
 | H2 | +0.487 (0.33) | +1.915 (1.49) | — |
-| H3 | −0.081 (−0.45) | +0.436 (1.06) | +0.513 (1.16) |
+| H3 | −0.080 (−0.44) | +0.436 (1.07) | +0.513 (1.16) |
 | H4 | −0.498 (−0.79) | −0.732 (−1.19) | — |
 
 - H1 does not depend on 2008–09.

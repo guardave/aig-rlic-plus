@@ -104,15 +104,15 @@ contributor to the overconfident calibration below; this has not been tested sep
 | Recessions covered | 2 (2008, 2020) | 4 (1990, 2001, 2008, 2020) | 2 (2008, 2020) |
 | Brier, model | 0.2098 | 0.1935 | 0.1605 |
 | BSS vs term-only, same rows (primary) | +0.085 | −0.165 | +0.300 |
-| Raw one-sided p | 0.329 | 0.870 | 0.112 |
+| Raw one-sided p | 0.328 | 0.869 | 0.112 |
 | **Holm-adjusted p (m = 7)** | **1.00** | **1.00** | **0.78** |
-| Null-tournament percentile of the BSS (null 95th percentile) | 90.4 (0.215) | 39.6 (0.015) | 100.0 (0.101) |
+| Null-tournament percentile of the BSS (null 95th percentile) | 90.4 (0.214) | 39.4 (0.015) | 100.0 (0.100) |
 | BSS vs term-only, full history | −0.167 | −0.165 | +0.108 |
-| BSS vs B1 base rate | −0.388 | −0.271 | **−0.062** |
-| BSS vs B2a best single (in-fold) | +0.050 | −0.069 | +0.123 |
-| BSS vs B3 naive equal-weight composite | −0.012 | −0.137 | **−0.110** |
+| BSS vs B1 base rate | −0.388 | −0.271 | **−0.061** |
+| BSS vs B2a best single (in-fold) | +0.051 | −0.069 | +0.123 |
+| BSS vs B3 naive equal-weight composite | −0.013 | −0.137 | **−0.110** |
 | Calibration slope (1 = calibrated) | 0.15 | 0.13 | 0.23 |
-| Per-episode log-score gain vs term-only | 2008: −35.9; 2020: +0.3 | 1990: −27.4; 2001: −0.6; 2008: +15.5; 2020: +1.3 | 2008: +32.2; 2020: −65.0 |
+| Per-episode log-score gain vs term-only | 2008: −35.8; 2020: +0.3 | 1990: −27.2; 2001: −0.6; 2008: +15.5; 2020: +1.3 | 2008: +32.2; 2020: −65.0 |
 
 **Reading the table:**
 - **H3 has the lowest Brier score of the three models**, but it is higher than both the constant base rate (BSS
@@ -159,8 +159,8 @@ run, rescored on this window.
 | Window | 2006-01 .. 2019-02 (158 months) | 1988-01 .. 2019-02 (374 months) | 2006-01 .. 2019-02 (158 months) |
 | Recessions covered | 1 (2008) | 3 (1990, 2001, 2008) | 1 (2008) |
 | BSS vs term-only, same rows | +0.297 | +0.020 | +0.749 |
-| Raw one-sided p | 0.111 | 0.446 | 0.003 |
-| Holm-adjusted p (m = 7, post-hoc window) | 0.67 | 1.00 | 0.021 |
+| Raw one-sided p | 0.111 | 0.447 | 0.003 |
+| Holm-adjusted p (m = 7, post-hoc window) | 0.66 | 1.00 | 0.021 |
 | Null-tournament percentile (null 95th) | 98.6 (0.199) | 96.4 (0.002) | 100.0 (0.105) |
 | BSS vs B1 base rate | +0.050 | +0.024 | +0.661 |
 | BSS vs B3 naive composite | +0.058 | −0.124 | +0.315 |

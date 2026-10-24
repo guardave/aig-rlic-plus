@@ -250,6 +250,15 @@ def test_nyse_saturday_new_year_not_observed_on_friday(year_end):
     assert pa.last_trading_day(pd.DatetimeIndex([d]))[0] == d
 
 
+@pytest.mark.parametrize("closure", pa._NYSE_SPECIAL_CLOSURES)
+def test_nyse_special_closures_are_non_trading_days(closure):
+    assert not pa.TRADING_DAY.is_on_offset(pd.Timestamp(closure))
+
+
+def test_nyse_special_closures_count():
+    assert len(pa._NYSE_SPECIAL_CLOSURES) == 12
+
+
 def test_nyse_calendar_closures_and_open_days():
     closed = ["2022-01-17", "2021-04-02", "2022-06-20", "2021-12-24", "2012-10-29", "2001-09-11", "2025-01-09",
               "2017-01-02"]

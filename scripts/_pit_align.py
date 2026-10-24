@@ -45,7 +45,7 @@ _NYSE_SPECIAL_CLOSURES = ["1985-09-27", "1994-04-27", "2001-09-11", "2001-09-12"
 
 class _TradingHolidays(AbstractHolidayCalendar):
     """NYSE full-day closures. Differs from the federal calendar: New Year's Day on a Saturday is NOT observed on the
-    prior Friday (NYSE Rule 7.2; e.g. 2004-12-31, 2010-12-31 and 2021-12-31 were trading days); MLK Day from 1998;
+    prior Friday (e.g. 2004-12-31, 2010-12-31 and 2021-12-31 were trading days); MLK Day from 1998;
     Juneteenth from 2022; Good Friday; no Columbus / Veterans Day; plus the unscheduled closures above."""
     rules = [Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
              Holiday("Martin Luther King Jr. Day", month=1, day=1, offset=USMartinLutherKingJr.offset,
